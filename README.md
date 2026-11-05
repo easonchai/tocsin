@@ -1,4 +1,4 @@
-# Antibody
+# Tocsin
 
 Herd immunity for Ethereum. An append-only log of scam infrastructure that lives in Ethereum state, that anyone can write to under their own name, and that a wallet can check through a light client without trusting an RPC, an explorer, or a security vendor.
 

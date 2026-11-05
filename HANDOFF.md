@@ -1,4 +1,4 @@
-# Antibody, working state as of 5 November 2026
+# Tocsin, working state as of 5 November 2026
 
 Read this first if you are picking the project up. Everything that matters is in this repo; nothing depends on a chat log.
 
@@ -26,7 +26,7 @@ Read this first if you are picking the project up. Everything that matters is in
 - Ethereum Foundation, Best Use of Anon-RPC ($5k) as primary and Best CROPS App ($3.5k) as fallback. One EF prize per project; submit to both and the judges place us. The README has the required CROPS section.
 - ENS, Best Use of ENSv2 ($7k). The list contract mounted as a subregistry, writers as subnames, a Permissioned Resolver record for the head, Enhanced Access Control for publishing roles. Read lists through Helios `eth_call` with CCIP-read off.
 - Arkiv mirror ($4k) only if there is time; the wallet has to read from it, not just write.
-- Submission form: name "antibody", category Security, emoji 💉.
+- Submission form: name "tocsin", category Security, emoji 💉.
 
 ## Build order, 48 hours, riskiest first
 

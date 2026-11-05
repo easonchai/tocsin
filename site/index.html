@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Antibody — herd immunity for Ethereum</title>
+<title>Tocsin — herd immunity for Ethereum</title>
 <meta name="description" content="An immutable, append-only on-chain log of scam infrastructure that any light-client wallet verifies without trusting an RPC, an explorer, or a vendor. ERC draft: Append-Only Threat Flag Log.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 22V13M12 13L4 3M12 13L20 3' fill='none' stroke='%23e9a23b' stroke-width='2.4' stroke-linecap='round'/></svg>">
 <link rel="stylesheet" href="style.css">
@@ -14,7 +14,7 @@
   <div class="wrap">
     <a class="wordmark" href="#top">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22V13M12 13L4 3M12 13L20 3" fill="none" stroke="#e9a23b" stroke-width="2.4" stroke-linecap="round"/></svg>
-      Antibody
+      Tocsin
     </a>
     <div class="nav-links">
       <a href="#why">Why</a>
@@ -81,7 +81,7 @@
         <ul>
           <li><b>Built for one victim.</b> A lookalike copies one counterparty and lands within 20 minutes of the real transfer.</li>
           <li><b>Almost never reused.</b> About 1 in 9,000 is ever paid. There is no second victim to protect.</li>
-          <li><b>Already solved locally.</b> A prefix/suffix check against your own history catches addresses nobody has seen. Antibody keeps that check and does not pretend to replace it.</li>
+          <li><b>Already solved locally.</b> A prefix/suffix check against your own history catches addresses nobody has seen. Tocsin keeps that check and does not pretend to replace it.</li>
         </ul>
       </div>
       <div>
@@ -151,7 +151,7 @@
 
           <rect x="600" y="250" width="190" height="90" rx="3" fill="#0b0c0e" stroke="#3a3f47"/>
           <text x="695" y="276" text-anchor="middle" font-family="Bricolage Grotesque, sans-serif" font-size="16" font-weight="600" fill="#ece7dc">Trust lists · ENS</text>
-          <text x="695" y="300" text-anchor="middle">seal.antibody.eth</text>
+          <text x="695" y="300" text-anchor="middle">seal.tocsin.eth</text>
           <text x="695" y="320" text-anchor="middle" fill="#8f8b82">writer · weight · operator · pins</text>
 
           <rect x="900" y="100" width="184" height="220" rx="3" fill="#1a1d22" stroke="#ece7dc" stroke-width="1.5"/>
@@ -219,7 +219,7 @@
 
     <div class="table-wrap rv" style="margin-top:48px">
       <table>
-        <thead><tr><th>Attack</th><th>Bonded attesters</th><th>Committee</th><th>Deterministic facts</th><th>Antibody</th></tr></thead>
+        <thead><tr><th>Attack</th><th>Bonded attesters</th><th>Committee</th><th>Deterministic facts</th><th>Tocsin</th></tr></thead>
         <tbody>
           <tr><td>Sybil writers flood the log</td><td>Bonds price out nonprofits</td><td>Admission is the chokepoint</td><td>Facts forged by self-dealing</td><td class="ok">Zero weight, ignored</td></tr>
           <tr><td>Whitewash own address</td><td>Averaging lets it work</td><td>—</td><td>—</td><td class="ok">No averaging, flags only add</td></tr>
@@ -237,7 +237,7 @@
     <div class="section-head">
       <div class="eyebrow"><span class="n">04</span>Read path</div>
       <h2>One proof. Full sync. Zero leaks.</h2>
-      <p class="lede">A per-address proof tells the proof server which address you are about to pay. A prefix bucket tells it almost as much once it has seen your balance queries. Antibody keeps the permanent set small enough that a phone proves one slot, syncs the whole set, and checks locally.</p>
+      <p class="lede">A per-address proof tells the proof server which address you are about to pay. A prefix bucket tells it almost as much once it has seen your balance queries. Tocsin keeps the permanent set small enough that a phone proves one slot, syncs the whole set, and checks locally.</p>
     </div>
     <div class="privacy">
       <div class="proof rv">
@@ -346,7 +346,7 @@
       <details><summary>Can a scammer remove their own flag?</summary><p>No. Nothing is ever removed. Every flagged account in the operator, funder, and paid-lookalike categories is controlled by the attacker, and a flagged contract can make any signature check return true, so any removal path keyed on the subject's consent is a removal path for the attacker. Corrections are new leaves. A reader that wants a flag gone follows the writer's tombstone or drops the writer from its list.</p></details>
       <details><summary>Why on-chain at all?</summary><p>Because the RPC can lie and the wallet still catches it. A label served from an API is trusted on the server's word. A head proven against a finalized state root and a leaf set replayed to that head is trusted on the chain's word. Nothing off-chain survives the demo where the RPC says “clean”.</p></details>
       <details><summary>Isn't this just Etherscan with extra steps?</summary><p>On day one, almost. There will be one or two writers and one or two lists. The difference is that the record is public, forkable, and verifiable, any wallet can pick a different list, and no curator can erase another writer's flag. Year two has two curators. Etherscan never will.</p></details>
-      <details><summary>What about fresh lookalike addresses?</summary><p>We don't chase them. About 1 in 9,000 is ever paid, and they land within minutes. The local prefix/suffix check against your own history catches them. Antibody flags the operator that planted the dust, so a synced wallet badges the planted entry the moment it arrives, on every chain that operator works.</p></details>
+      <details><summary>What about fresh lookalike addresses?</summary><p>We don't chase them. About 1 in 9,000 is ever paid, and they land within minutes. The local prefix/suffix check against your own history catches them. Tocsin flags the operator that planted the dust, so a synced wallet badges the planted entry the moment it arrives, on every chain that operator works.</p></details>
       <details><summary>Who pays in year two?</summary><p>A flag costs about 10,000 gas, so a year of 50,000 flags is a few hundred dollars at current mainnet fees, and writer-signed batches let any grant or relayer pay. The reader cost is a few megabytes a year, which is why scope is restricted. This is a public good aimed at SEAL and the EF's Trillion Dollar Security work, not a company.</p></details>
       <details><summary>What happens on Base and other L2s?</summary><p>The log lives on L1 and leaves are keyed by chain; an EOA flagged with chainId 0 is flagged everywhere. A wallet on an L2 reads the log through its L1 light client. We do not pretend L2 state reads are trustless today, and we do not deploy mirrors that would reintroduce a trusted relayer for wallets.</p></details>
     </div>
@@ -355,7 +355,7 @@
 
 <footer>
   <div class="wrap">
-    <span>Antibody · ERC draft · CC0</span>
+    <span>Tocsin · ERC draft · CC0</span>
     <span>Built at Devcon 8 and ETHGlobal Mumbai, November 2026</span>
     <div class="links">
       <a href="erc.html">ERC draft</a>
@@ -382,10 +382,10 @@
     ['00.01', 'rpc', 'rpc', 'label lookup → <span class="k">clean</span> (no reports)'],
     ['00.02', 'helios', 'lc', 'finalized header slot 11,482,207 · sync committee 512/512'],
     ['00.03', 'helios', 'lc', 'eth_getProof(log, [0,1]) · 6.9 kB · verified against stateRoot'],
-    ['00.04', 'antibody', 'ab', 'globalHead 0x9c4e…a1f0 · seq 41,207 · replayed 41,207 leaves ✓'],
-    ['00.05', 'antibody', 'ab', 'lists: seal.antibody.eth, scamsniffer.antibody.eth · 2 independent'],
-    ['00.06', 'antibody', 'ab', '<span class="k">0x7a3F…c91B</span> → DRAINER_RECEIVER · flagged by 2/2 · evidence 0x31b7…'],
-    ['00.07', 'antibody', 'ab', 'local heuristic: no prefix/suffix match with your history', 'dim'],
+    ['00.04', 'tocsin', 'ab', 'globalHead 0x9c4e…a1f0 · seq 41,207 · replayed 41,207 leaves ✓'],
+    ['00.05', 'tocsin', 'ab', 'lists: seal.tocsin.eth, scamsniffer.tocsin.eth · 2 independent'],
+    ['00.06', 'tocsin', 'ab', '<span class="k">0x7a3F…c91B</span> → DRAINER_RECEIVER · flagged by 2/2 · evidence 0x31b7…'],
+    ['00.07', 'tocsin', 'ab', 'local heuristic: no prefix/suffix match with your history', 'dim'],
   ];
   function run() {
     body.innerHTML = '';
