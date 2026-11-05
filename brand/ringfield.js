@@ -55,7 +55,7 @@
     }
 
     function step(t, dt) {
-      var alive = false, decay = Math.exp(-dt * .18); // ~20s residue so the struck region is seen
+      var alive = false, decay = Math.exp(-dt * .12); // ~20s residue so the struck region is seen
       for (var k = 0; k < heat.length; k++) { if (heat[k] > .01) { heat[k] *= decay; alive = true; } else heat[k] = 0; }
       strikes = strikes.filter(function (s) { return t - s.t0 < LIFE + RING_GAP * 2; });
       strikes.forEach(function (s) {
@@ -69,7 +69,7 @@
           var j0 = Math.max(0, ((s.y - r - GRID) / GRID) | 0), j1 = Math.min(rows - 1, ((s.y + r + GRID) / GRID) | 0);
           for (var j = j0; j <= j1; j++) for (var i = i0; i <= i1; i++) {
             var d = Math.abs(Math.hypot(i * GRID - s.x, j * GRID - s.y) - r);
-            if (d < GRID * .7) { var k = j * cols + i, h = (1 - d / (GRID * .7)) * (1 - age / LIFE); if (h > heat[k]) heat[k] = h; if (n === 0) memory[k] = Math.max(memory[k], .5 * (1 - r / reach) + .12); }
+            if (d < GRID * .7) { var k = j * cols + i, h = (1 - d / (GRID * .7)) * (1 - age / LIFE); if (h > heat[k]) heat[k] = h; if (n === 0) memory[k] = Math.max(memory[k], .95 * (1 - r / reach) + .2); }
           }
         }
       });
@@ -81,7 +81,7 @@
       for (var j = 0; j < rows; j++) for (var i = 0; i < cols; i++) {
         var k = j * cols + i, m = memory[k], h = heat[k];
         var c = mix(state.dot, SETTLED, m); if (h > 0) c = mix(c, LIT, h);
-        ctx.fillStyle = rgb(c); ctx.fillRect(i * GRID - .75, j * GRID - .75, 1.5, 1.5);
+        var sz = 1.5 + m * .8 + h * .6; ctx.fillStyle = rgb(c); ctx.fillRect(i * GRID - sz / 2, j * GRID - sz / 2, sz, sz);
       }
       if (reduced) return;
       ctx.lineWidth = 1;
@@ -92,7 +92,8 @@
           if (!s.s.spread && n > 0) break;
           var age = t - s.t0 - n * RING_GAP; if (age < 0 || age > LIFE) continue;
           var r = age * SPEED; if (r > reach) continue;
-          ctx.strokeStyle = rgb(s.s.ring, s.s.alpha * (1 - age / LIFE) * (1 - n * .25));
+          var hold = age < LIFE * .55 ? 1 : 1 - (age - LIFE * .55) / (LIFE * .45); // rings hold, then fade
+          ctx.strokeStyle = rgb(s.s.ring, s.s.alpha * hold * (1 - n * .25));
           ctx.beginPath(); ctx.arc(s.x, s.y, r, 0, Math.PI * 2); ctx.stroke();
         }
       });
