@@ -29,7 +29,7 @@ The settled decisions in `HANDOFF.md` take precedence over ethskill advice. If t
 
 ### Issue tracker
 
-Issues live as local markdown files under `.scratch/<feature>/`. See `docs/agents/issue-tracker.md`.
+Issues live as tracked markdown files under `docs/plan/<feature>/`. See `docs/agents/issue-tracker.md`.
 
 ### Triage labels
 
