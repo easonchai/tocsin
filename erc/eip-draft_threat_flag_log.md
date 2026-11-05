@@ -7,7 +7,7 @@ status: Draft
 type: Standards Track
 category: ERC
 created: 2026-11-04
-requires: 712, 1271
+requires: 712, 1271, 7730
 ---
 
 ## Abstract
@@ -22,7 +22,7 @@ Public measurements show why a list helps and where it does not. Across 270 mill
 
 The only on-chain address list Ethereum has had, a sanctions oracle written by one company into a boolean per address, was deprecated in March 2026. It failed because it had an owner who could stop updating it, not because it was on-chain. Permissionless curation registries with bonds and juror disputes have run in production only for slow, positive identification tags. Pure permissionless writes with any aggregation rule are exploitable: "any writer" lets one key flag an exchange hot wallet, and "median" lets a scammer whitewash with sybil entries.
 
-This ERC takes the shape that has worked for comparable problems off-chain. Certificate Transparency logs are dumb, append-only, and run by many parties; browsers choose which logs to trust. Token lists are curated by named maintainers and chosen by wallets. The log in this ERC is the dumb part. Trust lists are the chosen part. Standardizing both is necessary because the writers (security teams, explorers, automated detectors) and the readers (wallets, guards, agents) will never coordinate directly. Without a shared leaf encoding every wallet writes a parser per writer; without a shared list encoding every curator invents its own format; and without a shared read procedure the light-client property is lost at the first integration.
+This ERC takes the shape that has worked for comparable problems off-chain. Certificate Transparency logs are dumb, append-only, and run by many parties; browsers choose which logs to trust. Token lists are curated by named maintainers and chosen by wallets. The log in this ERC is the dumb part. Trust lists are the chosen part. The chain makes the data honest, not true: it proves that a flag is exactly what its writer wrote, complete, ordered, and permanent, so the reader no longer has to trust the messenger. Whether the writer's judgment is right remains the reader's choice, made by pinning lists. Standardizing both is necessary because the writers (security teams, explorers, automated detectors) and the readers (wallets, guards, agents) will never coordinate directly. Without a shared leaf encoding every wallet writes a parser per writer; without a shared list encoding every curator invents its own format; and without a shared read procedure the light-client property is lost at the first integration.
 
 ## Specification
 
@@ -48,7 +48,7 @@ Writers append leaves. The log folds every leaf into the writer's chain and the 
 
 ```solidity
 struct Leaf {
-    uint64  chainId;   // 0 is permitted only in categories 1, 2 and 6 (externally owned accounts)
+    uint64  chainId;   // 0 is permitted only in categories 1, 2, 6 and 8 (externally owned accounts)
     address subject;   // the flagged address
     uint8   category;  // see Categories
     uint8   op;        // 0 FLAG, 1 TOMBSTONE, 2 COUNTER, 3 DISPUTE
@@ -63,7 +63,7 @@ struct Leaf {
 - A `COUNTER` leaf MUST set `refLeaf` to the hash of a leaf appended by any writer. It records that the writer disagrees with that leaf.
 - A `DISPUTE` leaf MUST have `subject` equal to the writer. It records that the subject objects to being flagged. The log MUST NOT treat it as anything other than a leaf.
 - `evidence` MUST NOT be zero for a `FLAG` leaf.
-- `chainId = 0` means the same externally owned account on every EVM chain. It MAY be used only in categories 1, 2 and 6. Readers MUST treat a leaf in any other category with `chainId = 0` as applying only to the chain the log is deployed on, because the same address can hold different code, or none, on another chain.
+- `chainId = 0` means the same externally owned account on every EVM chain. It MAY be used only in categories 1, 2, 6 and 8. Readers MUST treat a leaf in any other category with `chainId = 0` as applying only to the chain the log is deployed on, because the same address can hold different code, or none, on another chain.
 
 ### Leaf hash and chains
 
@@ -134,6 +134,7 @@ interface IThreatFlagLog {
 - `append` MUST use `msg.sender` as the writer.
 - `appendSigned` MUST verify an [EIP-712](./eip-712.md) signature by `writer` over the typed structure `Append(Leaf[] leaves,uint256 deadline,uint256 nonce)Leaf(uint64 chainId,address subject,uint8 category,uint8 op,bytes32 evidence,uint64 seenBlock,bytes32 refLeaf)`, where the `leaves` array is encoded per EIP-712 as the keccak256 of the concatenated `hashStruct` of each leaf. The domain has name `"ThreatFlagLog"` and version `"1"`. If `writer` has code, the log MUST verify through [ERC-1271](./eip-1271.md) `isValidSignature`; otherwise it MUST recover the signer with `ecrecover` and require it to equal `writer`. It MUST revert if `block.timestamp > deadline` or if `nonce != signatureNonce(writer)`, and MUST increment `signatureNonce(writer)` on success.
 - The domain separator MUST be recomputed when `block.chainid` differs from the chain id at construction, so that a signature cannot be replayed across a chain split.
+- Every deployment MUST publish an [ERC-7730](./eip-7730.md) clear-signing descriptor covering `append`, `appendSigned`, and the `Append` typed data, mapping `category` and `op` values to their names, so that a signing device displays each subject and category rather than a hash. The `Append` structure MUST NOT contain any field that is only a hash of the leaves.
 - Both functions MUST emit `Appended` once per leaf, in order, with the values used in the chain computation.
 - Both functions MUST revert if `leaves` is empty.
 - Writers SHOULD submit at most 500 leaves per call so that a batch stays within the per-transaction gas cap of [EIP-7825](./eip-7825.md).
@@ -170,10 +171,12 @@ Categories identify the class of infrastructure a subject belongs to. They are d
 | 5 | `MALICIOUS_TOKEN` | A token contract whose purpose is to emit misleading transfer events | The transaction hash of the deployment or of an emission |
 | 6 | `PAID_LOOKALIKE` | A lookalike address that a victim actually paid | The transaction hash of the victim's payment |
 | 7 | `DRAINER_SPENDER` | A contract that received token approvals or permits and used them to drain | The transaction hash of a drain |
-| 8 to 127 | Reserved | Future permanent categories assigned by revision of this ERC | |
+| 8 | `THEFT_PROCEEDS` | An account holding the proceeds of a theft that a writer has verified, such as a key compromise or a drain | The transaction hash of the first outflow from the victim |
+| 9 to 127 | Reserved | Future permanent categories assigned by revision of this ERC | |
 | 128 to 255 | Noisy | Categories a writer defines for high-volume, low-permanence data such as unpaid lookalikes | |
 
 - Writers SHOULD NOT use categories 1 to 7 for a subject whose role is established only by the `from` or `to` field of an event log, because any contract can emit such a log naming any address. The subject's role SHOULD be established by a transaction the subject authorized, by code the subject holds, or by a transfer of value from the subject.
+- Category 8 is intended for consumers at cash-out points, such as exchanges, bridges, and privacy-pool list providers, rather than for send screens. Readers SHOULD NOT block a send on category 8 alone.
 - Readers MUST NOT evaluate a leaf in categories 128 to 255 unless the list entry for its writer sets that category's bit explicitly.
 
 ### Trust lists
@@ -190,6 +193,7 @@ struct ListEntry {
     uint64  toBlock;     // 0 = open; otherwise count leaves with blockNumber <= toBlock
     bytes32 headPin;     // 0 = follow the writer's chain; otherwise count only leaves up to and including this writerHead
     uint256 categories;  // bit i set means the writer is trusted for category i, 1 <= i <= 255; bit 0 set means all of 1..127
+    string  snapshotURI; // content-addressed snapshot of the writer's leaves, or empty
 }
 
 struct TrustList {
@@ -213,6 +217,7 @@ struct Safelist {
 - A list or safelist MUST be accompanied by an EIP-712 signature by `maintainer` over `ListRoot(bytes32 root,uint64 version)` in the same domain as the log. A name record or a contract locates a list; only the signature authenticates it.
 - Publication MUST use at least one of two methods. (a) On-chain: a contract exposing `function listRoot() external view returns (bytes32)`, `function listSignature() external view returns (bytes memory)`, and `function listURI() external view returns (string memory)`. (b) Through a name record: a text record under the key `erc-threat-flag-log.list` (for safelists, `erc-threat-flag-log.safelist`) whose value is the `0x`-prefixed lowercase hex of `abi.encode(root, version, signature, listURI)`. When the final ERC number is assigned, the keys become `erc-N.list` and `erc-N.safelist`.
 - `listURI` SHOULD be content-addressed so that any peer can serve the document and the reader verifies it against the root.
+- `snapshotURI` SHOULD point to a content-addressed file of the writer's leaves, as the ABI-encoded `Appended` events in `writerSeq` order, and SHOULD be refreshed by the maintainer when the writer publishes a new snapshot. A reader MAY use it as a leaf source; it is verified by replay like any other source.
 - Readers MUST verify that the fetched `TrustList` hashes to the published root and that the signature is valid for `maintainer`. Readers MUST record `maintainer` and the highest `version` applied the first time they accept a list, MUST reject a lower version, and MUST NOT apply a list signed by a different maintainer without the user's explicit confirmation. A change of name owner, resolver, or subregistry MUST NOT by itself change the maintainer; a reader that cannot verify the current record MUST keep applying the last verified version and show the list as stale.
 - Readers MUST obtain the published root either from L1 contract state read through the same verified state root used for the log, or from an off-chain lookup whose result is verified against L1 state. A record resolved through an unverifiable gateway MUST be treated as unverified.
 - Entries sharing the same `operator` or the same non-zero `upstream` MUST be treated as one writer when counting independent writers.
@@ -308,9 +313,13 @@ Gas figures in this document assume current pricing, under which execution domin
 
 An earlier draft committed batches by EIP-4844 blob. A blob commitment has no per-leaf hash, so tombstones and counters could not reference a blob leaf without a second hashing scheme, every reader would have to implement both, and blob data is served for only about 18 days. It is left to a later ERC.
 
+### Future work recorded here
+
+Two dials are deliberately left at their cheap setting. A writer whose namespace outgrows what readers will sync, on the order of millions of leaves, could publish a Bloom filter of its subjects and commit the filter's hash in a leaf, so that readers carry a few megabytes, evaluate locally, and fetch a specific leaf only on a hit, which reveals that one address and only when it is almost certainly flagged. And if the ecosystem proves unable to keep a few megabytes a year available once execution clients expire history, leaves could be stored in state keyed by sequence number, at roughly nine times the gas, which makes every leaf provable by slot without any history and without a per-subject query. Neither is normative in this revision.
+
 ### Related work
 
-The Ethereum Attestation Service offers generic attestations with consumer-chosen attesters and supports non-revocable schemas, but it stores each attestation under its own UID with no chain over the set, so a reader cannot prove from a storage slot that it holds every attestation, is steered toward per-recipient queries, and pays a storage write per attestation. [ERC-7484](./eip-7484.md) lets an account choose attesters and a threshold for module safety and is the closest on-chain precedent for reader-chosen trust. [ERC-8004](./eip-8004.md) reputation registries likewise leave aggregation to consumers, but record client-revocable feedback about agents that registered themselves; subjects of this log never register and leaves are never revoked. [ERC-8259](./eip-8259.md) defines a threat registry for agents with whitelisted oracle writers and per-record storage; this ERC's category table is intended to be alignable with its attack-vector taxonomy. Certificate Transparency is the closest precedent for the log itself.
+The Ethereum Attestation Service offers generic attestations with consumer-chosen attesters and supports non-revocable schemas, but it stores each attestation under its own UID with no chain over the set, so a reader cannot prove from a storage slot that it holds every attestation, is steered toward per-recipient queries, and pays a storage write per attestation. [ERC-7484](./eip-7484.md) lets an account choose attesters and a threshold for module safety and is the closest on-chain precedent for reader-chosen trust. [ERC-8004](./eip-8004.md) reputation registries likewise leave aggregation to consumers, but record client-revocable feedback about agents that registered themselves; subjects of this log never register and leaves are never revoked. [ERC-8259](./eip-8259.md) defines a threat registry for agents with whitelisted oracle writers and per-record storage; this ERC's category table is intended to be alignable with its attack-vector taxonomy. Certificate Transparency is the closest precedent for the log itself. [EIP-8304](./eip-8304.md) proposes a system contract holding roots of log and transaction index tables; if adopted, readers of this log could verify a log fetch against those roots instead of relying on replay alone. [ERC-7730](./eip-7730.md) clear-signing descriptors are required so that a writer's signing device shows what is being flagged.
 
 ## Backwards Compatibility
 
@@ -471,6 +480,8 @@ contract ThreatFlagLog {
 **Permanent false positives.** Because nothing is deleted, a wrong flag is visible forever. The recommended policy clears a single-writer flag on the writer's tombstone and shows a flag made by two independent writers as "previously flagged" after tombstones, so that the history is honest without the warning persisting. Maintainers of lists carry the reputational consequence of listing careless writers, which is the intended incentive.
 
 **Victim exposure.** A leaf in categories 1, 3, 6, or 7 points to transactions that identify victims and targets, and the log labels them permanently. Writers should prefer evidence that names the attacker's own transaction, such as a funding transfer, a deployment, or a forwarding, over the victim's payment, and should use the keccak256 of an off-chain bundle when the only evidence is a victim transaction.
+
+**Theft-proceeds flags.** Category 8 names an account holding stolen funds, which is closer to a tracing list than to infrastructure. It exists because cash-out points consume exactly this signal today from private vendors. Writers should attach the victim's first-outflow transaction as evidence, readers at send screens should not block on it alone, and maintainers should expect it to carry the most legal attention of any category.
 
 **Liability.** A leaf is a category and a hash, not an accusation in prose. Readers that block on leaves make a decision the leaf did not make. Readers should present the writer, the category, and the evidence rather than an unattributed verdict, and must allow a local override.
 
