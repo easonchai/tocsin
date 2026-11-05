@@ -1,0 +1,20 @@
+{
+  // Matches the reader's strictness: tsc checks @tocsin/reader's source through this config, and that
+  // source does not pass noUncheckedIndexedAccess or exactOptionalPropertyTypes.
+  "compilerOptions": {
+    "target": "es2022",
+    "lib": ["es2022", "dom"],
+    "module": "esnext",
+    "moduleResolution": "Bundler",
+    "jsx": "react-jsx",
+    "jsxImportSource": "@metamask/snaps-sdk",
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "allowImportingTsExtensions": true,
+    "types": []
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx", "test/**/*.ts", "snap.config.ts"]
+}

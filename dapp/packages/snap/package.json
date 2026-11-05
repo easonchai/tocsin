@@ -2,11 +2,18 @@
   "name": "@tocsin/snap",
   "version": "0.0.1",
   "private": true,
+  "type": "module",
+  "files": [
+    "dist/",
+    "images/",
+    "snap.manifest.json"
+  ],
   "scripts": {
     "build": "mm-snap build",
     "serve": "mm-snap serve",
     "start": "mm-snap watch",
-    "check-types": "tsc --noEmit"
+    "check-types": "tsc --noEmit",
+    "test": "mm-snap build && node --test test/*.test.ts"
   },
   "dependencies": {
     "@metamask/snaps-sdk": "12.1.0",
