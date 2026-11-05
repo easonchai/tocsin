@@ -263,7 +263,6 @@
 <script>
 (function () {
   var rf = Tocsin.ringfield(document.getElementById('field'), { seed: 7 });
-  function strikeAt(el) { var r = el.getBoundingClientRect(); rf.strike(r.left + r.width / 2, r.top + r.height / 2); }
   // reveal on scroll
   var io = new IntersectionObserver(function (es) {
     es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
@@ -289,7 +288,7 @@
     body.innerHTML = '';
     var dot = document.querySelector('.term-bar .dot');
     dot.className = 'dot live';
-    clearTimeout(idleTimer); rf.setState('syncing'); strikeAt(term);
+    clearTimeout(idleTimer); rf.setState('syncing');
     document.getElementById('term-foot').textContent = '';
     var cur = document.createElement('div'); cur.className = 'ln cur'; cur.innerHTML = '<span class="t"> </span><span class="src"> </span><span class="msg">█</span>';
     var i = 0;
@@ -310,7 +309,7 @@
       d.className = 'ln';
       d.innerHTML = '<span class="t">' + s[0] + '</span><span class="src ' + s[2] + '">' + s[1] + '</span><span class="msg ' + (s[4] || '') + '">' + s[3] + '</span>';
       body.appendChild(d); body.appendChild(cur);
-      if (i === 5) { rf.setState('verified'); strikeAt(term); }
+      if (i === 5) { rf.setState('verified'); }
       setTimeout(next, i === 2 ? 650 : 420);
     }
     next();

@@ -113,7 +113,7 @@
   </section>
 
   <section>
-    <div class="meta"><h2>Background</h2><p>A field of dots on a 24px grid. Still. A strike every eight to twelve seconds sends three rings out; dots it passes stay faintly brighter. Click anywhere to strike. The state recolours the rings, never the page.</p></div>
+    <div class="meta"><h2>Background</h2><p>A field of dots on a 24px grid. Still. A strike every eight to twelve seconds sends three waves out through the dots, no drawn line; dots it passes stay faintly brighter. Click anywhere to strike. The state recolours the wave, never the page.</p></div>
     <div>
       <div class="states" id="states">
         <button aria-pressed="true" data-s="idle">idle</button>
@@ -124,13 +124,13 @@
         <button class="strike" id="strike">strike</button>
       </div>
       <table class="bgtable">
-        <thead><tr><th>state</th><th>dots</th><th>ring</th></tr></thead>
+        <thead><tr><th>state</th><th>dots</th><th>wave</th></tr></thead>
         <tbody>
-          <tr><td>idle</td><td>ink-700, settling to ink-400 where struck</td><td>none; only the dots light</td></tr>
-          <tr><td>syncing</td><td>ink-400</td><td>signal at 30%</td></tr>
-          <tr><td>verified</td><td>paper-100 fading to ink-400</td><td>signal</td></tr>
-          <tr><td>unverifiable</td><td>ink-700</td><td>alert at 40%, stops halfway</td></tr>
-          <tr><td>blocked</td><td>ink-700</td><td>alert, one strike, no spread</td></tr>
+          <tr><td>idle</td><td>ink-700, settling to ink-400 where struck</td><td>paper-200</td></tr>
+          <tr><td>syncing</td><td>ink-600</td><td>signal</td></tr>
+          <tr><td>verified</td><td>ink-600</td><td>signal</td></tr>
+          <tr><td>unverifiable</td><td>ink-700</td><td>alert, stops halfway</td></tr>
+          <tr><td>blocked</td><td>ink-700</td><td>alert, one wave, no echoes</td></tr>
         </tbody>
       </table>
       <div class="files">deterministic from a seed · the cursor carries a soft lens · copy is masked so text always wins · frame watchdog turns ambient strikes off above 70ms median · reduced motion shows the settled field · hidden tabs pause · <b>ringfield.js</b></div>

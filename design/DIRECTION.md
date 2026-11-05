@@ -31,13 +31,13 @@ No green. Clean is the absence of red, not a colour.
 
 The background's state palette, after Devcon:
 
-| State | Dots | Ring |
+| State | Dots | Wave |
 | --- | --- | --- |
-| idle | `ink-700` | none |
-| syncing | `ink-400` | `signal` at 30% |
-| verified | `paper-100` fading to `ink-400` | `signal` |
-| unverifiable | `ink-700` | `alert` at 40%, ring stops halfway |
-| blocked | `ink-700` | `alert`, one strike, no spread |
+| idle | `ink-700` | `paper-200` |
+| syncing | `ink-600` | `signal` |
+| verified | `ink-600` | `signal` |
+| unverifiable | `ink-700` | `alert`, stops halfway |
+| blocked | `ink-700` | `alert`, one wave, no echoes |
 
 ## Type
 
@@ -53,13 +53,13 @@ The wordmark is "tocsin" in lowercase Bricolage 700, tracking -0.03em. Lowercase
 
 ## The background
 
-A field of small dots on `ink-900`, on a 24px grid. Still. Every eight to twelve seconds a strike lands somewhere in the field and three rings propagate outward; a dot lights to `paper-100` as the ring passes and settles to `ink-400`, so struck regions stay faintly brighter. The field remembers. That is herd immunity drawn without a single node-graph line.
+A field of small dots on `ink-900`, on a 24px grid. Still. Every eight to twelve seconds a strike lands somewhere in the field and three waves move outward through the dots. There is no drawn circle: the wave is the dots themselves lighting in sequence, to `paper-200` in idle and to the state's colour otherwise, then settling to `ink-400`, so struck regions stay faintly brighter. The field remembers. That is herd immunity drawn without a single node-graph line.
 
 Rules, taken from Devcon and Railgun:
 
 - Deterministic. The strike sequence comes from a seed, so two visitors see the same field and screenshots are reproducible.
 - Still until touched. A click or tap is a strike at the cursor. The cursor carries a soft lens, after Railgun: dots within about 170px brighten and bloom, and the lens eases behind the pointer rather than snapping to it.
-- The state recolours the rings, never the page.
+- The state recolours the wave, never the page. A screen strikes once per event, never on load for its own sake; the landing page strikes only on the verdict.
 - Text always wins. A blurred page-colour mask sits over the field wherever copy is, so dots never show through letters; the field lives in the margins, the gutters, and around the trace.
 - Lit dots bloom with a soft glow instead of hardening into squares. Nothing in the field is ever brighter than paper-200.
 - A frame-time watchdog turns ambient strikes off above 70ms median. Reduced-motion shows the settled field with no rings. Hidden tabs pause.

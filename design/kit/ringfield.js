@@ -1,17 +1,18 @@
-/* Tocsin ring field. A still dot grid; a strike sends three rings out and the dots it passes stay faintly brighter.
+/* Tocsin ring field. A still dot grid; a strike sends three waves out through the dots themselves (no drawn line) and the dots it passes stay faintly brighter.
    Rules: design/DIRECTION.md. Deterministic from a seed, state recolours the rings only, text always wins (a soft
    mask dims the field under copy), the cursor carries a soft lens after Railgun, watchdog disables ambient strikes
    above 70ms median frame, reduced motion shows the settled field, hidden tabs pause.
    Usage: var rf = Tocsin.ringfield(canvas, {seed: 7, state: 'idle', mask: 'h1,h2,p'}); rf.setState('blocked'); rf.strike(x, y); */
 (function () {
+  // tint: which colour the wave lights the dots in. 0 paper, 1 amber, 2 red
   var STATES = {
-    idle:         { dot: [38, 42, 48],    ring: null,              alpha: 0,   reach: 1,   spread: true },
-    syncing:      { dot: [60, 64, 70],    ring: [233, 162, 59],    alpha: .3,  reach: 1,   spread: true },
-    verified:     { dot: [60, 64, 70],    ring: [233, 162, 59],    alpha: .9,  reach: 1,   spread: true },
-    unverifiable: { dot: [38, 42, 48],    ring: [229, 72, 77],     alpha: .4,  reach: .5,  spread: true },
-    blocked:      { dot: [38, 42, 48],    ring: [229, 72, 77],     alpha: 1,   reach: .7,  spread: false }
+    idle:         { dot: [38, 42, 48],  tint: 0, reach: 1,  spread: true },
+    syncing:      { dot: [60, 64, 70],  tint: 1, reach: 1,  spread: true },
+    verified:     { dot: [60, 64, 70],  tint: 1, reach: 1,  spread: true },
+    unverifiable: { dot: [38, 42, 48],  tint: 2, reach: .5, spread: true },
+    blocked:      { dot: [38, 42, 48],  tint: 2, reach: .7, spread: false }
   };
-  var LIT = [201, 195, 182], SETTLED = [143, 139, 130], PAGE = 'rgba(18,20,23,';
+  var TINTS = [[201, 195, 182], [233, 162, 59], [229, 72, 77]], LIT = TINTS[0], SETTLED = [143, 139, 130], PAGE = 'rgba(18,20,23,';
   var GRID = 24, SPEED = 150, RING_GAP = .32, LIFE = 3.2, REACH = 440, LENS = 170;
   var MASK = 'h1,h2,h3,p,li,dt,dd,pre,th,td,blockquote,.label,.eyebrow,.lede,.files,.sw,.states,.cell';
 
@@ -29,14 +30,14 @@
     var reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
     var fine = matchMedia('(pointer: fine)').matches;
     var dpr = Math.min(devicePixelRatio || 1, 2), W = 0, H = 0, cols = 0, rows = 0;
-    var heat, memory, strikes = [], raf = 0, last = 0, nextAmbient = 0, frames = [], ambient = !reduced, hidden = false;
+    var heat, memory, tint, strikes = [], raf = 0, last = 0, nextAmbient = 0, frames = [], ambient = !reduced, hidden = false;
     var lens = { x: -1e4, y: -1e4, tx: -1e4, ty: -1e4 }, rects = [], maskSel = opts.mask === false ? '' : (opts.mask || MASK);
 
     function size() {
       var r = canvas.getBoundingClientRect(); W = r.width; H = r.height;
       canvas.width = W * dpr; canvas.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       cols = Math.ceil(W / GRID) + 1; rows = Math.ceil(H / GRID) + 1;
-      heat = new Float32Array(cols * rows); memory = new Float32Array(cols * rows);
+      heat = new Float32Array(cols * rows); memory = new Float32Array(cols * rows); tint = new Uint8Array(cols * rows);
       if (reduced) seedMemory();
       collect(); draw(0);
     }
@@ -84,7 +85,7 @@
           var j0 = Math.max(0, ((s.y - r - GRID) / GRID) | 0), j1 = Math.min(rows - 1, ((s.y + r + GRID) / GRID) | 0);
           for (var j = j0; j <= j1; j++) for (var i = i0; i <= i1; i++) {
             var d = Math.abs(Math.hypot(i * GRID - s.x, j * GRID - s.y) - r);
-            if (d < GRID * .7) { var k = j * cols + i, h = (1 - d / (GRID * .7)) * (1 - age / LIFE); if (h > heat[k]) heat[k] = h; if (n === 0) memory[k] = Math.min(1, Math.max(memory[k], .9 * (1 - r / reach) + .15)); }
+            if (d < GRID * .7) { var k = j * cols + i, h = (1 - d / (GRID * .7)) * (1 - age / LIFE); if (h > heat[k]) { heat[k] = h; tint[k] = s.s.tint; } if (n === 0) memory[k] = Math.min(1, Math.max(memory[k], .9 * (1 - r / reach) + .15)); }
           }
         }
       });
@@ -97,26 +98,11 @@
       for (var j = 0; j < rows; j++) for (var i = 0; i < cols; i++) {
         var k = j * cols + i, x = i * GRID, y = j * GRID, m = memory[k], h = heat[k], l = 0;
         if (lensOn) { var dl = Math.hypot(x - lens.x, y - lens.y); if (dl < LENS) l = smooth(1 - dl / LENS); }
-        var c = mix(state.dot, SETTLED, m); if (h > 0) c = mix(c, LIT, h); if (l > 0) c = mix(c, LIT, l * .85);
+        var c = mix(state.dot, SETTLED, m); if (h > 0) c = mix(c, TINTS[tint[k]], h); if (l > 0) c = mix(c, LIT, l * .85);
         var glowA = Math.max(h * .7, l * .8, m * .12);
         if (glowA > .05) { var gs = 8 + glowA * 12; ctx.globalAlpha = glowA; ctx.drawImage(halo, x - gs / 2, y - gs / 2, gs, gs); ctx.globalAlpha = 1; }
         var sz = 1.4 + m * .6 + h * .6 + l * 1.2;
         ctx.fillStyle = rgb(c); ctx.fillRect(x - sz / 2, y - sz / 2, sz, sz);
-      }
-      if (!reduced) {
-        ctx.lineWidth = 1;
-        strikes.forEach(function (s) {
-          if (!s.s.ring) return;
-          var reach = REACH * s.s.reach;
-          for (var n = 0; n < 3; n++) {
-            if (!s.s.spread && n > 0) break;
-            var age = t - s.t0 - n * RING_GAP; if (age < 0 || age > LIFE) continue;
-            var r = age * SPEED; if (r > reach) continue;
-            var hold = age < LIFE * .55 ? 1 : 1 - (age - LIFE * .55) / (LIFE * .45);
-            ctx.strokeStyle = rgb(s.s.ring, s.s.alpha * hold * (1 - n * .25));
-            ctx.beginPath(); ctx.arc(s.x, s.y, r, 0, Math.PI * 2); ctx.stroke();
-          }
-        });
       }
       // the copy mask: page colour, blurred edges, over everything the field drew
       if (rects.length) {
