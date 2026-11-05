@@ -1,13 +1,16 @@
 // In-memory fakes for the three injected interfaces, plus the Foundry parity fixture as typed leaves.
-import { type Address, type Hex, getAddress, numberToHex, zeroHash } from "viem";
+import { type Address, type Hex, getAddress, keccak256, numberToHex, zeroHash } from "viem";
 import fixture from "../../foundry/fixtures/parity.json";
 import {
   type AppendedLeaf,
   type CheckpointStore,
+  type Leaf,
   type LeafSource,
   type ProofSource,
   type ProvenBlock,
   type WriterCheckpoint,
+  foldHead,
+  leafHash,
   writerHeadSlot,
   writerSeqSlot,
 } from "../src";
@@ -38,10 +41,10 @@ export const fixtureLeaves: AppendedLeaf[] = fixture.leaves.map((l) => ({
   },
 }));
 
-/** Each writer's head and sequence on chain at `block`, read off the fixture. */
-export function stateAt(block: bigint): Map<Address, { seq: bigint; head: Hex }> {
+/** Each writer's head and sequence on chain at `block`, read off the fixture or the given leaves. */
+export function stateAt(block: bigint, leaves: readonly AppendedLeaf[] = fixtureLeaves): Map<Address, { seq: bigint; head: Hex }> {
   const state = new Map<Address, { seq: bigint; head: Hex }>();
-  for (const l of fixtureLeaves) if (l.blockNumber <= block) state.set(l.writer, { seq: l.writerSeq, head: l.writerHead });
+  for (const l of leaves) if (l.blockNumber <= block) state.set(l.writer, { seq: l.writerSeq, head: l.writerHead });
   return state;
 }
 
@@ -51,9 +54,9 @@ export class RecordingProofSource implements ProofSource {
   readonly block: ProvenBlock;
   private readonly storage = new Map<Hex, Hex>();
 
-  constructor(number: bigint, finalized: boolean) {
+  constructor(number: bigint, finalized: boolean, leaves: readonly AppendedLeaf[] = fixtureLeaves) {
     this.block = { number, hash: numberToHex(number, { size: 32 }), stateRoot: zeroHash, finalized };
-    for (const [w, { seq, head }] of stateAt(number)) {
+    for (const [w, { seq, head }] of stateAt(number, leaves)) {
       this.storage.set(writerHeadSlot(w), head);
       this.storage.set(writerSeqSlot(w), numberToHex(seq));
     }
@@ -89,5 +92,34 @@ export class InMemoryCheckpointStore implements CheckpointStore {
   }
   async set(key: string, value: WriterCheckpoint) {
     this.entries.set(key, value);
+  }
+}
+
+/** The log's append path in memory: assigns sequences and computes leaf hashes and heads as the contract does. */
+export class FakeLog {
+  readonly leaves: AppendedLeaf[] = [];
+
+  /** Appends one leaf. Defaults: a category 3 FLAG on the log's chain, unique evidence, one block per leaf from 100. */
+  append(writer: Address, leaf: Partial<Leaf> & Pick<Leaf, "subject">, blockNumber = BigInt(100 + this.leaves.length)): AppendedLeaf {
+    const prev = this.leaves.filter((l) => l.writer === writer).at(-1);
+    const full: Leaf = {
+      chainId: BigInt(fixture.chainId),
+      category: 3,
+      op: 0,
+      evidence: keccak256(numberToHex(this.leaves.length + 1)),
+      seenBlock: blockNumber,
+      refLeaf: zeroHash,
+      ...leaf,
+    };
+    const base = { writer, writerSeq: (prev?.writerSeq ?? 0n) + 1n, globalSeq: BigInt(this.leaves.length + 1), blockNumber, leaf: full };
+    const lh = leafHash(base);
+    const out: AppendedLeaf = {
+      ...base,
+      leafHash: lh,
+      writerHead: foldHead(prev?.writerHead ?? zeroHash, lh),
+      globalHead: foldHead(this.leaves.at(-1)?.globalHead ?? zeroHash, lh),
+    };
+    this.leaves.push(out);
+    return out;
   }
 }
