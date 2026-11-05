@@ -1,0 +1,20 @@
+{
+  // Matches the Snap's: tsc checks the reader's and the harness's source through this config, and
+  // that source does not pass noUncheckedIndexedAccess or exactOptionalPropertyTypes.
+  "compilerOptions": {
+    "target": "es2022",
+    "lib": ["es2022", "dom", "dom.iterable"],
+    "module": "esnext",
+    "moduleResolution": "Bundler",
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "allowImportingTsExtensions": true,
+    "types": [],
+    "baseUrl": ".",
+    "paths": { "*": ["../nextjs/node_modules/*"] }
+  },
+  "include": ["src/**/*.ts"]
+}
