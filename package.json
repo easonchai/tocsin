@@ -1,0 +1,12 @@
+{
+  "name": "antibody",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build:erc": "node scripts/build-erc.mjs",
+    "site": "python3 -m http.server 8731 --directory site"
+  },
+  "devDependencies": {
+    "marked": "15.0.12"
+  }
+}
