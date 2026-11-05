@@ -63,7 +63,7 @@
 <section id="why">
   <div class="wrap">
     <div class="section-head">
-      <div class="eyebrow"><span class="n">01</span>Why</div>
+      <div class="eyebrow">Why</div>
       <h2>Every wallet asks a company whether to trust an address.</h2>
       <p class="lede">Explorer labels, phishing databases, and simulation vendors each hold a private list, serve it from an API, and see every address you ask about. In a 2023 sample, 0.002% of detected phishing addresses carried an explorer label. A wallet that embeds a light client and refuses to trust an RPC still has to trust a label server. The one check that prevents the most common losses is the one check that stays unverifiable and non-private.</p>
     </div>
@@ -98,7 +98,7 @@
 <section id="how">
   <div class="wrap">
     <div class="section-head">
-      <div class="eyebrow"><span class="n">02</span>How it works</div>
+      <div class="eyebrow">How it works</div>
       <h2>The log is dumb on purpose.</h2>
       <p class="lede">The log assigns no weight, computes no score, and has no owner. Trust lives in lists the reader picks. Verification costs one storage proof.</p>
     </div>
@@ -113,16 +113,11 @@
 <section id="trust">
   <div class="wrap">
     <div class="section-head">
-      <div class="eyebrow"><span class="n">03</span>Trust</div>
+      <div class="eyebrow">Trust</div>
       <h2>We don't fight sybils.<br>We ignore them.</h2>
       <p class="lede">Writing is free and worthless by default. Weight comes only from a list the reader chose, and lists are maintained by named parties with a public, forkable, on-chain record. The hard problem moves from “who may write” to “who curates,” which is how browser root stores and filter lists have resisted sybils for decades.</p>
     </div>
-    <div class="rows rv">
-      <div class="r"><span class="label">namespaces</span><p>Ten thousand sybil writers produce ten thousand namespaces that no wallet reads. The attacker pays gas to shout into an empty room. There is no averaging and no "clean" leaf, so a scammer cannot whitewash an address either.</p></div>
-      <div class="r"><span class="label">lists</span><p>A list entry declares its operator and upstream. Two keys from one company count once. Two honest writers mirroring the same vendor count once. Independence is declared by the maintainer, not claimed by the writer.</p></div>
-      <div class="r"><span class="label">pins</span><p>A leaked writer key is cut at the block it leaked, with one list update every reader applies on next sync. A head pin is a git commit: trust a chain up to an exact head and ignore later appends. The never-block safelist caps any single mistake at a warning.</p></div>
-    </div>
-    <div class="table-wrap rv" >
+    <div class="table-wrap rv">
       <table>
         <thead><tr><th>Attack</th><th>Bonded attesters</th><th>Committee</th><th>Deterministic facts</th><th>Tocsin</th></tr></thead>
         <tbody>
@@ -134,13 +129,18 @@
         </tbody>
       </table>
     </div>
+    <div class="rows rv">
+      <div class="r"><span class="label">namespaces</span><p>Ten thousand sybil writers produce ten thousand namespaces that no wallet reads. The attacker pays gas to shout into an empty room. There is no averaging and no "clean" leaf, so a scammer cannot whitewash an address either.</p></div>
+      <div class="r"><span class="label">lists</span><p>A list entry declares its operator and upstream. Two keys from one company count once. Two honest writers mirroring the same vendor count once. Independence is declared by the maintainer, not claimed by the writer.</p></div>
+      <div class="r"><span class="label">pins</span><p>A leaked writer key is cut at the block it leaked, with one list update every reader applies on next sync. A head pin is a git commit: trust a chain up to an exact head and ignore later appends. The never-block safelist caps any single mistake at a warning.</p></div>
+    </div>
   </div>
 </section>
 
 <section id="read">
   <div class="wrap">
     <div class="section-head">
-      <div class="eyebrow"><span class="n">04</span>Read path</div>
+      <div class="eyebrow">Read path</div>
       <h2>The read path leaks nothing.</h2>
       <p class="lede">A per-address proof tells the proof server which address you are about to pay. A prefix bucket tells it almost as much once it has seen your balance queries. Tocsin keeps the permanent set small enough that a phone proves one slot, syncs the whole set, and checks locally.</p>
     </div>
@@ -169,8 +169,8 @@
   <div class="table-bleed rv">
     <div class="wrap table-head">
       <div>
-        <div class="eyebrow"><span class="n">05</span>Scope</div>
-        <h2>Flag what attackers can't afford to rotate.</h2>
+        <div class="eyebrow">Scope</div>
+        <h2>Flag what attackers can't afford to rotate</h2>
       </div>
       <p class="lede">Every subject must be provable by a signature or by code, never by a log field an attacker controls. Unpaid lookalikes never enter the permanent core.</p>
     </div>
@@ -190,25 +190,18 @@
 
 <section id="erc">
   <div class="wrap">
-    <div class="section-head grid">
-      <div class="span-7">
-        <div class="eyebrow"><span class="n">06</span>The standard</div>
-        <h2>Why an ERC and not a product.</h2>
-        <p class="lede">Writers and readers will never coordinate directly. Without a shared leaf encoding every wallet writes a parser per writer. Without a shared list encoding every curator invents a format. Without a shared read procedure the light-client property dies at the first integration. The ERC standardizes those three things and nothing else. It does not say who is right.</p>
-      </div>
-      <div class="span-5">
-        <div class="pre erc-pre">
+    <div class="section-head">
+      <div class="eyebrow">The standard</div>
+      <h2>Why an ERC and not a product.</h2>
+      <div class="pre erc-pre">
 <span class="f">title:</span> Append-Only Threat Flag Log<br>
-<span class="f">description:</span> An immutable, namespaced, light-client-verifiable log of flagged addresses with reader-chosen trust lists.<br>
-<span class="f">status:</span> <span class="s">Draft</span><br>
-<span class="f">type:</span> Standards Track · <span class="f">category:</span> ERC<br>
-<span class="f">requires:</span> 712, 1271<br>
-<span class="f">created:</span> 2026-11-04
-        </div>
+<span class="f">status:</span> <span class="s">Draft</span> · <span class="f">type:</span> Standards Track · <span class="f">category:</span> ERC<br>
+<span class="f">requires:</span> 712, 1271, 7730 · <span class="f">created:</span> 2026-11-04
       </div>
     </div>
     <div class="erc rv">
       <div>
+        <p class="lede">Writers and readers will never coordinate directly. Without a shared leaf encoding every wallet writes a parser per writer. Without a shared list encoding every curator invents a format. Without a shared read procedure the light-client property dies at the first integration. The ERC standardizes those three things and nothing else. It does not say who is right.</p>
         <p class="abstract">Defines a singleton, immutable, append-only log in which any account may record a flag about an address under its own namespace; the contract computes a hash chain per writer and one global chain so no record can be removed or rewritten. Specifies the leaf encoding, the trust-list encoding, a recommended reader policy, and a light-client read procedure. Related: ERC-8004, ERC-7484, ERC-8259, Certificate Transparency.</p>
         <a class="btn primary" href="erc.html">Read the full draft <span class="arrow">→</span></a>
       </div>
@@ -240,16 +233,15 @@
 <section id="faq" class="tight">
   <div class="wrap">
     <div class="section-head">
-      <div class="eyebrow"><span class="n">07</span>FAQ</div>
-      <h2>Questions.</h2>
+      <div class="eyebrow">FAQ</div>
+      <h2>Questions</h2>
     </div>
-    <div class="faq">
-      <details open><summary>Can a scammer remove their own flag?</summary><p>No. Nothing is ever removed. Every flagged account in the operator, funder, and paid-lookalike categories is controlled by the attacker, and a flagged contract can make any signature check return true, so any removal path keyed on the subject's consent is a removal path for the attacker. Corrections are new leaves. A reader that wants a flag gone follows the writer's tombstone or drops the writer from its list.</p></details>
-      <details><summary>Why on-chain at all?</summary><p>Because the RPC can lie and the wallet still catches it. A label served from an API is trusted on the server's word. A head proven against a finalized state root and a leaf set replayed to that head is trusted on the chain's word. Nothing off-chain survives the demo where the RPC says “clean”.</p></details>
-      <details><summary>Isn't this just Etherscan with extra steps?</summary><p>On day one, almost. There will be one or two writers and one or two lists. The difference is that the record is public, forkable, and verifiable, any wallet can pick a different list, and no curator can erase another writer's flag. Year two has two curators. Etherscan never will.</p></details>
-      <details><summary>What about fresh lookalike addresses?</summary><p>We don't chase them. About 1 in 9,000 is ever paid, and they land within minutes. The local prefix/suffix check against your own history catches them. Tocsin flags the operator that planted the dust, so a synced wallet badges the planted entry the moment it arrives, on every chain that operator works.</p></details>
-      <details><summary>Who pays in year two?</summary><p>A flag costs about 10,000 gas, so a year of 50,000 flags is a few hundred dollars at current mainnet fees, and writer-signed batches let any grant or relayer pay. The reader cost is a few megabytes a year, which is why scope is restricted. This is a public good aimed at SEAL and the EF's Trillion Dollar Security work, not a company.</p></details>
-      <details><summary>What happens on Base and other L2s?</summary><p>The log lives on L1 and leaves are keyed by chain; an EOA flagged with chainId 0 is flagged everywhere. A wallet on an L2 reads the log through its L1 light client. We do not pretend L2 state reads are trustless today, and we do not deploy mirrors that would reintroduce a trusted relayer for wallets.</p></details>
+    <div class="rows faq rv">
+      <div class="r"><span class="label">Can a scammer remove their own flag?</span><p>No. Nothing is ever removed. Every flagged account in the operator, funder, and paid-lookalike categories is controlled by the attacker, and a flagged contract can make any signature check return true, so any removal path keyed on the subject's consent is a removal path for the attacker. Corrections are new leaves. A reader that wants a flag gone follows the writer's tombstone or drops the writer from its list.</p></div>
+      <div class="r"><span class="label">Why on-chain at all?</span><p>Because the RPC can lie and the wallet still catches it. A label served from an API is trusted on the server's word. A head proven against a finalized state root and a leaf set replayed to that head is trusted on the chain's word. Nothing off-chain survives the demo where the RPC says “clean”.</p></div>
+      <div class="r"><span class="label">Isn't this just Etherscan with extra steps?</span><p>On day one, almost. There will be one or two writers and one or two lists. The difference is that the record is public, forkable, and verifiable, any wallet can pick a different list, and no curator can erase another writer's flag. Year two has two curators. Etherscan never will.</p></div>
+      <div class="r"><span class="label">What about fresh lookalike addresses?</span><p>We don't chase them. About 1 in 9,000 is ever paid, and they land within minutes. The local prefix/suffix check against your own history catches them. Tocsin flags the operator that planted the dust, so a synced wallet badges the planted entry the moment it arrives, on every chain that operator works.</p></div>
+      <div class="r"><span class="label">Who pays in year two?</span><p>A flag costs about 10,000 gas, so a year of 50,000 flags is a few hundred dollars at current mainnet fees, and writer-signed batches let any grant or relayer pay. The reader cost is a few megabytes a year, which is why scope is restricted. This is a public good aimed at SEAL and the EF's Trillion Dollar Security work, not a company.</p></div>
     </div>
   </div>
 </section>

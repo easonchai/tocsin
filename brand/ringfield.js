@@ -55,7 +55,7 @@
     }
 
     function step(t, dt) {
-      var alive = false, decay = Math.exp(-dt * .12); // ~20s residue so the struck region is seen
+      var alive = false, decay = Math.exp(-dt * .07); // ~20s residue so the struck region is seen
       for (var k = 0; k < heat.length; k++) { if (heat[k] > .01) { heat[k] *= decay; alive = true; } else heat[k] = 0; }
       strikes = strikes.filter(function (s) { return t - s.t0 < LIFE + RING_GAP * 2; });
       strikes.forEach(function (s) {
@@ -69,7 +69,7 @@
           var j0 = Math.max(0, ((s.y - r - GRID) / GRID) | 0), j1 = Math.min(rows - 1, ((s.y + r + GRID) / GRID) | 0);
           for (var j = j0; j <= j1; j++) for (var i = i0; i <= i1; i++) {
             var d = Math.abs(Math.hypot(i * GRID - s.x, j * GRID - s.y) - r);
-            if (d < GRID * .7) { var k = j * cols + i, h = (1 - d / (GRID * .7)) * (1 - age / LIFE); if (h > heat[k]) heat[k] = h; if (n === 0) memory[k] = Math.max(memory[k], .95 * (1 - r / reach) + .2); }
+            if (d < GRID * .7) { var k = j * cols + i, h = (1 - d / (GRID * .7)) * (1 - age / LIFE); if (h > heat[k]) heat[k] = h; if (n === 0) memory[k] = Math.min(1, Math.max(memory[k], 1.1 * (1 - r / reach) + .25)); }
           }
         }
       });
@@ -81,7 +81,7 @@
       for (var j = 0; j < rows; j++) for (var i = 0; i < cols; i++) {
         var k = j * cols + i, m = memory[k], h = heat[k];
         var c = mix(state.dot, SETTLED, m); if (h > 0) c = mix(c, LIT, h);
-        var sz = 1.5 + m * .8 + h * .6; ctx.fillStyle = rgb(c); ctx.fillRect(i * GRID - sz / 2, j * GRID - sz / 2, sz, sz);
+        var sz = 1.5 + m * 1.2 + h * .8; ctx.fillStyle = rgb(c); ctx.fillRect(i * GRID - sz / 2, j * GRID - sz / 2, sz, sz);
       }
       if (reduced) return;
       ctx.lineWidth = 1;

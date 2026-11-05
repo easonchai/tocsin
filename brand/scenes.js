@@ -68,7 +68,7 @@
       s += wire('M250 210H520', 4.2, 'bad');
       s += '<rect class="in" x="452" y="206" width="8" height="8" fill="none" stroke="#e5484d" stroke-dasharray="2 2"' + at(4.2) + '/>';
       s += label(456, 236, 'leaf 41,206 missing', 4.6, '#e5484d');
-      s += label(385, 240, 'replayed head 0x4d01…  ≠  0x9c4e…', 5.8, '#c9c3b6');
+      s += label(330, 266, 'replayed head 0x4d01…  ≠  0x9c4e…', 5.8, '#c9c3b6');
       s += '<g class="in"' + at(6.6) + '><rect x="470" y="252" width="210" height="26" rx="3" fill="none" stroke="#e5484d"/><text x="575" y="269" text-anchor="middle" font-family="' + MONO + '" font-size="12" fill="#e5484d">unverifiable · never clean</text></g>';
       return s;
     }
