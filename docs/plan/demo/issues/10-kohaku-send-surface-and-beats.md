@@ -8,7 +8,7 @@ Spec: `docs/plan/demo/spec.md`, Implementation decisions, Host 1: Kohaku module;
 
 **Ethskills:** frontend-ux, frontend-playbook, wallets, qa (per AGENTS.md; load before starting)
 
-**Status:** ready-for-agent
+**Status:** wontfix
 
 - [ ] Module added on top of the fork with Ambire unmodified. Proof source is Kohaku's Helios header; fetch goes through Kohaku's transport, or through the harness bootstrap from ticket 01 if ticket 02 found the transport is not Anon-RPC.
 - [ ] Background sync on every new finalized header; evaluated set and checkpoints in extension storage; a fresh install syncs both default writers and shows a verdict in under thirty seconds.
@@ -16,3 +16,7 @@ Spec: `docs/plan/demo/spec.md`, Implementation decisions, Host 1: Kohaku module;
 - [ ] Settings page: pinned lists by ENS name with maintainer, Helios checkpoint age, consensus endpoint, transport specifier in use, leaf source switch between RPC and each entry's `snapshotURI`. The passthrough specifier is absent from the build.
 - [ ] Three beats pass at a rehearsal on Tor and on Nym, on the venue network or the hotspot, recorded in Comments.
 - [ ] Frontend-ux completeness on every surface drawn: product identity, no framework defaults, fiat context where an amount shows, errors in plain words next to the action, theme tokens; build and typecheck pass with Sepolia as the configured chain.
+
+## Comments
+
+- 2026-11-06: Not built. Ticket 02 recorded Snap primary with Kohaku as a diagram. A Kohaku module cannot hook send, signing, or activity without editing Ambire files, and Kohaku on Sepolia runs neither Helios nor Anon-RPC by default. The three beats move to the Snap (ticket 12); ticket 13 becomes active per the cut lines.
