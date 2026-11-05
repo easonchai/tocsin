@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tocsin in the wallet</title>
+<link rel="icon" href="favicon.svg">
+<link rel="stylesheet" href="tokens.css">
+<style>
+  .page { max-width: var(--max); margin: 0 auto; padding: 56px var(--gutter) 96px; }
+  header { display: flex; align-items: center; gap: 14px; margin-bottom: 40px; }
+  header .wordmark { font-size: 24px; }
+  header .label { margin-left: auto; }
+  .row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; align-items: start; }
+  .col h2 { font-size: 18px; margin-bottom: 6px; }
+  .col p { color: var(--paper-200); font-size: 14px; margin: 0 0 18px; min-height: 66px; }
+  .col .k { display: block; margin-top: 12px; }
+
+  /* host chrome: neutral, so the Tocsin surface is the only thing with a voice */
+  .device { background: #0f1113; border: 1px solid #2a2e35; border-radius: 14px; overflow: hidden; width: 360px; font-family: var(--body); font-size: 13px; color: #d7d4cc; box-shadow: 0 40px 80px -40px rgba(0,0,0,.9); }
+  .bar { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-bottom: 1px solid #2a2e35; color: #8f8b82; font-size: 12px; }
+  .bar .acct { margin-left: auto; font-family: var(--mono); }
+  .bar .pf { width: 18px; height: 18px; border-radius: 50%; background: #3a3f47; }
+  .body { padding: 16px 14px; }
+  .field { border: 1px solid #2a2e35; border-radius: 8px; padding: 10px 12px; margin-bottom: 10px; }
+  .field .l { font-size: 11px; color: #8f8b82; margin-bottom: 4px; }
+  .field .v { font-family: var(--mono); font-size: 13px; color: #ece7dc; display: flex; justify-content: space-between; }
+  .field .v small { color: #8f8b82; }
+  .primary { display: block; text-align: center; padding: 12px; border-radius: 8px; background: #2a2e35; color: #6e7179; font-weight: 600; margin-top: 14px; }
+  .ghost { display: block; text-align: center; padding: 10px; border-radius: 8px; border: 1px solid #2a2e35; color: #8f8b82; margin-top: 8px; font-size: 12px; }
+
+  /* the tocsin surface */
+  .tocsin { border: 1px solid var(--alert); border-radius: 8px; background: var(--ink-800); margin-top: 12px; overflow: hidden; }
+  .tocsin .head { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-bottom: 1px solid var(--ink-700); }
+  .tocsin .head svg { width: 18px; height: 18px; }
+  .tocsin .head b { color: var(--alert); font-family: var(--mono); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; }
+  .tocsin .head span { margin-left: auto; font-family: var(--mono); font-size: 11px; color: var(--ink-400); }
+  .tocsin .rows { padding: 8px 12px 10px; }
+  .tocsin .r { display: grid; grid-template-columns: 74px 1fr; gap: 8px; padding: 5px 0; font-family: var(--mono); font-size: 11.5px; border-top: 1px solid var(--ink-700); }
+  .tocsin .r:first-child { border-top: 0; }
+  .tocsin .r i { font-style: normal; color: var(--ink-400); }
+  .tocsin .r span { color: var(--paper-100); }
+  .tocsin .r span.m { color: var(--paper-200); }
+  .tocsin .foot { padding: 8px 12px; background: var(--ink-900); font-family: var(--mono); font-size: 11px; color: var(--ink-400); border-top: 1px solid var(--ink-700); }
+  .tocsin .foot.ok { color: var(--paper-200); }
+  .tocsin.warn { border-color: var(--ink-600); }
+  .tocsin.warn .head b { color: var(--paper-100); }
+
+  /* snap: the host's confirmation with an insight tab */
+  .tabs { display: flex; border-bottom: 1px solid #2a2e35; margin: -16px -14px 14px; }
+  .tabs span { padding: 10px 14px; color: #8f8b82; font-size: 12px; }
+  .tabs span.on { color: #ece7dc; border-bottom: 2px solid #ece7dc; }
+  .kv { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #2a2e35; font-size: 12px; color: #8f8b82; }
+  .kv b { color: #ece7dc; font-weight: 500; font-family: var(--mono); font-size: 12px; }
+  .snaphead { font-size: 12px; color: #8f8b82; margin: 14px 0 0; }
+  .snaphead b { color: #ece7dc; }
+
+  /* extension: the dapp beneath, the overlay above */
+  .dapp { position: relative; height: 560px; background: #15171b; }
+  .dapp .fake { padding: 18px; opacity: .35; filter: blur(.6px); }
+  .dapp .fake .h { height: 18px; width: 60%; background: #2a2e35; border-radius: 4px; margin-bottom: 12px; }
+  .dapp .fake .t { height: 10px; background: #22262c; border-radius: 4px; margin-bottom: 8px; }
+  .dapp .fake .t.s { width: 70%; }
+  .dapp .fake .btn-f { height: 36px; width: 140px; background: #2a2e35; border-radius: 8px; margin-top: 16px; }
+  .overlay { position: absolute; left: 14px; right: 14px; top: 120px; background: var(--ink-800); border: 1px solid var(--ink-700); border-radius: 10px; box-shadow: 0 30px 60px -20px rgba(0,0,0,.9); overflow: hidden; }
+  .overlay .top { display: flex; align-items: center; gap: 8px; padding: 12px 14px; border-bottom: 1px solid var(--ink-700); }
+  .overlay .top svg { width: 20px; height: 20px; }
+  .overlay .top .wordmark { font-size: 15px; color: var(--paper-100); }
+  .overlay .top span { margin-left: auto; font-family: var(--mono); font-size: 11px; color: var(--ink-400); }
+  .overlay h3 { font-size: 18px; padding: 14px 14px 0; color: var(--paper-100); }
+  .overlay h3 b { color: var(--alert); }
+  .overlay p { color: var(--paper-200); font-size: 13px; padding: 6px 14px 0; margin: 0; }
+  .overlay .tocsin { margin: 12px 14px; border-color: var(--ink-700); }
+  .overlay .acts { display: flex; gap: 8px; padding: 0 14px 14px; }
+  .overlay .acts a { flex: 1; text-align: center; padding: 10px; border-radius: var(--r); font-weight: 600; font-size: 13px; }
+  .overlay .acts .stop { background: var(--paper-100); color: var(--ink-900); }
+  .overlay .acts .over { border: 1px solid var(--ink-600); color: var(--ink-400); }
+  @media (max-width: 1180px) { .row { grid-template-columns: 1fr; } .device { margin: 0 auto; } }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><g id="mark"><g fill="none" stroke="#ece7dc" stroke-width="1.4" stroke-linecap="square"><path d="M8.80 17.50C10.08 17.50 9.92 16.10 10.02 15.50C10.11 14.90 10.40 13.50 12.00 13.50C13.60 13.50 13.89 14.90 13.98 15.50C14.08 16.10 13.92 17.50 15.20 17.50"/><path d="M5.60 17.50C8.16 17.50 7.84 14.70 8.03 13.50C8.22 12.30 8.80 9.50 12.00 9.50C15.20 9.50 15.78 12.30 15.97 13.50C16.16 14.70 15.84 17.50 18.40 17.50"/><path d="M2.00 17.50C6.00 17.50 5.50 13.12 5.80 11.25C6.10 9.38 7.00 5.00 12.00 5.00C17.00 5.00 17.90 9.38 18.20 11.25C18.50 13.12 18.00 17.50 22.00 17.50" opacity=".5"/></g><path d="M2 18.5h20" stroke="#ece7dc" stroke-width="1.4" stroke-linecap="square"/><circle cx="12" cy="15.6" r=".8" fill="#ece7dc"/></g></defs></svg>
+<div class="page">
+  <header><svg width="28" height="28" viewBox="0 0 24 24"><use href="#mark"/></svg><span class="wordmark">tocsin</span><span class="label">in the wallet · three hosts, one reader</span></header>
+  <div class="row">
+
+    <div class="col">
+      <h2>Kohaku module</h2>
+      <p>The full claim. Header from Helios, proof checked on the device, leaves fetched through the anonymising transport. The send button stays off until the user overrides on the device.</p>
+      <div class="device">
+        <div class="bar"><span class="pf"></span>Send<span class="acct">0x8c1D…4e9a · Sepolia</span></div>
+        <div class="body">
+          <div class="field"><div class="l">Recipient</div><div class="v">0x7a3F09c2…b1c91B</div></div>
+          <div class="field"><div class="l">Amount</div><div class="v">48,000 USDC <small>≈ $48,000</small></div></div>
+          <div class="tocsin">
+            <div class="head"><svg viewBox="0 0 24 24"><use href="#mark"/></svg><b>Blocked</b><span>2 of 2 lists</span></div>
+            <div class="rows">
+              <div class="r"><i>category</i><span>DRAINER_RECEIVER</span></div>
+              <div class="r"><i>flagged by</i><span>seal.tocsin.eth<br>scamsniffer.tocsin.eth</span></div>
+              <div class="r"><i>evidence</i><span class="m">0x31b7…9e02 · block 23,410,118</span></div>
+              <div class="r"><i>proven at</i><span class="m">header 11,482,207 · Helios</span></div>
+            </div>
+            <div class="foot ok">verified on this device · nothing was sent to anyone</div>
+          </div>
+          <a class="primary">Send</a>
+          <a class="ghost">I understand the risk · override in 10s</a>
+        </div>
+      </div>
+      <span class="label k">the recipient check · also runs on spender, delegate, incoming sender</span>
+    </div>
+
+    <div class="col">
+      <h2>MetaMask Snap</h2>
+      <p>The same reader inside the confirmation screen through onTransaction. Local evaluation, so MetaMask never learns what was checked. The header comes from an RPC, and the panel says so.</p>
+      <div class="device">
+        <div class="bar"><span class="pf"></span>Confirm transaction<span class="acct">Account 1</span></div>
+        <div class="body">
+          <div class="tabs"><span>Details</span><span class="on">Tocsin</span><span>Hex</span></div>
+          <div class="kv"><span>To</span><b>0x7a3F…c91B</b></div>
+          <div class="kv"><span>Amount</span><b>48,000 USDC</b></div>
+          <div class="tocsin">
+            <div class="head"><svg viewBox="0 0 24 24"><use href="#mark"/></svg><b>Blocked</b><span>2 of 2 lists</span></div>
+            <div class="rows">
+              <div class="r"><i>category</i><span>DRAINER_RECEIVER</span></div>
+              <div class="r"><i>flagged by</i><span>seal.tocsin.eth<br>scamsniffer.tocsin.eth</span></div>
+              <div class="r"><i>evidence</i><span class="m">0x31b7…9e02</span></div>
+              <div class="r"><i>synced</i><span class="m">41,207 leaves · 4 min ago</span></div>
+            </div>
+            <div class="foot">best effort: header from rpc.sepolia.org, not a light client</div>
+          </div>
+          <a class="primary">Confirm</a>
+          <a class="ghost">Reject</a>
+        </div>
+      </div>
+      <span class="label k">install once · shows in any dapp's confirmation</span>
+    </div>
+
+    <div class="col">
+      <h2>Extension overlay</h2>
+      <p>Wraps any injected provider. Intercepts the send before the wallet popup opens, shows the verdict, and never stores or transmits the request. Works with the wallet the user already has.</p>
+      <div class="device">
+        <div class="dapp">
+          <div class="fake"><div class="h"></div><div class="t"></div><div class="t s"></div><div class="t"></div><div class="t s"></div><div class="btn-f"></div><div class="t" style="margin-top:40px"></div><div class="t s"></div><div class="t"></div></div>
+          <div class="overlay">
+            <div class="top"><svg viewBox="0 0 24 24"><use href="#mark"/></svg><span class="wordmark">tocsin</span><span>eth_sendTransaction</span></div>
+            <h3><b>Stopped</b> before your wallet opened.</h3>
+            <p>The recipient is a drainer receiver, flagged by two independent writers.</p>
+            <div class="tocsin">
+              <div class="rows">
+                <div class="r"><i>to</i><span>0x7a3F09c2…b1c91B</span></div>
+                <div class="r"><i>flagged by</i><span>seal.tocsin.eth<br>scamsniffer.tocsin.eth</span></div>
+                <div class="r"><i>evidence</i><span class="m">0x31b7…9e02</span></div>
+              </div>
+            </div>
+            <div class="acts"><a class="stop">Cancel</a><a class="over">Override in 10s</a></div>
+          </div>
+        </div>
+      </div>
+      <span class="label k">no wallet changes · no server · no company</span>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>
