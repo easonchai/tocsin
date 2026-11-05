@@ -20,7 +20,12 @@ import { privateKeyToAccount } from "viem/accounts";
 // Variables already set in the process win over the file, so a one-off run can override it.
 config({ path: fileURLToPath(new URL("../.env", import.meta.url)) });
 
-export type KeyVar = "MANUAL_WRITER_PRIVATE_KEY" | "DETECTOR_PRIVATE_KEY" | "RELAYER_PRIVATE_KEY";
+export type KeyVar =
+  | "MANUAL_WRITER_PRIVATE_KEY"
+  | "DETECTOR_PRIVATE_KEY"
+  | "RELAYER_PRIVATE_KEY"
+  | "ENS_OWNER_PRIVATE_KEY"
+  | "MAINTAINER_PRIVATE_KEY";
 
 export type Target = {
   chainId: number;
@@ -31,7 +36,7 @@ export type Target = {
 
 export type Sender = WalletClient<Transport, Chain, Account>;
 
-function required(name: string): string {
+export function required(name: string): string {
   const value = process.env[name]?.trim();
   if (!value) throw new Error(`${name} is not set; see dapp/packages/infra/.env.example`);
   return value;
@@ -49,12 +54,20 @@ export function accountFrom(name: KeyVar): Account {
  * and LOG_ADDRESS holds code. Every broadcast in this package goes through a Target.
  */
 export async function connect(): Promise<Target> {
-  const url = required("RPC_URL");
-  const expected = Number(required("CHAIN_ID"));
-  if (!Number.isSafeInteger(expected) || expected <= 0) throw new Error("CHAIN_ID must be a positive integer");
   const logRaw = required("LOG_ADDRESS");
   if (!isAddress(logRaw, { strict: false })) throw new Error("LOG_ADDRESS is not an address");
   const log = getAddress(logRaw);
+  const target = await connectChain();
+  const code = await target.public.getCode({ address: log });
+  if (!code || code === "0x") throw new Error(`No contract code at LOG_ADDRESS ${log} on chain ${target.chainId}`);
+  return { ...target, log };
+}
+
+/** The chain-id check of `connect` without the log, for scripts that never touch the log (ENS setup). */
+export async function connectChain(): Promise<Omit<Target, "log">> {
+  const url = required("RPC_URL");
+  const expected = Number(required("CHAIN_ID"));
+  if (!Number.isSafeInteger(expected) || expected <= 0) throw new Error("CHAIN_ID must be a positive integer");
 
   const chain = defineChain({
     id: expected,
@@ -66,10 +79,7 @@ export async function connect(): Promise<Target> {
 
   const actual = await client.getChainId();
   if (actual !== expected) throw new Error(`RPC_URL answers chain id ${actual}, CHAIN_ID says ${expected}; refusing to broadcast`);
-  const code = await client.getCode({ address: log });
-  if (!code || code === "0x") throw new Error(`No contract code at LOG_ADDRESS ${log} on chain ${actual}`);
-
-  return { chainId: actual, log, chain, public: client };
+  return { chainId: actual, chain, public: client };
 }
 
 export function senderFor(target: Target, account: Account): Sender {

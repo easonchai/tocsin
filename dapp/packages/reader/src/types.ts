@@ -36,6 +36,12 @@ export type ProvenBlock = {
   hash: Hex;
   stateRoot: Hex;
   finalized: boolean;
+  /**
+   * Set when the header came from an ordinary RPC that was not checked against a verified block
+   * hash. Sync treats it like any other block; a host must say the result is only as honest as that
+   * RPC (ERC, Security Considerations, Light-client assumptions).
+   */
+  unverified?: true;
 };
 
 export type ProofSource = {

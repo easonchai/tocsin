@@ -8,6 +8,11 @@
     "seed": "tsx src/seed.ts",
     "relay": "tsx src/relay-cli.ts",
     "detect": "tsx src/detect-cli.ts",
+    "eval": "tsx src/evaluate-cli.ts",
+    "mirror": "tsx src/mirror.ts",
+    "lying-proxy": "tsx src/lying-proxy.ts",
+    "ens-setup": "tsx src/ens-setup.ts setup",
+    "ens-publish": "tsx src/ens-setup.ts publish",
     "test": "vitest run"
   },
   "dependencies": {

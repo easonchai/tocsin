@@ -4,3 +4,4 @@ export { foldHead, leafHash, threatFlagLogAbi, writerHeadSlot, writerSeqSlot } f
 export { memoryLeafSource, snapshotLeafSource } from "./sources";
 export * from "./lists";
 export { type AppliedList, type Context, type EvaluateInput, type Evaluation, type Finding, type Verdict, evaluate } from "./evaluate";
+export { type RpcRequest, type RawAppendedLog, type LogScan, type RpcLeafSourceOptions, rpcLeafSource, rpcProofSource, getAppendedLogs, decodeAppended } from "./rpc";
