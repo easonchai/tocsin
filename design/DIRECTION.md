@@ -53,12 +53,12 @@ The wordmark is "tocsin" in lowercase Bricolage 700, tracking -0.03em. Lowercase
 
 ## The background
 
-A field of small dots on `ink-900`, on a 24px grid. Still. Every eight to twelve seconds a strike lands somewhere in the field and three waves move outward through the dots. There is no drawn circle: the wave is the dots themselves lighting in sequence, to `paper-200` in idle and to the state's colour otherwise, then settling to `ink-400`, so struck regions stay faintly brighter. The field remembers. That is herd immunity drawn without a single node-graph line.
+A field of small dots on `ink-900`, on a 24px grid. It is never quite still: two slow waves drift across it so every dot breathes between `ink-700` and `ink-600` in brightness and size, too slow to notice unless you look. Every eight to twelve seconds a strike lands somewhere in the field and a ripple moves outward through the dots. There is no drawn circle: the ripple is the dots themselves lighting and swelling at the crest, with two echoes behind it and a shallow trough between, to `paper-200` in idle and to the state's colour otherwise. It decelerates as it spreads and fades over about four seconds; the dots it passed stay a little brighter for ten seconds more, then let go. The field remembers briefly. That is herd immunity drawn without a single node-graph line.
 
 Rules, taken from Devcon and Railgun:
 
 - Deterministic. The strike sequence comes from a seed, so two visitors see the same field and screenshots are reproducible.
-- Still until touched. A click or tap is a strike at the cursor. The cursor carries a soft lens, after Railgun: dots within about 170px brighten and bloom, and the lens eases behind the pointer rather than snapping to it.
+- Quiet until touched. A click or tap is a strike at the cursor. The cursor carries a soft lens, after Railgun: dots within about 170px brighten and bloom, and the lens eases behind the pointer rather than snapping to it.
 - The state recolours the wave, never the page. A screen strikes once per event, never on load for its own sake; the landing page strikes only on the verdict.
 - Text always wins. A blurred page-colour mask sits over the field wherever copy is, so dots never show through letters; the field lives in the margins, the gutters, and around the trace.
 - Lit dots bloom with a soft glow instead of hardening into squares. Nothing in the field is ever brighter than paper-200.

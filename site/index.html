@@ -300,7 +300,7 @@
         cur.remove(); body.appendChild(v);
         document.getElementById('term-foot').textContent = 'The RPC said clean. The wallet never asked it who to trust.';
         dot.className = 'dot blocked';
-        rf.setState('blocked'); var vr = v.getBoundingClientRect(); rf.strike(vr.left, vr.top + vr.height / 2);
+        rf.setState('blocked'); var vr = v.getBoundingClientRect(); rf.strike(vr.left + vr.width / 2, vr.bottom);
         idleTimer = setTimeout(function () { rf.setState('idle'); }, 6000);
         return;
       }
