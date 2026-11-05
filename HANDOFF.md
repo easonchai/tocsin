@@ -21,6 +21,12 @@ Read this first if you are picking the project up. Everything that matters is in
 - No Chainlink CRE. The automated writer is a plain detector script with its own key, listed at warn weight.
 - Deploy with CREATE2 through `0x4e59b44847b379578588920cA78FbF26c0B4956C`, salt zero, on Sepolia and mainnet so the address matches. Append two or three real mainnet flags before judging.
 
+## Brand (in progress, 6 Nov)
+
+Direction is settled and written in `docs/brand/DIRECTION.md`: dark, still until touched, one amber accent, the background is the system's state (borrowed from the Devcon ENS page), a bell reduced to its ring as the mark, the live background is a dot field where strikes send rings outward and struck regions stay faintly brighter. Mark explorations are in `docs/brand/marks.html` and `docs/brand/marks-a.html` (serve the repo root and open them; fonts resolve from `/site/fonts/`). Eason chose direction A (bell as its sound) with bell-shaped waves and thinner, squarer strokes; the final pick between A2 (flared bell, waves inside, strike dot) and A3 (bell outline in paper, ring in amber) was pending at the time of writing. Reference screenshots of ens.domains, devcon.ens.domains, and railgun.org are in `~/.playwright-mcp/tocsin-refs/`.
+
+Remaining brand steps, in order: core kit in code under `brand/` (tokens, type, mark SVGs, motion rules), landing page rebuilt on it with the ring-field background, three how-it-works animations that double as loading illustrations, mock Kohaku send screen, Snap panel, and extension overlay. No Higgsfield until all of that exists.
+
 ## Prize targets, ETHGlobal Mumbai, submissions close 8 November 09:00 IST
 
 - Ethereum Foundation, Best Use of Anon-RPC ($5k) as primary and Best CROPS App ($3.5k) as fallback. One EF prize per project; submit to both and the judges place us. The README has the required CROPS section.

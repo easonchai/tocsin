@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Tocsin mark explorations</title>
+<link rel="stylesheet" href="../../site/fonts/fonts.css">
+<style>
+  :root { --ink-900:#121417; --ink-800:#1a1d22; --ink-700:#262a30; --ink-600:#3a3f47; --ink-400:#8f8b82; --paper-200:#c9c3b6; --paper-100:#ece7dc; --signal:#e9a23b; --alert:#e5484d; }
+  body { margin:0; background:var(--ink-900); color:var(--paper-100); font-family:'Schibsted Grotesk', sans-serif; padding:48px; }
+  h1 { font-family:'Bricolage Grotesque', sans-serif; font-weight:700; letter-spacing:-0.03em; font-size:28px; margin:0 0 6px; }
+  .sub { color:var(--ink-400); font-family:'JetBrains Mono', monospace; font-size:12px; letter-spacing:.08em; text-transform:uppercase; margin-bottom:40px; }
+  .row { display:grid; grid-template-columns: 180px 1fr; gap:32px; align-items:start; border-top:1px solid var(--ink-700); padding:32px 0; }
+  .meta h2 { font-family:'Bricolage Grotesque', sans-serif; font-size:20px; margin:0 0 8px; letter-spacing:-0.02em; }
+  .meta p { color:var(--paper-200); font-size:14px; margin:0; line-height:1.5; }
+  .meta .k { font-family:'JetBrains Mono', monospace; font-size:11px; color:var(--signal); letter-spacing:.08em; }
+  .cells { display:flex; gap:24px; align-items:flex-end; flex-wrap:wrap; }
+  .cell { display:flex; flex-direction:column; align-items:center; gap:10px; }
+  .cell span { font-family:'JetBrains Mono', monospace; font-size:11px; color:var(--ink-400); }
+  .box { display:flex; align-items:center; justify-content:center; border:1px solid var(--ink-700); border-radius:4px; background:var(--ink-800); }
+  .box.light { background:var(--paper-100); border-color:#d8d2c4; }
+  .lock { display:flex; align-items:center; gap:14px; font-family:'Bricolage Grotesque', sans-serif; font-weight:700; letter-spacing:-0.03em; font-size:40px; }
+  .lock.light { color:var(--ink-900); }
+  svg { display:block; }
+</style>
+</head>
+<body>
+<h1>Tocsin mark explorations</h1>
+<div class="sub">three directions · 16 / 32 / 64 / 160 · dark and light · lockup</div>
+
+<!-- A: RING -->
+<div class="row">
+  <div class="meta"><div class="k">A · RING</div><h2>The bell as its sound</h2><p>Three arcs rising from the strike point, closed by a lip. Bell at a glance, signal on a second look. Survives 16px.</p></div>
+  <div class="cells">
+    <div class="cell"><div class="box" style="width:32px;height:32px"><svg width="16" height="16" viewBox="0 0 24 24"><g fill="none" stroke="#e9a23b" stroke-width="2.4" stroke-linecap="round"><path d="M8.5 13.5a3.5 3.5 0 0 1 7 0"/><path d="M5 13.5a7 7 0 0 1 14 0"/></g><path d="M5 17.5h14" stroke="#ece7dc" stroke-width="2.4" stroke-linecap="round"/><circle cx="12" cy="13.5" r="1.4" fill="#ece7dc"/></svg></div><span>16</span></div>
+    <div class="cell"><div class="box" style="width:48px;height:48px"><svg width="32" height="32" viewBox="0 0 24 24"><g fill="none" stroke="#e9a23b" stroke-width="2" stroke-linecap="round"><path d="M8.5 13.5a3.5 3.5 0 0 1 7 0"/><path d="M5 13.5a7 7 0 0 1 14 0"/><path d="M1.5 13.5a10.5 10.5 0 0 1 21 0" opacity=".45"/></g><path d="M5 17.5h14" stroke="#ece7dc" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="13.5" r="1.3" fill="#ece7dc"/></svg></div><span>32</span></div>
+    <div class="cell"><div class="box" style="width:88px;height:88px"><svg width="64" height="64" viewBox="0 0 24 24"><g fill="none" stroke="#e9a23b" stroke-width="1.8" stroke-linecap="round"><path d="M8.5 13.5a3.5 3.5 0 0 1 7 0"/><path d="M5 13.5a7 7 0 0 1 14 0"/><path d="M1.5 13.5a10.5 10.5 0 0 1 21 0" opacity=".45"/></g><path d="M5 17.5h14" stroke="#ece7dc" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="13.5" r="1.2" fill="#ece7dc"/></svg></div><span>64</span></div>
+    <div class="cell"><div class="box" style="width:200px;height:200px"><svg width="160" height="160" viewBox="0 0 24 24"><g fill="none" stroke="#e9a23b" stroke-width="1.6" stroke-linecap="round"><path d="M8.5 13.5a3.5 3.5 0 0 1 7 0"/><path d="M5 13.5a7 7 0 0 1 14 0"/><path d="M1.5 13.5a10.5 10.5 0 0 1 21 0" opacity=".45"/></g><path d="M5 17.5h14" stroke="#ece7dc" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="13.5" r="1.1" fill="#ece7dc"/></svg></div><span>160</span></div>
+    <div class="cell"><div class="box light" style="width:200px;height:200px"><svg width="160" height="160" viewBox="0 0 24 24"><g fill="none" stroke="#b97615" stroke-width="1.6" stroke-linecap="round"><path d="M8.5 13.5a3.5 3.5 0 0 1 7 0"/><path d="M5 13.5a7 7 0 0 1 14 0"/><path d="M1.5 13.5a10.5 10.5 0 0 1 21 0" opacity=".5"/></g><path d="M5 17.5h14" stroke="#121417" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="13.5" r="1.1" fill="#121417"/></svg></div><span>light</span></div>
+    <div class="cell"><div class="lock"><svg width="44" height="44" viewBox="0 0 24 24"><g fill="none" stroke="#e9a23b" stroke-width="2" stroke-linecap="round"><path d="M8.5 13.5a3.5 3.5 0 0 1 7 0"/><path d="M5 13.5a7 7 0 0 1 14 0"/><path d="M1.5 13.5a10.5 10.5 0 0 1 21 0" opacity=".45"/></g><path d="M5 17.5h14" stroke="#ece7dc" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="13.5" r="1.3" fill="#ece7dc"/></svg>tocsin</div><span>lockup</span></div>
+  </div>
+</div>
+
+<!-- B: STRIKE -->
+<div class="row">
+  <div class="meta"><div class="k">B · STRIKE</div><h2>One struck bell</h2><p>A bell profile drawn in one stroke, with the ring leaving it to the right as two short arcs. More literal, more obviously a bell, more like an icon.</p></div>
+  <div class="cells">
+    <div class="cell"><div class="box" style="width:32px;height:32px"><svg width="16" height="16" viewBox="0 0 24 24"><path d="M5 17V12.5C5 8.5 7.5 5.5 11 5.5S17 8.5 17 12.5V17" fill="none" stroke="#ece7dc" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.5 17.5h15" stroke="#ece7dc" stroke-width="2.4" stroke-linecap="round"/><path d="M19.5 9.5a4 4 0 0 1 0 6" fill="none" stroke="#e9a23b" stroke-width="2.4" stroke-linecap="round"/></svg></div><span>16</span></div>
+    <div class="cell"><div class="box" style="width:48px;height:48px"><svg width="32" height="32" viewBox="0 0 24 24"><path d="M5 17V12.5C5 8.5 7.5 5.5 11 5.5S17 8.5 17 12.5V17" fill="none" stroke="#ece7dc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.5 17.5h15" stroke="#ece7dc" stroke-width="2" stroke-linecap="round"/><path d="M19.5 9.5a4 4 0 0 1 0 6" fill="none" stroke="#e9a23b" stroke-width="2" stroke-linecap="round"/><path d="M21.5 7.5a7 7 0 0 1 0 10" fill="none" stroke="#e9a23b" stroke-width="2" stroke-linecap="round" opacity=".45"/></svg></div><span>32</span></div>
+    <div class="cell"><div class="box" style="width:88px;height:88px"><svg width="64" height="64" viewBox="0 0 24 24"><path d="M5 17V12.5C5 8.5 7.5 5.5 11 5.5S17 8.5 17 12.5V17" fill="none" stroke="#ece7dc" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.5 17.5h15" stroke="#ece7dc" stroke-width="1.8" stroke-linecap="round"/><path d="M19.5 9.5a4 4 0 0 1 0 6" fill="none" stroke="#e9a23b" stroke-width="1.8" stroke-linecap="round"/><path d="M21.5 7.5a7 7 0 0 1 0 10" fill="none" stroke="#e9a23b" stroke-width="1.8" stroke-linecap="round" opacity=".45"/></svg></div><span>64</span></div>
+    <div class="cell"><div class="box" style="width:200px;height:200px"><svg width="160" height="160" viewBox="0 0 24 24"><path d="M5 17V12.5C5 8.5 7.5 5.5 11 5.5S17 8.5 17 12.5V17" fill="none" stroke="#ece7dc" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.5 17.5h15" stroke="#ece7dc" stroke-width="1.6" stroke-linecap="round"/><path d="M19.5 9.5a4 4 0 0 1 0 6" fill="none" stroke="#e9a23b" stroke-width="1.6" stroke-linecap="round"/><path d="M21.5 7.5a7 7 0 0 1 0 10" fill="none" stroke="#e9a23b" stroke-width="1.6" stroke-linecap="round" opacity=".45"/></svg></div><span>160</span></div>
+    <div class="cell"><div class="box light" style="width:200px;height:200px"><svg width="160" height="160" viewBox="0 0 24 24"><path d="M5 17V12.5C5 8.5 7.5 5.5 11 5.5S17 8.5 17 12.5V17" fill="none" stroke="#121417" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.5 17.5h15" stroke="#121417" stroke-width="1.6" stroke-linecap="round"/><path d="M19.5 9.5a4 4 0 0 1 0 6" fill="none" stroke="#b97615" stroke-width="1.6" stroke-linecap="round"/><path d="M21.5 7.5a7 7 0 0 1 0 10" fill="none" stroke="#b97615" stroke-width="1.6" stroke-linecap="round" opacity=".5"/></svg></div><span>light</span></div>
+    <div class="cell"><div class="lock"><svg width="44" height="44" viewBox="0 0 24 24"><path d="M5 17V12.5C5 8.5 7.5 5.5 11 5.5S17 8.5 17 12.5V17" fill="none" stroke="#ece7dc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.5 17.5h15" stroke="#ece7dc" stroke-width="2" stroke-linecap="round"/><path d="M19.5 9.5a4 4 0 0 1 0 6" fill="none" stroke="#e9a23b" stroke-width="2" stroke-linecap="round"/><path d="M21.5 7.5a7 7 0 0 1 0 10" fill="none" stroke="#e9a23b" stroke-width="2" stroke-linecap="round" opacity=".45"/></svg>tocsin</div><span>lockup</span></div>
+  </div>
+</div>
+
+<!-- C: TOLL -->
+<div class="row">
+  <div class="meta"><div class="k">C · TOLL</div><h2>The letter t, rung</h2><p>A lowercase t whose crossbar is the arc of a bell's mouth, with one ring above. Typographic, ownable, least literal. Weakest at 16px.</p></div>
+  <div class="cells">
+    <div class="cell"><div class="box" style="width:32px;height:32px"><svg width="16" height="16" viewBox="0 0 24 24"><path d="M12 5v13.5" stroke="#ece7dc" stroke-width="2.4" stroke-linecap="round"/><path d="M6 13a6 6 0 0 0 12 0" fill="none" stroke="#ece7dc" stroke-width="2.4" stroke-linecap="round"/><path d="M8 5.5a5 5 0 0 1 8 0" fill="none" stroke="#e9a23b" stroke-width="2.4" stroke-linecap="round"/></svg></div><span>16</span></div>
+    <div class="cell"><div class="box" style="width:48px;height:48px"><svg width="32" height="32" viewBox="0 0 24 24"><path d="M12 5v13.5" stroke="#ece7dc" stroke-width="2" stroke-linecap="round"/><path d="M6 13a6 6 0 0 0 12 0" fill="none" stroke="#ece7dc" stroke-width="2" stroke-linecap="round"/><path d="M8 5.5a5 5 0 0 1 8 0" fill="none" stroke="#e9a23b" stroke-width="2" stroke-linecap="round"/><path d="M5 3.5a9 9 0 0 1 14 0" fill="none" stroke="#e9a23b" stroke-width="2" stroke-linecap="round" opacity=".45"/></svg></div><span>32</span></div>
+    <div class="cell"><div class="box" style="width:88px;height:88px"><svg width="64" height="64" viewBox="0 0 24 24"><path d="M12 5v13.5" stroke="#ece7dc" stroke-width="1.8" stroke-linecap="round"/><path d="M6 13a6 6 0 0 0 12 0" fill="none" stroke="#ece7dc" stroke-width="1.8" stroke-linecap="round"/><path d="M8 5.5a5 5 0 0 1 8 0" fill="none" stroke="#e9a23b" stroke-width="1.8" stroke-linecap="round"/><path d="M5 3.5a9 9 0 0 1 14 0" fill="none" stroke="#e9a23b" stroke-width="1.8" stroke-linecap="round" opacity=".45"/></svg></div><span>64</span></div>
+    <div class="cell"><div class="box" style="width:200px;height:200px"><svg width="160" height="160" viewBox="0 0 24 24"><path d="M12 5v13.5" stroke="#ece7dc" stroke-width="1.6" stroke-linecap="round"/><path d="M6 13a6 6 0 0 0 12 0" fill="none" stroke="#ece7dc" stroke-width="1.6" stroke-linecap="round"/><path d="M8 5.5a5 5 0 0 1 8 0" fill="none" stroke="#e9a23b" stroke-width="1.6" stroke-linecap="round"/><path d="M5 3.5a9 9 0 0 1 14 0" fill="none" stroke="#e9a23b" stroke-width="1.6" stroke-linecap="round" opacity=".45"/></svg></div><span>160</span></div>
+    <div class="cell"><div class="box light" style="width:200px;height:200px"><svg width="160" height="160" viewBox="0 0 24 24"><path d="M12 5v13.5" stroke="#121417" stroke-width="1.6" stroke-linecap="round"/><path d="M6 13a6 6 0 0 0 12 0" fill="none" stroke="#121417" stroke-width="1.6" stroke-linecap="round"/><path d="M8 5.5a5 5 0 0 1 8 0" fill="none" stroke="#b97615" stroke-width="1.6" stroke-linecap="round"/><path d="M5 3.5a9 9 0 0 1 14 0" fill="none" stroke="#b97615" stroke-width="1.6" stroke-linecap="round" opacity=".5"/></svg></div><span>light</span></div>
+    <div class="cell"><div class="lock"><svg width="44" height="44" viewBox="0 0 24 24"><path d="M12 5v13.5" stroke="#ece7dc" stroke-width="2" stroke-linecap="round"/><path d="M6 13a6 6 0 0 0 12 0" fill="none" stroke="#ece7dc" stroke-width="2" stroke-linecap="round"/><path d="M8 5.5a5 5 0 0 1 8 0" fill="none" stroke="#e9a23b" stroke-width="2" stroke-linecap="round"/><path d="M5 3.5a9 9 0 0 1 14 0" fill="none" stroke="#e9a23b" stroke-width="2" stroke-linecap="round" opacity=".45"/></svg>tocsin</div><span>lockup</span></div>
+  </div>
+</div>
+</body>
+</html>
