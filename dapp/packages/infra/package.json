@@ -4,7 +4,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "check-types": "tsc --noEmit"
+    "check-types": "tsc --noEmit",
+    "seed": "tsx src/seed.ts",
+    "relay": "tsx src/relay-cli.ts",
+    "test": "vitest run"
   },
   "dependencies": {
     "@ensdomains/ensjs": "5.2.12",

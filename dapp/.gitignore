@@ -15,6 +15,9 @@ node_modules
 # misc
 .DS_Store
 
+# infra keys and RPC URL
+packages/infra/.env
+
 # IDE
 .vscode
 .idea
