@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tocsin brand kit</title>
+<link rel="icon" href="favicon.svg">
+<link rel="stylesheet" href="tokens.css">
+<style>
+  body { position: relative; }
+  #field { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+  .page { position: relative; z-index: 1; max-width: var(--max); margin: 0 auto; padding: 56px var(--gutter) 96px; }
+  header { display: flex; align-items: center; gap: 14px; margin-bottom: 72px; }
+  header svg { width: 36px; height: 36px; }
+  header .wordmark { font-size: 28px; }
+  header .label { margin-left: auto; }
+  section { display: grid; grid-template-columns: 240px 1fr; gap: 40px; padding: 40px 0; border-top: var(--hair); }
+  section h2 { font-size: 22px; }
+  section .meta p { color: var(--paper-200); font-size: 14px; margin: 10px 0 0; max-width: 28ch; }
+
+  .swatches { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+  .sw { border-radius: var(--r); border: var(--hair); padding: 10px; background: var(--ink-800); }
+  .sw i { display: block; height: 56px; border-radius: 2px; margin-bottom: 10px; }
+  .sw b { display: block; font-family: var(--mono); font-size: 12px; font-weight: 500; }
+  .sw span { display: block; font-family: var(--mono); font-size: 11px; color: var(--ink-400); margin-top: 2px; }
+  .sw small { display: block; font-size: 12px; color: var(--paper-200); margin-top: 8px; }
+
+  .type .display { font-family: var(--display); font-weight: 700; letter-spacing: -0.03em; font-size: 64px; line-height: 1; }
+  .type .row { display: grid; grid-template-columns: 120px 1fr; gap: 24px; padding: 18px 0; border-top: var(--hair); align-items: baseline; }
+  .type .row:first-child { border-top: 0; padding-top: 0; }
+  .type .lede { font-size: 19px; color: var(--paper-200); max-width: 48ch; }
+  .type .mono { font-family: var(--mono); font-size: 13px; color: var(--paper-200); }
+
+  .marks { display: flex; gap: 20px; align-items: flex-end; flex-wrap: wrap; }
+  .box { background: var(--ink-800); border: var(--hair); border-radius: var(--r); display: flex; align-items: center; justify-content: center; }
+  .box.light { background: var(--paper-100); }
+  .cell { display: flex; flex-direction: column; align-items: center; gap: 8px; font-family: var(--mono); font-size: 11px; color: var(--ink-400); }
+  .lockup { display: flex; align-items: center; gap: 12px; }
+  .lockup svg { width: 32px; height: 32px; }
+  .lockup .wordmark { font-size: 32px; }
+  .files { margin-top: 20px; font-family: var(--mono); font-size: 12px; color: var(--ink-400); line-height: 1.9; }
+  .files b { color: var(--paper-200); font-weight: 500; }
+
+  .states { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+  .states button { font-family: var(--mono); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; padding: 7px 12px; border-radius: var(--r); border: var(--hair-strong); background: none; color: var(--paper-200); cursor: pointer; }
+  .states button[aria-pressed="true"] { border-color: var(--signal); color: var(--signal); }
+  .states button.strike { margin-left: auto; color: var(--paper-100); }
+  .bgtable { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .bgtable th, .bgtable td { text-align: left; padding: 10px 12px 10px 0; border-bottom: var(--hair); }
+  .bgtable th { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-400); font-weight: 500; }
+  .bgtable td { color: var(--paper-200); }
+  .bgtable td:first-child { color: var(--paper-100); font-family: var(--mono); font-size: 13px; }
+
+  .motion .row { display: grid; grid-template-columns: 180px 1fr; gap: 24px; padding: 14px 0; border-top: var(--hair); font-size: 14px; color: var(--paper-200); }
+  .motion .row:first-child { border-top: 0; padding-top: 0; }
+  .motion .row b { font-family: var(--mono); font-weight: 500; font-size: 13px; color: var(--paper-100); }
+  .motion .demo { margin-top: 20px; display: flex; gap: 12px; align-items: center; }
+  .motion .card { background: var(--ink-800); border: var(--hair); border-radius: var(--r); padding: 14px 16px; font-size: 14px; color: var(--paper-200); width: 180px; }
+
+  .avoid ul { margin: 0; padding: 0; list-style: none; columns: 2; gap: 40px; }
+  .avoid li { padding: 8px 0; border-top: var(--hair); font-size: 14px; color: var(--paper-200); break-inside: avoid; }
+  @media (max-width: 800px) { section { grid-template-columns: 1fr; gap: 20px; } .swatches { grid-template-columns: repeat(2, 1fr); } .avoid ul { columns: 1; } .type .display { font-size: 44px; } }
+</style>
+</head>
+<body>
+<canvas id="field" aria-hidden="true"></canvas>
+<div class="page">
+  <header>
+    <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#mark"/></svg>
+    <span class="wordmark">tocsin</span>
+    <span class="label">brand kit · v1 · nov 2026</span>
+  </header>
+
+  <section>
+    <div class="meta"><h2>Palette</h2><p>Greyscale plus one strike. Red is only ever the verdict. There is no green: clean is the absence of red.</p></div>
+    <div class="swatches">
+      <div class="sw"><i style="background:var(--ink-900);border:var(--hair)"></i><b>ink-900</b><span>#121417</span><small>page</small></div>
+      <div class="sw"><i style="background:var(--ink-800);border:var(--hair)"></i><b>ink-800</b><span>#1a1d22</span><small>surfaces, panels, the trace</small></div>
+      <div class="sw"><i style="background:var(--ink-700)"></i><b>ink-700</b><span>#262a30</span><small>hairlines, idle dots</small></div>
+      <div class="sw"><i style="background:var(--ink-600)"></i><b>ink-600</b><span>#3a3f47</span><small>strong hairlines, hover borders</small></div>
+      <div class="sw"><i style="background:var(--ink-400)"></i><b>ink-400</b><span>#8f8b82</span><small>muted text, captions, settled dots</small></div>
+      <div class="sw"><i style="background:var(--paper-200)"></i><b>paper-200</b><span>#c9c3b6</span><small>secondary text</small></div>
+      <div class="sw"><i style="background:var(--paper-100)"></i><b>paper-100</b><span>#ece7dc</span><small>primary text, lit dots</small></div>
+      <div class="sw"><i style="background:var(--signal)"></i><b>signal</b><span>#e9a23b</span><small>the strike. CTA, one word, the proof path</small></div>
+      <div class="sw"><i style="background:var(--signal-deep)"></i><b>signal-deep</b><span>#b97615</span><small>pressed, hover, on light</small></div>
+      <div class="sw"><i style="background:var(--alert)"></i><b>alert</b><span>#e5484d</span><small>blocked. only the verdict</small></div>
+    </div>
+  </section>
+
+  <section class="type">
+    <div class="meta"><h2>Type</h2><p>Display runs large and few. One sentence per section. Anything that is data is mono.</p></div>
+    <div>
+      <div class="row"><span class="label">display · 700</span><div class="display">Your wallet checked Ethereum itself.</div></div>
+      <div class="row"><span class="label">body · 400</span><div class="lede">Bricolage Grotesque for display, Schibsted Grotesk for body, JetBrains Mono for anything that is data: addresses, sequence numbers, labels, the trace.</div></div>
+      <div class="row"><span class="label">mono · 400</span><div class="mono">writerHead 0x9c4e…a1f0 · seq 41,207 · replayed 41,207 leaves</div></div>
+      <div class="row"><span class="label">label</span><div class="label">12px · uppercase · tracking .08em · ink-400</div></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="meta"><h2>Mark</h2><p>A bell seen as its sound. Three bell curves on one lip, a strike point where the clapper would be. Outer curve at 50% so the sound fades outward.</p></div>
+    <div>
+      <div class="marks">
+        <div class="cell"><div class="box" style="width:32px;height:32px"><svg width="16" height="16" viewBox="0 0 24 24"><use href="#fav"/></svg></div>16</div>
+        <div class="cell"><div class="box" style="width:48px;height:48px"><svg width="32" height="32" viewBox="0 0 24 24"><use href="#mark"/></svg></div>32</div>
+        <div class="cell"><div class="box" style="width:120px;height:120px"><svg width="96" height="96" viewBox="0 0 24 24"><use href="#mark"/></svg></div>96</div>
+        <div class="cell"><div class="box light" style="width:120px;height:120px"><svg width="96" height="96" viewBox="0 0 24 24"><use href="#mark-light"/></svg></div>on paper</div>
+        <div class="cell"><div class="box" style="width:120px;height:120px;background:none;border:0"><img src="icon.svg" width="96" height="96" alt="" style="border-radius:21px"></div>app icon</div>
+        <div class="cell"><div class="box" style="height:120px;padding:0 28px"><div class="lockup"><svg viewBox="0 0 24 24"><use href="#mark"/></svg><span class="wordmark">tocsin</span></div></div>lockup</div>
+      </div>
+      <div class="files"><b>mark.svg</b> on dark · <b>mark-light.svg</b> on paper · <b>favicon.svg</b> two curves, stroke 2.2 · <b>icon.svg</b> 512, radius 112 · the wordmark is live text, Bricolage 700, lowercase, tracking -0.03em</div>
+    </div>
+  </section>
+
+  <section>
+    <div class="meta"><h2>Background</h2><p>A field of dots on a 24px grid. Still. A strike every eight to twelve seconds sends three rings out; dots it passes stay faintly brighter. Click anywhere to strike. The state recolours the rings, never the page.</p></div>
+    <div>
+      <div class="states" id="states">
+        <button aria-pressed="true" data-s="idle">idle</button>
+        <button data-s="syncing">syncing</button>
+        <button data-s="verified">verified</button>
+        <button data-s="unverifiable">unverifiable</button>
+        <button data-s="blocked">blocked</button>
+        <button class="strike" id="strike">strike</button>
+      </div>
+      <table class="bgtable">
+        <thead><tr><th>state</th><th>dots</th><th>ring</th></tr></thead>
+        <tbody>
+          <tr><td>idle</td><td>ink-700, settling to ink-400 where struck</td><td>none; only the dots light</td></tr>
+          <tr><td>syncing</td><td>ink-400</td><td>signal at 30%</td></tr>
+          <tr><td>verified</td><td>paper-100 fading to ink-400</td><td>signal</td></tr>
+          <tr><td>unverifiable</td><td>ink-700</td><td>alert at 40%, stops halfway</td></tr>
+          <tr><td>blocked</td><td>ink-700</td><td>alert, one strike, no spread</td></tr>
+        </tbody>
+      </table>
+      <div class="files">deterministic from a seed · hover does nothing · frame watchdog turns ambient strikes off above 70ms median · reduced motion shows the settled field · hidden tabs pause · <b>ringfield.js</b></div>
+    </div>
+  </section>
+
+  <section class="motion">
+    <div class="meta"><h2>Motion</h2><p>Nothing bounces. Nothing scales from zero. Nothing loops on screen except the background and the diagrams.</p></div>
+    <div>
+      <div class="row"><b>entrance</b><span>240ms ease-out, 12px rise. Never more than three staggered, 80ms apart.</span></div>
+      <div class="row"><b>state change</b><span>700ms cross-fade, in the order the ring would reach them.</span></div>
+      <div class="row"><b>trace</b><span>types at 420ms per line, 650ms before the verdict.</span></div>
+      <div class="row"><b>diagrams</b><span>1.5px ink-600 connectors, mono pills on ink-800, one solid paper-100 hero node, entrances staggered 400ms, each scene under 10s and loops.</span></div>
+      <div class="demo">
+        <div class="card rv">entrance</div><div class="card rv d1">+80ms</div><div class="card rv d2">+160ms</div>
+        <button class="btn" id="replay">replay</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="avoid">
+    <div class="meta"><h2>Avoid</h2></div>
+    <ul>
+      <li>Shields, locks, eyes, radar sweeps</li><li>Node graphs with glowing edges</li><li>Purple</li><li>Gradients as texture, grain</li><li>Hue cycling</li><li>Pinned scroll sections, particles</li><li>A bell with a notification badge</li><li>Green for clean</li><li>"Trustless", "composable", "decentralised X"</li>
+    </ul>
+  </section>
+</div>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <g id="mark"><g fill="none" stroke="#e9a23b" stroke-width="1.4" stroke-linecap="square"><path d="M8.80 17.50C10.08 17.50 9.92 16.10 10.02 15.50C10.11 14.90 10.40 13.50 12.00 13.50C13.60 13.50 13.89 14.90 13.98 15.50C14.08 16.10 13.92 17.50 15.20 17.50"/><path d="M5.60 17.50C8.16 17.50 7.84 14.70 8.03 13.50C8.22 12.30 8.80 9.50 12.00 9.50C15.20 9.50 15.78 12.30 15.97 13.50C16.16 14.70 15.84 17.50 18.40 17.50"/><path d="M2.00 17.50C6.00 17.50 5.50 13.12 5.80 11.25C6.10 9.38 7.00 5.00 12.00 5.00C17.00 5.00 17.90 9.38 18.20 11.25C18.50 13.12 18.00 17.50 22.00 17.50" opacity=".5"/></g><path d="M2 18.5h20" stroke="#ece7dc" stroke-width="1.4" stroke-linecap="square"/><circle cx="12" cy="15.6" r=".8" fill="#ece7dc"/></g>
+    <g id="mark-light"><g fill="none" stroke="#b97615" stroke-width="1.4" stroke-linecap="square"><path d="M8.80 17.50C10.08 17.50 9.92 16.10 10.02 15.50C10.11 14.90 10.40 13.50 12.00 13.50C13.60 13.50 13.89 14.90 13.98 15.50C14.08 16.10 13.92 17.50 15.20 17.50"/><path d="M5.60 17.50C8.16 17.50 7.84 14.70 8.03 13.50C8.22 12.30 8.80 9.50 12.00 9.50C15.20 9.50 15.78 12.30 15.97 13.50C16.16 14.70 15.84 17.50 18.40 17.50"/><path d="M2.00 17.50C6.00 17.50 5.50 13.12 5.80 11.25C6.10 9.38 7.00 5.00 12.00 5.00C17.00 5.00 17.90 9.38 18.20 11.25C18.50 13.12 18.00 17.50 22.00 17.50" opacity=".55"/></g><path d="M2 18.5h20" stroke="#121417" stroke-width="1.4" stroke-linecap="square"/><circle cx="12" cy="15.6" r=".8" fill="#121417"/></g>
+    <g id="fav"><g fill="none" stroke="#e9a23b" stroke-width="2.2" stroke-linecap="square"><path d="M5.60 17.50C8.16 17.50 7.84 14.70 8.03 13.50C8.22 12.30 8.80 9.50 12.00 9.50C15.20 9.50 15.78 12.30 15.97 13.50C16.16 14.70 15.84 17.50 18.40 17.50"/><path d="M2.00 17.50C6.00 17.50 5.50 13.12 5.80 11.25C6.10 9.38 7.00 5.00 12.00 5.00C17.00 5.00 17.90 9.38 18.20 11.25C18.50 13.12 18.00 17.50 22.00 17.50"/></g><path d="M2 18.5h20" stroke="#ece7dc" stroke-width="2.2" stroke-linecap="square"/></g>
+  </defs>
+</svg>
+
+<script src="ringfield.js"></script>
+<script>
+  var rf = Tocsin.ringfield(document.getElementById('field'), { seed: 7 });
+  document.getElementById('states').addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b || b.id === 'strike') return;
+    this.querySelectorAll('button[data-s]').forEach(function (x) { x.setAttribute('aria-pressed', x === b); });
+    rf.setState(b.dataset.s); rf.strike(innerWidth * .62, innerHeight * .45);
+  });
+  document.getElementById('strike').addEventListener('click', function () { rf.strike(innerWidth * .62, innerHeight * .45); });
+  function enter() { document.querySelectorAll('.rv').forEach(function (el) { el.classList.remove('in'); }); requestAnimationFrame(function () { requestAnimationFrame(function () { document.querySelectorAll('.rv').forEach(function (el) { el.classList.add('in'); }); }); }); }
+  document.getElementById('replay').addEventListener('click', enter); enter();
+</script>
+</body>
+</html>
