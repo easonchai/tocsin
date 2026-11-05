@@ -10,7 +10,8 @@
   },
   "scripts": {
     "test": "vitest run",
-    "check-types": "tsc --noEmit"
+    "check-types": "tsc --noEmit",
+    "publish-list": "tsx cli/publish-list.ts"
   },
   "dependencies": {
     "viem": "2.57.16"
