@@ -103,7 +103,7 @@ The seam is the contract's public functions through Foundry. Nothing below it is
 - ERC-165: true for the log interface id, true for the ERC-165 id, false for a random id.
 - Domain: the separator equals a test-side EIP-712 computation on the default chain, and changes after `vm.chainId` to another value.
 - Gas: a hundred-leaf batch snapshot recorded with Foundry's gas snapshot so the README figure is reproducible.
-- Fixture: one test writes a JSON file of leaves, their append block numbers, leaf hashes, writer heads, and global heads for a fixed scenario. The demo spec's reader tests load it for hash parity. Block number is in the fixture because the leaf hash commits to it and the event does not carry it.
+- Fixture: one test writes `dapp/packages/foundry/fixtures/parity.json`, a JSON file of leaves, their append block numbers, leaf hashes, writer heads, and global heads for a fixed scenario. The demo spec's reader tests load it for hash parity. Block number is in the fixture because the leaf hash commits to it and the event does not carry it.
 - ERC-7730 descriptor: passes the schema check, and its category and op enums equal the ERC's tables. No contract test, since the descriptor is not code.
 - No fork tests. The contract calls no external protocol.
 - Slither runs with no high or medium finding left unaddressed.
