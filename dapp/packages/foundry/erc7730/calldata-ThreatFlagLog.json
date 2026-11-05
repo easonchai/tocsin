@@ -1,0 +1,70 @@
+{
+  "$schema": "https://eips.ethereum.org/assets/eip-7730/erc7730-v2.schema.json",
+  "context": {
+    "$id": "ThreatFlagLog",
+    "contract": {
+      "deployments": [{ "chainId": 11155111, "address": "0xC5616bb2FDCcdD761aa969c5C0dFb3D5c7d93865" }]
+    }
+  },
+  "metadata": {
+    "owner": "Tocsin",
+    "contractName": "ThreatFlagLog",
+    "enums": {
+      "category": {
+        "1": "POISONING_OPERATOR",
+        "2": "POISONING_FUNDER",
+        "3": "DRAINER_RECEIVER",
+        "4": "MALICIOUS_DELEGATE",
+        "5": "MALICIOUS_TOKEN",
+        "6": "PAID_LOOKALIKE",
+        "7": "DRAINER_SPENDER",
+        "8": "THEFT_PROCEEDS"
+      },
+      "op": { "0": "FLAG", "1": "TOMBSTONE", "2": "COUNTER", "3": "DISPUTE" }
+    }
+  },
+  "display": {
+    "formats": {
+      "append((uint64 chainId,address subject,uint8 category,uint8 op,bytes32 evidence,uint64 seenBlock,bytes32 refLeaf)[] leaves)": {
+        "intent": "Append threat flags",
+        "fields": [
+          {
+            "label": "Leaves",
+            "iteration": "bundled",
+            "fields": [
+              { "path": "leaves.[].subject", "label": "Subject", "format": "addressName", "params": { "types": ["eoa", "contract"] }, "separator": "Leaf {index}" },
+              { "path": "leaves.[].category", "label": "Category", "format": "enum", "params": { "$ref": "$.metadata.enums.category" } },
+              { "path": "leaves.[].op", "label": "Op", "format": "enum", "params": { "$ref": "$.metadata.enums.op" } },
+              { "path": "leaves.[].chainId", "label": "Chain ID", "format": "raw" },
+              { "path": "leaves.[].evidence", "label": "Evidence", "format": "raw" },
+              { "path": "leaves.[].seenBlock", "label": "Seen block", "format": "raw" },
+              { "path": "leaves.[].refLeaf", "label": "Ref leaf", "format": "raw" }
+            ]
+          }
+        ]
+      },
+      "appendSigned(address writer,(uint64 chainId,address subject,uint8 category,uint8 op,bytes32 evidence,uint64 seenBlock,bytes32 refLeaf)[] leaves,uint256 deadline,uint256 nonce,bytes signature)": {
+        "intent": "Submit signed threat flags",
+        "fields": [
+          { "path": "writer", "label": "Writer", "format": "addressName", "params": { "types": ["eoa", "contract"] } },
+          {
+            "label": "Leaves",
+            "iteration": "bundled",
+            "fields": [
+              { "path": "leaves.[].subject", "label": "Subject", "format": "addressName", "params": { "types": ["eoa", "contract"] }, "separator": "Leaf {index}" },
+              { "path": "leaves.[].category", "label": "Category", "format": "enum", "params": { "$ref": "$.metadata.enums.category" } },
+              { "path": "leaves.[].op", "label": "Op", "format": "enum", "params": { "$ref": "$.metadata.enums.op" } },
+              { "path": "leaves.[].chainId", "label": "Chain ID", "format": "raw" },
+              { "path": "leaves.[].evidence", "label": "Evidence", "format": "raw" },
+              { "path": "leaves.[].seenBlock", "label": "Seen block", "format": "raw" },
+              { "path": "leaves.[].refLeaf", "label": "Ref leaf", "format": "raw" }
+            ]
+          },
+          { "path": "deadline", "label": "Deadline", "format": "date", "params": { "encoding": "timestamp" } },
+          { "path": "nonce", "label": "Nonce", "format": "raw" },
+          { "path": "signature", "label": "Signature", "visible": "never" }
+        ]
+      }
+    }
+  }
+}
