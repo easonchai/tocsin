@@ -7,6 +7,7 @@
     "check-types": "tsc --noEmit",
     "seed": "tsx src/seed.ts",
     "relay": "tsx src/relay-cli.ts",
+    "detect": "tsx src/detect-cli.ts",
     "test": "vitest run"
   },
   "dependencies": {
