@@ -8,7 +8,7 @@ const recorded = {
   id: 1,
   result: [
     {
-      address: "0xc5616bb2fdccdd761aa969c5c0dfb3d5c7d93865",
+      address: "0xb639d15a0e7ae24e4c32e851fbe0e57585565b14",
       topics: [
         "0xa9793d50953fe203eaa0b98a325313b161563a07c0206d4960e2918a96090548",
         "0x00000000000000000000000070997970c51812dc3a010c7d01b50e0d17dc79c8",
@@ -24,7 +24,7 @@ const recorded = {
       removed: false,
     },
     {
-      address: "0xc5616bb2fdccdd761aa969c5c0dfb3d5c7d93865",
+      address: "0xb639d15a0e7ae24e4c32e851fbe0e57585565b14",
       topics: [
         "0xa9793d50953fe203eaa0b98a325313b161563a07c0206d4960e2918a96090548",
         "0x00000000000000000000000070997970c51812dc3a010c7d01b50e0d17dc79c8",
@@ -43,7 +43,7 @@ const recorded = {
   ],
 };
 
-const LOG = getAddress("0xC5616bb2FDCcdD761aa969c5C0dFb3D5c7d93865");
+const LOG = getAddress("0xB639d15A0E7aE24E4C32E851Fbe0E57585565b14");
 const MANUAL = getAddress("0x70997970C51812dc3A010C7d01b50e0d17dc79C8");
 
 type Filter = { address: Hex; topics: (Hex | null)[]; fromBlock: Hex; toBlock: Hex };

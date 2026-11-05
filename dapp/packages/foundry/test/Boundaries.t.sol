@@ -175,6 +175,18 @@ contract BoundariesTest is LogBase {
         assertEq(tfl.signatureNonce(w), 1);
     }
 
+    /// @dev v = 0 makes ecrecover return address(0), which equals the zero writer without the explicit guard.
+    function test_signed_zeroWriterGarbageSig_rejected() public {
+        IThreatFlagLog.Leaf[] memory b = _one(_flag(address(0xA1)));
+        bytes memory junk = new bytes(65);
+        assertEq(ecrecover(_digest(b, block.timestamp, 0), 0, bytes32(0), bytes32(0)), address(0), "recovers zero");
+
+        vm.prank(relayer);
+        vm.expectRevert(bytes("sig"));
+        tfl.appendSigned(address(0), b, block.timestamp, 0, junk);
+        assertEq(tfl.writerSeq(address(0)), 0, "nothing written as the zero writer");
+    }
+
     // ---------------------------------------------------------------- ERC-1271 writers
 
     function test_1271_wrongMagicValue_rejected() public {

@@ -108,7 +108,8 @@ contract ThreatFlagLog {
             );
             return ok && ret.length == 32 && abi.decode(ret, (bytes4)) == IERC1271.isValidSignature.selector;
         }
-        if (sig.length != 65) return false;
+        // ecrecover returns address(0) on an invalid signature, so the zero writer would accept any garbage
+        if (writer == address(0) || sig.length != 65) return false;
         bytes32 r = bytes32(sig[0:32]);
         bytes32 s = bytes32(sig[32:64]);
         uint8 v = uint8(sig[64]);

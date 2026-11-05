@@ -5,7 +5,7 @@ import { batchToJson, parseBatch, signBatch } from "./batch.js";
 import type { Sender, Target } from "./env.js";
 import { relay } from "./relayer.js";
 
-const LOG: Address = "0xC5616bb2FDCcdD761aa969c5C0dFb3D5c7d93865";
+const LOG: Address = "0xB639d15A0E7aE24E4C32E851Fbe0E57585565b14";
 const NOW = 1_800_000_000n;
 const writer = privateKeyToAccount(generatePrivateKey());
 const relayerAccount = privateKeyToAccount(generatePrivateKey());

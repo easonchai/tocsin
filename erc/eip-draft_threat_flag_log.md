@@ -132,7 +132,7 @@ interface IThreatFlagLog {
 ```
 
 - `append` MUST use `msg.sender` as the writer.
-- `appendSigned` MUST verify an [EIP-712](./eip-712.md) signature by `writer` over the typed structure `Append(Leaf[] leaves,uint256 deadline,uint256 nonce)Leaf(uint64 chainId,address subject,uint8 category,uint8 op,bytes32 evidence,uint64 seenBlock,bytes32 refLeaf)`, where the `leaves` array is encoded per EIP-712 as the keccak256 of the concatenated `hashStruct` of each leaf. The domain has name `"ThreatFlagLog"` and version `"1"`. If `writer` has code, the log MUST verify through [ERC-1271](./eip-1271.md) `isValidSignature`; otherwise it MUST recover the signer with `ecrecover` and require it to equal `writer`. It MUST revert if `block.timestamp > deadline` or if `nonce != signatureNonce(writer)`, and MUST increment `signatureNonce(writer)` on success.
+- `appendSigned` MUST verify an [EIP-712](./eip-712.md) signature by `writer` over the typed structure `Append(Leaf[] leaves,uint256 deadline,uint256 nonce)Leaf(uint64 chainId,address subject,uint8 category,uint8 op,bytes32 evidence,uint64 seenBlock,bytes32 refLeaf)`, where the `leaves` array is encoded per EIP-712 as the keccak256 of the concatenated `hashStruct` of each leaf. The domain has name `"ThreatFlagLog"` and version `"1"`. If `writer` has code, the log MUST verify through [ERC-1271](./eip-1271.md) `isValidSignature`; otherwise it MUST recover the signer with `ecrecover` and require it to equal `writer`. It MUST reject every signature for `writer = address(0)`, because `ecrecover` returns the zero address for an invalid signature. It MUST revert if `block.timestamp > deadline` or if `nonce != signatureNonce(writer)`, and MUST increment `signatureNonce(writer)` on success.
 - The domain separator MUST be recomputed when `block.chainid` differs from the chain id at construction, so that a signature cannot be replayed across a chain split.
 - Every deployment MUST publish an [ERC-7730](./eip-7730.md) clear-signing descriptor covering `append`, `appendSigned`, and the `Append` typed data, mapping `category` and `op` values to their names, so that a signing device displays each subject and category rather than a hash. The `Append` structure MUST NOT contain any field that is only a hash of the leaves.
 - Both functions MUST emit `Appended` once per leaf, in order, with the values used in the chain computation.
@@ -162,8 +162,8 @@ Testnet deployment (Sepolia, chain id 11155111), predicted and not yet broadcast
 
 | Field | Value |
 | --- | --- |
-| Address | `0xC5616bb2FDCcdD761aa969c5C0dFb3D5c7d93865` |
-| Runtime code hash | `0xdc59334640b4a42e076253a531f923cb65fa6e1091f535da8ff17ce74c24b93c`, measured on a fork of Sepolia; the runtime code embeds the chain id and address through immutables |
+| Address | `0xB639d15A0E7aE24E4C32E851Fbe0E57585565b14` |
+| Runtime code hash | `0xd9f882ccb806d16653f80dc459f533e23363936675d52e08f9ed7e7ee56a4ea5`, measured on a fork of Sepolia; the runtime code embeds the chain id and address through immutables |
 | Compiler | solc 0.8.28, optimizer on, 200 runs, EVM version `cancun`, default CBOR metadata |
 | ERC-7730 descriptors | [`calldata-ThreatFlagLog.json`](../dapp/packages/foundry/erc7730/calldata-ThreatFlagLog.json) for `append` and `appendSigned`, [`eip712-ThreatFlagLog.json`](../dapp/packages/foundry/erc7730/eip712-ThreatFlagLog.json) for `Append`; both move to the assets folder with the ERC PR. ERC-7730 v2 does not allow calldata and EIP-712 contexts in one file, so the descriptor is a pair |
 
@@ -464,7 +464,8 @@ contract ThreatFlagLog {
             );
             return ok && ret.length == 32 && abi.decode(ret, (bytes4)) == IERC1271.isValidSignature.selector;
         }
-        if (sig.length != 65) return false;
+        // ecrecover returns address(0) on an invalid signature, so the zero writer would accept any garbage
+        if (writer == address(0) || sig.length != 65) return false;
         bytes32 r = bytes32(sig[0:32]);
         bytes32 s = bytes32(sig[32:64]);
         uint8 v = uint8(sig[64]);

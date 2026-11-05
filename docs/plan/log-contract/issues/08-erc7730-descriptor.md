@@ -24,7 +24,7 @@ Spec conflict: the ticket and the build spec say one file. ERC-7730 schema v2 (2
 What the files contain:
 
 - `$schema` is `https://eips.ethereum.org/assets/eip-7730/erc7730-v2.schema.json`, the alias of the active line.
-- Deployment `{ chainId: 11155111, address: 0xC5616bb2FDCcdD761aa969c5C0dFb3D5c7d93865 }`. I recomputed the address with `cast compute-address` from the current `out/` init code, deployer `0x4e59b448...4956C`, salt zero. The EIP-712 context also binds domain `name: ThreatFlagLog`, `version: 1`.
+- Deployment `{ chainId: 11155111, address: 0xB639d15A0E7aE24E4C32E851Fbe0E57585565b14 }`. I recomputed the address with `cast compute-address` from the current `out/` init code, deployer `0x4e59b448...4956C`, salt zero. The EIP-712 context also binds domain `name: ThreatFlagLog`, `version: 1`.
 - The EIP-712 format key is exactly the contract's `APPEND_TYPEHASH` string.
 - All seven leaf fields are shown in a bundled group, so the device steps through leaf by leaf ("Leaf {index}") and does not list all subjects before all categories. `subject` and `writer` use `addressName`. `category` and `op` use `enum`. `chainId`, `evidence`, `seenBlock`, `refLeaf` and `nonce` use `raw`. `deadline` uses `date` (timestamp). `chainId` stays `raw` because `0` means every EVM chain and a `chainId` formatter has no name for it.
 - `appendSigned.signature` is `visible: never`. It is the writer's signature, not something the relayer approves.

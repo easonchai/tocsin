@@ -24,7 +24,7 @@ import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 import { foldHead, leafHash, threatFlagLogAbi, writerHeadSlot, writerSeqSlot } from "../../reader/src/chain.ts";
 import { encodeListRecord, listRoot, listRootTypedData } from "../../reader/src/lists/index.ts";
 
-const LOG = getAddress("0xC5616bb2FDCcdD761aa969c5C0dFb3D5c7d93865");
+const LOG = getAddress("0xB639d15A0E7aE24E4C32E851Fbe0E57585565b14");
 const UR = getAddress("0xeEeEEEeE14D718C2B47D9923Deab1335E144EeEe");
 const MANUAL = getAddress("0x00000000000000000000000000000000000a11ce");
 const DETECTOR = getAddress("0x00000000000000000000000000000000000de7ec");

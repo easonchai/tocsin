@@ -5,7 +5,7 @@ import type { AnonRpcWorker } from "@anon-rpc/browser-harness";
 import { type Address, type Hex, encodeAbiParameters, keccak256, toFunctionSelector } from "viem";
 
 /** Sepolia CREATE2 prediction from the ERC's Deployment section. */
-export const LOG_ADDRESS: Address = "0xC5616bb2FDCcdD761aa969c5C0dFb3D5c7d93865";
+export const LOG_ADDRESS: Address = "0xB639d15A0E7aE24E4C32E851Fbe0E57585565b14";
 
 // Specifier contracts live on Ethereum mainnet only (no code on Sepolia), so the worker
 // bootstrap needs a mainnet light client even though the log is read on Sepolia.

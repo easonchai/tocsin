@@ -16,7 +16,7 @@ import {
   resolveWriters,
 } from "../src/lists/index.ts";
 
-const LOG: Address = "0xC5616bb2FDCcdD761aa969c5C0dFb3D5c7d93865";
+const LOG: Address = "0xB639d15A0E7aE24E4C32E851Fbe0E57585565b14";
 const CHAIN_ID = 11155111;
 const ctx = { kind: "list", log: LOG, chainId: CHAIN_ID } as const;
 

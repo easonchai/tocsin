@@ -53,7 +53,7 @@ cd dapp/packages/foundry
 forge test
 ```
 
-Sepolia only for now. The address comes from the deterministic deployment proxy `0x4e59b44847b379578588920cA78FbF26c0B4956C` with salt zero, so it is the same on every chain. For the current build it is `0xC5616bb2FDCcdD761aa969c5C0dFb3D5c7d93865`. Any edit to the contract or to the compiler settings in `foundry.toml` moves it.
+Sepolia only for now. The address comes from the deterministic deployment proxy `0x4e59b44847b379578588920cA78FbF26c0B4956C` with salt zero, so it is the same on every chain. For the current build it is `0xB639d15A0E7aE24E4C32E851Fbe0E57585565b14`. Any edit to the contract or to the compiler settings in `foundry.toml` moves it.
 
 One-time setup:
 
@@ -72,11 +72,11 @@ The script refuses to start unless the normative and boundary suites pass, the c
 To check a deployment yourself:
 
 ```sh
-cast code 0xC5616bb2FDCcdD761aa969c5C0dFb3D5c7d93865 --rpc-url "$SEPOLIA_RPC_URL" | cast keccak
-cast call 0xC5616bb2FDCcdD761aa969c5C0dFb3D5c7d93865 "globalSeq()(uint64)" --rpc-url "$SEPOLIA_RPC_URL"
+cast code 0xB639d15A0E7aE24E4C32E851Fbe0E57585565b14 --rpc-url "$SEPOLIA_RPC_URL" | cast keccak
+cast call 0xB639d15A0E7aE24E4C32E851Fbe0E57585565b14 "globalSeq()(uint64)" --rpc-url "$SEPOLIA_RPC_URL"
 ```
 
-The first should print `0xdc59334640b4a42e076253a531f923cb65fa6e1091f535da8ff17ce74c24b93c`, the runtime code hash in the ERC's Deployment section.
+The first should print `0xd9f882ccb806d16653f80dc459f533e23363936675d52e08f9ed7e7ee56a4ea5`, the runtime code hash in the ERC's Deployment section.
 
 For a local chain, SE-2's usual `yarn chain` and `yarn deploy` in `dapp/` deploy to the same address on anvil.
 

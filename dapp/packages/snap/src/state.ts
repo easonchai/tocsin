@@ -38,7 +38,7 @@ export type State = {
   status?: SyncStatus;
 };
 
-export const LOG: Address = "0xC5616bb2FDCcdD761aa969c5C0dFb3D5c7d93865";
+export const LOG: Address = "0xB639d15A0E7aE24E4C32E851Fbe0E57585565b14";
 export const LOG_CHAIN_ID = 11155111n;
 
 // Build-time defaults from snap.config.ts.

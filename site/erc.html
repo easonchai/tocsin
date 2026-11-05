@@ -140,7 +140,7 @@ interface IThreatFlagLog {
 </code></pre>
 <ul>
 <li><code>append</code> MUST use <code>msg.sender</code> as the writer.</li>
-<li><code>appendSigned</code> MUST verify an <a href="https://eips.ethereum.org/EIPS/eip-712">EIP-712</a> signature by <code>writer</code> over the typed structure <code>Append(Leaf[] leaves,uint256 deadline,uint256 nonce)Leaf(uint64 chainId,address subject,uint8 category,uint8 op,bytes32 evidence,uint64 seenBlock,bytes32 refLeaf)</code>, where the <code>leaves</code> array is encoded per EIP-712 as the keccak256 of the concatenated <code>hashStruct</code> of each leaf. The domain has name <code>&quot;ThreatFlagLog&quot;</code> and version <code>&quot;1&quot;</code>. If <code>writer</code> has code, the log MUST verify through <a href="https://eips.ethereum.org/EIPS/eip-1271">ERC-1271</a> <code>isValidSignature</code>; otherwise it MUST recover the signer with <code>ecrecover</code> and require it to equal <code>writer</code>. It MUST revert if <code>block.timestamp &gt; deadline</code> or if <code>nonce != signatureNonce(writer)</code>, and MUST increment <code>signatureNonce(writer)</code> on success.</li>
+<li><code>appendSigned</code> MUST verify an <a href="https://eips.ethereum.org/EIPS/eip-712">EIP-712</a> signature by <code>writer</code> over the typed structure <code>Append(Leaf[] leaves,uint256 deadline,uint256 nonce)Leaf(uint64 chainId,address subject,uint8 category,uint8 op,bytes32 evidence,uint64 seenBlock,bytes32 refLeaf)</code>, where the <code>leaves</code> array is encoded per EIP-712 as the keccak256 of the concatenated <code>hashStruct</code> of each leaf. The domain has name <code>&quot;ThreatFlagLog&quot;</code> and version <code>&quot;1&quot;</code>. If <code>writer</code> has code, the log MUST verify through <a href="https://eips.ethereum.org/EIPS/eip-1271">ERC-1271</a> <code>isValidSignature</code>; otherwise it MUST recover the signer with <code>ecrecover</code> and require it to equal <code>writer</code>. It MUST reject every signature for <code>writer = address(0)</code>, because <code>ecrecover</code> returns the zero address for an invalid signature. It MUST revert if <code>block.timestamp &gt; deadline</code> or if <code>nonce != signatureNonce(writer)</code>, and MUST increment <code>signatureNonce(writer)</code> on success.</li>
 <li>The domain separator MUST be recomputed when <code>block.chainid</code> differs from the chain id at construction, so that a signature cannot be replayed across a chain split.</li>
 <li>Every deployment MUST publish an <a href="https://eips.ethereum.org/EIPS/eip-7730">ERC-7730</a> clear-signing descriptor covering <code>append</code>, <code>appendSigned</code>, and the <code>Append</code> typed data, mapping <code>category</code> and <code>op</code> values to their names, so that a signing device displays each subject and category rather than a hash. The <code>Append</code> structure MUST NOT contain any field that is only a hash of the leaves.</li>
 <li>Both functions MUST emit <code>Appended</code> once per leaf, in order, with the values used in the chain computation.</li>
@@ -191,11 +191,11 @@ interface IThreatFlagLog {
 </thead>
 <tbody><tr>
 <td>Address</td>
-<td><code>0xC5616bb2FDCcdD761aa969c5C0dFb3D5c7d93865</code></td>
+<td><code>0xB639d15A0E7aE24E4C32E851Fbe0E57585565b14</code></td>
 </tr>
 <tr>
 <td>Runtime code hash</td>
-<td><code>0xdc59334640b4a42e076253a531f923cb65fa6e1091f535da8ff17ce74c24b93c</code>, measured on a fork of Sepolia; the runtime code embeds the chain id and address through immutables</td>
+<td><code>0xd9f882ccb806d16653f80dc459f533e23363936675d52e08f9ed7e7ee56a4ea5</code>, measured on a fork of Sepolia; the runtime code embeds the chain id and address through immutables</td>
 </tr>
 <tr>
 <td>Compiler</td>
@@ -512,7 +512,8 @@ contract ThreatFlagLog {
             );
             return ok &amp;&amp; ret.length == 32 &amp;&amp; abi.decode(ret, (bytes4)) == IERC1271.isValidSignature.selector;
         }
-        if (sig.length != 65) return false;
+        // ecrecover returns address(0) on an invalid signature, so the zero writer would accept any garbage
+        if (writer == address(0) || sig.length != 65) return false;
         bytes32 r = bytes32(sig[0:32]);
         bytes32 s = bytes32(sig[32:64]);
         uint8 v = uint8(sig[64]);

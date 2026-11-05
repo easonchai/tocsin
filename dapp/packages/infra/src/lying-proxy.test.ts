@@ -9,12 +9,12 @@ const target = { writer: MANUAL, seq: 2n };
 
 // Lowercase and padded, as nodes return topics.
 const appended = (writer: Address, seq: bigint) => ({
-  address: "0xc5616bb2fdccdd761aa969c5c0dfb3d5c7d93865",
+  address: "0xb639d15a0e7ae24e4c32e851fbe0e57585565b14",
   topics: encodeEventTopics({ abi: threatFlagLogAbi, eventName: "Appended", args: { writer, writerSeq: seq } }).map((t) => (t as Hex).toLowerCase()),
   data: "0x",
   blockNumber: numberToHex(seq + 1n),
 });
-const other = { address: "0xc5616bb2fdccdd761aa969c5c0dfb3d5c7d93865", topics: [pad("0x1234"), pad(MANUAL.toLowerCase() as Hex), pad("0x2")], data: "0x" };
+const other = { address: "0xb639d15a0e7ae24e4c32e851fbe0e57585565b14", topics: [pad("0x1234"), pad(MANUAL.toLowerCase() as Hex), pad("0x2")], data: "0x" };
 const getLogs = (id: unknown) => ({ jsonrpc: "2.0", id, method: "eth_getLogs", params: [{}] });
 
 describe("lie", () => {
