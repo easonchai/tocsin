@@ -1,75 +1,94 @@
-/* Tocsin how-it-works scenes. Three looping schematics in the Devcon schematic language:
-   1.5px ink-600 connectors, mono pills on ink-800, one solid paper-100 hero node, entrances staggered 0.4s.
-   Each scene is under 10s and loops. They double as loading illustrations.
+/* Tocsin how-it-works scenes. Three looping stories in four beats each, narrated by a caption in plain words.
+   Devcon schematic language: hairline connectors, mono pills for actors, one solid paper hero node, entrances
+   staggered. Each scene is under 10s and loops. They double as loading illustrations.
    Usage: Tocsin.scene(el, 'append' | 'prove' | 'lie'). Needs scenes.css. */
 (function () {
-  var W = 720, H = 290, MONO = 'JetBrains Mono, monospace', LOOP = 9500;
+  var W = 720, H = 330, MONO = 'JetBrains Mono, monospace', BODY = 'Schibsted Grotesk, sans-serif', LOOP = 10500;
+  var BEATS = [.3, 2.8, 5.3, 7.8], END = 10.2;
   var reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  function at(d) { return reduced ? '' : ' style="animation-delay:' + d + 's"'; }
-  // x is the left edge; w fixed per scene so wires line up
+  function at(d, until) { return reduced ? '' : ' style="animation-delay:' + d + 's' + (until != null ? ';animation-duration:' + (until - d) + 's' : '') + '"'; }
+  // actors: a mono pill. x is the left edge
   function pill(x, y, w, text, d, cls) {
-    return '<g class="in ' + (cls || '') + '"' + at(d) + '><rect x="' + x + '" y="' + (y - 12) + '" width="' + w + '" height="24" rx="3" fill="#1a1d22" stroke="#3a3f47"/>' +
+    return '<g class="in ' + (cls || '') + '"' + at(d) + '><rect x="' + x + '" y="' + (y - 13) + '" width="' + w + '" height="26" rx="3" fill="#1a1d22" stroke="#3a3f47"/>' +
       '<text x="' + (x + w / 2) + '" y="' + (y + 4) + '" text-anchor="middle" font-family="' + MONO + '" font-size="12" fill="#c9c3b6">' + text + '</text></g>';
   }
+  // the hero: solid paper. lines may be [text, delay] to arrive late, or [text, delay, until] to leave again
   function hero(x, y, w, h, title, lines, d) {
     var t = '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="3" fill="#ece7dc"/>' +
-      '<text x="' + (x + w / 2) + '" y="' + (y + 26) + '" text-anchor="middle" font-family="Bricolage Grotesque, sans-serif" font-weight="700" font-size="15" fill="#121417">' + title + '</text>';
+      '<text x="' + (x + w / 2) + '" y="' + (y + 27) + '" text-anchor="middle" font-family="Bricolage Grotesque, sans-serif" font-weight="700" font-size="15" fill="#121417">' + title + '</text>';
     var late = '';
     lines.forEach(function (l, i) {
-      var txt = Array.isArray(l) ? l[0] : l, ly = y + 50 + i * 18;
-      var el = '<text x="' + (x + w / 2) + '" y="' + ly + '" text-anchor="middle" font-family="' + MONO + '" font-size="11" fill="#3a3f47"' + (Array.isArray(l) ? ' class="in"' + at(l[1]) : '') + '>' + txt + '</text>';
-      if (Array.isArray(l)) late += el; else t += el;
+      var arr = Array.isArray(l), txt = arr ? l[0] : l, ly = y + 52 + i * 19;
+      var el = '<text x="' + (x + w / 2) + '" y="' + ly + '" text-anchor="middle" font-family="' + MONO + '" font-size="11.5" fill="#3a3f47"' + (arr ? ' class="' + (l[2] != null ? 'cap' : 'in') + '"' + at(l[1], l[2]) : '') + '>' + txt + '</text>';
+      if (arr) late += el; else t += el;
     });
     return '<g class="in"' + at(d) + '>' + t + '</g>' + late;
   }
   function wire(dd, d, cls) { return '<path class="draw ' + (cls || '') + '" d="' + dd + '"' + at(d) + '/>'; }
-  function leaf(x, y, d, amber) { return '<rect class="in" x="' + (x - 4) + '" y="' + (y - 4) + '" width="8" height="8" fill="' + (amber ? '#e9a23b' : '#c9c3b6') + '"' + at(d) + '/>'; }
-  function label(x, y, text, d, fill, anchor) { return '<text class="in" x="' + x + '" y="' + y + '" text-anchor="' + (anchor || 'middle') + '" font-family="' + MONO + '" font-size="11" fill="' + (fill || '#8f8b82') + '"' + at(d) + '>' + text + '</text>'; }
+  function leaf(x, y, d, fill) { return '<rect class="in" x="' + (x - 4) + '" y="' + (y - 4) + '" width="8" height="8" fill="' + (fill || '#c9c3b6') + '"' + at(d) + '/>'; }
+  function label(x, y, text, d, fill, anchor, until) { return '<text class="' + (until != null ? 'cap' : 'in') + '" x="' + x + '" y="' + y + '" text-anchor="' + (anchor || 'middle') + '" font-family="' + MONO + '" font-size="11.5" fill="' + (fill || '#8f8b82') + '"' + at(d, until) + '>' + text + '</text>'; }
+  // the caption: one plain sentence per beat, shown for that beat only
+  function caption(i, text) { return '<text class="cap" x="' + (W / 2) + '" y="' + (H - 16) + '" text-anchor="middle" font-family="' + BODY + '" font-size="15" fill="#ece7dc"' + at(BEATS[i], i < 3 ? BEATS[i + 1] : END) + '>' + text + '</text>'; }
+  function verdict(x, y, w, text, d, color) { return '<g class="in"' + at(d) + '><rect x="' + x + '" y="' + (y - 14) + '" width="' + w + '" height="28" rx="3" fill="none" stroke="' + color + '"/><text x="' + (x + w / 2) + '" y="' + (y + 4) + '" text-anchor="middle" font-family="' + MONO + '" font-size="12" fill="' + color + '">' + text + '</text></g>'; }
 
   var scenes = {
-    // writers append to their own chains; the log folds each leaf into a head
+    // one bite, everyone immune: a victim pays, a writer records it, the log keeps it forever, every wallet that syncs knows
     append: function () {
-      var s = '', writers = [['seal', 70], ['scamsniffer', 150], ['detector-7', 230]];
-      s += hero(540, 50, 140, 200, 'log · L1', ['one slot', 'per writer', '', ['seal  0x9c4e…', 4.6], ['scams 0x17b0…', 5.4], ['det-7 0x3fe2…', 6.2]], 0);
-      writers.forEach(function (w, i) {
-        var y = w[1], d0 = .4 + i * .4;
-        s += pill(40, y, 120, w[0], d0);
-        s += wire('M170 ' + y + 'H520', d0 + .3);
-        for (var k = 0; k < 6; k++) s += leaf(210 + k * 56, y, d0 + 1.2 + k * .55 + i * .15, k === 5);
-      });
-      s += label(350, 282, 'leaves · hashed with writer, block, sequence · never deleted', 5.5);
+      var s = '', b = BEATS;
+      s += pill(30, 100, 150, 'a victim pays', b[0]);
+      s += pill(30, 160, 150, '0x7a3F…c91B', b[0] + .4, 'addr');
+      s += caption(0, 'Someone pays a scam address. It takes their money.');
+      s += pill(230, 160, 160, 'SEAL · a writer', b[1]);
+      s += wire('M180 160H230', b[1] + .2);
+      s += hero(420, 70, 200, 180, 'the log · on Ethereum', ['one chain per writer', '', ['seal  head 0x17b0…', 0, b[2] + .4], ['seal  head 0x9c4e…', b[2] + .5], ['41,208 flags · 0 removed', b[2] + 1.2]], b[0]);
+      s += wire('M390 160H420', b[1] + .8);
+      s += leaf(405, 160, b[1] + 1.1);
+      s += caption(1, 'A writer, say SEAL, records that address in the log under its own name.');
+      s += caption(2, 'The log hashes it into SEAL\'s chain. Nothing in the log can ever be removed.');
+      var ys = [100, 160, 220];
+      ys.forEach(function (y, i) { s += wire('M620 ' + y + 'H645', b[3] + i * .3); s += pill(645, y, 62, 'wallet', b[3] + i * .3 + .2, 'wallet'); });
+      s += caption(3, 'Every wallet that syncs the log now knows. One bite, everyone immune.');
       return s;
     },
-    // the wallet proves the heads it trusts, then replays leaves from any mirror until the chain lands on the proven head
+    // your wallet checks Ethereum itself
     prove: function () {
-      var s = '';
-      s += pill(30, 90, 210, 'helios · finalized header', 0);
-      s += pill(30, 210, 210, 'mirror · any source', .8);
-      s += hero(540, 60, 140, 180, 'wallet', ['light client', '', ['proven head', 1.6], ['0x9c4e…', 1.6], ['replayed 0x9c4e…', 5.8]], .4);
-      s += wire('M250 90H520', 1.2, 'amber');
-      s += label(385, 78, 'eth_getProof · verified against stateRoot', 1.6, '#e9a23b');
-      s += wire('M250 210H520', 2.0);
-      for (var k = 0; k < 6; k++) s += leaf(280 + k * 44, 210, 2.4 + k * .45);
-      s += label(385, 240, 'replayed head 0x9c4e…  =  0x9c4e…', 5.8, '#c9c3b6');
-      s += '<g class="in"' + at(6.6) + '><rect x="470" y="252" width="210" height="26" rx="3" fill="none" stroke="#ece7dc"/><text x="575" y="269" text-anchor="middle" font-family="' + MONO + '" font-size="12" fill="#ece7dc">head matches · verified</text></g>';
+      var s = '', b = BEATS;
+      s += pill(30, 100, 160, 'you paste 0x7a3F…', b[0]);
+      s += hero(250, 60, 160, 180, 'your wallet', ['light client', '', ['proven head 0x9c4e…', b[1] + 1.2], ['replayed   0x9c4e…', b[2] + 1.8], ['match ✓', b[2] + 2.2]], b[0] + .3);
+      s += wire('M190 100H250', b[0] + .6);
+      s += caption(0, 'You paste an address into your wallet.');
+      s += pill(520, 90, 170, 'Ethereum · final block', b[1]);
+      s += wire('M410 90H520', b[1] + .3, 'amber');
+      s += label(465, 78, 'proof', b[1] + .8, '#e9a23b');
+      s += caption(1, 'The wallet asks Ethereum itself, not a company, for the log\'s head. A proof, checked on the device.');
+      s += pill(520, 200, 170, 'flags · from anywhere', b[2]);
+      s += wire('M520 200H410', b[2] + .2);
+      for (var k = 0; k < 4; k++) s += leaf(500 - k * 26, 200, b[2] + .5 + k * .3);
+      s += caption(2, 'It downloads the flags from any source and replays them until they land on the proven head.');
+      s += verdict(250, 272, 160, 'blocked · on device', b[3], '#e5484d');
+      s += caption(3, 'The address is flagged by two independent writers. Blocked. No company was asked, nothing was sent.');
       return s;
     },
-    // the RPC omits a flag; the replayed chain misses the proven head; the wallet says unverifiable, never clean
+    // an rpc lies and the wallet notices
     lie: function () {
-      var s = '';
-      s += pill(30, 90, 210, 'helios · finalized header', 0);
-      s += pill(30, 210, 210, 'rpc · says "clean"', .8, 'bad');
-      s += hero(540, 60, 140, 180, 'wallet', ['light client', '', 'proven head', '0x9c4e…', ''], .4);
-      s += wire('M250 90H520', 1.2, 'amber');
-      s += label(385, 78, 'eth_getProof · verified against stateRoot', 1.6, '#e9a23b');
-      s += wire('M250 210H520', 2.0);
-      for (var k = 0; k < 6; k++) if (k !== 4) s += leaf(280 + k * 44, 210, 2.4 + k * .45, false);
-      s += wire('M250 210H520', 4.2, 'bad');
-      s += '<rect class="in" x="452" y="206" width="8" height="8" fill="none" stroke="#e5484d" stroke-dasharray="2 2"' + at(4.2) + '/>';
-      s += label(456, 236, 'leaf 41,206 missing', 4.6, '#e5484d');
-      s += label(330, 266, 'replayed head 0x4d01…  ≠  0x9c4e…', 5.8, '#c9c3b6');
-      s += '<g class="in"' + at(6.6) + '><rect x="470" y="252" width="210" height="26" rx="3" fill="none" stroke="#e5484d"/><text x="575" y="269" text-anchor="middle" font-family="' + MONO + '" font-size="12" fill="#e5484d">unverifiable · never clean</text></g>';
+      var s = '', b = BEATS;
+      s += pill(30, 100, 160, 'you paste 0x7a3F…', b[0]);
+      s += hero(250, 60, 160, 180, 'your wallet', ['light client', '', ['proven head 0x9c4e…', b[1] + 1.2], ['replayed   0x4d01…', b[2] + 1.8], ['no match', b[2] + 2.2]], b[0] + .3);
+      s += wire('M190 100H250', b[0] + .6);
+      s += pill(520, 200, 170, 'RPC · says "clean"', b[0] + .9, 'bad');
+      s += caption(0, 'This time the flags come from an RPC that lies. It says the address is clean.');
+      s += pill(520, 90, 170, 'Ethereum · final block', b[1]);
+      s += wire('M410 90H520', b[1] + .3, 'amber');
+      s += label(465, 78, 'proof', b[1] + .8, '#e9a23b');
+      s += caption(1, 'The wallet still asks Ethereum itself for the real head.');
+      s += wire('M520 200H410', b[2] + .2);
+      for (var k = 0; k < 4; k++) if (k !== 1) s += leaf(500 - k * 26, 200, b[2] + .5 + k * .3);
+      s += '<rect class="in" x="470" y="196" width="8" height="8" fill="none" stroke="#e5484d" stroke-dasharray="2 2"' + at(b[2] + 1.4) + '/>';
+      s += label(474, 224, 'one flag missing', b[2] + 1.6, '#e5484d');
+      s += caption(2, 'It replays what the RPC gave it. The chain never reaches the proven head: a flag is missing.');
+      s += verdict(250, 272, 160, 'unverifiable', b[3], '#e5484d');
+      s += caption(3, 'The wallet says unverifiable, never clean. An RPC cannot talk a wallet into trusting it.');
       return s;
     }
   };

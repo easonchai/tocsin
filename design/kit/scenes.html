@@ -21,9 +21,9 @@
 <body>
 <div class="page">
   <header><img src="mark.svg" width="28" height="28" alt=""><span class="wordmark">tocsin</span><span class="label">scenes · each loops under 10s</span></header>
-  <div class="scene"><div><h2>1 · Writers append</h2><p>Each writer appends to its own chain. The log folds every leaf into that writer's head. Nothing is deleted.</p></div><div class="frame" data-scene="append" aria-label="Writers append leaves into their own chains in the log"></div></div>
-  <div class="scene"><div><h2>2 · The wallet proves and replays</h2><p>One proof of the heads it trusts, against a finalized header. Then it replays the leaves from any mirror until the chain lands on the proven head.</p></div><div class="frame" data-scene="prove" aria-label="The wallet proves a head and replays leaves to it"></div></div>
-  <div class="scene"><div><h2>3 · The lying RPC is caught</h2><p>An RPC that omits a flag produces a chain that misses the proven head. The wallet says unverifiable. It never says clean.</p></div><div class="frame" data-scene="lie" aria-label="A lying RPC is caught by a chain mismatch"></div></div>
+  <div class="scene"><div><h2>1 · One bite, everyone immune</h2><p>A victim pays, a writer records it, the log keeps it forever, every wallet that syncs knows.</p></div><div class="frame" data-scene="append" aria-label="Writers append leaves into their own chains in the log"></div></div>
+  <div class="scene"><div><h2>2 · Your wallet checks Ethereum itself</h2><p>A proof from Ethereum, flags from anywhere, replayed until they match. Blocked on the device, nobody asked.</p></div><div class="frame" data-scene="prove" aria-label="The wallet proves a head and replays leaves to it"></div></div>
+  <div class="scene"><div><h2>3 · An RPC lies. The wallet notices</h2><p>The RPC says clean and drops a flag. The replay never reaches the proven head. Unverifiable, never clean.</p></div><div class="frame" data-scene="lie" aria-label="A lying RPC is caught by a chain mismatch"></div></div>
 </div>
 <script src="scenes.js"></script>
 </body>
