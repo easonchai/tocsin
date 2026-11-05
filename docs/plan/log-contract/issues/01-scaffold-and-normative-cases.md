@@ -6,6 +6,8 @@ Spec: `docs/plan/log-contract/spec.md`. PRD: `erc/eip-draft_threat_flag_log.md`.
 
 **Blocked by:** None (can start immediately)
 
+**Ethskills:** ship, tools, testing, wallets (per AGENTS.md; load before starting)
+
 **Status:** ready-for-agent
 
 - [ ] Scaffold-ETH 2 Foundry flavour at the pinned create-eth version, forge at or above the HANDOFF minimum, compiler 0.8.28 with optimizer settings recorded in the Foundry config.

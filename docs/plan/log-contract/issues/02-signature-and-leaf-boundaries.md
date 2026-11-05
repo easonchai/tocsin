@@ -6,6 +6,8 @@ Spec: `docs/plan/log-contract/spec.md`, Testing decisions, boundaries and EIP-77
 
 **Blocked by:** 01 (Scaffold, reference contract, normative cases 1 to 9)
 
+**Ethskills:** testing, security, standards (per AGENTS.md; load before starting)
+
 **Status:** ready-for-agent
 
 - [ ] Leaf rules: op 3 accepted and op 4 rejected; evidence zero rejected on a flag and accepted on a tombstone; dispute with subject equal to the writer accepted and not equal rejected.

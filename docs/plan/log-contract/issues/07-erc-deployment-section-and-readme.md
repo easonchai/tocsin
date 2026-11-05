@@ -4,12 +4,14 @@ Spec: `docs/plan/log-contract/spec.md`, Implementation decisions, Deployment and
 
 **What to build:** The PRD and the deployment agree, and someone with a fresh clone and only the env file can repeat the deploy from the README. The ERC's snapshot wording is fixed so a mirror can be replayed.
 
-**Blocked by:** 06 (CREATE2 deploy to Sepolia with verify and smoke append)
+**Blocked by:** 06 (CREATE2 deploy to Sepolia with verify and smoke append), 08 (ERC-7730 clear-signing descriptor)
+
+**Ethskills:** ship, concepts, standards (per AGENTS.md; load before starting)
 
 **Status:** ready-for-agent
 
-- [ ] ERC Deployment section carries the Sepolia address, runtime code hash, compiler version, and optimizer settings, labelled as the testnet deployment. `site/erc.html` rebuilt and committed with it.
-- [ ] ERC Data availability section: a snapshot carries the append block number per event, since the leaf hash commits to it and the ABI-encoded event does not. The event itself is unchanged.
+- [ ] ERC Deployment section carries the Sepolia address, runtime code hash, compiler version, and optimizer settings, labelled as the testnet deployment, and links the ERC-7730 descriptor from ticket 08. `site/erc.html` rebuilt and committed with it.
+- [ ] ERC snapshot wording, in both the Data availability section and the Trust lists `snapshotURI` bullet: a snapshot carries the append block number per event, since the leaf hash commits to it and the ABI-encoded event does not. The event itself is unchanged.
 - [ ] ERC Test Cases section: the fixture from ticket 05 is named as the test vectors, and cases 10 to 12 point at the demo spec's reader library as the reference reader.
 - [ ] README transition table for `append` and `appendSigned`: caller, why they pay gas, and what happens if nobody calls, as the spec states.
 - [ ] README runbook: exact commands, required environment variable names, the expected address, verify commands, and the smoke test. No values of secrets.

@@ -6,6 +6,8 @@ Spec: `docs/plan/log-contract/spec.md`, Implementation decisions, Deployment. PR
 
 **Blocked by:** 01 (Scaffold, reference contract, normative cases 1 to 9), 02 (Signature and leaf boundaries)
 
+**Ethskills:** orchestration, wallets, gas (per AGENTS.md; load before starting)
+
 **Status:** ready-for-agent
 
 - [ ] Deploy script computes the CREATE2 address from the deterministic deployment proxy, salt zero, and the compiled init code with no constructor arguments; prints it; aborts if code already exists there.

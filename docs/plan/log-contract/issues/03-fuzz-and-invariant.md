@@ -6,6 +6,8 @@ Spec: `docs/plan/log-contract/spec.md`, Testing decisions, fuzz and invariant pa
 
 **Blocked by:** 01 (Scaffold, reference contract, normative cases 1 to 9)
 
+**Ethskills:** testing, security (per AGENTS.md; load before starting)
+
 **Status:** ready-for-agent
 
 - [ ] Fuzz test over random leaves across the full field domains, batch sizes bounded 1 to 500 with `bound()`, random writers. Properties: writer sequence and global sequence increase by exactly one per leaf; every leaf changes both heads; emitted leaf hash, writer head, and global head equal a test-side recomputation from the emitted inputs.

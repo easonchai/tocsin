@@ -6,6 +6,8 @@ Spec: `docs/plan/log-contract/spec.md`, Testing decisions, fixture line; `docs/p
 
 **Blocked by:** 01 (Scaffold, reference contract, normative cases 1 to 9)
 
+**Ethskills:** testing (per AGENTS.md; load before starting)
+
 **Status:** ready-for-agent
 
 - [ ] Fixed scenario with at least two writers, both entry points, every op, a tombstone referencing an own leaf, a counter referencing another writer's leaf, and appends spread over several blocks via `vm.roll`.

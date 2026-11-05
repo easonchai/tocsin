@@ -6,6 +6,8 @@ Spec: `docs/plan/log-contract/spec.md`, Testing decisions, storage, ERC-165, gas
 
 **Blocked by:** 01 (Scaffold, reference contract, normative cases 1 to 9)
 
+**Ethskills:** testing, security, gas (per AGENTS.md; load before starting)
+
 **Status:** ready-for-agent
 
 - [ ] `vm.load` at slots 0 and 1 and at the ERC's two mapping formulas for two different writers, plus the nonce mapping at slot 4, each matching the value the getters return after appends.
