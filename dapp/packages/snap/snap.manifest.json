@@ -3,7 +3,7 @@
   "description": "Checks recipients, spenders and permits against threat flags in an on-chain log, from writers on a signed list you pin. Best-effort: the header comes from an RPC.",
   "proposedName": "Tocsin",
   "source": {
-    "shasum": "FLXZ8fjXRhh6QZxOhzd4cSMgNSscuSqnhM9WIXRExYQ=",
+    "shasum": "JlfOg6gd9UnRNy12VxC2/3ouWbUPpi3Y6jYJ8G7TOnk=",
     "location": {
       "npm": {
         "filePath": "dist/bundle.js",
@@ -15,10 +15,10 @@
   },
   "initialPermissions": {
     "endowment:transaction-insight": {
-      "allowTransactionOrigin": true
+      "allowTransactionOrigin": false
     },
     "endowment:signature-insight": {
-      "allowSignatureOrigin": true
+      "allowSignatureOrigin": false
     },
     "endowment:cronjob": {
       "jobs": [

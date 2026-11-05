@@ -11,7 +11,7 @@ const ORIGIN = "https://dapp.example";
 type Msg = { tocsin?: string; id?: string; method?: string; proceed?: boolean };
 
 /** A page with a recording wallet, the built proxy, and a bridge that answers every ask with `answer`. */
-function page(answer: boolean) {
+function page(answer: boolean, crypto: Pick<Crypto, "getRandomValues"> = globalThis.crypto) {
   const win = new EventTarget() as EventTarget & { ethereum?: { request(a: { method: string; params?: unknown }): Promise<unknown> }; postMessage(d: unknown, o: string): void };
   const posted: { data: Msg; origin: string }[] = [];
   win.postMessage = (data, origin) => {
@@ -31,7 +31,7 @@ function page(answer: boolean) {
     const d = (e as unknown as { data: Msg }).data;
     if (d.tocsin === "ask") win.postMessage({ tocsin: "verdict", id: d.id, proceed: answer }, ORIGIN);
   });
-  vm.runInNewContext(PAGE, { window: win, location: { origin: ORIGIN }, crypto: globalThis.crypto, CustomEvent, Event, setTimeout });
+  vm.runInNewContext(PAGE, { window: win, location: { origin: ORIGIN }, crypto, CustomEvent, Event, setTimeout });
   return { win, posted, seen };
 }
 
@@ -67,4 +67,10 @@ test("built proxy: a verdict for another id does not release the request", async
   const outcome = await Promise.race([held.then(() => "released"), new Promise((r) => setTimeout(() => r("held"), 50))]);
   assert.equal(outcome, "held");
   assert.deepEqual(seen, ["eth_chainId"]);
+});
+
+test("built proxy: on a plain-http page (no crypto.randomUUID) a send is still asked and released", async () => {
+  const { win, seen } = page(true, { getRandomValues: (a) => globalThis.crypto.getRandomValues(a) });
+  assert.equal(await win.ethereum!.request({ method: "eth_sendTransaction", params: [{ to: "0xbad0000000000000000000000000000000000bad" }] }), "0xhash");
+  assert.deepEqual(seen, ["eth_chainId", "eth_sendTransaction"]);
 });

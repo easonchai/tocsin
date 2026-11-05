@@ -38,6 +38,7 @@ if (!["tor", "nym", "direct"].includes(config.transport)) fail(`TOCSIN_TRANSPORT
 if (config.listRecord && !/^0x[0-9a-fA-F]*$/.test(config.listRecord)) fail("TOCSIN_LIST_RECORD must be 0x-prefixed hex");
 if (!/^\d+$/.test(config.fromBlock)) fail("TOCSIN_LOG_FROM_BLOCK must be a block number");
 for (const [k, v] of Object.entries(config)) if (v === "" && k !== "listRecord") console.warn(`extension build: ${k} is empty; the overlay will say so`);
+if (config.fromBlock === "0") console.warn("extension build: TOCSIN_LOG_FROM_BLOCK is unset, so the first leaf scan starts at Sepolia block 0");
 
 // Every import of the harness package goes to the wrapper that hands it iframeUrl, except the wrapper's own.
 const shim = join(here, "src/anon-harness.ts");

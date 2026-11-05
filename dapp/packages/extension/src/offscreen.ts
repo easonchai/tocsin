@@ -17,7 +17,10 @@ const engineCfg: EngineConfig = {
   // SAFETY: build.mjs passes TOCSIN_LIST_RECORD through only when it is 0x-hex or empty.
   listRecord: cfg.listRecord as EngineConfig["listRecord"],
   fromBlock: BigInt(cfg.fromBlock || "0"),
-  transportLabel: transport === "direct" ? "direct to the RPC, not anonymised" : `through the ${transport} Anon-RPC worker`,
+  transportLabel:
+    transport === "direct"
+      ? "direct to the RPC, not anonymised"
+      : `through the ${transport} Anon-RPC worker; the list document and the light-client updates are fetched directly`,
 };
 
 let state: EngineState = { persisted: { checkpoints: {} }, names: {} };
@@ -76,18 +79,18 @@ async function boot(): Promise<void> {
 }
 
 boot().catch((e: unknown) => {
-  state = { ...state, error: `startup failed: ${errorText(e)}` };
+  // boot never retries, so the overlay says how to.
+  state = { ...state, error: `startup failed: ${errorText(e)}. Reload Tocsin on chrome://extensions to retry.` };
 });
 
 chrome.runtime.onMessage.addListener((msg, _sender, reply) => {
   const m = msg as { target?: unknown; kind?: unknown; method?: unknown; params?: unknown; chainId?: unknown } | null;
   if (m?.target !== "offscreen" || m.kind !== "evaluate" || typeof m.method !== "string") return undefined;
-  if (!state.sync) {
-    reply(unavailableReport(state.error ?? `Tocsin is still starting (${stage}), so it has nothing to check against yet.`));
-    return undefined;
-  }
   try {
     const { targets, chainId } = requestTargets(m.method, m.params, m.chainId);
+    // Nothing to check (a non-permit signature, a deploy): pass silently, even while still starting.
+    if (targets.length === 0) return void reply({ verdict: "clean", items: [], unavailable: [], trust: "" });
+    if (!state.sync) return void reply(unavailableReport(state.error ?? `Tocsin is still starting (${stage}), so it has nothing to check against yet.`));
     reply(buildReport(state, targets, chainId, engineCfg));
   } catch (e) {
     reply(unavailableReport(`the check failed: ${errorText(e)}`));

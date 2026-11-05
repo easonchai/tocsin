@@ -92,6 +92,7 @@ const RESOLVER = getAddress("0x0000000000000000000000000000000000000e45");
 type World = { list: Awaited<ReturnType<typeof signedList>>; requests: string[] };
 const world = { requests: [] } as unknown as World;
 let chainId = "0xaa36a7";
+let teamGone = false; // walkaway: the team's ENS records, list host and mirror all stop answering
 
 function rpc(method: string, params: any[], lying: boolean): unknown {
   if (method === "eth_chainId") return chainId;
@@ -111,6 +112,7 @@ function rpc(method: string, params: any[], lying: boolean): unknown {
   if (method === "eth_call") {
     const { to, data } = params[0] as { to: Address; data: Hex };
     assert.equal(getAddress(to), UR, "every ENS read goes to the Universal Resolver");
+    if (teamGone) throw Object.assign(new Error("execution reverted"), { rpc: true }); // name and records deleted
     if (data.startsWith(toFunctionSelector(urAbi[1]))) {
       const [lookup, , gateways] = decodeFunctionData({ abi: urAbi, data }).args as [Hex, bigint, string[]];
       assert.deepEqual(gateways, [], "CCIP-read stays off");
@@ -142,6 +144,7 @@ async function fakeFetch(input: string, init?: RequestInit): Promise<Response> {
       return json({ jsonrpc: "2.0", id, error: { code: 3, message: "execution reverted" } });
     }
   }
+  if (teamGone && (url.host === "lists.test" || url.host === "mirror.test")) throw new TypeError("fetch failed");
   if (url.host === "lists.test") return json(world.list.document);
   if (url.host === "mirror.test") {
     const w = url.pathname.slice(1, -".json".length);
@@ -235,6 +238,13 @@ test("a clean address is clean only because every pinned writer synced", async (
   assert.match(text(r.content), /No pinned writer flags this/);
 });
 
+test("on another chain a Sepolia-only flag does not count, and the panel names the chain", async () => {
+  const r = await h.onTransaction!({ transaction: { to: DRAINER, data: "0x", from: CLEAN }, chainId: "eip155:1" });
+  assert.equal(r.severity, undefined);
+  assert.match(text(r.content), /on chain 1, not Sepolia/);
+  assert.doesNotMatch(text(await send(CLEAN)), /not Sepolia/);
+});
+
 test("a permit for a flagged spender is blocked at signing; a non-permit signature gets no panel", async () => {
   const r = await sign(SPENDER);
   assert.equal(r.severity, "critical");
@@ -311,4 +321,29 @@ test("invalid settings show field errors and change nothing", async () => {
   await submit({ rpcUrl: "http://rpc.test/" });
   assert.match(text(ui), /Enter an https URL/);
   assert.equal(JSON.stringify(stored), before);
+});
+
+test("a dead leaf source names its error right after Sync, not only after a reload", async () => {
+  await submit({ leafSource: "custom", customUrl: "https://dead.test/" });
+  assert.match(text(ui), /source failed: request to dead\.test failed: HTTP 404 from dead\.test/);
+  await h.onSettingsPage!(undefined);
+  assert.match(text(ui), /source failed: request to dead\.test failed: HTTP 404 from dead\.test/);
+  assert.match(text(ui), /0xB639d15A0E7aE24E4C32E851Fbe0E57585565b14 on Sepolia/);
+});
+
+test("walkaway: with the team's name, list host and mirror gone, the pinned list plus the log still block", async () => {
+  teamGone = true;
+  const pinnedMaintainer = world.list.maintainer;
+  // Switching to the RPC source drops checkpoints, so this replays every leaf from the log itself.
+  await submit({ leafSource: "rpc" });
+  assert.match(text(ui), /stale/, "the list record is unverifiable, so the pin is kept and marked stale");
+  assert.match(text(ui), new RegExp(pinnedMaintainer));
+  assert.match(text(ui), /synced to sequence 2/);
+  const r = await send(DRAINER);
+  assert.equal(r.severity, "critical");
+  const c = text(r.content);
+  assert.match(c, /Drainer receiver/);
+  assert.doesNotMatch(c, /uses the sync before it/, "a fresh sync succeeded; this is not a cached result");
+  assert.match(c, /0x0000…11cE/,"without the team's reverse record the writer shows as a short address");
+  teamGone = false;
 });

@@ -18,7 +18,7 @@ import {
 } from "@metamask/snaps-sdk/jsx";
 import type { Address, Hex } from "viem";
 import type { Assessment } from "./engine";
-import type { State } from "./state";
+import { LOG, LOG_CHAIN_ID, type State } from "./state";
 
 const CATEGORY: Record<number, string> = {
   1: "Poisoning operator",
@@ -50,7 +50,10 @@ export function whyUnavailable(s: WriterSync | undefined): string {
   if (!s) return "not synced yet";
   if (s.status === "synced") return `synced to sequence ${s.seq}`;
   if (s.divergedAt !== undefined) return `unverifiable, chain mismatch at sequence ${s.divergedAt}`;
-  return `unverifiable, source failed${typeof s.error === "string" ? `: ${s.error}` : ""}`;
+  // A fresh sync result holds an Error; one read back from Snap state holds its message (state.ts).
+  const e = s.error;
+  const reason = e instanceof Error ? (e.cause instanceof Error ? `${e.message}: ${e.cause.message}` : e.message) : typeof e === "string" ? e : "";
+  return `unverifiable, source failed${reason ? `: ${reason}` : ""}`;
 }
 
 const SOURCE_LABEL = { rpc: "the RPC", custom: "a custom URL", snapshot: "the mirror (snapshotURI)" } as const;
@@ -80,13 +83,13 @@ const TrustFooter = ({ state }: { state: State }) => (
 
 const BANNER = {
   block: { severity: "danger", title: "Blocked by your pinned list", body: "Do not confirm. Writers on your pinned list flag this address." },
-  warn: { severity: "warning", title: "Flagged by a writer on your pinned list", body: "One writer flags this address. Check the evidence before you confirm." },
+  warn: { severity: "warning", title: "Flagged by a writer on your pinned list", body: "Flagged, but short of a block. Check the evidence before you confirm." },
   unavailable: { severity: "warning", title: "Tocsin cannot vouch for this", body: "Not every pinned writer synced, so this is not a clean result." },
   clean: { severity: "success", title: "No pinned writer flags this", body: "Every pinned writer synced and none flags these addresses." },
 } as const;
 
 /** The insight panel for one transaction or signature. `assessments` undefined means no sync or list yet. */
-export function Panel({ state, assessments }: { state: State; assessments: Assessment[] | undefined }) {
+export function Panel({ state, assessments, chainId }: { state: State; assessments: Assessment[] | undefined; chainId: bigint }) {
   if (!assessments) {
     return (
       <Box>
@@ -113,6 +116,9 @@ export function Panel({ state, assessments }: { state: State; assessments: Asses
       <Banner severity={b.severity} title={b.title}>
         <Text>{b.body}</Text>
       </Banner>
+      {chainId !== LOG_CHAIN_ID ? (
+        <Text color="warning">{`This request is on chain ${chainId}, not Sepolia. Only flags written for chain ${chainId} or for every chain count here.`}</Text>
+      ) : null}
       {assessments.map(({ target, evaluation }) => (
         <Section>
           <Row label={target.why}>
@@ -229,6 +235,9 @@ export function SettingsPage({ state, list, errors = {}, syncing = false }: { st
         <Text>No list pinned yet.</Text>
       )}
       <Heading size="sm">Sync</Heading>
+      <Row label="Log contract">
+        <Text>{`${LOG} on Sepolia`}</Text>
+      </Row>
       {syncing ? (
         <Box direction="horizontal" alignment="start">
           <Spinner />

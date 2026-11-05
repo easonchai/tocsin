@@ -44,9 +44,10 @@ const chainOf = (caip: string): bigint => {
 
 export const onTransaction: OnTransactionHandler = async ({ transaction, chainId }) => {
   const state = await loadState();
-  const assessments = await assess(state, transactionTargets(transaction), chainOf(chainId));
+  const chain = chainOf(chainId);
+  const assessments = await assess(state, transactionTargets(transaction), chain);
   return {
-    content: <Panel state={state} assessments={assessments} />,
+    content: <Panel state={state} assessments={assessments} chainId={chain} />,
     ...(assessments && worst(assessments) === "block" && { severity: "critical" as const }),
   };
 };
@@ -56,9 +57,10 @@ export const onSignature: OnSignatureHandler = async ({ signature }) => {
   const { targets, chainId } = signatureTargets(signature.data);
   if (targets.length === 0) return null; // not a permit: stay out of the way
   const state = await loadState();
-  const assessments = await assess(state, targets, chainId ?? LOG_CHAIN_ID);
+  const chain = chainId ?? LOG_CHAIN_ID;
+  const assessments = await assess(state, targets, chain);
   return {
-    content: <Panel state={state} assessments={assessments} />,
+    content: <Panel state={state} assessments={assessments} chainId={chain} />,
     ...(assessments && worst(assessments) === "block" && { severity: "critical" as const }),
   };
 };
