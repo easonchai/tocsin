@@ -33,7 +33,7 @@ The kit is built under `brand/` and the site runs on it (serve the repo root and
 - `brand/scenes.js` and `scenes.css` draw the three how-it-works loops (`append`, `prove`, `lie`) into any `[data-scene]` element; they replaced the old boxed diagram in section 02 of the site.
 - `brand/mocks.html` has the Kohaku send screen, the Snap insight panel, and the extension overlay. Host chrome is neutral grey; the Tocsin surface is the only thing with a voice. Reuse the `.tocsin` block as the spec for the real integrations.
 
-Critic loop on the landing page: round one scored 7/10 (trace spoiled its ending, draw.io diagram, amber six times, page too long, residue invisible); all five fixes applied. Round two pending at the time of writing. Still no Higgsfield.
+Critic loop on the landing page: four rounds, 7/10 each time, hero rated 8.5 to 9 and the body 6, so the loop was stopped at the plateau. Applied across the rounds: trace grows line by line and keeps its closing line for the verdict, scenes replaced the boxed diagram, amber held to the headline word and the proof wire, stat band removed, trust table first with the Tocsin column on ink-800, section 06 frontmatter beside the headline, FAQ as open rows, quote at h2 size, residue brighter and 20s long, nav cut to four links. Still open from the critic, not done because each needs a decision or real data: a dated ledger of real incidents in place of the Devcon quote, a per-leaf record drawn in scene one, full-bleed trust table and ledger-style read path to break the section rhythm, scope chips as a two-column table. Still no Higgsfield.
 
 ## Prize targets, ETHGlobal Mumbai, submissions close 8 November 09:00 IST
 
