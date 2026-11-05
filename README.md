@@ -30,6 +30,55 @@ We do not chase throwaway lookalike addresses. About one in nine thousand is eve
 | `scripts/build-erc.mjs` | Regenerates `site/erc.html` after you edit the ERC |
 | `HANDOFF.md` | Current state, decisions, and the build order for anyone picking this up |
 | `docs/wallet-integrations.md` | Feature request for the Kohaku module, MetaMask Snap, and provider-proxy extension |
+| `dapp/packages/foundry` | The log contract, its Foundry tests, and the CREATE2 deploy script (Scaffold-ETH 2, Foundry flavour) |
+| `GLOSSARY.md` | Log, writer, leaf, subject, head, maintainer, reader |
+
+## Who calls the log
+
+The log has two state-changing functions and no others. Nothing in it runs on a schedule.
+
+| Transition | Caller | Why they pay gas | If nobody calls |
+| --- | --- | --- | --- |
+| `append(leaves)` | The writer, from its own account | Its flags only reach wallets through the lists that name it, so publishing is its distribution | Nothing changes. The heads stay where they are and readers keep the last state they proved |
+| `appendSigned(writer, leaves, deadline, nonce, sig)` | Any relayer | The writer sponsors the relayer, or runs its own, so its signing key never holds gas | The signed batch expires at its deadline and the writer's nonce is untouched, so the writer re-signs or sends `append` itself |
+
+Nobody can stop a writer: a relayer that refuses a batch is bypassed by sending `append` directly.
+
+## Test and deploy the log
+
+The contract has no owner, so a deploy hands nothing over afterwards. Tests first:
+
+```sh
+cd dapp/packages/foundry
+forge test
+```
+
+Sepolia only for now. The address comes from the deterministic deployment proxy `0x4e59b44847b379578588920cA78FbF26c0B4956C` with salt zero, so it is the same on every chain. For the current build it is `0xC5616bb2FDCcdD761aa969c5C0dFb3D5c7d93865`. Any edit to the contract or to the compiler settings in `foundry.toml` moves it.
+
+One-time setup:
+
+1. `cd dapp && yarn install`
+2. Make a keystore with `cast wallet import <name> --interactive` (or `yarn generate`) and fund its address with Sepolia ETH. Never pass `--private-key`.
+3. In `dapp/packages/foundry/.env`, which git ignores, set `SEPOLIA_RPC_URL`, `ETHERSCAN_API_KEY`, and `DEPLOYER_KEYSTORE_ACCOUNT=<name>`. `.env.example` lists the names.
+
+Deploy, verify, and smoke-test, from the repo root:
+
+```sh
+bash dapp/packages/foundry/scripts-sh/deploy-sepolia.sh
+```
+
+The script refuses to start unless the normative and boundary suites pass, the chain id is 11155111, and the predicted address has no code. It prints the address, the deployer, its live balance, the live gas price, and the estimated cost, then waits for you to type `DEPLOY`. It deploys, verifies on Etherscan and Sourcify, and appends one flag from the deployer (category 128, subject the deployer, so it names nobody else). Then it reads `writerSeq(deployer)` and `globalSeq()` back from the chain and expects 1 and 1. If a step after the deploy fails, run the retry commands it prints rather than the script again, because the address is already taken.
+
+To check a deployment yourself:
+
+```sh
+cast code 0xC5616bb2FDCcdD761aa969c5C0dFb3D5c7d93865 --rpc-url "$SEPOLIA_RPC_URL" | cast keccak
+cast call 0xC5616bb2FDCcdD761aa969c5C0dFb3D5c7d93865 "globalSeq()(uint64)" --rpc-url "$SEPOLIA_RPC_URL"
+```
+
+The first should print `0xdc59334640b4a42e076253a531f923cb65fa6e1091f535da8ff17ce74c24b93c`, the runtime code hash in the ERC's Deployment section.
+
+For a local chain, SE-2's usual `yarn chain` and `yarn deploy` in `dapp/` deploy to the same address on anvil.
 
 ## Run the site
 
@@ -48,7 +97,7 @@ node scripts/build-erc.mjs
 
 ## What a flag costs
 
-Writers pay. Readers pay nothing but bandwidth. A flag in a batch costs about 10,000 gas, almost all of it the event the contract emits; the calldata is a small part. A flag sent on its own costs about 52,000 gas because of the fixed transaction overhead, so writers should batch and wait for a cheap block.
+Writers pay. Readers pay nothing but bandwidth. A flag in a batch costs about 10,000 gas, almost all of it the event the contract emits; the calldata is a small part. A flag sent on its own costs about 52,000 gas because of the fixed transaction overhead, so writers should batch and wait for a cheap block. The test suite measures a 100-leaf batch at 986,455 gas, or 9,865 a flag, in `dapp/packages/foundry/snapshots/ThreatFlagLog.json` (`forge test --match-contract Gas` regenerates it). That figure uses Cancun gas rules. A Sepolia fork, which runs newer rules, charged a single-leaf append about four times what the test EVM did, so re-measure on Sepolia after the deploy before quoting it.
 
 With ETH at $2,200:
 

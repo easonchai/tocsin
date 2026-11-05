@@ -181,6 +181,31 @@ interface IThreatFlagLog {
 <h3>Deployment</h3>
 <p>The canonical log SHOULD be deployed on Ethereum mainnet. A consensus light client verifies a mainnet state root from sync-committee signatures alone, so a proven slot is trustless. A light client for a rollup either trusts the sequencer&#39;s signature on recent blocks or waits for the rollup&#39;s state to be proven on L1, so a reader on any chain verifies the canonical log with a mainnet light client; the chain the user transacts on does not matter to the read.</p>
 <p>The log MUST be deployed through the deterministic deployment proxy at <code>0x4e59b44847b379578588920cA78FbF26c0B4956C</code> with salt <code>bytes32(0)</code> and the init code in the assets folder, so that the address is the same on every chain where it is deployed. The canonical address and runtime code hash will be recorded here once deployed. Other deployments are permitted; readers choose which they pin.</p>
+<p>Testnet deployment (Sepolia, chain id 11155111), predicted and not yet broadcast:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Address</td>
+<td><code>0xC5616bb2FDCcdD761aa969c5C0dFb3D5c7d93865</code></td>
+</tr>
+<tr>
+<td>Runtime code hash</td>
+<td><code>0xdc59334640b4a42e076253a531f923cb65fa6e1091f535da8ff17ce74c24b93c</code>, measured on a fork of Sepolia; the runtime code embeds the chain id and address through immutables</td>
+</tr>
+<tr>
+<td>Compiler</td>
+<td>solc 0.8.28, optimizer on, 200 runs, EVM version <code>cancun</code>, default CBOR metadata</td>
+</tr>
+<tr>
+<td>ERC-7730 descriptors</td>
+<td><a href="../dapp/packages/foundry/erc7730/calldata-ThreatFlagLog.json"><code>calldata-ThreatFlagLog.json</code></a> for <code>append</code> and <code>appendSigned</code>, <a href="../dapp/packages/foundry/erc7730/eip712-ThreatFlagLog.json"><code>eip712-ThreatFlagLog.json</code></a> for <code>Append</code>; both move to the assets folder with the ERC PR. ERC-7730 v2 does not allow calldata and EIP-712 contexts in one file, so the descriptor is a pair</td>
+</tr>
+</tbody></table>
 <h3>Categories</h3>
 <p>Categories identify the class of infrastructure a subject belongs to. They are deliberately limited to classes that attackers reuse across victims, because a reader that syncs every leaf of a writer pays for every leaf.</p>
 <table>
@@ -293,7 +318,7 @@ struct Safelist {
 <li>A list or safelist MUST be accompanied by an EIP-712 signature by <code>maintainer</code> over <code>ListRoot(bytes32 root,uint64 version)</code> in the same domain as the log. A name record or a contract locates a list; only the signature authenticates it.</li>
 <li>Publication MUST use at least one of two methods. (a) On-chain: a contract exposing <code>function listRoot() external view returns (bytes32)</code>, <code>function listSignature() external view returns (bytes memory)</code>, and <code>function listURI() external view returns (string memory)</code>. (b) Through a name record: a text record under the key <code>erc-threat-flag-log.list</code> (for safelists, <code>erc-threat-flag-log.safelist</code>) whose value is the <code>0x</code>-prefixed lowercase hex of <code>abi.encode(root, version, signature, listURI)</code>. When the final ERC number is assigned, the keys become <code>erc-N.list</code> and <code>erc-N.safelist</code>.</li>
 <li><code>listURI</code> SHOULD be content-addressed so that any peer can serve the document and the reader verifies it against the root.</li>
-<li><code>snapshotURI</code> SHOULD point to a content-addressed file of the writer&#39;s leaves, as the ABI-encoded <code>Appended</code> events in <code>writerSeq</code> order, and SHOULD be refreshed by the maintainer when the writer publishes a new snapshot. A reader MAY use it as a leaf source; it is verified by replay like any other source.</li>
+<li><code>snapshotURI</code> SHOULD point to a content-addressed file of the writer&#39;s leaves, as the ABI-encoded <code>Appended</code> events in <code>writerSeq</code> order, each with the number of the block it was appended in, and SHOULD be refreshed by the maintainer when the writer publishes a new snapshot. A reader MAY use it as a leaf source; it is verified by replay like any other source.</li>
 <li>Readers MUST verify that the fetched <code>TrustList</code> hashes to the published root and that the signature is valid for <code>maintainer</code>. Readers MUST record <code>maintainer</code> and the highest <code>version</code> applied the first time they accept a list, MUST reject a lower version, and MUST NOT apply a list signed by a different maintainer without the user&#39;s explicit confirmation. A change of name owner, resolver, or subregistry MUST NOT by itself change the maintainer; a reader that cannot verify the current record MUST keep applying the last verified version and show the list as stale.</li>
 <li>Readers MUST obtain the published root either from L1 contract state read through the same verified state root used for the log, or from an off-chain lookup whose result is verified against L1 state. A record resolved through an unverifiable gateway MUST be treated as unverified.</li>
 <li>Entries sharing the same <code>operator</code> or the same non-zero <code>upstream</code> MUST be treated as one writer when counting independent writers.</li>
@@ -361,7 +386,7 @@ struct Safelist {
 <h2>Backwards Compatibility</h2>
 <p>No backward compatibility issues found. The log is a new contract and the list encoding is new. Readers that already consume vendor labels can add a list without removing anything.</p>
 <h2>Test Cases</h2>
-<p>Test vectors accompany the reference implementation. The following cases are normative.</p>
+<p>Test vectors accompany the reference implementation, in <a href="../dapp/packages/foundry/fixtures/parity.json"><code>parity.json</code></a>, which moves to the assets folder with the ERC PR: a fixed scenario with every leaf&#39;s inputs, append block number, leaf hash, and both heads after it. The following cases are normative. Cases 1 to 9 test the log; cases 10 to 12 test the reference reader, the <code>@tocsin/reader</code> library that accompanies this ERC.</p>
 <ol>
 <li>Appending one <code>FLAG</code> leaf from a fresh writer yields <code>writerSeq = 1</code>, <code>globalSeq = n + 1</code>, <code>writerHead = keccak256(abi.encodePacked(bytes32(0), leafHash))</code>, and one <code>Appended</code> event whose fields equal the stored values.</li>
 <li>Appending a batch of three leaves updates each head three times in calldata order and emits three events with consecutive sequence numbers.</li>
@@ -513,7 +538,7 @@ contract ThreatFlagLog {
 <p><strong>Theft-proceeds flags.</strong> Category 8 names an account holding stolen funds, which is closer to a tracing list than to infrastructure. It exists because cash-out points consume exactly this signal today from private vendors. Writers should attach the victim&#39;s first-outflow transaction as evidence, readers at send screens should not block on it alone, and maintainers should expect it to carry the most legal attention of any category.</p>
 <p><strong>Liability.</strong> A leaf is a category and a hash, not an accusation in prose. Readers that block on leaves make a decision the leaf did not make. Readers should present the writer, the category, and the evidence rather than an unattributed verdict, and must allow a local override.</p>
 <p><strong>Sybil lists.</strong> The log makes sybil writers harmless; it cannot make sybil lists harmless. A reader that pins a list from an unknown maintainer is trusting that maintainer. Wallets should ship with a small default set of lists from named organizations, pin their maintainers, and make the active set visible to the user.</p>
-<p><strong>Data availability.</strong> The log keeps only heads in state. Leaves live in transaction history, which execution clients are not required to retain under <a href="https://eips.ethereum.org/EIPS/eip-4444">EIP-4444</a>. A writer should publish a content-addressed snapshot of its own leaves, as the ABI-encoded <code>Appended</code> events in <code>writerSeq</code> order, at least once per 10,000 leaves and per year, and reference the snapshot from its list entry&#39;s record. A snapshot needs no trust because it is verified by replay against the proven head. Readers that cannot obtain a pinned writer&#39;s leaves must report that writer as unavailable, never as clean.</p>
+<p><strong>Data availability.</strong> The log keeps only heads in state. Leaves live in transaction history, which execution clients are not required to retain under <a href="https://eips.ethereum.org/EIPS/eip-4444">EIP-4444</a>. A writer should publish a content-addressed snapshot of its own leaves, as the ABI-encoded <code>Appended</code> events in <code>writerSeq</code> order, each with the number of the block it was appended in, at least once per 10,000 leaves and per year, and reference the snapshot from its list entry&#39;s record. A snapshot needs no trust because it is verified by replay against the proven head. The block number travels with each event because the leaf hash commits to it and the event does not carry it. Readers that cannot obtain a pinned writer&#39;s leaves must report that writer as unavailable, never as clean.</p>
 <p><strong>Attacker adaptation.</strong> The reuse measurements that justify the category table were taken before any reader consumed such a log. A funding hop costs a fraction of a cent, and a drainer kit can move its receiver out of bytecode once a wallet enforces on it. The log&#39;s value is bounded by how expensive it is for attackers to abandon the flagged layer, and lists should expect to re-aim categories over time.</p>
 <p><strong>Light-client assumptions.</strong> The read procedure is only as strong as the reader&#39;s method of verifying a block hash. A consensus light client trusts its weak-subjectivity checkpoint and the sync committee; readers should ship a pinned checkpoint and let the user replace both the checkpoint and the consensus endpoint. A reader that takes the head from an ordinary RPC keeps the privacy property and loses the verifiability property, and should say so. After a fork that removes the execution state root from the light-client header, the procedure still holds because it starts from a verified block hash.</p>
 <p><strong>Gas griefing of writers.</strong> A writer that flags at the attacker&#39;s volume lets the attacker set the writer&#39;s gas bill. This is why unpaid lookalikes belong in noisy categories or off the log entirely, and why writers in the permanent categories should flag the operator behind the dust rather than each dust address.</p>
