@@ -28,6 +28,10 @@ Read this first if you are picking the project up. Everything that matters is in
 - Arkiv mirror ($4k) only if there is time; the wallet has to read from it, not just write.
 - Submission form: name "tocsin", category Security, emoji 💉.
 
+## Wallet integrations
+
+Three hosts for one reader: a Kohaku module (EF privacy wallet, Ambire fork with Helios built in, so Ambire itself is never touched), a MetaMask Snap, and a provider-proxy browser extension in the Wallet Guard and Pocket Universe mould. Full spec, trust level of each, scope, and acceptance in `docs/wallet-integrations.md`. Kohaku first with a decision at hour three, Snap second, extension third.
+
 ## Build order, 48 hours, riskiest first
 
 1. Hours 0 to 6. `@a16z/helios@0.12.0` in the browser on Sepolia. `@anon-rpc/browser-harness@0.4.0` worker bootstrapped through Helios so the worker hash is light-client verified. A `globalThis.fetch` shim for Helios's execution RPC URL so its reads go through the worker. Read slots 2 and 3 over tor-js (specifier `0x700dA3193D35fA54Cd3fBf29B66f2a2A0385659e`), Nym as fallback (`0x3aCD9742C68F6d993066Ae25533e09b9e1f60eD0`). Never the passthrough specifier on stage, it does not anonymise. Go or no-go at hour 6: fallback is Helios direct, Anon-RPC carrying logs, ENS, and broadcast.

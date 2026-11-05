@@ -29,6 +29,7 @@ We do not chase throwaway lookalike addresses. About one in nine thousand is eve
 | `site/erc.html` | The ERC rendered as a page, generated from the markdown |
 | `scripts/build-erc.mjs` | Regenerates `site/erc.html` after you edit the ERC |
 | `HANDOFF.md` | Current state, decisions, and the build order for anyone picking this up |
+| `docs/wallet-integrations.md` | Feature request for the Kohaku module, MetaMask Snap, and provider-proxy extension |
 
 ## Run the site
 
