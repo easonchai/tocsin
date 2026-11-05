@@ -7,14 +7,16 @@
 <meta name="description" content="An immutable, append-only on-chain log of scam infrastructure that any light-client wallet verifies without trusting an RPC, an explorer, or a vendor. ERC draft: Append-Only Threat Flag Log.">
 <link rel="icon" href="../brand/favicon.svg">
 <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="../brand/scenes.css">
 </head>
 <body>
 <canvas id="field" aria-hidden="true"></canvas>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><g id="mark"><g fill="none" stroke="#ece7dc" stroke-width="1.4" stroke-linecap="square"><path d="M8.80 17.50C10.08 17.50 9.92 16.10 10.02 15.50C10.11 14.90 10.40 13.50 12.00 13.50C13.60 13.50 13.89 14.90 13.98 15.50C14.08 16.10 13.92 17.50 15.20 17.50"/><path d="M5.60 17.50C8.16 17.50 7.84 14.70 8.03 13.50C8.22 12.30 8.80 9.50 12.00 9.50C15.20 9.50 15.78 12.30 15.97 13.50C16.16 14.70 15.84 17.50 18.40 17.50"/><path d="M2.00 17.50C6.00 17.50 5.50 13.12 5.80 11.25C6.10 9.38 7.00 5.00 12.00 5.00C17.00 5.00 17.90 9.38 18.20 11.25C18.50 13.12 18.00 17.50 22.00 17.50" opacity=".5"/></g><path d="M2 18.5h20" stroke="#ece7dc" stroke-width="1.4" stroke-linecap="square"/><circle cx="12" cy="15.6" r=".8" fill="#ece7dc"/></g></defs></svg>
 
 <nav class="nav">
   <div class="wrap">
     <a class="wordmark" href="#top">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="#e9a23b" stroke-width="1.4" stroke-linecap="square"><path d="M8.80 17.50C10.08 17.50 9.92 16.10 10.02 15.50C10.11 14.90 10.40 13.50 12.00 13.50C13.60 13.50 13.89 14.90 13.98 15.50C14.08 16.10 13.92 17.50 15.20 17.50"/><path d="M5.60 17.50C8.16 17.50 7.84 14.70 8.03 13.50C8.22 12.30 8.80 9.50 12.00 9.50C15.20 9.50 15.78 12.30 15.97 13.50C16.16 14.70 15.84 17.50 18.40 17.50"/><path d="M2.00 17.50C6.00 17.50 5.50 13.12 5.80 11.25C6.10 9.38 7.00 5.00 12.00 5.00C17.00 5.00 17.90 9.38 18.20 11.25C18.50 13.12 18.00 17.50 22.00 17.50" opacity=".5"/></g><path d="M2 18.5h20" stroke="#ece7dc" stroke-width="1.4" stroke-linecap="square"/><circle cx="12" cy="15.6" r=".8" fill="#ece7dc"/></svg>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#mark"/></svg>
       tocsin
     </a>
     <div class="nav-links">
@@ -54,7 +56,7 @@
           <button class="replay" id="replay">replay</button>
         </div>
         <div class="term-body" id="term-body"></div>
-        <div class="term-foot">The RPC lied. The wallet never asked it who to trust.</div>
+        <div class="term-foot" id="term-foot"></div>
       </div>
     </div>
   </div>
@@ -108,70 +110,13 @@
   <div class="wrap">
     <div class="section-head">
       <div class="eyebrow"><span class="n">02</span>How it works</div>
-      <h2>A dumb log, chosen lists, one proven slot.</h2>
+      <h2>The log is dumb on purpose.</h2>
       <p class="lede">The log assigns no weight, computes no score, and has no owner. Trust lives in lists the reader picks. Verification costs one storage proof.</p>
     </div>
-    <div class="diagram rv">
-      <svg viewBox="0 54 1100 338" role="img" aria-label="Writers append to the log, mirrors serve leaves, the wallet proves one slot and applies pinned lists">
-        <defs>
-          <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#c9c3b6"/></marker>
-          <marker id="arr-amber" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#e9a23b"/></marker>
-        </defs>
-        <!-- solid: data flow. dashed amber: the one thing the wallet verifies itself -->
-        <g fill="none" stroke="#c9c3b6" stroke-width="1.5">
-          <path d="M224 190H300" marker-end="url(#arr)"/>
-          <path d="M540 150H600" marker-end="url(#arr)"/>
-          <path d="M790 125H900" marker-end="url(#arr)"/>
-          <path d="M790 295H900" marker-end="url(#arr)"/>
-        </g>
-        <path d="M420 245V372H992V320" fill="none" stroke="#e9a23b" stroke-width="2.25" stroke-dasharray="7 6" marker-end="url(#arr-amber)"/>
-        <g font-family="JetBrains Mono, monospace" font-size="13">
-          <rect x="228" y="165" width="68" height="20" rx="3" fill="#1a1d22"/><text x="262" y="179" text-anchor="middle" fill="#c9c3b6">leaves</text>
-          <rect x="539" y="127" width="62" height="20" rx="3" fill="#1a1d22"/><text x="570" y="141" text-anchor="middle" fill="#c9c3b6">events</text>
-          <rect x="805" y="102" width="80" height="20" rx="3" fill="#1a1d22"/><text x="845" y="116" text-anchor="middle" fill="#c9c3b6">snapshot</text>
-          <rect x="788" y="272" width="114" height="20" rx="3" fill="#1a1d22"/><text x="845" y="286" text-anchor="middle" fill="#c9c3b6">pinned by name</text>
-          <rect x="592" y="362" width="228" height="20" rx="3" fill="#1a1d22"/><text x="706" y="376" text-anchor="middle" fill="#e9a23b">slot proof · verified on-device</text>
-        </g>
-        <g font-family="Schibsted Grotesk, sans-serif" font-size="14" fill="#c9c3b6">
-          <rect x="24" y="135" width="200" height="110" rx="3" fill="#1a1d22" stroke="#3a3f47"/>
-          <text x="124" y="162" text-anchor="middle" font-family="Bricolage Grotesque, sans-serif" font-size="16" font-weight="600" fill="#ece7dc">Writers</text>
-          <text x="124" y="186" text-anchor="middle">SEAL · Scam Sniffer · detectors</text>
-          <text x="124" y="206" text-anchor="middle">any key, own namespace</text>
-          <text x="124" y="226" text-anchor="middle" fill="#8f8b82">zero weight by default</text>
-
-          <rect x="300" y="135" width="240" height="110" rx="3" fill="#1a1d22" stroke="#c9c3b6" stroke-width="1.5"/>
-          <text x="420" y="162" text-anchor="middle" font-family="Bricolage Grotesque, sans-serif" font-size="16" font-weight="600" fill="#ece7dc">Threat flag log · L1</text>
-          <text x="420" y="186" text-anchor="middle">chain per writer + global chain</text>
-          <text x="420" y="206" text-anchor="middle">one head slot per writer</text>
-          <text x="420" y="226" text-anchor="middle" fill="#8f8b82">immutable · no admin · no delete</text>
-
-          <rect x="600" y="80" width="190" height="90" rx="3" fill="#1a1d22" stroke="#3a3f47"/>
-          <text x="695" y="106" text-anchor="middle" font-family="Bricolage Grotesque, sans-serif" font-size="16" font-weight="600" fill="#ece7dc">Untrusted mirror</text>
-          <text x="695" y="130" text-anchor="middle">IPFS · torrent · eth_getLogs</text>
-          <text x="695" y="150" text-anchor="middle" fill="#8f8b82">a lie shows as a mismatch</text>
-
-          <rect x="600" y="250" width="190" height="90" rx="3" fill="#1a1d22" stroke="#3a3f47"/>
-          <text x="695" y="276" text-anchor="middle" font-family="Bricolage Grotesque, sans-serif" font-size="16" font-weight="600" fill="#ece7dc">Trust lists · ENS</text>
-          <text x="695" y="300" text-anchor="middle">seal.tocsin.eth</text>
-          <text x="695" y="320" text-anchor="middle" fill="#8f8b82">writer · weight · operator · pins</text>
-
-          <rect x="900" y="100" width="184" height="220" rx="3" fill="#262a30" stroke="#ece7dc" stroke-width="1.5"/>
-          <text x="992" y="134" text-anchor="middle" font-family="Bricolage Grotesque, sans-serif" font-size="19" font-weight="700" fill="#ece7dc">Wallet</text>
-          <text x="992" y="154" text-anchor="middle" fill="#8f8b82">light client</text>
-          <text x="992" y="190" text-anchor="middle">proves trusted heads</text>
-          <text x="992" y="212" text-anchor="middle">replays every leaf</text>
-          <text x="992" y="234" text-anchor="middle">applies pinned lists</text>
-          <text x="992" y="256" text-anchor="middle">checks on-device</text>
-          <text x="992" y="292" text-anchor="middle" fill="#ece7dc" font-weight="600">no query leaves the phone</text>
-        </g>
-      </svg>
-      <p class="cap">Solid arrows carry data from anyone. The dashed amber path is the only thing the wallet verifies itself, and it is enough.</p>
-    </div>
-    <div class="steps">
-      <div class="step rv"><div class="n">1 · APPEND</div><p>A writer calls <code>append(Leaf[])</code>. Each leaf names a subject, a category, an evidence hash, and an op: flag, tombstone, counter, or dispute. The writer is <code>msg.sender</code> or an EIP-712 signer.</p></div>
-      <div class="step rv"><div class="n">2 · CHAIN</div><p>Every leaf is hashed with its writer, block, and sequence, then folded into the writer's chain and one global chain. Writers submit leaves, never roots. Nothing is ever deleted.</p></div>
-      <div class="step rv"><div class="n">3 · CHOOSE</div><p>A trust list names writers with weights, declared operator and upstream, and block-range or head pins, published under an ENS name. One listed writer warns. Two independent writers block.</p></div>
-      <div class="step rv"><div class="n">4 · PROVE</div><p>A light client proves the heads of the writers its lists name, syncs those writers' leaves from any mirror, replays each chain, and checks every address on-device.</p></div>
+    <div class="scenes">
+      <div class="scene rv"><div><h3>Writers append</h3><p>A writer calls <code>append(Leaf[])</code>. Each leaf names a subject, a category, an evidence hash, and an op. The log hashes it with the writer, block, and sequence and folds it into that writer's head. Nothing is ever deleted.</p></div><div class="frame" data-scene="append" aria-label="Writers append leaves into their own chains in the log"></div></div>
+      <div class="scene rv"><div><h3>The wallet proves and replays</h3><p>One <code>eth_getProof</code> of the heads its lists name, checked against a finalized header from Helios. Then it fetches the leaves from any mirror and replays them until the chain lands on the proven head.</p></div><div class="frame" data-scene="prove" aria-label="The wallet proves a head and replays leaves to it"></div></div>
+      <div class="scene rv"><div><h3>The lying RPC is caught</h3><p>An RPC that drops a flag produces a chain that misses the proven head. The wallet reports unverifiable at the exact sequence. It never reports clean.</p></div><div class="frame" data-scene="lie" aria-label="A lying RPC is caught by a chain mismatch"></div></div>
     </div>
   </div>
 </section>
@@ -201,24 +146,7 @@
       </div>
     </div>
 
-    <div class="listentry rv">
-      <div>
-        <h3>One entry, five decisions</h3>
-        <p>Who the writer is, how much it counts, who operates it and where its data comes from, which block range to believe, and optionally an exact head to stop at. Everything a reader needs to cut a compromised key or freeze a version lives in the list, not in the log.</p>
-      </div>
-      <pre>ListEntry {
-  writer      0x5EA1…d4c2
-  weight      200          // sums toward the reader's threshold
-  operator    keccak("seal")
-  upstream    0x0          // original data, not a mirror
-  fromBlock   23_410_000   // count leaves from here
-  toBlock     0            // open; set to cut a leaked key
-  headPin     0x0          // 0 = follow the chain; else stop at this head
-  categories  0b0000_0000_1111_1110
-}</pre>
-    </div>
-
-    <div class="table-wrap rv" style="margin-top:48px">
+    <div class="table-wrap rv" style="margin-top:40px">
       <table>
         <thead><tr><th>Attack</th><th>Bonded attesters</th><th>Committee</th><th>Deterministic facts</th><th>Tocsin</th></tr></thead>
         <tbody>
@@ -237,14 +165,14 @@
   <div class="wrap">
     <div class="section-head">
       <div class="eyebrow"><span class="n">04</span>Read path</div>
-      <h2>One proof. Full sync. Zero leaks.</h2>
+      <h2>The read path leaks nothing.</h2>
       <p class="lede">A per-address proof tells the proof server which address you are about to pay. A prefix bucket tells it almost as much once it has seen your balance queries. Tocsin keeps the permanent set small enough that a phone proves one slot, syncs the whole set, and checks locally.</p>
     </div>
     <div class="privacy">
       <div class="proof rv">
-        <div class="row"><span>per-address slot proof</span><b class="leak">leaks recipient</b></div>
-        <div class="row"><span>prefix bucket proof</span><b class="leak">leaks prefix, intersects history</b></div>
-        <div class="row"><span>vendor API call</span><b class="leak">leaks everything</b></div>
+        <div class="row leak"><span>per-address slot proof</span><b>leaks recipient</b></div>
+        <div class="row leak"><span>prefix bucket proof</span><b>leaks prefix, intersects history</b></div>
+        <div class="row leak"><span>vendor API call</span><b>leaks everything</b></div>
         <div class="row"><span>per-writer head proofs + full sync</span><b>leaks only which lists you use</b></div>
         <div class="row"><span>proof size</span><b>~5–8 kB</b></div>
         <div class="row"><span>permanent set, 50k leaves/yr</span><b>~3 MB raw, &lt;1 MB gz</b></div>
@@ -270,20 +198,16 @@
       </div>
       <p class="lede">Every subject must be provable by a signature or by code, never by a log field an attacker controls. Unpaid lookalikes never enter the permanent core.</p>
     </div>
-    <div class="wrap">
-      <table>
-        <thead><tr><th>#</th><th>Category</th><th>Subject</th><th>Proven by</th><th>Policy</th></tr></thead>
-        <tbody>
-          <tr><td>1</td><td>POISONING_OPERATOR</td><td>EOA that paid gas for dust planting a lookalike</td><td><code>tx.from</code>, signer-recovered</td><td>live immediately</td></tr>
-          <tr><td>2</td><td>POISONING_FUNDER</td><td>Account whose outflows fund lookalikes at a high ratio</td><td>funding transfers, fan-out rule</td><td>warn only</td></tr>
-          <tr><td>3</td><td>DRAINER_RECEIVER</td><td>Fee-split or storage contract that kits forward to</td><td>forwarding trace</td><td>two writers to block</td></tr>
-          <tr><td>4</td><td>MALICIOUS_DELEGATE</td><td>7702 delegate that sweeps to a hard-coded address</td><td>codehash via <code>EXTCODECOPY</code></td><td>two writers to block</td></tr>
-          <tr><td>5</td><td>MALICIOUS_TOKEN</td><td>Contract emitting fake Transfer events</td><td>deployer <code>tx.from</code></td><td>live immediately</td></tr>
-          <tr><td>6</td><td>PAID_LOOKALIKE</td><td>A lookalike a victim actually paid</td><td>victim's payment receipt</td><td>live immediately</td></tr>
-          <tr><td>7</td><td>DRAINER_SPENDER</td><td>Contract that used approvals or permits to drain</td><td>drain transaction</td><td>two writers to block</td></tr>
-          <tr class="reserved"><td>128+</td><td><span class="mono">reserved · noisy</span></td><td>Unpaid lookalikes, high-volume detections</td><td>writer-defined</td><td>off by default</td></tr>
-        </tbody>
-      </table>
+    <div class="wrap chips">
+      <span>1 · POISONING_OPERATOR<b>live</b></span>
+      <span>2 · POISONING_FUNDER<b>warn only</b></span>
+      <span>3 · DRAINER_RECEIVER<b>2 writers</b></span>
+      <span>4 · MALICIOUS_DELEGATE<b>2 writers</b></span>
+      <span>5 · MALICIOUS_TOKEN<b>live</b></span>
+      <span>6 · PAID_LOOKALIKE<b>live</b></span>
+      <span>7 · DRAINER_SPENDER<b>2 writers</b></span>
+      <span class="off">128+ · noisy<b>off by default</b></span>
+      <a href="erc.html#categories">subjects and proofs for each, in the draft →</a>
     </div>
   </div>
 </section>
@@ -344,7 +268,7 @@
       <h2>The questions we get asked first.</h2>
     </div>
     <div class="faq">
-      <details><summary>Can a scammer remove their own flag?</summary><p>No. Nothing is ever removed. Every flagged account in the operator, funder, and paid-lookalike categories is controlled by the attacker, and a flagged contract can make any signature check return true, so any removal path keyed on the subject's consent is a removal path for the attacker. Corrections are new leaves. A reader that wants a flag gone follows the writer's tombstone or drops the writer from its list.</p></details>
+      <details open><summary>Can a scammer remove their own flag?</summary><p>No. Nothing is ever removed. Every flagged account in the operator, funder, and paid-lookalike categories is controlled by the attacker, and a flagged contract can make any signature check return true, so any removal path keyed on the subject's consent is a removal path for the attacker. Corrections are new leaves. A reader that wants a flag gone follows the writer's tombstone or drops the writer from its list.</p></details>
       <details><summary>Why on-chain at all?</summary><p>Because the RPC can lie and the wallet still catches it. A label served from an API is trusted on the server's word. A head proven against a finalized state root and a leaf set replayed to that head is trusted on the chain's word. Nothing off-chain survives the demo where the RPC says “clean”.</p></details>
       <details><summary>Isn't this just Etherscan with extra steps?</summary><p>On day one, almost. There will be one or two writers and one or two lists. The difference is that the record is public, forkable, and verifiable, any wallet can pick a different list, and no curator can erase another writer's flag. Year two has two curators. Etherscan never will.</p></details>
       <details><summary>What about fresh lookalike addresses?</summary><p>We don't chase them. About 1 in 9,000 is ever paid, and they land within minutes. The local prefix/suffix check against your own history catches them. Tocsin flags the operator that planted the dust, so a synced wallet badges the planted entry the moment it arrives, on every chain that operator works.</p></details>
@@ -356,7 +280,7 @@
 
 <footer>
   <div class="wrap">
-    <span class="wordmark">tocsin</span><span>ERC draft · CC0</span>
+    <span class="lockup"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#mark"/></svg><span class="wordmark">tocsin</span></span><span>ERC draft · CC0</span>
     <span>Built at Devcon 8 and ETHGlobal Mumbai, November 2026</span>
     <div class="links">
       <a href="erc.html">ERC draft</a>
@@ -367,6 +291,7 @@
 </footer>
 
 <script src="../brand/ringfield.js"></script>
+<script src="../brand/scenes.js"></script>
 <script>
 (function () {
   var rf = Tocsin.ringfield(document.getElementById('field'), { seed: 7 });
@@ -397,15 +322,18 @@
     var dot = document.querySelector('.term-bar .dot');
     dot.className = 'dot live';
     clearTimeout(idleTimer); rf.setState('syncing'); strikeAt(term);
+    document.getElementById('term-foot').textContent = '';
+    var cur = document.createElement('div'); cur.className = 'ln cur'; cur.innerHTML = '<span class="t"> </span><span class="src"> </span><span class="msg">█</span>';
     var i = 0;
     function next() {
       if (i >= script.length) {
         var v = document.createElement('div');
         v.className = 'verdict';
-        v.innerHTML = '<b>Blocked.</b> Drainer receiver, flagged by SEAL and Scam Sniffer. The RPC said clean. The wallet never asked it who to trust.';
-        body.appendChild(v);
+        v.innerHTML = '<b>Blocked.</b> Drainer receiver, flagged by SEAL and Scam Sniffer.';
+        cur.remove(); body.appendChild(v);
+        document.getElementById('term-foot').textContent = 'The RPC said clean. The wallet never asked it who to trust.';
         dot.className = 'dot blocked';
-        rf.setState('blocked'); strikeAt(term);
+        rf.setState('blocked'); var vr = v.getBoundingClientRect(); rf.strike(vr.left, vr.top + vr.height / 2);
         idleTimer = setTimeout(function () { rf.setState('idle'); }, 6000);
         return;
       }
@@ -413,7 +341,7 @@
       var d = document.createElement('div');
       d.className = 'ln';
       d.innerHTML = '<span class="t">' + s[0] + '</span><span class="src ' + s[2] + '">' + s[1] + '</span><span class="msg ' + (s[4] || '') + '">' + s[3] + '</span>';
-      body.appendChild(d);
+      body.appendChild(d); body.appendChild(cur);
       if (i === 5) { rf.setState('verified'); strikeAt(term); }
       setTimeout(next, i === 2 ? 650 : 420);
     }

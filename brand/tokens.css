@@ -51,8 +51,11 @@ h1, h2, h3 { font-family: var(--display); font-weight: 700; letter-spacing: -0.0
 
 .btn { display: inline-flex; align-items: center; gap: 8px; font-family: var(--body); font-weight: 600; font-size: 14px; padding: 10px 16px; border-radius: var(--r); border: var(--hair-strong); color: var(--paper-100); transition: border-color 150ms, background 150ms; cursor: pointer; background: none; }
 .btn:hover { border-color: var(--paper-200); }
-.btn.primary { background: var(--signal); color: var(--ink-900); border-color: var(--signal); }
-.btn.primary:hover, .btn.primary:active { background: var(--signal-deep); border-color: var(--signal-deep); }
+.btn.primary { background: var(--paper-100); color: var(--ink-900); border-color: var(--paper-100); }
+.btn.primary:hover, .btn.primary:active { background: var(--paper-200); border-color: var(--paper-200); }
+/* the one amber action on a screen, when the screen has no highlighted word */
+.btn.signal { background: var(--signal); color: var(--ink-900); border-color: var(--signal); }
+.btn.signal:hover, .btn.signal:active { background: var(--signal-deep); border-color: var(--signal-deep); }
 
 /* entrances: 240ms, 12px rise, never more than three staggered */
 .rv { opacity: 0; transform: translateY(var(--enter-rise)); transition: opacity var(--enter) var(--ease-out), transform var(--enter) var(--ease-out); }

@@ -8,7 +8,7 @@
     syncing:      { dot: [143, 139, 130], ring: [233, 162, 59],    alpha: .3,  reach: 1,   spread: true },
     verified:     { dot: [143, 139, 130], ring: [233, 162, 59],    alpha: .9,  reach: 1,   spread: true },
     unverifiable: { dot: [38, 42, 48],    ring: [229, 72, 77],     alpha: .4,  reach: .5,  spread: true },
-    blocked:      { dot: [38, 42, 48],    ring: [229, 72, 77],     alpha: 1,   reach: .35, spread: false }
+    blocked:      { dot: [38, 42, 48],    ring: [229, 72, 77],     alpha: 1,   reach: .7,  spread: false }
   };
   var LIT = [236, 231, 220], SETTLED = [143, 139, 130];
   var GRID = 24, SPEED = 150, RING_GAP = .32, LIFE = 3.2, REACH = 440;
@@ -55,8 +55,8 @@
     }
 
     function step(t, dt) {
-      var alive = false, decay = Math.exp(-dt * 1.6);
-      for (var k = 0; k < heat.length; k++) { if (heat[k] > .002) { heat[k] *= decay; alive = true; } else heat[k] = 0; }
+      var alive = false, decay = Math.exp(-dt * .18); // ~20s residue so the struck region is seen
+      for (var k = 0; k < heat.length; k++) { if (heat[k] > .01) { heat[k] *= decay; alive = true; } else heat[k] = 0; }
       strikes = strikes.filter(function (s) { return t - s.t0 < LIFE + RING_GAP * 2; });
       strikes.forEach(function (s) {
         var reach = REACH * s.s.reach;
@@ -69,7 +69,7 @@
           var j0 = Math.max(0, ((s.y - r - GRID) / GRID) | 0), j1 = Math.min(rows - 1, ((s.y + r + GRID) / GRID) | 0);
           for (var j = j0; j <= j1; j++) for (var i = i0; i <= i1; i++) {
             var d = Math.abs(Math.hypot(i * GRID - s.x, j * GRID - s.y) - r);
-            if (d < GRID * .7) { var k = j * cols + i, h = (1 - d / (GRID * .7)) * (1 - age / LIFE); if (h > heat[k]) heat[k] = h; if (n === 0) memory[k] = Math.max(memory[k], .22 * (1 - r / reach) + .06); }
+            if (d < GRID * .7) { var k = j * cols + i, h = (1 - d / (GRID * .7)) * (1 - age / LIFE); if (h > heat[k]) heat[k] = h; if (n === 0) memory[k] = Math.max(memory[k], .5 * (1 - r / reach) + .12); }
           }
         }
       });
