@@ -58,8 +58,10 @@ A field of small dots on `ink-900`, on a 24px grid. Still. Every eight to twelve
 Rules, taken from Devcon and Railgun:
 
 - Deterministic. The strike sequence comes from a seed, so two visitors see the same field and screenshots are reproducible.
-- Still until touched. A click or tap is a strike at the cursor. Hover does nothing.
+- Still until touched. A click or tap is a strike at the cursor. The cursor carries a soft lens, after Railgun: dots within about 170px brighten and bloom, and the lens eases behind the pointer rather than snapping to it.
 - The state recolours the rings, never the page.
+- Text always wins. A blurred page-colour mask sits over the field wherever copy is, so dots never show through letters; the field lives in the margins, the gutters, and around the trace.
+- Lit dots bloom with a soft glow instead of hardening into squares. Nothing in the field is ever brighter than paper-200.
 - A frame-time watchdog turns ambient strikes off above 70ms median. Reduced-motion shows the settled field with no rings. Hidden tabs pause.
 - No hue cycling, no pinned scroll sections, no particles.
 
