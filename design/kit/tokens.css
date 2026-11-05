@@ -1,5 +1,5 @@
-/* Tocsin brand tokens. Source of truth: docs/brand/DIRECTION.md */
-@import url('../site/fonts/fonts.css');
+/* Tocsin brand tokens. Source of truth: design/DIRECTION.md */
+@import url('../../site/fonts/fonts.css');
 
 :root {
   /* ink: page and surfaces */

@@ -1,4 +1,4 @@
-@import url('../brand/tokens.css');
+@import url('../design/kit/tokens.css');
 
 * { box-sizing: border-box; }
 body { background: var(--ink-900); min-height: 100vh; }

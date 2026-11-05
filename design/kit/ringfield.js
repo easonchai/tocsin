@@ -1,5 +1,5 @@
 /* Tocsin ring field. A still dot grid; a strike sends three rings out and the dots it passes stay faintly brighter.
-   Rules: docs/brand/DIRECTION.md. Deterministic from a seed, state recolours the rings only, text always wins (a soft
+   Rules: design/DIRECTION.md. Deterministic from a seed, state recolours the rings only, text always wins (a soft
    mask dims the field under copy), the cursor carries a soft lens after Railgun, watchdog disables ambient strikes
    above 70ms median frame, reduced motion shows the settled field, hidden tabs pause.
    Usage: var rf = Tocsin.ringfield(canvas, {seed: 7, state: 'idle', mask: 'h1,h2,p'}); rf.setState('blocked'); rf.strike(x, y); */
