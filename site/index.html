@@ -3,18 +3,19 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Tocsin — herd immunity for Ethereum</title>
+<title>Tocsin. Your wallet checked Ethereum itself.</title>
 <meta name="description" content="An immutable, append-only on-chain log of scam infrastructure that any light-client wallet verifies without trusting an RPC, an explorer, or a vendor. ERC draft: Append-Only Threat Flag Log.">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 22V13M12 13L4 3M12 13L20 3' fill='none' stroke='%23e9a23b' stroke-width='2.4' stroke-linecap='round'/></svg>">
+<link rel="icon" href="../brand/favicon.svg">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<canvas id="field" aria-hidden="true"></canvas>
 
 <nav class="nav">
   <div class="wrap">
     <a class="wordmark" href="#top">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22V13M12 13L4 3M12 13L20 3" fill="none" stroke="#e9a23b" stroke-width="2.4" stroke-linecap="round"/></svg>
-      Tocsin
+      <svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="#e9a23b" stroke-width="1.4" stroke-linecap="square"><path d="M8.80 17.50C10.08 17.50 9.92 16.10 10.02 15.50C10.11 14.90 10.40 13.50 12.00 13.50C13.60 13.50 13.89 14.90 13.98 15.50C14.08 16.10 13.92 17.50 15.20 17.50"/><path d="M5.60 17.50C8.16 17.50 7.84 14.70 8.03 13.50C8.22 12.30 8.80 9.50 12.00 9.50C15.20 9.50 15.78 12.30 15.97 13.50C16.16 14.70 15.84 17.50 18.40 17.50"/><path d="M2.00 17.50C6.00 17.50 5.50 13.12 5.80 11.25C6.10 9.38 7.00 5.00 12.00 5.00C17.00 5.00 17.90 9.38 18.20 11.25C18.50 13.12 18.00 17.50 22.00 17.50" opacity=".5"/></g><path d="M2 18.5h20" stroke="#ece7dc" stroke-width="1.4" stroke-linecap="square"/><circle cx="12" cy="15.6" r=".8" fill="#ece7dc"/></svg>
+      tocsin
     </a>
     <div class="nav-links">
       <a href="#why">Why</a>
@@ -32,13 +33,13 @@
   <div class="wrap split">
     <div class="left">
       <div class="eyebrow rv">ERC draft · Append-Only Threat Flag Log</div>
-      <h1 class="rv">Herd immunity<br>for <em>Ethereum.</em></h1>
-      <p class="lede rv">An append-only on-chain log of scam infrastructure that any light-client wallet verifies without trusting an RPC, an explorer, or a vendor. The first wallet bitten immunizes every wallet that syncs.</p>
-      <div class="ctas rv">
+      <h1 class="rv d1">Your wallet checked<br>Ethereum <em>itself.</em></h1>
+      <p class="lede rv d2">An append-only on-chain log of scam infrastructure that any light-client wallet verifies without trusting an RPC, an explorer, or a vendor. The first wallet bitten immunizes every wallet that syncs.</p>
+      <div class="ctas rv d2">
         <a class="btn primary" href="erc.html">Read the ERC draft <span class="arrow">→</span></a>
         <a class="btn" href="#how">How it works</a>
       </div>
-      <div class="meta rv">
+      <div class="meta rv d2">
         <span>status <b>Draft</b></span>
         <span>category <b>ERC</b></span>
         <span>requires <b>712, 1271</b></span>
@@ -125,36 +126,36 @@
         </g>
         <path d="M420 245V372H992V320" fill="none" stroke="#e9a23b" stroke-width="2.25" stroke-dasharray="7 6" marker-end="url(#arr-amber)"/>
         <g font-family="JetBrains Mono, monospace" font-size="13">
-          <rect x="228" y="165" width="68" height="20" rx="3" fill="#121418"/><text x="262" y="179" text-anchor="middle" fill="#c9c3b6">leaves</text>
-          <rect x="539" y="127" width="62" height="20" rx="3" fill="#121418"/><text x="570" y="141" text-anchor="middle" fill="#c9c3b6">events</text>
-          <rect x="805" y="102" width="80" height="20" rx="3" fill="#121418"/><text x="845" y="116" text-anchor="middle" fill="#c9c3b6">snapshot</text>
-          <rect x="788" y="272" width="114" height="20" rx="3" fill="#121418"/><text x="845" y="286" text-anchor="middle" fill="#c9c3b6">pinned by name</text>
-          <rect x="592" y="362" width="228" height="20" rx="3" fill="#121418"/><text x="706" y="376" text-anchor="middle" fill="#e9a23b">slot proof · verified on-device</text>
+          <rect x="228" y="165" width="68" height="20" rx="3" fill="#1a1d22"/><text x="262" y="179" text-anchor="middle" fill="#c9c3b6">leaves</text>
+          <rect x="539" y="127" width="62" height="20" rx="3" fill="#1a1d22"/><text x="570" y="141" text-anchor="middle" fill="#c9c3b6">events</text>
+          <rect x="805" y="102" width="80" height="20" rx="3" fill="#1a1d22"/><text x="845" y="116" text-anchor="middle" fill="#c9c3b6">snapshot</text>
+          <rect x="788" y="272" width="114" height="20" rx="3" fill="#1a1d22"/><text x="845" y="286" text-anchor="middle" fill="#c9c3b6">pinned by name</text>
+          <rect x="592" y="362" width="228" height="20" rx="3" fill="#1a1d22"/><text x="706" y="376" text-anchor="middle" fill="#e9a23b">slot proof · verified on-device</text>
         </g>
         <g font-family="Schibsted Grotesk, sans-serif" font-size="14" fill="#c9c3b6">
-          <rect x="24" y="135" width="200" height="110" rx="3" fill="#0b0c0e" stroke="#3a3f47"/>
+          <rect x="24" y="135" width="200" height="110" rx="3" fill="#1a1d22" stroke="#3a3f47"/>
           <text x="124" y="162" text-anchor="middle" font-family="Bricolage Grotesque, sans-serif" font-size="16" font-weight="600" fill="#ece7dc">Writers</text>
           <text x="124" y="186" text-anchor="middle">SEAL · Scam Sniffer · detectors</text>
           <text x="124" y="206" text-anchor="middle">any key, own namespace</text>
           <text x="124" y="226" text-anchor="middle" fill="#8f8b82">zero weight by default</text>
 
-          <rect x="300" y="135" width="240" height="110" rx="3" fill="#0b0c0e" stroke="#c9c3b6" stroke-width="1.5"/>
+          <rect x="300" y="135" width="240" height="110" rx="3" fill="#1a1d22" stroke="#c9c3b6" stroke-width="1.5"/>
           <text x="420" y="162" text-anchor="middle" font-family="Bricolage Grotesque, sans-serif" font-size="16" font-weight="600" fill="#ece7dc">Threat flag log · L1</text>
           <text x="420" y="186" text-anchor="middle">chain per writer + global chain</text>
           <text x="420" y="206" text-anchor="middle">one head slot per writer</text>
           <text x="420" y="226" text-anchor="middle" fill="#8f8b82">immutable · no admin · no delete</text>
 
-          <rect x="600" y="80" width="190" height="90" rx="3" fill="#0b0c0e" stroke="#3a3f47"/>
+          <rect x="600" y="80" width="190" height="90" rx="3" fill="#1a1d22" stroke="#3a3f47"/>
           <text x="695" y="106" text-anchor="middle" font-family="Bricolage Grotesque, sans-serif" font-size="16" font-weight="600" fill="#ece7dc">Untrusted mirror</text>
           <text x="695" y="130" text-anchor="middle">IPFS · torrent · eth_getLogs</text>
           <text x="695" y="150" text-anchor="middle" fill="#8f8b82">a lie shows as a mismatch</text>
 
-          <rect x="600" y="250" width="190" height="90" rx="3" fill="#0b0c0e" stroke="#3a3f47"/>
+          <rect x="600" y="250" width="190" height="90" rx="3" fill="#1a1d22" stroke="#3a3f47"/>
           <text x="695" y="276" text-anchor="middle" font-family="Bricolage Grotesque, sans-serif" font-size="16" font-weight="600" fill="#ece7dc">Trust lists · ENS</text>
           <text x="695" y="300" text-anchor="middle">seal.tocsin.eth</text>
           <text x="695" y="320" text-anchor="middle" fill="#8f8b82">writer · weight · operator · pins</text>
 
-          <rect x="900" y="100" width="184" height="220" rx="3" fill="#1a1d22" stroke="#ece7dc" stroke-width="1.5"/>
+          <rect x="900" y="100" width="184" height="220" rx="3" fill="#262a30" stroke="#ece7dc" stroke-width="1.5"/>
           <text x="992" y="134" text-anchor="middle" font-family="Bricolage Grotesque, sans-serif" font-size="19" font-weight="700" fill="#ece7dc">Wallet</text>
           <text x="992" y="154" text-anchor="middle" fill="#8f8b82">light client</text>
           <text x="992" y="190" text-anchor="middle">proves trusted heads</text>
@@ -355,7 +356,7 @@
 
 <footer>
   <div class="wrap">
-    <span>Tocsin · ERC draft · CC0</span>
+    <span class="wordmark">tocsin</span><span>ERC draft · CC0</span>
     <span>Built at Devcon 8 and ETHGlobal Mumbai, November 2026</span>
     <div class="links">
       <a href="erc.html">ERC draft</a>
@@ -365,8 +366,11 @@
   </div>
 </footer>
 
+<script src="../brand/ringfield.js"></script>
 <script>
 (function () {
+  var rf = Tocsin.ringfield(document.getElementById('field'), { seed: 7 });
+  function strikeAt(el) { var r = el.getBoundingClientRect(); rf.strike(r.left + r.width / 2, r.top + r.height / 2); }
   // reveal on scroll
   var io = new IntersectionObserver(function (es) {
     es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
@@ -387,10 +391,12 @@
     ['00.06', 'tocsin', 'ab', '<span class="k">0x7a3F…c91B</span> → DRAINER_RECEIVER · flagged by 2/2 · evidence 0x31b7…'],
     ['00.07', 'tocsin', 'ab', 'local heuristic: no prefix/suffix match with your history', 'dim'],
   ];
+  var term = document.getElementById('term'), idleTimer;
   function run() {
     body.innerHTML = '';
     var dot = document.querySelector('.term-bar .dot');
     dot.className = 'dot live';
+    clearTimeout(idleTimer); rf.setState('syncing'); strikeAt(term);
     var i = 0;
     function next() {
       if (i >= script.length) {
@@ -399,6 +405,8 @@
         v.innerHTML = '<b>Blocked.</b> Drainer receiver, flagged by SEAL and Scam Sniffer. The RPC said clean. The wallet never asked it who to trust.';
         body.appendChild(v);
         dot.className = 'dot blocked';
+        rf.setState('blocked'); strikeAt(term);
+        idleTimer = setTimeout(function () { rf.setState('idle'); }, 6000);
         return;
       }
       var s = script[i++];
@@ -406,6 +414,7 @@
       d.className = 'ln';
       d.innerHTML = '<span class="t">' + s[0] + '</span><span class="src ' + s[2] + '">' + s[1] + '</span><span class="msg ' + (s[4] || '') + '">' + s[3] + '</span>';
       body.appendChild(d);
+      if (i === 5) { rf.setState('verified'); strikeAt(term); }
       setTimeout(next, i === 2 ? 650 : 420);
     }
     next();
