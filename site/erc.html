@@ -424,6 +424,11 @@ contract ThreatFlagLog {
         return block.chainid == INITIAL_CHAIN_ID ? INITIAL_DOMAIN_SEPARATOR : _buildDomain();
     }
 
+    /// @dev ERC-165: 0x01ffc9a7 is ERC-165 itself; 0xffc90efa is type(IThreatFlagLog).interfaceId.
+    function supportsInterface(bytes4 interfaceId) external pure returns (bool) {
+        return interfaceId == 0x01ffc9a7 || interfaceId == 0xffc90efa;
+    }
+
     function append(Leaf[] calldata leaves) external {
         _append(msg.sender, leaves);
     }
