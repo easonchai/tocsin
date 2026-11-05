@@ -29,6 +29,11 @@ We do not chase throwaway lookalike addresses. About one in nine thousand is eve
 | `site/erc.html` | The ERC rendered as a page, generated from the markdown |
 | `scripts/build-erc.mjs` | Regenerates `site/erc.html` after you edit the ERC |
 | `HANDOFF.md` | Current state, decisions, and the build order for anyone picking this up |
+| `docs/plan/demo/runbook.md` | Commands and env var names to seed, relay, detect, mirror, lie, publish lists, and build the Snap and extension, plus where each judge check is shown |
+| `dapp/packages/reader` | The reader library every host shares: sync, verify, evaluate, trust lists, ENS |
+| `dapp/packages/infra` | Demo scripts: seed, relayer, detector, lying proxy, mirror, three-beat CLI, ENS setup |
+| `dapp/packages/snap` | The MetaMask Snap, the primary host |
+| `dapp/packages/extension` | The provider-proxy extension with Helios and Anon-RPC |
 | `docs/wallet-integrations.md` | Feature request for the Kohaku module, MetaMask Snap, and provider-proxy extension |
 | `dapp/packages/foundry` | The log contract, its Foundry tests, and the CREATE2 deploy script (Scaffold-ETH 2, Foundry flavour) |
 | `GLOSSARY.md` | Log, writer, leaf, subject, head, maintainer, reader |
@@ -114,15 +119,32 @@ What a reader downloads is bounded by the writers it pins, not by the age of the
 
 ## CROPS
 
-The Ethereum Foundation's test for the properties Ethereum must keep. Censorship resistant, open source, private, secure.
+Censorship resistance, open source, privacy, security: the Ethereum Foundation's test for what Ethereum must keep. This section describes the code as it ships on this branch. The log is not yet deployed on Sepolia and the team's ENS name is not registered, so every claim here was checked in tests and anvil rehearsals, not on a live chain. `docs/plan/demo/runbook.md` maps each judge check to a file, command, or demo beat.
 
-**C.** Nothing we run sits between the user and the data. The log has no owner and `append` is open to anyone, so a relayer that refuses a writer can be bypassed by sending directly. Entries are verified by replay against a proven head, so any RPC, any mirror, and any snapshot host is interchangeable, and a lying one produces "unverifiable", not a false "clean". Lists are signed by their maintainer and pinned on first use, so losing our ENS name or domain cannot swap a reader's list. A block is always overridable on the device.
+**Operator powers: none on the log.** `ThreatFlagLog.sol` has two state-changing functions, `append` and `appendSigned`, and no owner, pause, upgrade, allowlist, or delete. Anyone can relay a signed batch, and a writer whose relayer refuses can send `append` itself. Two powers exist off the contract. The ENS name owner can repoint the list record, and the list maintainer can sign a new version. Hosts pin the maintainer on first use. In the Snap, a list signed by a different key opens a confirmation dialog. The extension keeps the old pin and says so on the overlay. A stolen maintainer key can still sign a higher version that hosts accept without asking. The maintainer's ENSv2 publish grant covers every name on its resolver, the writer subnames included.
 
-**O.** MIT for everything in this repo, CC0 for the ERC. It builds from the repo alone. There is no backend, indexer, or API of ours.
+**What survives the team disappearing.** The log survives because nobody controls it. Every installed host survives because it keeps its pinned list and checkpoints on the device, in Snap state or in `chrome.storage.local`, and reads leaves from any Sepolia RPC and verifies them by replay. The walkaway test in `dapp/packages/snap/test/bundle.test.ts` deletes the team's ENS records, list host, and mirror, and the built Snap still blocks the seeded drainer receiver from the pinned list and the log. The extension falls back to its pin through the same code, without a test of its own. Three things stop. The mirror source fails, because the team serves those files. Writer names fall back to short addresses. A fresh install has nothing to pin until someone serves a list record and its document. The code is MIT and the ERC is CC0. No host talks to a backend, indexer, or API of ours. The only team-run server is the static host for list documents and mirror files, and the reader verifies everything it serves.
 
-**P.** The RPC sees one storage proof for the writers in the user's lists and bounded log ranges by writer, over the EF's Anon-RPC worker. A mirror sees a writer name and a sequence number. Nobody sees the recipient, the spender, or the user's own address in connection with a check, because every check runs on the device against a locally replayed set. The one read that is not anonymised is the Anon-RPC worker's hash bootstrap, which itself goes through the light client. Helios's consensus endpoint and checkpoint are user-configurable.
+**What an observer learns.** No per-subject query leaves the device. Recipients, spenders, and permit spenders are checked inside the host against the replayed set. Evidence links open the explorer only when the user clicks. What does leave:
 
-**S.** The wallet holds no keys of ours and sends no user data anywhere. Trust assumptions, in order: the sync committee and the pinned weak-subjectivity checkpoint; the maintainers of the lists the user pinned; the writers those lists name, bounded by block ranges. Walkaway test: delete the team, the domain, and every server, and the log, the pinned lists, and the wallet keep working.
+| Read | Snap | Extension, `tor` or `nym` | Extension, `direct` |
+| --- | --- | --- | --- |
+| Header, storage proof for the pinned writers only, ENS record and writer names | The RPC set in settings, direct. It sees the user's IP, the log, and the pinned writers | Sepolia Helios. Its execution calls go through the Anon-RPC worker. The consensus server is contacted directly | Sepolia Helios, direct to its RPC |
+| Leaves, `eth_getLogs` per pinned writer | The same RPC or the custom URL, direct | Through the Anon-RPC worker | Direct |
+| List document at `listURI` | Direct | Direct, not through the worker | Direct |
+| Mirror files at `snapshotURI` | Direct, when the source is the mirror | Not read | Not read |
+| Worker bootstrap | None | Mainnet Helios, direct. Learns that a light client runs and which worker it loads | None |
+
+The ERC says readers SHOULD fetch list documents over the anonymising transport. The extension does not yet, so the static host learns the user's IP and which list they read.
+
+**Trust level of each host,** as `docs/wallet-integrations.md` defines it, adjusted for what shipped:
+
+- MetaMask Snap, the primary host: best-effort. The header and storage proofs come from the configured RPC and no light client checks them. A lying RPC whose answers agree with each other could forge a head. One whose logs disagree with its proven head produces "cannot vouch", never "clean". The panel says the header is unverified and the RPC is not anonymised. The Snap cannot stop a transaction. It raises MetaMask's critical warning, and the confirm button stays the user's.
+- Provider-proxy extension: built for the full claim. Helios checks the header and proofs, and the Anon-RPC worker carries execution reads. It has not run in a real browser yet. It has no settings page and no mirror source. RPCs, transport, and list name are fixed at build time. The override enables after five seconds, on the device, and nobody is told.
+- Kohaku module: a diagram only. On Sepolia the fork has no anonymising transport and its light clients fail to verify. See `docs/plan/demo/issues/02-kohaku-hour-one-checks-and-decision.md`.
+- The `/harness` page in `dapp/packages/nextjs`: once produced a light-client-verified proof over Nym. Over Tor it reached the RPC once and never completed a proof, because the public demo gateway failed most cold starts. The stage needs our own `tor-js-gateway` or the Nym switch.
+
+Trust assumptions, in order: the sync committee and the pinned weak-subjectivity checkpoint, in the extension only; the RPC, in the Snap; the maintainers of the pinned lists; the writers those lists name, bounded by block ranges.
 
 ## Before the ERC is posted
 
