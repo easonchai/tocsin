@@ -1,0 +1,20 @@
+{
+  "name": "@tocsin/snap",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "build": "mm-snap build",
+    "serve": "mm-snap serve",
+    "start": "mm-snap watch",
+    "check-types": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@metamask/snaps-sdk": "12.1.0",
+    "@tocsin/reader": "workspace:*",
+    "viem": "2.57.16"
+  },
+  "devDependencies": {
+    "@metamask/snaps-cli": "8.4.1",
+    "typescript": "5.8.3"
+  }
+}
