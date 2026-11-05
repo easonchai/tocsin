@@ -303,7 +303,7 @@ Subjects of this log never consent and cannot be asked to register, so there is 
 
 ### Typed signatures and relayed batches
 
-Allowing a relayer to submit a batch signed by the writer lets a security team keep its key in a cold wallet or a multisig and lets a grant or sponsor pay gas, without the log knowing anything about sponsorship. The batch is signed as a typed array rather than as an opaque hash so that a signing device can display every subject and category, and ERC-1271 is accepted so that a contract account can be a writer. ERC-1271 is safe here, unlike for removal, because a writer is an identity a list maintainer chose, not an unconsenting subject.
+Allowing a relayer to submit a batch signed by the writer lets a security team keep its key in a cold wallet or a multisig and lets a grant or sponsor pay gas, without the log knowing anything about sponsorship. The batch is signed as a typed array rather than as an opaque hash so that a signing device can display every subject and category, and ERC-1271 is accepted so that a contract account can be a writer. ERC-1271 is safe here, unlike for removal, because a writer is an identity a list maintainer chose, not an unconsenting subject. An EIP-7702-delegated writer has code and therefore signs through ERC-1271, so its delegate must implement `isValidSignature`, or the writer should sign from a plain EOA key that has no delegation.
 
 ### Future calldata repricing
 
