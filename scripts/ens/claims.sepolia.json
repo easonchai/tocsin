@@ -1,20 +1,12 @@
 {
   "blockaid": {
     "owner": "0x6f1524F5A1152d6b08ef8833E42E4311151e904F",
-    "resolver": "0x27209FA079b88bf30DCc43d4324D7c8A4f4E2b33",
-    "node": "0x1601f93a3c51429b4ad6778fa9e7e669a5684b80254e211b078b97f9499f115b",
-    "claimTx": "0x59611357a55183df37a558010fe2b1fa63066a9743a66a8af0df9dabd0c3c976"
+    "resolver": "0x2a0F1707376b54058A8ecD6d88Ae05810a0Ab084",
+    "node": "0x1601f93a3c51429b4ad6778fa9e7e669a5684b80254e211b078b97f9499f115b"
   },
-  "etherscan": {
+  "scamsniffer": {
     "owner": "0x3a05D06949b9890aEAD4700AA5ECEbf4D1BA0Ba0",
-    "resolver": "0xf8c4d03277e3a124821c3D426fEAE6056Ad9aA92",
-    "node": "0x048d97ca3621eda571ab6a2bb86a765ac4221bf6741ea1874d82b297cb825c27",
-    "claimTx": "0x456da39e5c259c58cfafd0897449145ef924950c8177e9bf70a476fee8557808"
-  },
-  "detector": {
-    "owner": "0xe2605fA3c6CED0E1Dc05D19A0F1FdF51Dc5e7301",
-    "resolver": "0x9D37b2C6a165ff7f30e8926224f3305ED273b7b1",
-    "node": "0xcde3616b70c2b87ace4457525b3af8de38e0fb3ea0ae331364c4c8634ded010b",
-    "claimTx": "0xdd00e1eb4b4ffd668b6e6551235b8ceed9467f52e60dae94f04b5a1382894bb9"
+    "resolver": "0xB28A4cd2eD1f11e5dbB1a3f2ABf6A83EE63b219f",
+    "node": "0xbef8d310239734a04fcad8a5b8f73e51dbcf7115155d60b17b825e06aead41e0"
   }
 }

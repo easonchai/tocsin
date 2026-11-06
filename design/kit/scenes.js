@@ -3,7 +3,7 @@
    staggered. Each scene is under 10s and loops. They double as loading illustrations.
    Usage: Tocsin.scene(el, 'append' | 'prove' | 'lie'). Needs scenes.css. */
 (function () {
-  var W = 720, H = 330, MONO = 'JetBrains Mono, monospace', BODY = 'Schibsted Grotesk, sans-serif', LOOP = 13000; // END + ~2.8s hold on the finished scene before it rebuilds
+  var W = 720, H = 330, MONO = 'JetBrains Mono, monospace', BODY = 'Inter, sans-serif', LOOP = 13000; // END + ~2.8s hold on the finished scene before it rebuilds
   var BEATS = [.3, 2.8, 5.3, 7.8], END = 10.2;
   var reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -16,7 +16,7 @@
   // the hero: solid paper. lines may be [text, delay] to arrive late, or [text, delay, until] to leave again
   function hero(x, y, w, h, title, lines, d) {
     var t = '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="3" fill="#ece7dc"/>' +
-      '<text x="' + (x + w / 2) + '" y="' + (y + 27) + '" text-anchor="middle" font-family="Bricolage Grotesque, sans-serif" font-weight="700" font-size="15" fill="#121417">' + title + '</text>';
+      '<text x="' + (x + w / 2) + '" y="' + (y + 27) + '" text-anchor="middle" font-family="Inter, sans-serif" font-weight="700" font-size="15" fill="#121417">' + title + '</text>';
     var late = '';
     lines.forEach(function (l, i) {
       var arr = Array.isArray(l), txt = arr ? l[0] : l, ly = y + 52 + i * 19;

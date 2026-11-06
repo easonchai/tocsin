@@ -1,6 +1,6 @@
 # Tocsin brand direction
 
-The one memory: your wallet checked Ethereum itself and caught the lie. The screens and the type carry that. The background and the animations carry the second idea, that one wallet bitten immunizes every wallet that syncs, a bell that reaches everyone.
+The one memory: your wallet checked Ethereum itself and caught the lie. The screens and the type carry that. The background and the animations carry the second idea, that one flag reaches every wallet that syncs, a bell that reaches everyone.
 
 ## What a tocsin is
 
@@ -41,7 +41,7 @@ The background's state palette, after Devcon:
 
 ## Type
 
-Bricolage Grotesque for display, 700, tight tracking. Schibsted Grotesk for body. JetBrains Mono for anything that is data: addresses, sequence numbers, labels, the trace. All three are already bundled in the site and licensed under the OFL.
+Inter for display and body. Display is 700 with tight tracking, body is 400 and 500, buttons 600. One family, because the screens are read fast on a projector and in a wallet popup, and Inter stays legible at both ends. JetBrains Mono for anything that is data: addresses, sequence numbers, labels, the trace. Both are bundled in `site/fonts/` as variable fonts under the OFL.
 
 Display runs large and few. One sentence per section at most. Mono labels are 12px uppercase with wide tracking and sit in `ink-400`.
 
@@ -49,7 +49,7 @@ Display runs large and few. One sentence per section at most. Mono labels are 12
 
 A bell seen as its sound. Three concentric arcs rising from a strike point, open at the bottom, closed by a short lip. Read quickly it is a bell; read slowly it is a signal radiating outward. It works at 16px as a favicon because the arcs survive and the lip reads as a base.
 
-The wordmark is "tocsin" in lowercase Bricolage 700, tracking -0.03em. Lowercase because a bell is a common thing, not a brand shouting.
+The wordmark is "tocsin" in lowercase Inter 700, tracking -0.03em. Lowercase because a bell is a common thing, not a brand shouting.
 
 ## The background
 

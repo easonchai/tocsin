@@ -4,3 +4,5 @@ dapp/.agents/skills/drizzle-neon/SKILL.md:generic-password:76
 dapp/packages/nextjs/utils/scaffold-eth/fetchPriceFromUniswap.ts:generic-api-key:32
 dapp/packages/nextjs/utils/scaffold-eth/networks.ts:generic-api-key:60
 dapp/packages/nextjs/utils/scaffold-eth/networks.ts:generic-api-key:64
+# Public address of the detector writer key, not a secret.
+docs/claim-a-name.md:generic-api-key:48

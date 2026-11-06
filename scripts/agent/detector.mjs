@@ -91,4 +91,4 @@ writeFileSync(out, JSON.stringify([...prev, ...fresh.map((c) => ({ ...c, tx: has
 const seq = await pub.readContract({ address: LOG, abi: logAbi, functionName: 'writerSeq', args: [account.address] });
 const headHash = await pub.readContract({ address: LOG, abi: logAbi, functionName: 'writerHead', args: [account.address] });
 console.log(`writerSeq ${seq}, writerHead ${headHash}; recorded in docs/plan/demo/seed/detector.json`);
-console.log(`next: node --env-file=scripts/.env scripts/seed/publish-list.mjs --name detector --key-env DETECTOR_PRIVATE_KEY`);
+console.log(`next: node --env-file=scripts/.env scripts/ens/setup-all.mjs --skip-claims   # republishes the lists if they changed`);
