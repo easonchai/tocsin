@@ -38,21 +38,20 @@ Built:
 - The landing page, `site/`, on the brand kit under `design/`. The kit has the mark, tokens, the dot-field background, three animated how-it-works scenes, wallet mocks, and a designer handoff.
 - The MetaMask Snap UI, specified screen by screen in `docs/plan/demo/snap-ui.md` and mocked in `design/kit/snap.html`.
 - The seed list, `docs/plan/demo/seed/`: 92 attacker addresses across eight categories, each with an evidence transaction that was replayed and checked on-chain. Drainer kits, address-poisoning crews, EIP-7702 sweepers, and exploit proceeds.
-- ENSv2 on Sepolia: `tocsin.eth` registered, plus scripts that set up the name's own subregistry and resolver, register `core.tocsin.eth`, and emancipate the registry.
+- ENSv2 on Sepolia: `tocsin.eth` registered, its subregistry and resolver deployed, `core.tocsin.eth` registered, the registry emancipated. Two signed lists published under `tocsin.list`: `core.tocsin.eth` naming both writers, `detector.tocsin.eth` naming itself.
 - The MirrorRegistrar, `scripts/ens/contracts/MirrorRegistrar.sol`: whoever owns `<label>.eth` can claim `<label>.tocsin.eth`. Seven fork tests pass against the live Sepolia ENSv2 contracts.
 - The claim page, `site/claim.html`: connect a Sepolia wallet, register a `.eth` name if needed, claim the subname, and read the registry's guarantees live. Two names claimed from stranger keys so far.
 - The detector agent, `scripts/agent/detector.mjs`: a template for an automated writer with its own name, `detector.tocsin.eth`. Flags a sample of verified poisoning operators by default; its live mode, a zero-value-transfer heuristic, found two real sprayers in a 40-block scan. Replace the detection, keep the rest.
 - Publish-role delegation, `scripts/ens/5-delegate-publisher.mjs`: one hot key may set only the list text record on a resolver, through ENSv2's `authorizeTextRoles`.
-- Scripts to seed the log and publish the signed `core` list, waiting on the contract address.
+- The log deployed on Sepolia and seeded: 92 leaves under the maintainer key, one under the detector's.
 - Build tickets under `docs/plan/`, one per piece of the demo.
 
 Next, in the order the handoff sets:
 
-1. Deploy the log on Sepolia through the CREATE2 proxy, seed it, publish `core.tocsin.eth`.
-2. The reader: prove heads through Helios, replay, evaluate.
-3. The three hosts: Kohaku module (full claim), MetaMask Snap (privacy half, RPC header), provider-proxy extension.
-4. The three demo beats: honest RPC blocks the drainer receiver; a lying RPC produces "unverifiable, chain mismatch"; a mirror restores the block.
-5. The backtest, then the Ethereum Magicians thread, then the PR to `ethereum/ERCs`.
+1. The reader: prove heads through Helios, replay, evaluate.
+2. The three hosts: Kohaku module (full claim), MetaMask Snap (privacy half, RPC header), provider-proxy extension.
+3. The three demo beats: honest RPC blocks the drainer receiver; a lying RPC produces "unverifiable, chain mismatch"; a mirror restores the block.
+4. The backtest, then the Ethereum Magicians thread, then the PR to `ethereum/ERCs`.
 
 ## Addresses
 
@@ -65,7 +64,7 @@ All Sepolia. Nothing is on mainnet yet.
 | MirrorRegistrar | `0x081d9c8ea86b6022c3e2f0a61f5c26cf9a7cb436` |
 | Maintainer's PermissionedResolver proxy | `0x1cBF0A41B77416381C6eEC40b703BBe4722519E6` |
 | `core.tocsin.eth` namehash (32-byte record key, not an address) | `0x0551573d8cba9f9ca27a75d85f7ca91d68a7c6b956c2c582c15d5ca027e18abc` |
-| ThreatFlagLog | not deployed yet; goes into `scripts/.env` as `LOG_ADDRESS` |
+| ThreatFlagLog | `0xb639d15a0e7ae24e4c32e851fbe0e57585565b14` |
 
 Names claimed through the MirrorRegistrar so far, each from its own key:
 
@@ -73,8 +72,18 @@ Names claimed through the MirrorRegistrar so far, each from its own key:
 | --- | --- | --- | --- |
 | `blockaid.tocsin.eth` | `0x6f1524F5A1152d6b08ef8833E42E4311151e904F` | `0x27209FA079b88bf30DCc43d4324D7c8A4f4E2b33` | `0x59611357…c3c976` |
 | `etherscan.tocsin.eth` | `0x3a05D06949b9890aEAD4700AA5ECEbf4D1BA0Ba0` | `0xf8c4d03277e3a124821c3D426fEAE6056Ad9aA92` | `0x456da39e…557808` |
+| `detector.tocsin.eth` | `0xe2605fA3c6CED0E1Dc05D19A0F1FdF51Dc5e7301` | `0x9D37b2C6a165ff7f30e8926224f3305ED273b7b1` | `0xdd00e1eb…94bb9` |
 
 These are demo claims by keys we control, named after the organisations as placeholders. The real ones belong to whoever owns `blockaid.eth` and `etherscan.eth` on mainnet when the hub goes there. To claim your own: `docs/claim-a-name.md`.
+
+Published lists, both verified on 6 November 2026 by reading the record through the resolver, recovering the signer, and re-hashing the committed document:
+
+| Name | Record | Writers | Maintainer |
+| --- | --- | --- | --- |
+| `core.tocsin.eth` | `tocsin.list` version 2, root `0x383052c7…`, tx `0xc99899b0…e56e6d` | maintainer key at weight 255 (92 leaves), detector at weight 1 (1 leaf) | `0x36a2…387E` |
+| `detector.tocsin.eth` | `tocsin.list` version 1, root `0x3175436c…`, tx `0x88b482f8…24dc02` | detector key at weight 255 (1 leaf) | `0xe260…7301` |
+
+The documents the records point at are `docs/plan/demo/seed/core.list.json` and `detector.list.json`. The detector's one leaf is a live catch: a sender that sprayed zero-value USDT to 39 addresses on mainnet, flagged as a poisoning operator with the dust transaction as evidence, appended in `0xca64af9b…bb514`.
 
 Registered 6 November 2026. `tocsin.eth`: tx `0x9e8b2a8d…20ed0f`. Hub setup through emancipation: txs in `scripts/ens/state.sepolia.json`'s commit and in ticket 15. Checked after setup: no account holds a dangerous root role on the subregistry, the registrar holds registrar and renew, `core.tocsin.eth` resolves to the maintainer.
 
