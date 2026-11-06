@@ -1,0 +1,22 @@
+{
+  "log": "0xB639d15A0E7aE24E4C32E851Fbe0E57585565b14",
+  "chainId": 11155111,
+  "maintainer": "0x70d1d86b5537f1beb8a89e57a4761f6d11d08706",
+  "version": 1,
+  "entries": [
+    {
+      "writer": "0x6a690bb216f9e691fb4706eb7d59fae610d081ad",
+      "weight": 255,
+      "operator": "0xdcd6fcbbe30fef7df5461274f55675d2fde2af8d6ca7f85ab1a6c792c4c2f64a",
+      "upstream": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "fromBlock": 0,
+      "toBlock": 0,
+      "headPin": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "categories": "0x1",
+      "snapshotURI": "http://localhost:8000/mirror/0x6a690bb216f9e691fb4706eb7d59fae610d081ad.json"
+    }
+  ],
+  "labels": {
+    "harborwatch.eth": "0xdcd6fcbbe30fef7df5461274f55675d2fde2af8d6ca7f85ab1a6c792c4c2f64a"
+  }
+}

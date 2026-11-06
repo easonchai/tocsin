@@ -148,6 +148,18 @@ The local gateway was built from `ethereum/tor-js` at d9d9612. Its binary is at 
 
 Tried 2026-11-06 with the provisional list (record baked in with `TOCSIN_LIST_RECORD`, document served from `localhost:8000`). Installed, and synced at block 12074725 against `0xrpc.io/sep`. publicnode had failed the first sync with "proof request for 2 writers failed". This Flask shows `endowment:page-settings` as "Unknown permission", so the settings page and its leaf source switch are missing. Only the RPC beat can be shown until Flask supports it. The Snap's tests fail on a build with `TOCSIN_*` baked in; run them on a default build.
 
+Later on 2026-11-06 the Snap gained list checkboxes and a home page that shows the settings form (runbook step 7). The rehearsal build ticks `tocsin.eth` and offers `alt.tocsin.eth`, a second provisional list holding only the detector at weight 1, served from `localhost:8001`. Both records are baked in, so neither name needs ENS. Run against real Sepolia, with both ticked: drainer block (`tocsin.eth` block, `alt.tocsin.eth` clean), lookalike warn, other addresses clean. With only `alt.tocsin.eth` ticked, all three are clean. The detector has flagged neither beat address.
+
+Still later on 2026-11-06 the Snap was rebuilt to `docs/plan/demo/snap-ui.md`. There is one RPC for everything, with no leaf source switch and no mirror, and the home page has a card per list with a Follow toggle and Remove, plus an Add form. `TOCSIN_LISTS` is gone. Add `alt.tocsin.eth` from the home page instead; its record is still baked in through `TOCSIN_LIST_RECORDS`.
+
+```sh
+S=<scratchpad>
+TOCSIN_RPC_URL=https://0xrpc.io/sep TOCSIN_LIST_NAME=tocsin.eth TOCSIN_LOG_FROM_BLOCK=12074077 \
+  TOCSIN_LIST_RECORD="$(cat $S/list-record.hex)" TOCSIN_LIST_RECORDS="alt.tocsin.eth=$(cat $S/alt-record.hex)" npx mm-snap build
+```
+
+- [ ] Home page: Menu, Snaps, Tocsin shows Status, Lists, Policy, Network and About. Add `alt.tocsin.eth`: a "Pin alt.tocsin.eth?" dialog shows the maintainer and 1 writer. Accept. Toggle Follow off on `tocsin.eth`: the drainer send shows "No flags". Toggle it on: the block returns with no dialog.
+
 Use a fresh Chrome profile.
 
 ```sh
@@ -156,12 +168,12 @@ yarn workspace @tocsin/snap test
 yarn workspace @tocsin/snap serve
 ```
 
-- [ ] Install from any page's console: `await ethereum.request({ method: "wallet_requestSnaps", params: { "local:http://localhost:8080": {} } })`. In Menu, Snaps, Tocsin, Settings both writers show "synced to sequence N" in under 30 s. Time recorded.
-- [ ] Block before confirm: send to `0x79fDaE13B1A677E5b8Ac9f5411F6664788A17537`. Tocsin tab shows "Blocked by your pinned list", the writer, "Drainer receiver", an evidence link. MetaMask's critical styling shows before Confirm. Footer says "unverified" and "best-effort".
-- [ ] Permit at signing: `eth_signTypedData_v4` with the `Permit` from ticket 12 Comments step 4, spender `0x7d77cf49d8c1851781C3cEfCdD9Bd9871366782e`. Block panel appears. Reject.
+- [ ] Install from any page's console: `await ethereum.request({ method: "wallet_requestSnaps", params: { "local:http://localhost:8080": {} } })`. The "Tocsin is on" alert appears after the first sync. In Menu, Snaps, Tocsin the Status section shows the flag count and a last sync in under 30 s. Time recorded.
+- [ ] Block before confirm: send to `0x79fDaE13B1A677E5b8Ac9f5411F6664788A17537`. The Tocsin tab shows "Blocked", "Reject this transaction.", the "Drainer receiver" banner, `DRAINER_RECEIVER`, the writer with "via tocsin.eth", and an evidence link. MetaMask's critical styling shows before Confirm. The source row says "best effort, not a light client".
+- [ ] Permit at signing: `eth_signTypedData_v4` with the `Permit` from ticket 12 Comments step 4, spender `0x7d77cf49d8c1851781C3cEfCdD9Bd9871366782e`. Block panel with "Reject this signature." appears. Reject.
 - [ ] Without the Snap: second fresh profile with Flask and no Snap, same send. MetaMask shows no warning.
-- [ ] Three beats from Settings. Leaf source RPC, Save and sync, send: blocked. Run the lying proxy, source Custom URL `http://127.0.0.1:8550`, Save and sync, send: "Tocsin cannot vouch for this" and "chain mismatch at sequence N". Source Mirror, Save and sync, send: blocked.
-- [ ] Maintainer change: copy the list, set `maintainer` to a second address, raise `version`, sign with `MAINTAINER_PRIVATE_KEY=<second key> yarn workspace @tocsin/reader publish-list sign <doc> <listURI>`, host it, `yarn workspace @tocsin/infra ens-publish list <record.hex>`. Press Sync now. "List maintainer changed" dialog appears. Decline: old maintainer still pinned, row says "declined", send still blocks.
+- [ ] Three beats from the home page's Network section. RPC `https://0xrpc.io/sep`, Save and sync, send: Blocked. Run the lying proxy, RPC `http://127.0.0.1:8550`, Save and sync, send: "Unverifiable", "The RPC's data does not match Ethereum", "chain mismatch at sequence N", never green. RPC back to `https://0xrpc.io/sep`, Save, then Retry sync on an open panel: Blocked.
+- [ ] Maintainer change: copy the list, set `maintainer` to a second address, raise `version`, sign with `MAINTAINER_PRIVATE_KEY=<second key> yarn workspace @tocsin/reader publish-list sign <doc> <listURI>`, host it, `yarn workspace @tocsin/infra ens-publish list <record.hex>`. Press Sync now. No dialog opens. The list card shows "Maintainer changed … Excluded until you review", and the drainer send is "Unverifiable" with "Not checked: tocsin.eth". Review, then decline: still excluded. Review, then accept: the card shows the new maintainer and the send blocks again.
 - [ ] Restore the original list record.
 
 ## 9. Extension in Chrome 116 or later (demo 13)
@@ -187,10 +199,10 @@ Add `TOCSIN_TRANSPORT=direct` only if the network blocks Tor and Nym.
 
 ## 10. Live walkaway (demo 14)
 
-- [ ] Snap Settings: leaf source RPC, Sync now, the drainer receiver is blocked.
+- [ ] Snap home page: Sync now, the drainer receiver is blocked.
 - [ ] Clear the `erc-threat-flag-log.list` text record at sepolia.app.ens.domains and take `site/` offline.
-- [ ] Sync now: "Last check" reads `stale`, maintainer unchanged, both writers "synced to sequence N".
-- [ ] Send to `0x79fDaE13B1A677E5b8Ac9f5411F6664788A17537`: "Blocked by your pinned list", writer shown as a short address.
+- [ ] Sync now: the list card reads "Last check: stale", maintainer unchanged, flag count unchanged, no writer row in warning.
+- [ ] Send to `0x79fDaE13B1A677E5b8Ac9f5411F6664788A17537`: "Blocked", writer shown as a short address.
 - [ ] Extension: reload, wait for sync, send from a page console. Still blocks.
 - [ ] Restore: `yarn workspace @tocsin/infra ens-publish list - < list-record.hex`, redeploy `site/`.
 - [ ] "Last check: stale" row and block panel recorded in ticket 14.

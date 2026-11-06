@@ -17,6 +17,35 @@ const stopped = (): Error => Object.assign(new Error("Tocsin stopped this reques
 
 const proxies = new WeakMap<object, object>();
 const isProxy = new WeakSet<object>();
+/** The wallet's own `request` for each provider patched in place, so a Proxy over it never asks twice. */
+const originals = new WeakMap<object, Provider["request"]>();
+
+function holding(send: Provider["request"], ask: Ask): Provider["request"] {
+  return (args) => {
+    // Not async: a pass-through returns the wallet's own promise, unchanged.
+    if (!shouldIntercept(args?.method)) return send(args);
+    return (async () => {
+      const chainId = await send({ method: "eth_chainId" }).catch(() => undefined);
+      if (!(await ask(args.method, args.params, chainId))) throw stopped();
+      return send(args);
+    })();
+  };
+}
+
+/**
+ * For a wallet that locked `window.ethereum` (non-configurable), so no Proxy can stand in for it:
+ * hold its requests on the wallet object itself. Mutates the wallet; there is no other seam left.
+ */
+function patchInPlace(provider: Provider, ask: Ask): void {
+  if (isProxy.has(provider) || originals.has(provider)) return;
+  const original = provider.request.bind(provider);
+  try {
+    provider.request = holding(original, ask);
+    originals.set(provider, original);
+  } catch {
+    // A frozen wallet object cannot be patched; its EIP-6963 announcement is still wrapped.
+  }
+}
 
 export function wrapProvider<P extends Provider>(provider: P, ask: Ask): P {
   if (isProxy.has(provider)) return provider;
@@ -24,15 +53,7 @@ export function wrapProvider<P extends Provider>(provider: P, ask: Ask): P {
   // SAFETY: proxies only maps a provider to the Proxy built over it below, which has the provider's type.
   if (known) return known as P;
 
-  const request = (args: RequestArgs): Promise<unknown> => {
-    // Not async: a pass-through returns the wallet's own promise, unchanged.
-    if (!shouldIntercept(args?.method)) return provider.request(args);
-    return (async () => {
-      const chainId = await provider.request({ method: "eth_chainId" }).catch(() => undefined);
-      if (!(await ask(args.method, args.params, chainId))) throw stopped();
-      return provider.request(args);
-    })();
-  };
+  const request = holding((args) => (originals.get(provider) ?? provider.request.bind(provider))(args), ask);
 
   // Bound to the real provider: wallets keep private fields that a Proxy receiver cannot reach.
   const bound = new Map<PropertyKey, unknown>();
@@ -76,11 +97,12 @@ export function install(win: PageWindow, ask: Ask): void {
   // window.ethereum: an accessor, so a wallet that assigns it after us is wrapped too.
   const desc = Object.getOwnPropertyDescriptor(win, "ethereum");
   let raw = win.ethereum;
+  const get = () => (raw && typeof raw.request === "function" ? wrapProvider(raw, ask) : raw);
   if (!desc || desc.configurable) {
     Object.defineProperty(win, "ethereum", {
-      configurable: true, // never block a wallet that redefines it; EIP-6963 still covers that wallet
+      configurable: true, // never block a wallet that redefines it; the guard below still catches it
       enumerable: true,
-      get: () => (raw && typeof raw.request === "function" ? wrapProvider(raw, ask) : raw),
+      get,
       set: (value: Provider | undefined) => {
         raw = value;
       },
@@ -88,5 +110,15 @@ export function install(win: PageWindow, ask: Ask): void {
   } else if (desc.writable && raw) {
     win.ethereum = wrapProvider(raw, ask);
   }
+
+  // A wallet that locked window.ethereum, before us or by redefining our accessor, is patched in place.
+  const guard = () => {
+    if (Object.getOwnPropertyDescriptor(win, "ethereum")?.get === get) return;
+    const current = win.ethereum;
+    if (current && typeof current.request === "function" && !isProxy.has(current)) patchInPlace(current, ask);
+  };
+  guard();
+  win.addEventListener("ethereum#initialized", guard);
+  win.addEventListener("DOMContentLoaded", guard);
   // shortcut: legacy `send` and `sendAsync` pass through unwrapped; wrap them if a target dapp still uses them.
 }

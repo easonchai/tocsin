@@ -8,5 +8,22 @@
   },
   "devDependencies": {
     "marked": "15.0.12"
-  }
+  },
+  "version": "1.0.0",
+  "description": "Herd immunity for Ethereum. An append-only log of scam infrastructure that lives in Ethereum state, that anyone can write to under their own name, and that a wallet can check through a light client without trusting an RPC, an explorer, or a security vendor.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/easonchai/antibody.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/easonchai/antibody/issues"
+  },
+  "homepage": "https://github.com/easonchai/antibody#readme"
 }

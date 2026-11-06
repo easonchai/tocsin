@@ -98,6 +98,35 @@ test("window.ethereum is wrapped whether the wallet injected before or after the
   assert.deepEqual(late.seen, ["eth_chainId"]);
 });
 
+test("a wallet that locks window.ethereum, before or after the proxy, is still held, and asks once via EIP-6963 too", async () => {
+  const lock = (win: PageWindow, wallet: Provider) => Object.defineProperty(win, "ethereum", { value: wallet, configurable: false, writable: false });
+
+  const before = fakeWindow();
+  const early = new RecordingWallet();
+  lock(before, early);
+  const a = recordingAsk(false);
+  install(before, a.ask);
+  await assert.rejects(before.ethereum!.request({ method: "eth_sendTransaction", params: [{}] }));
+  assert.equal(a.asked.length, 1);
+  assert.deepEqual(early.seen, ["eth_chainId"]);
+
+  const after = fakeWindow();
+  const b = recordingAsk(false);
+  install(after, b.ask);
+  const late = new RecordingWallet();
+  lock(after, late); // replaces the proxy's configurable accessor
+  after.dispatchEvent(new Event("ethereum#initialized"));
+  await assert.rejects(after.ethereum!.request({ method: "eth_sendTransaction", params: [{}] }));
+  assert.equal(b.asked.length, 1);
+
+  let announced: Provider | undefined;
+  after.addEventListener("eip6963:announceProvider", (e) => (announced = (e as CustomEvent<{ provider: Provider }>).detail.provider));
+  after.dispatchEvent(new CustomEvent("eip6963:announceProvider", { detail: Object.freeze({ info: {}, provider: late }) }));
+  await assert.rejects(announced!.request({ method: "eth_signTypedData_v4", params: ["0x0", "{}"] }));
+  assert.equal(b.asked.length, 2, "one ask per request, not one per wrapper layer");
+  assert.deepEqual(late.seen, ["eth_chainId", "eth_chainId"]);
+});
+
 test("EIP-6963: the dapp only ever receives the wrapped provider, once per announcement", async () => {
   const win = fakeWindow();
   const { ask, asked } = recordingAsk(false);

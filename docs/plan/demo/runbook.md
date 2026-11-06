@@ -141,7 +141,9 @@ yarn workspace @tocsin/snap test
 yarn workspace @tocsin/snap serve
 ```
 
-Optional build settings: `TOCSIN_RPC_URL`, a keyless https Sepolia RPC, defaulting to publicnode. Set it to `https://0xrpc.io/sep`: publicnode's backends lag each other by about a block, so a proof at "latest" fails with "block not found" about 1 time in 6, and the Snap shows "proof request for 2 writers failed". 0xrpc.io passed 10 of 10 and serves the log scan and CORS (2026-11-06). `TOCSIN_PROXY_URL`, defaulting to `http://127.0.0.1:8550`; `TOCSIN_LIST_RECORD`, which replaces the ENS lookup for a rehearsal before the name exists. `serve` listens on http://localhost:8080. Ticket 12's Comments give the install call and the acceptance steps. In Flask: Menu, Snaps, Tocsin, Settings holds the leaf source switch for the three beats. If Chrome blocks the Snap from reaching `127.0.0.1`, put the lying proxy behind an https tunnel and use that as the custom URL.
+Optional build settings: `TOCSIN_RPC_URL`, a keyless https Sepolia RPC, defaulting to publicnode. Set it to `https://0xrpc.io/sep`: publicnode's backends lag each other by about a block, so a proof at "latest" fails with "block not found" about 1 time in 6, and the Snap shows "proof request for 2 writers failed". 0xrpc.io passed 10 of 10 and serves the log scan and CORS (2026-11-06). `TOCSIN_LIST_RECORD`, which replaces the ENS lookup for a rehearsal before the name exists. `serve` listens on http://localhost:8080. Ticket 12's Comments give the install call and the acceptance steps. In Flask: Menu, Snaps, Tocsin opens the home page from `docs/plan/demo/snap-ui.md`. Settings opens the same page. Its Network section holds the one RPC URL, used for the header, proofs, ENS and flags. The three beats switch that URL: honest RPC, the lying proxy at `http://127.0.0.1:8550`, then back to the honest RPC and Retry sync.
+
+The Snap checks against every followed list. A block from any followed list blocks. `TOCSIN_LIST_NAME` takes comma-separated names, followed by default and pinned silently on first sync. The home page's Add form takes any other ENS name and shows the maintainer and writer count in a dialog before pinning. A list whose maintainer changes is excluded until the user presses Review on its card and accepts. An unfollowed list keeps its pin. For a rehearsal, `TOCSIN_LIST_RECORDS=a.eth=0x…,b.eth=0x…` replaces the ENS lookup per name. `TOCSIN_LIST_RECORD` still applies to the first default name. If Chrome blocks the Snap from reaching `127.0.0.1`, put the lying proxy behind an https tunnel and enter that as the RPC URL.
 
 ## 8. The extension
 
@@ -202,10 +204,10 @@ Check it with the tor-js live demo at https://ethereum.github.io/tor-js/demo.htm
 
 Run after steps 1 to 4 and 7. The offline version is the `walkaway` test in `packages/snap/test/bundle.test.ts`.
 
-1. In the Snap's settings, set the leaf source to RPC, press Sync now, and check that the drainer receiver is blocked.
+1. On the Snap's home page, press Sync now, and check that the drainer receiver is blocked.
 2. Take the team away. Clear the `erc-threat-flag-log.list` text record on the team's name at sepolia.app.ens.domains, and take `site/` offline.
-3. Press Sync now. Check that "Last check" reads `stale`, the maintainer is unchanged, and both writers show "synced to sequence N".
-4. Send to `0x79fDaE13B1A677E5b8Ac9f5411F6664788A17537` and check for "Blocked by your pinned list" with the writer shown as a short address.
+3. Press Sync now. Check that the list card reads "Last check: stale", the maintainer is unchanged, and no writer row is in warning.
+4. Send to `0x79fDaE13B1A677E5b8Ac9f5411F6664788A17537` and check for "Blocked" with the writer shown as a short address.
 5. Repeat with the extension: reload it, wait for sync, and send from a page console as in ticket 13, step 6.
 6. Restore with `yarn workspace @tocsin/infra ens-publish list - < list-record.hex` and redeploy `site/`.
 

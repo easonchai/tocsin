@@ -119,9 +119,12 @@ async function deployedProxy(c: Ens, what: string, hash: Hash): Promise<Address>
   return log.args.proxyAddress;
 }
 
-// Salt conventions from docs.ens.domains/ensv2/verifiable-factory, version 0.
-const resolverSalt = (owner: Address) =>
-  BigInt(keccak256(encodeAbiParameters(parseAbiParameters("bytes32, address, uint256"), [keccak256(stringToHex("OwnedResolver")), owner, 0n])));
+// Salt conventions from docs.ens.domains/ensv2/verifiable-factory. The resolver's version field carries the
+// name's node, so one owner gets a separate resolver per name: resolver roles have no per-name scope, and a
+// shared resolver would let one name's maintainer set another name's list. tocsin.eth's resolver predates
+// this and used version 0; setup reuses it because the name already points at it.
+const resolverSalt = (owner: Address, node: Hex) =>
+  BigInt(keccak256(encodeAbiParameters(parseAbiParameters("bytes32, address, uint256"), [keccak256(stringToHex("OwnedResolver")), owner, BigInt(node)])));
 const registrySalt = (node: Hex) =>
   BigInt(keccak256(encodeAbiParameters(parseAbiParameters("bytes32, bytes32, uint256"), [keccak256(stringToHex("UserRegistry")), node, 0n])));
 
@@ -162,7 +165,7 @@ async function setup(): Promise<void> {
         factoryAddress: c.ens.factory,
         implAddress: c.ens.resolverImpl,
         callData,
-        salt: resolverSalt(owner.address),
+        salt: resolverSalt(owner.address, namehash(name)),
       }),
     );
     await confirm(c, `setResolver ${name}`, await setResolver(wallet, { label, registryAddress: c.ens.registry, resolverAddress: resolver }));

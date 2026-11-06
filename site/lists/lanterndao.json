@@ -1,0 +1,22 @@
+{
+  "log": "0xB639d15A0E7aE24E4C32E851Fbe0E57585565b14",
+  "chainId": 11155111,
+  "maintainer": "0xaf85cda5fab801fbcd6ab0060f21b5125f02ae24",
+  "version": 1,
+  "entries": [
+    {
+      "writer": "0x81fa2d7b81b951071738263f5b24688b15a6972c",
+      "weight": 1,
+      "operator": "0x4da1314ef6afee1845eed385bc3379b0833ff2102397576c257ea58f8f982de6",
+      "upstream": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "fromBlock": 0,
+      "toBlock": 0,
+      "headPin": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "categories": "0x1",
+      "snapshotURI": "http://localhost:8000/mirror/0x81fa2d7b81b951071738263f5b24688b15a6972c.json"
+    }
+  ],
+  "labels": {
+    "lanterndao.eth": "0x4da1314ef6afee1845eed385bc3379b0833ff2102397576c257ea58f8f982de6"
+  }
+}

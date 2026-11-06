@@ -1,0 +1,33 @@
+{
+  "log": "0xB639d15A0E7aE24E4C32E851Fbe0E57585565b14",
+  "chainId": 11155111,
+  "maintainer": "0x606ee24a4e6e3919ff90b1fd3d2649710fd99de1",
+  "version": 1,
+  "entries": [
+    {
+      "writer": "0x1d3b86a924ffb140bdd74ee6a7533921ed141583",
+      "weight": 255,
+      "operator": "0x50d9caca575dee80d39cc3050164ec8e74728ee8b47ab646b3e4914a12dd8c37",
+      "upstream": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "fromBlock": 0,
+      "toBlock": 0,
+      "headPin": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "categories": "0x1",
+      "snapshotURI": "http://localhost:8000/mirror/0x1d3b86a924ffb140bdd74ee6a7533921ed141583.json"
+    },
+    {
+      "writer": "0xe3a9678ed0992416c5230f52e3b1ff9775cca999",
+      "weight": 1,
+      "operator": "0x50d9caca575dee80d39cc3050164ec8e74728ee8b47ab646b3e4914a12dd8c37",
+      "upstream": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "fromBlock": 0,
+      "toBlock": 0,
+      "headPin": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "categories": "0x2",
+      "snapshotURI": "http://localhost:8000/mirror/0xe3a9678ed0992416c5230f52e3b1ff9775cca999.json"
+    }
+  ],
+  "labels": {
+    "tocsin.eth": "0x50d9caca575dee80d39cc3050164ec8e74728ee8b47ab646b3e4914a12dd8c37"
+  }
+}

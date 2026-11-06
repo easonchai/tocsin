@@ -25,7 +25,9 @@ export type KeyVar =
   | "DETECTOR_PRIVATE_KEY"
   | "RELAYER_PRIVATE_KEY"
   | "ENS_OWNER_PRIVATE_KEY"
-  | "MAINTAINER_PRIVATE_KEY";
+  | "MAINTAINER_PRIVATE_KEY"
+  | "HARBOR_WRITER_PRIVATE_KEY"
+  | "LANTERN_WRITER_PRIVATE_KEY";
 
 export type Target = {
   chainId: number;
