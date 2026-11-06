@@ -1,0 +1,261 @@
+{
+  "core.tocsin.eth": {
+    "drainer-receiver-1": {
+      "writer": "0x36a279136adDde960599fcA356369C04A96D387E",
+      "tx": "0x616286317427b54f4e5ac81ce4dc8632e235bfbef526805a4e27ba87cff10834"
+    },
+    "drainer-receiver-2": {
+      "writer": "0x36a279136adDde960599fcA356369C04A96D387E",
+      "tx": "0x616286317427b54f4e5ac81ce4dc8632e235bfbef526805a4e27ba87cff10834"
+    },
+    "drainer-receiver-3": {
+      "writer": "0x36a279136adDde960599fcA356369C04A96D387E",
+      "tx": "0x616286317427b54f4e5ac81ce4dc8632e235bfbef526805a4e27ba87cff10834"
+    },
+    "drainer-receiver-4": {
+      "writer": "0x36a279136adDde960599fcA356369C04A96D387E",
+      "tx": "0x616286317427b54f4e5ac81ce4dc8632e235bfbef526805a4e27ba87cff10834"
+    },
+    "drainer-receiver-5": {
+      "writer": "0x36a279136adDde960599fcA356369C04A96D387E",
+      "tx": "0x616286317427b54f4e5ac81ce4dc8632e235bfbef526805a4e27ba87cff10834"
+    },
+    "drainer-spender-1": {
+      "writer": "0x36a279136adDde960599fcA356369C04A96D387E",
+      "tx": "0x616286317427b54f4e5ac81ce4dc8632e235bfbef526805a4e27ba87cff10834"
+    },
+    "drainer-spender-2": {
+      "writer": "0x36a279136adDde960599fcA356369C04A96D387E",
+      "tx": "0x616286317427b54f4e5ac81ce4dc8632e235bfbef526805a4e27ba87cff10834"
+    },
+    "drainer-spender-3": {
+      "writer": "0x36a279136adDde960599fcA356369C04A96D387E",
+      "tx": "0x616286317427b54f4e5ac81ce4dc8632e235bfbef526805a4e27ba87cff10834"
+    },
+    "drainer-spender-4": {
+      "writer": "0x36a279136adDde960599fcA356369C04A96D387E",
+      "tx": "0x616286317427b54f4e5ac81ce4dc8632e235bfbef526805a4e27ba87cff10834"
+    },
+    "drainer-spender-5": {
+      "writer": "0x36a279136adDde960599fcA356369C04A96D387E",
+      "tx": "0x616286317427b54f4e5ac81ce4dc8632e235bfbef526805a4e27ba87cff10834"
+    },
+    "paid-lookalike-1": {
+      "writer": "0x36a279136adDde960599fcA356369C04A96D387E",
+      "tx": "0x616286317427b54f4e5ac81ce4dc8632e235bfbef526805a4e27ba87cff10834"
+    },
+    "paid-lookalike-2": {
+      "writer": "0x36a279136adDde960599fcA356369C04A96D387E",
+      "tx": "0x616286317427b54f4e5ac81ce4dc8632e235bfbef526805a4e27ba87cff10834"
+    },
+    "paid-lookalike-3": {
+      "writer": "0x36a279136adDde960599fcA356369C04A96D387E",
+      "tx": "0x616286317427b54f4e5ac81ce4dc8632e235bfbef526805a4e27ba87cff10834"
+    },
+    "paid-lookalike-4": {
+      "writer": "0x36a279136adDde960599fcA356369C04A96D387E",
+      "tx": "0x616286317427b54f4e5ac81ce4dc8632e235bfbef526805a4e27ba87cff10834"
+    },
+    "paid-lookalike-retracted": {
+      "writer": "0x36a279136adDde960599fcA356369C04A96D387E",
+      "tx": "0x616286317427b54f4e5ac81ce4dc8632e235bfbef526805a4e27ba87cff10834",
+      "tombstoneTx": "0x5c1d36e71779297a7865e8530040400dae7ec2b5e78195035112e6a29ab7bc47"
+    },
+    "poisoning-operator-m1": {
+      "writer": "0x36a279136adDde960599fcA356369C04A96D387E",
+      "tx": "0x616286317427b54f4e5ac81ce4dc8632e235bfbef526805a4e27ba87cff10834"
+    },
+    "poisoning-operator-m2": {
+      "writer": "0x36a279136adDde960599fcA356369C04A96D387E",
+      "tx": "0x616286317427b54f4e5ac81ce4dc8632e235bfbef526805a4e27ba87cff10834"
+    },
+    "poisoning-operator-m3": {
+      "writer": "0x36a279136adDde960599fcA356369C04A96D387E",
+      "tx": "0x616286317427b54f4e5ac81ce4dc8632e235bfbef526805a4e27ba87cff10834"
+    },
+    "poisoning-operator-m4": {
+      "writer": "0x36a279136adDde960599fcA356369C04A96D387E",
+      "tx": "0x616286317427b54f4e5ac81ce4dc8632e235bfbef526805a4e27ba87cff10834"
+    },
+    "poisoning-operator-m5": {
+      "writer": "0x36a279136adDde960599fcA356369C04A96D387E",
+      "tx": "0x616286317427b54f4e5ac81ce4dc8632e235bfbef526805a4e27ba87cff10834"
+    },
+    "poisoning-operator-m6": {
+      "writer": "0x36a279136adDde960599fcA356369C04A96D387E",
+      "tx": "0x616286317427b54f4e5ac81ce4dc8632e235bfbef526805a4e27ba87cff10834"
+    },
+    "theft-proceeds-1": {
+      "writer": "0x36a279136adDde960599fcA356369C04A96D387E",
+      "tx": "0x616286317427b54f4e5ac81ce4dc8632e235bfbef526805a4e27ba87cff10834"
+    },
+    "malicious-delegate-1": {
+      "writer": "0x36a279136adDde960599fcA356369C04A96D387E",
+      "tx": "0x616286317427b54f4e5ac81ce4dc8632e235bfbef526805a4e27ba87cff10834"
+    },
+    "fakeUSDC": {
+      "writer": "0x36a279136adDde960599fcA356369C04A96D387E",
+      "tx": "0x616286317427b54f4e5ac81ce4dc8632e235bfbef526805a4e27ba87cff10834"
+    },
+    "poisoning-operator-1": {
+      "writer": "0xe3a9678eD0992416C5230f52E3B1fF9775CCA999",
+      "tx": "0x45814d5eabcc0cc08571c121055153c4ded5e7ce14066be70d1344caeac34bb3"
+    },
+    "poisoning-operator-2": {
+      "writer": "0xe3a9678eD0992416C5230f52E3B1fF9775CCA999",
+      "tx": "0x45814d5eabcc0cc08571c121055153c4ded5e7ce14066be70d1344caeac34bb3"
+    },
+    "poisoning-operator-3": {
+      "writer": "0xe3a9678eD0992416C5230f52E3B1fF9775CCA999",
+      "tx": "0x45814d5eabcc0cc08571c121055153c4ded5e7ce14066be70d1344caeac34bb3"
+    },
+    "poisoning-operator-4": {
+      "writer": "0xe3a9678eD0992416C5230f52E3B1fF9775CCA999",
+      "tx": "0x45814d5eabcc0cc08571c121055153c4ded5e7ce14066be70d1344caeac34bb3"
+    },
+    "poisoning-operator-5": {
+      "writer": "0xe3a9678eD0992416C5230f52E3B1fF9775CCA999",
+      "tx": "0x45814d5eabcc0cc08571c121055153c4ded5e7ce14066be70d1344caeac34bb3"
+    },
+    "poisoning-operator-6": {
+      "writer": "0xe3a9678eD0992416C5230f52E3B1fF9775CCA999",
+      "tx": "0x45814d5eabcc0cc08571c121055153c4ded5e7ce14066be70d1344caeac34bb3"
+    },
+    "poisoning-operator-7": {
+      "writer": "0xe3a9678eD0992416C5230f52E3B1fF9775CCA999",
+      "tx": "0x45814d5eabcc0cc08571c121055153c4ded5e7ce14066be70d1344caeac34bb3"
+    },
+    "poisoning-operator-8": {
+      "writer": "0xe3a9678eD0992416C5230f52E3B1fF9775CCA999",
+      "tx": "0x45814d5eabcc0cc08571c121055153c4ded5e7ce14066be70d1344caeac34bb3"
+    },
+    "poisoning-operator-9": {
+      "writer": "0xe3a9678eD0992416C5230f52E3B1fF9775CCA999",
+      "tx": "0x45814d5eabcc0cc08571c121055153c4ded5e7ce14066be70d1344caeac34bb3"
+    },
+    "poisoning-operator-10": {
+      "writer": "0xe3a9678eD0992416C5230f52E3B1fF9775CCA999",
+      "tx": "0x45814d5eabcc0cc08571c121055153c4ded5e7ce14066be70d1344caeac34bb3"
+    },
+    "poisoning-operator-11": {
+      "writer": "0xe3a9678eD0992416C5230f52E3B1fF9775CCA999",
+      "tx": "0x45814d5eabcc0cc08571c121055153c4ded5e7ce14066be70d1344caeac34bb3"
+    },
+    "poisoning-operator-12": {
+      "writer": "0xe3a9678eD0992416C5230f52E3B1fF9775CCA999",
+      "tx": "0x45814d5eabcc0cc08571c121055153c4ded5e7ce14066be70d1344caeac34bb3"
+    },
+    "poisoning-operator-13": {
+      "writer": "0xe3a9678eD0992416C5230f52E3B1fF9775CCA999",
+      "tx": "0x45814d5eabcc0cc08571c121055153c4ded5e7ce14066be70d1344caeac34bb3"
+    },
+    "poisoning-operator-14": {
+      "writer": "0xe3a9678eD0992416C5230f52E3B1fF9775CCA999",
+      "tx": "0x45814d5eabcc0cc08571c121055153c4ded5e7ce14066be70d1344caeac34bb3"
+    },
+    "poisoning-operator-15": {
+      "writer": "0xe3a9678eD0992416C5230f52E3B1fF9775CCA999",
+      "tx": "0x45814d5eabcc0cc08571c121055153c4ded5e7ce14066be70d1344caeac34bb3"
+    },
+    "poisoning-operator-16": {
+      "writer": "0xe3a9678eD0992416C5230f52E3B1fF9775CCA999",
+      "tx": "0x45814d5eabcc0cc08571c121055153c4ded5e7ce14066be70d1344caeac34bb3"
+    },
+    "poisoning-operator-17": {
+      "writer": "0xe3a9678eD0992416C5230f52E3B1fF9775CCA999",
+      "tx": "0x45814d5eabcc0cc08571c121055153c4ded5e7ce14066be70d1344caeac34bb3"
+    },
+    "poisoning-operator-18": {
+      "writer": "0xe3a9678eD0992416C5230f52E3B1fF9775CCA999",
+      "tx": "0x45814d5eabcc0cc08571c121055153c4ded5e7ce14066be70d1344caeac34bb3"
+    },
+    "poisoning-operator-19": {
+      "writer": "0xe3a9678eD0992416C5230f52E3B1fF9775CCA999",
+      "tx": "0x45814d5eabcc0cc08571c121055153c4ded5e7ce14066be70d1344caeac34bb3"
+    },
+    "poisoning-operator-countered": {
+      "writer": "0xe3a9678eD0992416C5230f52E3B1fF9775CCA999",
+      "tx": "0x45814d5eabcc0cc08571c121055153c4ded5e7ce14066be70d1344caeac34bb3"
+    },
+    "paid-lookalike-d1": {
+      "writer": "0xe3a9678eD0992416C5230f52E3B1fF9775CCA999",
+      "tx": "0x45814d5eabcc0cc08571c121055153c4ded5e7ce14066be70d1344caeac34bb3"
+    },
+    "paid-lookalike-d2": {
+      "writer": "0xe3a9678eD0992416C5230f52E3B1fF9775CCA999",
+      "tx": "0x45814d5eabcc0cc08571c121055153c4ded5e7ce14066be70d1344caeac34bb3"
+    },
+    "paid-lookalike-d3": {
+      "writer": "0xe3a9678eD0992416C5230f52E3B1fF9775CCA999",
+      "tx": "0x45814d5eabcc0cc08571c121055153c4ded5e7ce14066be70d1344caeac34bb3"
+    },
+    "paid-lookalike-d4": {
+      "writer": "0xe3a9678eD0992416C5230f52E3B1fF9775CCA999",
+      "tx": "0x45814d5eabcc0cc08571c121055153c4ded5e7ce14066be70d1344caeac34bb3"
+    },
+    "manual writer": {
+      "writer": "0xe3a9678eD0992416C5230f52E3B1fF9775CCA999",
+      "tx": "0x45814d5eabcc0cc08571c121055153c4ded5e7ce14066be70d1344caeac34bb3"
+    }
+  },
+  "blockaid.tocsin.eth": {
+    "drainer-receiver-1": {
+      "writer": "0x6f1524F5A1152d6b08ef8833E42E4311151e904F",
+      "tx": "0x776b16f173dd1078251b0f34af6de52e9c918737694fd3eaf780c554667cb8e7"
+    },
+    "drainer-receiver-2": {
+      "writer": "0x6f1524F5A1152d6b08ef8833E42E4311151e904F",
+      "tx": "0x776b16f173dd1078251b0f34af6de52e9c918737694fd3eaf780c554667cb8e7"
+    },
+    "drainer-receiver-3": {
+      "writer": "0x6f1524F5A1152d6b08ef8833E42E4311151e904F",
+      "tx": "0x776b16f173dd1078251b0f34af6de52e9c918737694fd3eaf780c554667cb8e7"
+    },
+    "drainer-spender-1": {
+      "writer": "0x6f1524F5A1152d6b08ef8833E42E4311151e904F",
+      "tx": "0x776b16f173dd1078251b0f34af6de52e9c918737694fd3eaf780c554667cb8e7"
+    },
+    "harbor-drainer-receiver-1": {
+      "writer": "0x6f1524F5A1152d6b08ef8833E42E4311151e904F",
+      "tx": "0x776b16f173dd1078251b0f34af6de52e9c918737694fd3eaf780c554667cb8e7"
+    },
+    "harbor-drainer-receiver-2": {
+      "writer": "0x6f1524F5A1152d6b08ef8833E42E4311151e904F",
+      "tx": "0x776b16f173dd1078251b0f34af6de52e9c918737694fd3eaf780c554667cb8e7"
+    },
+    "harbor-drainer-spender-1": {
+      "writer": "0x6f1524F5A1152d6b08ef8833E42E4311151e904F",
+      "tx": "0x776b16f173dd1078251b0f34af6de52e9c918737694fd3eaf780c554667cb8e7"
+    }
+  },
+  "scamsniffer.tocsin.eth": {
+    "drainer-receiver-1": {
+      "writer": "0x3a05D06949b9890aEAD4700AA5ECEbf4D1BA0Ba0",
+      "tx": "0xf2679337c09e898c9a905875f284d0cbf665fe8424b740699b0d4987cc54028b"
+    },
+    "poisoning-operator-1": {
+      "writer": "0x3a05D06949b9890aEAD4700AA5ECEbf4D1BA0Ba0",
+      "tx": "0xf2679337c09e898c9a905875f284d0cbf665fe8424b740699b0d4987cc54028b"
+    },
+    "poisoning-operator-2": {
+      "writer": "0x3a05D06949b9890aEAD4700AA5ECEbf4D1BA0Ba0",
+      "tx": "0xf2679337c09e898c9a905875f284d0cbf665fe8424b740699b0d4987cc54028b"
+    },
+    "paid-lookalike-1": {
+      "writer": "0x3a05D06949b9890aEAD4700AA5ECEbf4D1BA0Ba0",
+      "tx": "0xf2679337c09e898c9a905875f284d0cbf665fe8424b740699b0d4987cc54028b"
+    },
+    "lantern-poisoning-operator-1": {
+      "writer": "0x3a05D06949b9890aEAD4700AA5ECEbf4D1BA0Ba0",
+      "tx": "0xf2679337c09e898c9a905875f284d0cbf665fe8424b740699b0d4987cc54028b"
+    },
+    "lantern-poisoning-operator-2": {
+      "writer": "0x3a05D06949b9890aEAD4700AA5ECEbf4D1BA0Ba0",
+      "tx": "0xf2679337c09e898c9a905875f284d0cbf665fe8424b740699b0d4987cc54028b"
+    },
+    "poisoning-funder-1": {
+      "writer": "0x3a05D06949b9890aEAD4700AA5ECEbf4D1BA0Ba0",
+      "tx": "0xf2679337c09e898c9a905875f284d0cbf665fe8424b740699b0d4987cc54028b"
+    }
+  }
+}
