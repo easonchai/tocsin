@@ -8,7 +8,7 @@ Spec: this file. ERC: `erc/eip-draft_threat_flag_log.md`, Trust lists, publicati
 
 **Ethskills:** ship, security, addresses (per AGENTS.md; load before starting)
 
-**Status:** ready-for-human (deployed on Sepolia 6 Nov 2026; remaining: third-party claim demo)
+**Status:** done (deployed and claimed on Sepolia 6 Nov 2026)
 
 ## The rule
 
@@ -61,4 +61,9 @@ What the team keeps: ownership of `tocsin.eth` itself in the ETH registry, which
 - core.tocsin.eth registered: 0x9ce57cacef83420b10939c51415b59dc59988fa935be3ef42f00c953dd1d2342; addr records: 0x5bab06d4fa2c8f47b94f666af461680834678ebaec89cd7ba5c023086b65eb32, 0x2bb5fe670213a400caa0506003b5c65828d1c2817ffdebcb98d5e3f1522b14b4
 - emancipation: 0x657f671b0701890804a788111e8041f6344117f8adf7226ef9a91ba8b2e7781c. Verified afterwards with cast: hasAssignees(0, dangerous) = false, registrar holds REGISTRAR|RENEW, core owner and resolver as expected.
 
-Acceptance still open: a claim from a second key (4-register-and-claim.mjs), and the ENS app check.
+Claims from two stranger keys through 4-register-and-claim.mjs:
+
+- blockaid.eth registered by 0x6f1524F5A1152d6b08ef8833E42E4311151e904F: 0x2c2f64393778c0d60a3f5aecf3e899ed94f88d969b543e2ad83b9ba7877e133f; resolver 0x27209FA079b88bf30DCc43d4324D7c8A4f4E2b33: 0x1b657d56b25c7c22558d7bac88bfd31643cb4edc564b2c18ef3f559110b5660b; claim blockaid.tocsin.eth: 0x59611357a55183df37a558010fe2b1fa63066a9743a66a8af0df9dabd0c3c976; addr: 0xa456cbd24d5916a43f4973d4a9e3887d87255b0666a73fdb351918130942b3c8
+- etherscan.eth registered by 0x3a05D06949b9890aEAD4700AA5ECEbf4D1BA0Ba0: 0x14afb33f2c3b4d051ac328a079e162f8ddab67d2252c80770240d532515bf115; resolver 0xf8c4d03277e3a124821c3D426fEAE6056Ad9aA92: 0x6a0313a7782cab2fc94042698292ce7c1e9bba60fc1c3745d3594d7c3e146055; claim etherscan.tocsin.eth: 0x456da39e5c259c58cfafd0897449145ef924950c8177e9bf70a476fee8557808; addr: 0xd3ff5f25b2a91064d6c4b38297614644dbf85990bece40b559fa3dfee0905d0f
+
+The first blockaid run failed on an RPC lag read (owner read as zero one block after the receipt); fixed in ced0b33 with settle and retry helpers. User guide: docs/claim-a-name.md.

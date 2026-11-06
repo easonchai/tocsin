@@ -64,6 +64,15 @@ All Sepolia. Nothing is on mainnet yet.
 | `core.tocsin.eth` node | `0x0551573d8cba9f9ca27a75d85f7ca91d68a7c6b956c2c582c15d5ca027e18abc` |
 | ThreatFlagLog | not deployed yet; goes into `scripts/.env` as `LOG_ADDRESS` |
 
+Names claimed through the MirrorRegistrar so far, each from its own key:
+
+| Name | Owner | Resolver | Claim tx |
+| --- | --- | --- | --- |
+| `blockaid.tocsin.eth` | `0x6f1524F5A1152d6b08ef8833E42E4311151e904F` | `0x27209FA079b88bf30DCc43d4324D7c8A4f4E2b33` | `0x59611357…c3c976` |
+| `etherscan.tocsin.eth` | `0x3a05D06949b9890aEAD4700AA5ECEbf4D1BA0Ba0` | `0xf8c4d03277e3a124821c3D426fEAE6056Ad9aA92` | `0x456da39e…557808` |
+
+These are demo claims by keys we control, named after the organisations as placeholders. The real ones belong to whoever owns `blockaid.eth` and `etherscan.eth` on mainnet when the hub goes there. To claim your own: `docs/claim-a-name.md`.
+
 Registered 6 November 2026. `tocsin.eth`: tx `0x9e8b2a8d…20ed0f`. Hub setup through emancipation: txs in `scripts/ens/state.sepolia.json`'s commit and in ticket 15. Checked after setup: no account holds a dangerous root role on the subregistry, the registrar holds registrar and renew, `core.tocsin.eth` resolves to the maintainer.
 
 ENSv2 Sepolia contracts the scripts call, from the `contracts-v2` deployment of 29 June 2026, each checked for code on 6 November:
@@ -184,6 +193,7 @@ The resolver uses the same system and is not emancipated, on purpose. The mainta
 | `site/` | Landing page, ERC page, fonts, `build.sh` for an IPFS-ready `dist/` |
 | `design/` | Brand kit, scenes, mocks, Snap screens, explorations, designer handoff (`design/README.md`) |
 | `docs/erc-draft.pdf` | The ERC as a PDF |
+| `docs/claim-a-name.md` | How anyone claims `<label>.tocsin.eth` on Sepolia and publishes under it |
 | `docs/pitch/arguments.md` | Pitch copy: the supply-chain argument, fake heads, why not ENS, one-liners |
 | `docs/plan/demo/` | Demo spec, Snap UI spec, seed list, build tickets 01 to 15 |
 | `docs/plan/log-contract/` | Contract spec and tickets |
