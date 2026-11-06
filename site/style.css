@@ -2,7 +2,7 @@
 
 /* Landing grammar: full-bleed with a 32px edge, one hairline above each section, a mono eyebrow with the
    section number, left-aligned headlines, long vertical breathing room, the ring field behind everything. */
-:root { --edge: 32px; --cap: 1680px; --nav: 64px; --sec: 150px; }
+:root { --edge: 64px; --cap: 1680px; --nav: 84px; --sec: 160px; }
 * { box-sizing: border-box; }
 body { background: var(--ink-900); min-height: 100vh; overflow-x: hidden; }
 html { scroll-behavior: smooth; scroll-padding-top: var(--nav); }
@@ -41,7 +41,7 @@ a.more:hover { color: var(--paper-200); }
 .nav .btn { height: 34px; padding: 0 12px; font-size: 14px; }
 
 /* hero: one viewport, headline bottom-left, the trace floating on the field to the right */
-.hero { min-height: 100vh; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 48px; margin-top: calc(var(--nav) * -1); padding: var(--nav) var(--edge) 56px; }
+.hero { min-height: 100vh; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 48px; margin-top: calc(var(--nav) * -1); padding: calc(var(--nav) + 24px) var(--edge) 80px; }
 .hero .left { display: flex; flex-direction: column; justify-content: flex-end; max-width: 720px; }
 .hero h1 { margin: 0 0 24px; }
 .hero .tag { font-size: 17px; line-height: 1.5; color: var(--paper-200); max-width: 40ch; margin: 0 0 32px; }
@@ -127,7 +127,7 @@ a.more:hover { color: var(--paper-200); }
 .rows .r p { color: var(--paper-200); font-size: 15px; line-height: 1.55; margin: 0; }
 #faq .sec-head { margin-bottom: 48px; }
 
-footer { border-top: var(--hair); padding: 40px var(--edge) 48px; color: var(--paper-200); font-size: 13px; }
+footer { border-top: var(--hair); padding: 56px var(--edge) 64px; color: var(--paper-200); font-size: 13px; }
 .foot-row { display: flex; align-items: center; justify-content: space-between; gap: 16px 32px; flex-wrap: wrap; }
 .foot-row .wordmark { display: flex; align-items: center; gap: 8px; font-size: 20px; color: var(--paper-100); }
 .foot-links { display: flex; gap: 24px; flex-wrap: wrap; font-size: 14px; font-weight: 500; color: var(--paper-100); }
