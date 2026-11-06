@@ -1,0 +1,23 @@
+# Tocsin
+
+> An append-only log of scam addresses on Ethereum, with no owner, pause, upgrade or delete. Anyone writes flags under their own address. Wallets pick whose flags to believe through maintainer-signed trust lists located by ENS, prove each writer's head from Ethereum state, replay the flags from any source, and check addresses on the device. A flag that fails the replay reads "unverifiable", never "clean".
+
+Everything is on Sepolia. Nothing is on mainnet yet.
+
+- ThreatFlagLog: `0xB639d15A0E7aE24E4C32E851Fbe0E57585565b14`, the same CREATE2 address on every chain. Per-writer heads sit at storage slots 2 and 3, the global head at slot 0.
+- Trust lists: the `tocsin.list` text record on `core.tocsin.eth`, `blockaid.tocsin.eth` and `scamsniffer.tocsin.eth`, read through the ENSv2 Universal Resolver `0xeEeEEEeE14D718C2B47D9923Deab1335E144EeEe`.
+- Verification: the provider-proxy extension and the `/harness` page prove heads through the Helios light client. Kohaku and the MetaMask Snap take the header and proofs from one RPC. Kohaku and the extension send every Tocsin read through an Anon-RPC worker over Tor or Nym.
+
+## Docs
+
+- [README](https://github.com/easonchai/tocsin/blob/main/README.md): what it is, how to run the demo, CROPS, every address and transaction
+- [Spec](https://github.com/easonchai/tocsin/blob/main/docs/spec/threat-flag-log.md): contract interface, leaf and trust-list encoding, light-client read procedure, reader policy
+- [AGENTS.md](https://github.com/easonchai/tocsin/blob/main/AGENTS.md): setup, how to verify each claim, settled decisions
+- [Runbook](https://github.com/easonchai/tocsin/blob/main/RUNBOOK.md): the three demo beats in Kohaku and the Snap
+- [Wallet integrations](https://github.com/easonchai/tocsin/blob/main/docs/wallet-integrations.md): what each host proves
+
+## Optional
+
+- [Claim a name](https://github.com/easonchai/tocsin/blob/main/docs/claim-a-name.md): claim `<label>.tocsin.eth` and publish a list under it
+- [Operator runbook](https://github.com/easonchai/tocsin/blob/main/docs/operator.md): keys, seed, relayer, detector, lying proxy, ENS, and where each judge check is shown
+- [Glossary](https://github.com/easonchai/tocsin/blob/main/GLOSSARY.md)

@@ -109,7 +109,7 @@ async function main() {
   const fromBlock = BigInt(process.env.LOG_FROM_BLOCK?.trim() || "0");
   const maxBlockRange = BigInt(process.env.LOG_BLOCK_RANGE?.trim() || "10000");
 
-  // The list: the signed document on disk plus the record value. No ENS lookup here (ticket 08).
+  // The list: the signed document on disk plus the record value. No ENS lookup here.
   const docPath = process.env.LIST_DOCUMENT?.trim() || fileURLToPath(new URL("../../../../site/lists/default.json", import.meta.url));
   const record = required("LIST_RECORD");
   if (!isHex(record)) throw new Error("LIST_RECORD must be the hex record value from `publish-list sign`");

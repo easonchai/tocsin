@@ -2,7 +2,7 @@
 //   yarn ens-setup                                   owner key, once per name: ENSv2 subregistry, writer subnames,
 //                                                    permissioned resolver, publish role for the maintainer
 //   yarn ens-publish <list|safelist> <record.hex|->   maintainer key: set the record printed by `publish-list sign`
-// ENSv2 is live on Sepolia (ticket 08 Comments), so there is no plain-public-resolver branch.
+// ENSv2 is live on Sepolia, so there is no plain-public-resolver branch.
 // Contract addresses come from ensjs 5.2.12's table for the connected chain, never from this file.
 import { readFile } from "node:fs/promises";
 import { text } from "node:stream/consumers";

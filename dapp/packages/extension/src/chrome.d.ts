@@ -20,7 +20,7 @@ declare namespace chrome {
   }
 }
 
-/** Build-time settings from build.mjs; see the ticket Comments for the variables. */
+/** Build-time settings from build.mjs; docs/operator.md step 8 lists the variables. */
 declare const __TOCSIN_CONFIG__: {
   sepoliaConsensus: string;
   sepoliaExecution: string;

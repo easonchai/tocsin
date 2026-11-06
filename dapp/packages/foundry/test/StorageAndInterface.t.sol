@@ -4,7 +4,7 @@ pragma solidity 0.8.28;
 import { LogBase } from "./utils/LogBase.sol";
 import { IThreatFlagLog } from "../contracts/IThreatFlagLog.sol";
 
-/// @notice Ticket 04: raw storage reads against the spec's normative slots, and the pinned ERC-165 answer.
+/// @notice Raw storage reads against the spec's normative slots, and the pinned ERC-165 answer.
 contract StorageAndInterfaceTest is LogBase {
     bytes4 internal constant ERC165_ID = 0x01ffc9a7;
     bytes4 internal constant LOG_ID = 0xffc90efa; // the value the contract's comment and the spec reference state

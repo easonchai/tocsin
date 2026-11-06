@@ -35,7 +35,7 @@ The honest residue: an endpoint can still withhold. Then the wallet says "unveri
 
 Anyone can make a fake head in milliseconds. It is worthless, because the wallet never accepts a head from anyone. It reads the head out of Ethereum's state.
 
-The contract computes the head when a leaf is appended and stores it in a storage slot. That slot is committed by the state root in every block header. The wallet's light client verifies the header from sync-committee signatures, then verifies a Merkle proof from the state root down to the slot. The head it compares against was produced on-chain and signed by Ethereum's validators.
+The contract computes the head when a leaf is appended and stores it in a storage slot. That slot is committed by the state root in every block header. The wallet's light client verifies the header from sync-committee signatures, then verifies a Merkle proof from the state root down to the slot. The head it compares against was produced on-chain and signed by Ethereum's validators. The extension and the `/harness` page do this through Helios today. In Kohaku and the Snap the header still comes from one RPC, so a forged head is caught only once a light client is wired in. A forged or missing flag fails the replay in every host.
 
 Walk the attacker through it:
 

@@ -5,7 +5,7 @@ import { LogBase } from "./utils/LogBase.sol";
 import { ThreatFlagLog } from "../contracts/ThreatFlagLog.sol";
 import { IThreatFlagLog } from "../contracts/IThreatFlagLog.sol";
 
-/// @notice Fixed scenario that writes the reader's hash-parity fixture (log-contract ticket 05).
+/// @notice Fixed scenario that writes the reader's hash-parity fixture.
 /// Every hash is checked against an independent model before the file is written.
 contract FixtureTest is LogBase {
     string internal constant PATH = "fixtures/parity.json";

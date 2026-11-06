@@ -1,4 +1,4 @@
-// Helios plus Anon-RPC bootstrap and fetch shim (demo ticket 01). Kept free of React so the
+// Helios plus Anon-RPC bootstrap and fetch shim. Kept free of React so the
 // Kohaku module or the provider-proxy extension's background worker can import it as is.
 import type { HeliosProvider } from "@a16z/helios";
 import type { AnonRpcWorker } from "@anon-rpc/browser-harness";

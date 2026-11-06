@@ -50,7 +50,7 @@ interface INonfungiblePositionManager {
         returns (uint256 tokenId, uint128 liquidity, uint256 amount0, uint256 amount1);
 }
 
-/// @notice Ticket 04: one-time realUSDC/WETH 0.3% Uniswap v3 pool on Sepolia so the demo's clean swap fills.
+/// @notice One-time realUSDC/WETH 0.3% Uniswap v3 pool on Sepolia so the demo's clean swap fills.
 /// Wraps ETH, mints realUSDC if the sender is its minter, creates and initialises the pool at
 /// 1 USDC : 0.00001 WETH and adds one full-range position. A rerun finds the pool with liquidity and stops.
 /// Run: `yarn seed-pool` in packages/foundry (keystore selection, then forge asks for the password).

@@ -2,7 +2,7 @@ import { type Hex, getAddress, hexToBigInt, pad } from "viem";
 import { describe, expect, it } from "vitest";
 import { type RpcRequest, rpcLeafSource, rpcProofSource } from "../src/rpc";
 
-// Recorded from anvil 1.9.0 after the ticket 06 seed: logs 1 and 22 of the manual writer, as eth_getLogs returned them.
+// Recorded from anvil 1.9.0 after the infra seed: logs 1 and 22 of the manual writer, as eth_getLogs returned them.
 const recorded = {
   jsonrpc: "2.0",
   id: 1,
