@@ -13,7 +13,7 @@ const pick = (r: ReturnType<typeof requestTargets>) => r.targets.map((t) => [t.a
 test("eth_sendTransaction checks `to` and the decoded recipient, on the wallet's chain", () => {
   const data = encodeFunctionData({ abi, functionName: "transfer", args: [BAD, 1n] });
   const r = requestTargets("eth_sendTransaction", [{ to: TOKEN, data }], "0xaa36a7");
-  assert.deepEqual(pick(r), [[TOKEN, "recipient"], [BAD, "recipient"]]);
+  assert.deepEqual(pick(r), [[TOKEN, "recipient"], [BAD, "recipient"], [TOKEN, "token"]]);
   assert.equal(r.chainId, 11155111n);
 });
 
@@ -27,7 +27,7 @@ test("eth_signTypedData_v4 checks the permit spender, on the domain's chain", ()
 test("wallet_sendCalls checks every call once, on the batch's chain", () => {
   const approve = encodeFunctionData({ abi, functionName: "approve", args: [BAD, 1n] });
   const r = requestTargets("wallet_sendCalls", [{ chainId: "0x1", calls: [{ to: TOKEN, data: approve }, { to: BAD }, { to: TOKEN, data: approve }] }], "0xaa36a7");
-  assert.deepEqual(pick(r), [[TOKEN, "recipient"], [BAD, "spender"], [BAD, "recipient"]]);
+  assert.deepEqual(pick(r), [[TOKEN, "recipient"], [BAD, "spender"], [TOKEN, "token"], [BAD, "recipient"]]);
   assert.equal(r.chainId, 1n);
 });
 
