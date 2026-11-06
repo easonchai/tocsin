@@ -150,7 +150,7 @@ $('check').onclick = async () => {
     pub.readContract({ address: A.Hub, abi: abi.registry, functionName: 'findOwner', args: [label] }),
   ]);
   const mine = !!account && ethOwner.toLowerCase() === account.toLowerCase();
-  say('checkOut', `${label}.eth: ` + (ethOwner === ZERO ? '<span class="amber">available</span>' : `owned by <span class="${mine ? 'ok' : 'bad'}">${short(ethOwner)}${mine ? ' (you)' : ''}</span>`));
+  say('checkOut', `${label}.eth: ` + (ethOwner === ZERO ? '<span class="amber">available</span>' : `owned by <span class="${mine ? 'ok' : 'muted'}">${short(ethOwner)}${mine ? ' (you)' : ''}</span>`));
   say('checkOut', `${label}.tocsin.eth: ` + (hubOwner === ZERO ? '<span class="amber">unclaimed</span>' : `claimed by <span class="ok">${short(hubOwner)}</span>`));
   if (!account) { say('checkOut', 'Connect a wallet to continue.', 'muted'); return; }
   const can = await pub.readContract({ address: A.Registrar, abi: abi.mirror, functionName: 'canClaim', args: [label, account] });
