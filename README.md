@@ -420,9 +420,9 @@ Privacy holds too. No per-address query leaves the device. In Kohaku, every Tocs
 
 **Link to the line of code**
 
-https://github.com/easonchai/tocsin/blob/adba56bb221148cb001309e590e05aac2ffbf04a/dapp/packages/nextjs/utils/harness/anonHelios.ts#L97
+https://github.com/easonchai/tocsin/blob/main/dapp/packages/foundry/contracts/ThreatFlagLog.sol#L92
 
-That is the `AnonRpcWorker` import and boot that the extension and the Kohaku patch share. The Kohaku side calls it at line 699 of `dapp/packages/kohaku/patches/kohaku-extension.patch` on the same commit, from the offscreen page that answers the controller's fetches.
+That is the fold, `wHead = keccak256(abi.encodePacked(wHead, leafHash))`. It is the whole censorship-resistance claim in one line: the contract has no operation that produces a head any other way, so no owner, writer, or relayer can edit, remove, or reorder a flag. For the privacy side, the Anon-RPC worker boots in `dapp/packages/nextjs/utils/harness/anonHelios.ts` at the `AnonRpcWorker` import, and Kohaku calls it from `dapp/packages/kohaku/patches/kohaku-extension.patch` in the offscreen page that answers the controller's fetches.
 
 **Ease of use: 6 out of 10**
 
