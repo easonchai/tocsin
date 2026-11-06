@@ -18,8 +18,27 @@
   .doc a { color: var(--amber); border-bottom: 1px solid rgba(233,162,59,.35); }
   .doc a:hover { border-bottom-color: var(--amber); }
   .doc pre { margin: 16px 0 24px; font-size: 12.5px; }
+  .doc pre code { background: none; padding: 0; color: #ece7dc; }
+  .doc pre .k { color: #e9a23b; } .doc pre .t { color: #8fd0ff; } .doc pre .c { color: #8f8b82; font-style: italic; } .doc pre .s { color: #b5e0a0; } .doc pre .n { color: #f0c987; } .doc pre .f { color: #ece7dc; font-weight: 600; }
+  @media print {
+    html, body { background: #fff !important; color: #111 !important; }
+    .nav, footer, .btn, .back { display: none !important; }
+    .doc { padding: 0; max-width: none; }
+    .doc p, .doc li, .doc td, .doc th, .doc h1, .doc h2, .doc h3 { color: #111 !important; }
+    .doc h3 { color: #7a4a06 !important; }
+    .doc a { color: #111 !important; border-bottom-color: #999 !important; }
+    .doc .preamble { background: #f3f1ec !important; color: #333 !important; border-color: #ccc !important; }
+    .doc .preamble .f { color: #777 !important; }
+    .doc code { background: #eeece6 !important; color: #111 !important; }
+    .doc pre { background: #1a1d22 !important; color: #ece7dc !important; border: 0 !important; padding: 14px 16px !important; border-radius: 4px; white-space: pre-wrap; word-break: break-word; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .doc pre code { background: none !important; color: #ece7dc !important; }
+    .doc pre .k { color: #ffb84d !important; } .doc pre .t { color: #9ad6ff !important; } .doc pre .c { color: #a8a39a !important; } .doc pre .s { color: #c6e8b4 !important; } .doc pre .n { color: #f5d08f !important; }
+    .doc table { page-break-inside: avoid; }
+    html, body, main, .wrap { border: 0 !important; box-shadow: none !important; background-image: none !important; }
+    body::before, body::after, main::before { display: none !important; }
+    .doc h2 { page-break-after: avoid; border-top-color: #ddd !important; }
+  }
   .doc code { background: var(--ink-3); padding: 1px 5px; border-radius: 2px; color: var(--paper); }
-  .doc pre code { background: none; padding: 0; }
   .doc table { margin: 16px 0 28px; }
   .doc ul, .doc ol { padding-left: 22px; }
   .doc li { margin: 6px 0; }
@@ -518,5 +537,25 @@ contract ThreatFlagLog {
   <p class="back" style="margin-top:56px">Source: <code>erc/eip-draft_threat_flag_log.md</code> in this repository. Rendered locally; relative EIP links point at eips.ethereum.org.</p>
 </main>
 <footer><div class="wrap"><span>Tocsin · ERC draft · CC0</span><div class="links"><a href="index.html">Overview</a><a href="#top">Top</a></div></div></footer>
+<script>
+// syntax colouring for the code blocks; the same spans print
+(function () {
+  var KW = /\b(pragma|solidity|interface|contract|struct|event|function|external|view|pure|returns|return|calldata|memory|storage|indexed|public|private|constant|immutable|mapping|emit|revert|require|if|else|for|unchecked|override|internal|payable|is|new|delete|keccak256|abi|encode|encodePacked|ecrecover|block|msg|this|true|false)\b/g;
+  var TY = /\b(address|bool|bytes32|bytes4|bytes|string|uint256|uint64|uint8|uint|int|Leaf|ListEntry|TrustList|Safelist|IThreatFlagLog|IERC1271)\b/g;
+  function esc(x) { return x.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+  document.querySelectorAll('.doc pre code').forEach(function (el) {
+    var src = el.textContent, out = '', i = 0, m, re = /(\/\/[^\n]*|\/\*[\s\S]*?\*\/)|("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')|(\b0x[0-9a-fA-F]+\b|\b\d+\b)/g;
+    while ((m = re.exec(src))) {
+      out += esc(src.slice(i, m.index)).replace(KW, '<span class="k">$1</span>').replace(TY, '<span class="t">$1</span>');
+      if (m[1]) out += '<span class="c">' + esc(m[1]) + '</span>';
+      else if (m[2]) out += '<span class="s">' + esc(m[2]) + '</span>';
+      else out += '<span class="n">' + esc(m[3]) + '</span>';
+      i = re.lastIndex;
+    }
+    out += esc(src.slice(i)).replace(KW, '<span class="k">$1</span>').replace(TY, '<span class="t">$1</span>');
+    el.innerHTML = out;
+  });
+})();
+</script>
 </body>
 </html>
