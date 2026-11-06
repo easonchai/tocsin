@@ -58,7 +58,7 @@ Whole explainer under five seconds. Click anywhere on the stage to jump to the f
 
 Fixed strings, chosen by `explain()`, in this order of precedence:
 
-- lying RPC: "The RPC left out the writer's first entry. The replayed fold does not reach the head Ethereum proves. Nothing it says can be trusted, so the wallet refuses to call this clean."
+- lying RPC: "The RPC left out one of the writer's entries. The replayed fold does not reach the head Ethereum proves. Nothing it says can be trusted, so the wallet refuses to call this clean."
 - retracted: "The writer retracted its own flag with a tombstone. The log keeps both entries; the wallet counts neither."
 - nothing flagged: "No list you follow has a flag on this address."
 - warn-only category: "A weight-255 writer would block, but this category warns and never blocks a send: the money is already stolen, the wallet only tells you where it is going."
@@ -80,7 +80,7 @@ Fixed strings, chosen by `explain()`, in this order of precedence:
 | token context | subject is the token contract (fakeUSDC) | context label `token`, subject reads "fakeUSDC, the contract itself", `snap only` tag on the chip |
 | spender context | approve rows | context label `spender` |
 | swap recipient | swap rows | a second, dark pill for the router above the subject, with "the decoder reads through the swap to its recipient" |
-| unverifiable | the lying-RPC scenario | before any flag draws, a sequence strip `? 2 3 4 5 6 7 8` appears under core.tocsin.eth with `1` missing in red; the core writer's line says sequence 1 is missing and the replayed head does not match; verdict Unverifiable; no flags are drawn because the wallet refuses the data; the final frame carries the poison RPC with a copy button and "paste into the Snap RPC setting first" |
+| unverifiable | the lying-RPC scenario (drainer-receiver-4, which only core flags; drainer-receiver-1 still blocks through blockaid) | before any flag draws, a sequence strip `90 91 92 ? 94 95 96` appears under core.tocsin.eth with `93` missing in red; the core writer's line says sequence 93 is missing and the replayed head does not match; verdict Unverifiable; no flags are drawn because the wallet refuses the data; the final frame carries the poison RPC with a copy button and "paste into the Snap RPC setting first" |
 
 The lying RPC is its own chip ("Drainer receiver, lying RPC", tagged beat 2), not a toggle. A toggle would change the stage while the wallet keeps using whatever RPC is pasted, which is a lie on stage. The chip's final frame holds the copy box so the presenter pastes before pressing Send.
 
