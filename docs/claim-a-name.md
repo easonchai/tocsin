@@ -4,6 +4,8 @@ If you own `<label>.eth` on ENSv2 Sepolia, you can claim `<label>.tocsin.eth` in
 
 Takes about five minutes and needs a little Sepolia ETH.
 
+**In the browser:** open `site/claim.html` (served from the repo, or at tocsin.eth.limo once published), connect a Sepolia wallet, type the label, and follow the four steps. The page does everything the scripts below do, and its last two panels read the registry live so you can check the guarantees before you pay. The rest of this guide is the terminal route.
+
 ## What you need
 
 - A wallet key with Sepolia ETH. About 0.02 ETH covers everything below. Faucets: sepoliafaucet.com, the Alchemy or Google Cloud Sepolia faucets.

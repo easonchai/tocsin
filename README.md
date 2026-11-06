@@ -40,6 +40,9 @@ Built:
 - The seed list, `docs/plan/demo/seed/`: 92 attacker addresses across eight categories, each with an evidence transaction that was replayed and checked on-chain. Drainer kits, address-poisoning crews, EIP-7702 sweepers, and exploit proceeds.
 - ENSv2 on Sepolia: `tocsin.eth` registered, plus scripts that set up the name's own subregistry and resolver, register `core.tocsin.eth`, and emancipate the registry.
 - The MirrorRegistrar, `scripts/ens/contracts/MirrorRegistrar.sol`: whoever owns `<label>.eth` can claim `<label>.tocsin.eth`. Seven fork tests pass against the live Sepolia ENSv2 contracts.
+- The claim page, `site/claim.html`: connect a Sepolia wallet, register a `.eth` name if needed, claim the subname, and read the registry's guarantees live. Two names claimed from stranger keys so far.
+- The detector agent, `scripts/agent/detector.mjs`: scans mainnet for poisoning dust and flags operators under its own name, `detector.tocsin.eth`. A 40-block dry run found two live operators.
+- Publish-role delegation, `scripts/ens/5-delegate-publisher.mjs`: one hot key may set only the list text record on a resolver, through ENSv2's `authorizeTextRoles`.
 - Scripts to seed the log and publish the signed `core` list, waiting on the contract address.
 - Build tickets under `docs/plan/`, one per piece of the demo.
 
@@ -183,7 +186,7 @@ The resolver uses the same system and is not emancipated, on purpose. The mainta
 | Path | What it is |
 | --- | --- |
 | `erc/eip-draft_threat_flag_log.md` | The ERC draft, EIP-1 format |
-| `site/` | Landing page, ERC page, fonts, `build.sh` for an IPFS-ready `dist/` |
+| `site/` | Landing page, ERC page, the claim page (`claim.html`), fonts, `build.sh` for an IPFS-ready `dist/` |
 | `design/` | Brand kit, scenes, mocks, Snap screens, explorations, designer handoff (`design/README.md`) |
 | `docs/erc-draft.pdf` | The ERC as a PDF |
 | `docs/claim-a-name.md` | How anyone claims `<label>.tocsin.eth` on Sepolia and publishes under it |
@@ -194,6 +197,7 @@ The resolver uses the same system and is not emancipated, on purpose. The mainta
 | `docs/ideas/` | Parked ideas, such as the open-silicon signer |
 | `scripts/ens/` | ENSv2 Sepolia: register, set up the hub, claim; the MirrorRegistrar and its fork tests |
 | `scripts/seed/` | Seed the log from `core.json`, sign and publish the list |
+| `scripts/agent/` | The detector: an agent writer with its own name |
 | `scripts/build-erc.mjs` | Regenerates `site/erc.html` from the markdown |
 | `HANDOFF.md` | Settled decisions, build order, open items |
 
