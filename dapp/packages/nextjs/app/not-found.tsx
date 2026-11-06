@@ -1,16 +1,17 @@
 import Link from "next/link";
+import { SiteHeader } from "~~/components/SiteHeader";
 
 export default function NotFound() {
   return (
-    <div className="flex items-center h-full flex-1 justify-center bg-base-200">
-      <div className="text-center">
-        <h1 className="text-6xl font-bold m-0 mb-1">404</h1>
-        <h2 className="text-2xl font-semibold m-0">Page Not Found</h2>
-        <p className="text-base-content/70 m-0 mb-4">The page you&apos;re looking for doesn&apos;t exist.</p>
-        <Link href="/" className="btn btn-primary">
-          Go Home
+    <>
+      <SiteHeader />
+      <main style={{ maxWidth: 760, margin: "0 auto", padding: "96px 24px" }}>
+        <div className="label">404</div>
+        <h1 style={{ fontSize: 52, margin: "16px 0 32px" }}>Page not found.</h1>
+        <Link className="btn primary" href="/">
+          Go home
         </Link>
-      </div>
-    </div>
+      </main>
+    </>
   );
 }

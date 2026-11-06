@@ -1,0 +1,9 @@
+/* The shared header. Same metrics as the landing nav in landing.css (site/style.css), so it reads the same on routes
+   that do not load the landing CSS. */
+.site-header { position: sticky; top: 0; z-index: 10; background: color-mix(in srgb, var(--ink-900) 78%, transparent); backdrop-filter: blur(12px); }
+.site-header .wrap { display: flex; align-items: center; gap: 32px; height: 84px; max-width: 1680px; margin: 0 auto; padding: 0 64px; }
+.site-header .brand { display: flex; align-items: center; gap: 18px; }
+.site-header .home { display: flex; align-items: center; gap: 8px; font-size: 20px; }
+.site-header .bell { font-size: 1.05em; line-height: 1; }
+.site-header .end { display: flex; align-items: center; gap: 32px; margin-left: auto; }
+@media (max-width: 900px) { .site-header .wrap { padding: 0 16px; } }

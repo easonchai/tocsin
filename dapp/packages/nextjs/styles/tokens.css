@@ -1,0 +1,68 @@
+/* Tocsin brand tokens. Source of truth: design/DIRECTION.md. Copy of design/kit/tokens.css; only the font import differs. */
+/* site/fonts/fonts.css, pointing at public/fonts/ */
+@font-face{font-family:'Inter';font-style:normal;font-weight:100 900;font-display:swap;src:url('/fonts/InterVariable.woff2') format('woff2');}
+@font-face{font-family:'JetBrains Mono';font-style:normal;font-weight:400;font-display:swap;src:url('/fonts/JetBrainsMono-400.woff2') format('woff2');}
+@font-face{font-family:'JetBrains Mono';font-style:normal;font-weight:500;font-display:swap;src:url('/fonts/JetBrainsMono-500.woff2') format('woff2');}
+
+:root {
+  /* ink: page and surfaces */
+  --ink-900: #121417;
+  --ink-800: #1a1d22;
+  --ink-700: #262a30;
+  --ink-600: #3a3f47;
+  --ink-400: #8f8b82;
+  /* paper: text */
+  --paper-200: #c9c3b6;
+  --paper-100: #ece7dc;
+  /* the strike. once per screen */
+  --signal: #e9a23b;
+  --signal-deep: #b97615;
+  --signal-30: rgba(233, 162, 59, .3);
+  /* only ever on the verdict */
+  --alert: #e5484d;
+  --alert-40: rgba(229, 72, 77, .4);
+
+  --display: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+  --body: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, Menlo, monospace;
+
+  --r: 3px;
+  --hair: 1px solid var(--ink-700);
+  --hair-strong: 1px solid var(--ink-600);
+  --grid: 24px;
+  --gutter: 40px;
+  --max: 1200px;
+
+  /* motion */
+  --enter: 240ms;
+  --enter-rise: 12px;
+  --state: 700ms;
+  --trace-line: 420ms;
+  --trace-verdict: 650ms;
+  --ease-out: cubic-bezier(.2, .7, .2, 1);
+}
+
+html { background: var(--ink-900); color: var(--paper-100); }
+body { margin: 0; font-family: var(--body); font-size: 16px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+a { color: inherit; text-decoration: none; }
+::selection { background: var(--signal); color: var(--ink-900); }
+
+h1, h2, h3 { font-family: var(--display); font-weight: 700; letter-spacing: -0.03em; margin: 0; line-height: 1.02; }
+.label { font-family: var(--mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-400); }
+.data, code, pre { font-family: var(--mono); font-size: .85em; }
+.wordmark { font-family: var(--display); font-weight: 700; letter-spacing: -0.03em; text-transform: lowercase; }
+
+.btn { display: inline-flex; align-items: center; gap: 8px; font-family: var(--body); font-weight: 600; font-size: 14px; padding: 10px 16px; border-radius: var(--r); border: var(--hair-strong); color: var(--paper-100); transition: border-color 150ms, background 150ms; cursor: pointer; background: none; }
+.btn:hover { border-color: var(--paper-200); }
+.btn.primary { background: var(--paper-100); color: var(--ink-900); border-color: var(--paper-100); }
+.btn.primary:hover, .btn.primary:active { background: var(--paper-200); border-color: var(--paper-200); }
+/* the one amber action on a screen, when the screen has no highlighted word */
+.btn.signal { background: var(--signal); color: var(--ink-900); border-color: var(--signal); }
+.btn.signal:hover, .btn.signal:active { background: var(--signal-deep); border-color: var(--signal-deep); }
+
+/* entrances: 240ms, 12px rise, never more than three staggered */
+.rv { opacity: 0; transform: translateY(var(--enter-rise)); transition: opacity var(--enter) var(--ease-out), transform var(--enter) var(--ease-out); }
+.rv.in { opacity: 1; transform: none; }
+.rv.d1 { transition-delay: 80ms; }
+.rv.d2 { transition-delay: 160ms; }
+@media (prefers-reduced-motion: reduce) { .rv { transition: none; } }

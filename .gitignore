@@ -4,6 +4,10 @@
 node_modules/
 out/
 cache/
+dist/
+scripts/.env
+scripts/ens/out/
+scripts/ens/cache/
 
 # agent/editor tooling (kept locally)
 .agents/
@@ -11,7 +15,5 @@ cache/
 .cursor/
 .opencode/
 .mcp.json
-dist/
-scripts/.env
-scripts/ens/out/
-scripts/ens/cache/
+.tocsin-demo/
+site/local/

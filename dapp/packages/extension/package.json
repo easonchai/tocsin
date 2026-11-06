@@ -1,0 +1,11 @@
+{
+  "name": "@tocsin/extension",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "check-types": "../snap/node_modules/.bin/tsc --noEmit -p .",
+    "test": "node build.mjs && node --test test/*.test.ts"
+  }
+}

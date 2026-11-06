@@ -1,7 +1,8 @@
 // One script for the whole ENSv2 hub on Sepolia, on the contract set the Universal Resolver reads.
 //
 //   TOCSIN key      owns tocsin.eth, the subregistry, the maintainer resolver, core.tocsin.eth, and signs the core list
-//   CORE_WRITER key the key whose 92 leaves are already in the log (defaults to the TOCSIN key)
+//   CORE_WRITER key the key whose 92 leaves are already in the log (defaults to the TOCSIN key). Without the key,
+//                   CORE_WRITER=<address> names it, which is all the list needs.
 //   BLOCKAID, SCAMSNIFFER keys: each registers <label>.eth if needed, deploys its own resolver, claims
 //                   <label>.tocsin.eth through the MirrorRegistrar.
 //   detector.tocsin.eth already exists in the hub (the live detector agent); its addr record names the writer,
@@ -31,7 +32,7 @@ const PARENT = 'tocsin';
 
 const tocsin = clientsFor(env('TOCSIN_PRIVATE_KEY'));
 const { pub } = tocsin;
-const coreWriter = privateKeyToAccount(env('CORE_WRITER_PRIVATE_KEY', env('TOCSIN_PRIVATE_KEY'))).address;
+const coreWriter = env('CORE_WRITER', '') || privateKeyToAccount(env('CORE_WRITER_PRIVATE_KEY', env('TOCSIN_PRIVATE_KEY'))).address;
 const claimants = ['blockaid', 'scamsniffer'].filter((l) => process.env[`${l.toUpperCase()}_PRIVATE_KEY`]?.trim().length === 66).map((l) => ({ label: l, ...clientsFor(env(`${l.toUpperCase()}_PRIVATE_KEY`)) }));
 console.log(`maintainer ${tocsin.account.address}; core writer ${coreWriter}; claimants ${claimants.map((c) => `${c.label}=${c.account.address}`).join(', ') || 'none'}`);
 
@@ -129,13 +130,13 @@ const listType = { type: 'tuple', components: [
     { name: 'fromBlock', type: 'uint64' }, { name: 'toBlock', type: 'uint64' }, { name: 'headPin', type: 'bytes32' }, { name: 'categories', type: 'uint256' }, { name: 'snapshotURI', type: 'string' } ] } ] };
 const recordType = [{ type: 'bytes32' }, { type: 'uint64' }, { type: 'bytes' }, { type: 'string' }];
 const categories = [1, 2, 3, 4, 5, 6, 7, 8].reduce((acc, c) => acc | (1n << BigInt(c)), 0n);
-async function publishList({ name, maintainer, resolverAddress, writers, warn = [] }) {
+async function publishList({ name, maintainer, resolverAddress, writers, warn = [], operator = `${PARENT}.eth` }) {
   const current = await urText(pub, name, KEY);
   const decoded = (() => { try { return current ? decodeAbiParameters(recordType, current) : null; } catch { return null; } })();
   const file = new URL(`${name.split('.')[0]}.list.json`, seedDir);
   const prev = existsSync(file) ? JSON.parse(readFileSync(file, 'utf8')) : null;
   const highest = [decoded ? decoded[1] : 0n, BigInt(Number(prev?.trustList?.version ?? 0))].reduce((a, b) => (a > b ? a : b));
-  const build = (version) => ({ log: LOG, chainId: 11155111n, maintainer: maintainer.account.address, version, entries: writers.map((w) => ({ writer: w, weight: warn.some((x) => same(x, w)) ? 1 : 255, operator: namehash(`${PARENT}.eth`), upstream: ZERO32, fromBlock: 0n, toBlock: 0n, headPin: ZERO32, categories, snapshotURI: '' })) });
+  const build = (version) => ({ log: LOG, chainId: 11155111n, maintainer: maintainer.account.address, version, entries: writers.map((w) => ({ writer: w, weight: warn.some((x) => same(x, w)) ? 1 : 255, operator: namehash(operator), upstream: ZERO32, fromBlock: 0n, toBlock: 0n, headPin: ZERO32, categories, snapshotURI: '' })) });
   // same content as the live record: nothing to do
   if (decoded && prev && prev.trustList && keccak256(encodeAbiParameters([listType], [build(decoded[1])])) === decoded[0]) { console.log(`${name}: list record already current (version ${decoded[1]})`); return; }
   const version = highest + 1n, trustList = build(version);
@@ -144,12 +145,18 @@ async function publishList({ name, maintainer, resolverAddress, writers, warn = 
   const listURI = `https://raw.githubusercontent.com/easonchai/tocsin/main/docs/plan/demo/seed/${name.split('.')[0]}.list.json`;
   const record = encodeAbiParameters(recordType, [root, version, signature, listURI]);
   const json = (v) => JSON.parse(JSON.stringify(v, (_, x) => (typeof x === 'bigint' ? x.toString() : x)));
-  writeFileSync(file, JSON.stringify({ name, trustList: json(trustList), labels: { [namehash(`${PARENT}.eth`)]: `${PARENT}.eth` }, root, version: version.toString(), signature, listURI, record, publishedAt: new Date().toISOString() }, null, 2) + '\n');
+  writeFileSync(file, JSON.stringify({ name, trustList: json(trustList), labels: { [namehash(operator)]: operator }, root, version: version.toString(), signature, listURI, record, publishedAt: new Date().toISOString() }, null, 2) + '\n');
   await send(pub, maintainer.wallet, `set ${KEY} on ${name} (version ${version})`, { address: resolverAddress, abi: abi.resolver, functionName: 'setText', args: [dns(name), KEY, record] });
 }
 if (!flag('--skip-lists') && LOG) {
   if (detectorWriter) await publishList({ name: detectorName, maintainer: tocsin, resolverAddress: detectorResolver, writers: [detectorWriter] });
   await publishList({ name: `core.${PARENT}.eth`, maintainer: tocsin, resolverAddress: resolver, writers: detectorWriter ? [coreWriter, detectorWriter] : [coreWriter], warn: detectorWriter ? [detectorWriter] : [] });
+  // Each claimant signs its own list naming its own key; scamsniffer's writer warns only. The operator is the claimed .eth name.
+  for (const c of claimants) {
+    const res = claims[c.label]?.resolver;
+    if (!res) { console.log(`${c.label}.${PARENT}.eth has no resolver in claims.sepolia.json: list skipped`); continue; }
+    await publishList({ name: `${c.label}.${PARENT}.eth`, maintainer: c, resolverAddress: res, writers: [c.account.address], warn: c.label === 'scamsniffer' ? [c.account.address] : [], operator: `${c.label}.eth` });
+  }
 } else if (!LOG) console.log('LOG_ADDRESS not set: lists skipped');
 
 // ---- 8. emancipate the subregistry

@@ -1,0 +1,3340 @@
+diff --git a/src/controllers/main/main.ts b/src/controllers/main/main.ts
+index b09dd7f55..e1ba39a2c 100644
+--- a/src/controllers/main/main.ts
++++ b/src/controllers/main/main.ts
+@@ -92,6 +92,7 @@ import { SignMessageController } from '../signMessage/signMessage'
+ import { StorageController } from '../storage/storage'
+ import { SwapAndBridgeController } from '../swapAndBridge/swapAndBridge'
+ import { TransactionManagerController } from '../transaction/transactionManager'
++import { TocsinController } from '../tocsin/tocsin'
+ import { TransferController } from '../transfer/transfer'
+ import { PrivacyPoolsController } from '../privacyPools/privacyPools'
+ import { PrivacyPoolsV1Controller } from '../privacyPools/privacyPoolsV1'
+@@ -154,6 +155,8 @@ export class MainController extends EventEmitter {
+ 
+   phishing: PhishingController
+ 
++  tocsin: TocsinController
++
+   emailVault?: EmailVaultController
+ 
+   signMessage: SignMessageController
+@@ -222,6 +225,7 @@ export class MainController extends EventEmitter {
+     platform,
+     storageAPI,
+     fetch,
++    tocsinFetch,
+     relayerUrl,
+     velcroUrl,
+     privacyPoolsAspUrl,
+@@ -240,6 +244,8 @@ export class MainController extends EventEmitter {
+     platform: Platform
+     storageAPI: Storage
+     fetch: Fetch
++    /** Tocsin's own fetch (the extension routes it through the Anon-RPC worker). Defaults to the global one. */
++    tocsinFetch?: typeof globalThis.fetch
+     relayerUrl: string
+     velcroUrl: string
+     privacyPoolsAspUrl: string
+@@ -354,13 +360,20 @@ export class MainController extends EventEmitter {
+       onAddAccountsSuccessCallback: this.#onAccountPickerSuccess.bind(this)
+     })
+     this.addressBook = new AddressBookController(this.storage, this.accounts, this.selectedAccount)
++    // Before signMessage, which checks permit spenders and 7702 delegates against it.
++    this.tocsin = new TocsinController({
++      storage: this.storage,
++      // Never this.fetch: that one adds an instance-id header the RPC and list host must not see.
++      fetch: tocsinFetch ?? ((...args) => globalThis.fetch(...args))
++    })
+     this.signMessage = new SignMessageController(
+       this.keystore,
+       this.providers,
+       this.networks,
+       this.accounts,
+       this.#externalSignerControllers,
+-      this.invite
++      this.invite,
++      this.tocsin
+     )
+     this.phishing = new PhishingController({
+       fetch: this.fetch,
+@@ -439,7 +452,8 @@ export class MainController extends EventEmitter {
+       this.activity,
+       this.#externalSignerControllers,
+       this.providers,
+-      relayerUrl
++      relayerUrl,
++      this.tocsin
+     )
+     this.domains = new DomainsController(
+       this.providers.providers,
+@@ -509,7 +523,7 @@ export class MainController extends EventEmitter {
+             externalSignerControllers: this.#externalSignerControllers,
+             relayerUrl,
+             fetch: this.fetch,
+-            onAddAccountsSuccessCallback: async () => { }
++            onAddAccountsSuccessCallback: async () => {}
+           }),
+           this.keystore,
+           async () => {
+@@ -658,7 +672,10 @@ export class MainController extends EventEmitter {
+     this.isOffline = false
+     // call closeActionWindow while still on the currently selected account to allow proper
+     // state cleanup of the controllers like actionsCtrl, signAccountOpCtrl, signMessageCtrl...
+-    if (this.requests.actions?.currentAction?.type !== 'switchAccount' && this.requests.actions?.currentAction?.type !== 'dappRequest') {
++    if (
++      this.requests.actions?.currentAction?.type !== 'switchAccount' &&
++      this.requests.actions?.currentAction?.type !== 'dappRequest'
++    ) {
+       await this.requests.actions.closeActionWindow()
+     }
+     const swapAndBridgeSigningAction = this.requests.actions.visibleActionsQueue.find(
+@@ -784,7 +801,8 @@ export class MainController extends EventEmitter {
+         true,
+         (ctrl: SignAccountOpController) => {
+           this.traceCall(ctrl)
+-        }
++        },
++        this.tocsin
+       )
+     }
+ 
+@@ -919,7 +937,8 @@ export class MainController extends EventEmitter {
+             level: 'major',
+             message:
+               error.message ||
+-              `Unknown error occurred while ${!hasSigned ? 'signing the transaction' : 'broadcasting the transaction'
++              `Unknown error occurred while ${
++                !hasSigned ? 'signing the transaction' : 'broadcasting the transaction'
+               }`,
+             error
+           })
+@@ -1058,10 +1077,10 @@ export class MainController extends EventEmitter {
+       const stateOverride =
+         accountOp.calls.length > 1 && isBasicAccount(account, state)
+           ? {
+-            [account.addr]: {
+-              code: AmbireAccount7702.binRuntime
++              [account.addr]: {
++                code: AmbireAccount7702.binRuntime
++              }
+             }
+-          }
+           : undefined
+       const { tokens, nfts } = await debugTraceCall(
+         account,
+@@ -1087,9 +1106,9 @@ export class MainController extends EventEmitter {
+           [network],
+           accountOpsForSimulation
+             ? {
+-              accountOps: accountOpsForSimulation,
+-              states: await this.accounts.getOrFetchAccountStates(account.addr)
+-            }
++                accountOps: accountOpsForSimulation,
++                states: await this.accounts.getOrFetchAccountStates(account.addr)
++              }
+             : undefined,
+           { forceUpdate: true }
+         )
+@@ -1463,9 +1482,9 @@ export class MainController extends EventEmitter {
+       networks,
+       accountOpsToBeSimulatedByNetwork
+         ? {
+-          accountOps: accountOpsToBeSimulatedByNetwork,
+-          states: await this.accounts.getOrFetchAccountStates(this.selectedAccount.account.addr)
+-        }
++            accountOps: accountOpsToBeSimulatedByNetwork,
++            states: await this.accounts.getOrFetchAccountStates(this.selectedAccount.account.addr)
++          }
+         : undefined,
+       { forceUpdate, maxDataAgeMs }
+     )
+@@ -1482,7 +1501,7 @@ export class MainController extends EventEmitter {
+       const userRequestIndex = this.requests.userRequests.findIndex((r) => r.id === requestId)
+       const userRequest = this.requests.userRequests[userRequestIndex] as SignUserRequest
+       if (userRequest.action.kind === 'calls') {
+-        ; (userRequest.action as Calls).calls = (userRequest.action as Calls).calls.filter(
++        ;(userRequest.action as Calls).calls = (userRequest.action as Calls).calls.filter(
+           (c) => c.id !== callId
+         )
+ 
+@@ -2189,10 +2208,11 @@ export class MainController extends EventEmitter {
+         submittedAccountOp.calls.length === accountOp.calls.length
+           ? 'Done!'
+           : 'Partially submitted',
+-      message: `${isBasicAccountBroadcastingMultiple
+-        ? `${submittedAccountOp.calls.length}/${accountOp.calls.length} transactions were`
+-        : 'The transaction was'
+-        } successfully signed and broadcast to the network.`
++      message: `${
++        isBasicAccountBroadcastingMultiple
++          ? `${submittedAccountOp.calls.length}/${accountOp.calls.length} transactions were`
++          : 'The transaction was'
++      } successfully signed and broadcast to the network.`
+     })
+ 
+     // reset the fee payer key
+diff --git a/src/controllers/signAccountOp/signAccountOp.ts b/src/controllers/signAccountOp/signAccountOp.ts
+index 78ecab832..7a0d51340 100644
+--- a/src/controllers/signAccountOp/signAccountOp.ts
++++ b/src/controllers/signAccountOp/signAccountOp.ts
+@@ -79,6 +79,13 @@ import {
+   wrapUnprotected
+ } from '../../libs/signMessage/signMessage'
+ import { getGasUsed } from '../../libs/singleton/singleton'
++import {
++  BLOCKED_SEND_LINE,
++  type TocsinCheck,
++  tocsinCheck,
++  uniqueTargets
++} from '../../libs/tocsin/check'
++import { type Target, transactionTargets } from '../../libs/tocsin/decode'
+ import { UserOperation } from '../../libs/userOperation/types'
+ import {
+   getActivatorCall,
+@@ -98,6 +105,7 @@ import { GasPriceController } from '../gasPrice/gasPrice'
+ import { KeystoreController } from '../keystore/keystore'
+ import { NetworksController } from '../networks/networks'
+ import { PortfolioController } from '../portfolio/portfolio'
++import type { TocsinController } from '../tocsin/tocsin'
+ import {
+   getFeeSpeedIdentifier,
+   getFeeTokenPriceUnavailableWarning,
+@@ -261,6 +269,12 @@ export class SignAccountOpController extends EventEmitter {
+ 
+   #activity: ActivityController
+ 
++  #tocsin?: TocsinController
++
++  #offTocsin?: () => void
++
++  #lastTocsinLine = ''
++
+   constructor(
+     accounts: AccountsController,
+     networks: NetworksController,
+@@ -275,7 +289,8 @@ export class SignAccountOpController extends EventEmitter {
+     accountOp: AccountOp,
+     isSignRequestStillActive: Function,
+     shouldSimulate: boolean,
+-    traceCall?: Function
++    traceCall?: Function,
++    tocsin?: TocsinController
+   ) {
+     super()
+ 
+@@ -331,9 +346,53 @@ export class SignAccountOpController extends EventEmitter {
+     )
+     this.#shouldSimulate = shouldSimulate
+ 
++    this.#tocsin = tocsin
++    if (tocsin) {
++      // A sync or a finished assess can change the verdict; re-emit only when it did.
++      this.#offTocsin = tocsin.onUpdate(() => {
++        const c = this.tocsin
++        const line = c ? `${c.verdict}:${c.assessments.map((a) => a.verdict).join()}` : ''
++        if (line === this.#lastTocsinLine) return
++        this.#lastTocsinLine = line
++        this.emitUpdate()
++      })
++      this.#assessTocsin()
++    }
++
+     this.#load(shouldSimulate)
+   }
+ 
++  /** Every call's `to` and decoded target, plus the EIP-7702 delegate when this op signs one. */
++  get tocsinTargets(): Target[] {
++    const delegates: Target[] =
++      this.accountOp.meta?.setDelegation === true ||
++      this.baseAccount.shouldSignAuthorization(BROADCAST_OPTIONS.byBundler)
++        ? [
++            {
++              address: getContractImplementation(this.#network.chainId),
++              context: 'delegate',
++              why: 'EIP-7702 delegate'
++            }
++          ]
++        : []
++    return uniqueTargets([
++      ...this.accountOp.calls.flatMap((c) => transactionTargets(c)),
++      ...delegates
++    ])
++  }
++
++  /** The tocsin verdict over `tocsinTargets`. A block makes `readyToSign` false and `sign()` refuse. */
++  get tocsin(): TocsinCheck | null {
++    if (!this.#tocsin) return null
++    return tocsinCheck(this.#tocsin, this.tocsinTargets, this.accountOp.chainId)
++  }
++
++  #assessTocsin() {
++    // assess never throws; the result lands in the tocsin cache and the onUpdate above re-emits.
++    // eslint-disable-next-line @typescript-eslint/no-floating-promises
++    this.#tocsin?.assess(this.tocsinTargets, this.accountOp.chainId)
++  }
++
+   #validateAccountOp(): SignAccountOpError | null {
+     const invalidAccountOpError =
+       'The transaction is missing essential data. Please contact support.'
+@@ -672,6 +731,7 @@ export class SignAccountOpController extends EventEmitter {
+ 
+   get readyToSign() {
+     return (
++      this.tocsin?.verdict !== 'block' &&
+       !!this.status &&
+       (this.status?.type === SigningStatus.ReadyToSign ||
+         this.status?.type === SigningStatus.UpdatesPaused)
+@@ -864,6 +924,7 @@ export class SignAccountOpController extends EventEmitter {
+         if (shouldUpdate) {
+           const hasNewCalls = this.accountOp.calls.length < calls.length
+           this.accountOp.calls = calls
++          this.#assessTocsin()
+ 
+           if (hasNewCalls) this.learnTokensFromCalls()
+           this.#shouldSimulate ? this.simulate(hasNewCalls) : this.estimate()
+@@ -1020,6 +1081,8 @@ export class SignAccountOpController extends EventEmitter {
+   }
+ 
+   reset() {
++    this.#offTocsin?.()
++    this.#offTocsin = undefined
+     this.estimation.reset()
+     this.gasPrice.reset()
+     this.gasPrices = undefined
+@@ -1710,6 +1773,10 @@ export class SignAccountOpController extends EventEmitter {
+   }
+ 
+   async sign() {
++    if (this.tocsin?.verdict === 'block') {
++      return this.#emitSigningErrorAndResetToReadyToSign(BLOCKED_SEND_LINE)
++    }
++
+     if (!this.readyToSign) {
+       const message = `Unable to sign the transaction. During the preparation step, the necessary transaction data was not received. ${RETRY_TO_INIT_ACCOUNT_OP_MSG}`
+       return this.#emitSigningErrorAndResetToReadyToSign(message)
+@@ -1997,7 +2064,8 @@ export class SignAccountOpController extends EventEmitter {
+       account: this.account,
+       errors: this.errors,
+       gasSavedUSD: this.gasSavedUSD,
+-      delegatedContract: this.delegatedContract
++      delegatedContract: this.delegatedContract,
++      tocsin: this.tocsin
+     }
+   }
+ }
+diff --git a/src/controllers/signAccountOp/signAccountOpTocsin.test.ts b/src/controllers/signAccountOp/signAccountOpTocsin.test.ts
+new file mode 100644
+index 000000000..9435d7f0f
+--- /dev/null
++++ b/src/controllers/signAccountOp/signAccountOpTocsin.test.ts
+@@ -0,0 +1,184 @@
++// dApp transactions: a tocsin block on any target (the `to` or a decoded spender) stops signing.
++import { encodeFunctionData, parseAbi } from 'viem'
++
++import { expect } from '@jest/globals'
++
++import { produceMemoryStore } from '../../../test/helpers'
++import {
++  BAD_TOKEN,
++  CLEAN,
++  fakeFetch,
++  signedList,
++  SPENDER,
++  world
++} from '../../../test/helpers/tocsin'
++import { testnetNetworks } from '../../consts/testnetNetworks'
++import { BLOCKED_SEND_LINE } from '../../libs/tocsin/check'
++import { StorageController } from '../storage/storage'
++import { TocsinController } from '../tocsin/tocsin'
++import { SignAccountOpController, SigningStatus } from './signAccountOp'
++
++const OWN = '0x00000000000000000000000000000000000000aa'
++const sepolia = testnetNetworks.find((n) => n.chainId === 11155111n)!
++
++const until = async (cond: () => boolean) => {
++  for (let i = 0; i < 200 && !cond(); i++) {
++    // eslint-disable-next-line no-await-in-loop
++    await new Promise((r) => {
++      setTimeout(r, 5)
++    })
++  }
++  if (!cond()) throw new Error('condition not met')
++}
++
++async function syncedTocsin() {
++  world.lists = { 'tocsin.eth': await signedList(`0x${'a1'.repeat(32)}`, 1n) }
++  const tocsin = new TocsinController({
++    storage: new StorageController(produceMemoryStore()),
++    fetch: fakeFetch
++  })
++  await tocsin.updateSettings({ rpcUrl: 'https://rpc.test' })
++  await tocsin.addList('tocsin.eth')
++  await tocsin.confirmAddList()
++  return tocsin
++}
++
++/** Records every signer request, so a test can show signing never reached the keystore. */
++const recordingKeystore = () => {
++  const signerRequests: string[] = []
++  return {
++    signerRequests,
++    keys: [],
++    getSigner: async (addr: string) => {
++      signerRequests.push(addr)
++      throw new Error('no signer in this test')
++    }
++  }
++}
++
++function signAccountOpWith(
++  tocsin: TocsinController,
++  keystore: ReturnType<typeof recordingKeystore>,
++  calls: { to: string; value: bigint; data: string }[]
++) {
++  // Estimation and gas prices never finish here, so the only thing between the op and signing is tocsin.
++  const never = () => new Promise(() => {})
++  const provider = { send: never, call: never, getBlock: never, getCode: never } as any
++  const accountState = {
++    accountAddr: OWN,
++    nonce: 0n,
++    eoaNonce: 0n,
++    isEOA: true,
++    isSmarterEoa: false,
++    isV2: false,
++    delegatedContract: null
++  }
++  const account = { addr: OWN, associatedKeys: [OWN], initialPrivileges: [], creation: null }
++  return new SignAccountOpController(
++    {
++      accounts: [account],
++      accountStates: { [OWN]: { [sepolia.chainId.toString()]: accountState } },
++      getOrFetchAccountOnChainState: never
++    } as any,
++    { networks: [sepolia] } as any,
++    keystore as any,
++    {
++      addTokensToBeLearned: () => {},
++      simulateAccountOp: never,
++      getLatestPortfolioState: () => ({}),
++      getPendingPortfolioState: () => ({})
++    } as any,
++    {} as any,
++    {},
++    account as any,
++    sepolia,
++    provider,
++    1,
++    {
++      accountAddr: OWN,
++      chainId: sepolia.chainId,
++      signingKeyAddr: OWN,
++      signingKeyType: 'internal',
++      nonce: 0n,
++      calls,
++      gasLimit: null,
++      signature: null,
++      gasFeePayment: null,
++      accountOpToExecuteBefore: null
++    },
++    () => false,
++    false,
++    undefined,
++    tocsin
++  )
++}
++
++const approve = (spender: string) =>
++  encodeFunctionData({
++    abi: parseAbi(['function approve(address spender, uint256 amount)']),
++    args: [spender as `0x${string}`, 1n]
++  })
++
++const transfer = (to: string) =>
++  encodeFunctionData({
++    abi: parseAbi(['function transfer(address to, uint256 amount)']),
++    args: [to as `0x${string}`, 1n]
++  })
++
++describe('SignAccountOpController with tocsin', () => {
++  test('a block on a decoded approve spender disables signing; sign() never asks for a signer', async () => {
++    const tocsin = await syncedTocsin()
++    const keystore = recordingKeystore()
++    const ctrl = signAccountOpWith(tocsin, keystore, [
++      { to: CLEAN, value: 0n, data: approve(SPENDER) }
++    ])
++
++    expect(ctrl.tocsinTargets.map((t) => [t.address, t.context])).toEqual([
++      [CLEAN, 'recipient'],
++      [SPENDER, 'spender'],
++      [CLEAN, 'token']
++    ])
++    await until(() => ctrl.tocsin?.verdict === 'block')
++    // Everything else ready: only tocsin holds it back.
++    ctrl.updateStatus(SigningStatus.ReadyToSign)
++    expect(ctrl.readyToSign).toBe(false)
++    expect(ctrl.toJSON().tocsin?.verdict).toBe('block')
++
++    await ctrl.sign()
++    expect(keystore.signerRequests).toEqual([])
++    expect(ctrl.status?.type).toBe(SigningStatus.ReadyToSign)
++    expect(ctrl.emittedErrors.map((e) => e.message)).toContain(BLOCKED_SEND_LINE)
++    ctrl.reset()
++  })
++
++  test('an ERC-20 transfer of a flagged token blocks on the token contract alone', async () => {
++    const tocsin = await syncedTocsin()
++    const keystore = recordingKeystore()
++    const ctrl = signAccountOpWith(tocsin, keystore, [
++      { to: BAD_TOKEN, value: 0n, data: transfer(CLEAN) }
++    ])
++
++    await until(() => ctrl.tocsin?.verdict === 'block')
++    expect(
++      ctrl.tocsin?.assessments
++        .filter((a) => a.verdict === 'block')
++        .map((a) => [a.target.address, a.target.context])
++    ).toEqual([[BAD_TOKEN, 'token']])
++    ctrl.updateStatus(SigningStatus.ReadyToSign)
++    expect(ctrl.readyToSign).toBe(false)
++    ctrl.reset()
++  })
++
++  test('with no flag the same op is ready to sign', async () => {
++    const tocsin = await syncedTocsin()
++    const keystore = recordingKeystore()
++    const ctrl = signAccountOpWith(tocsin, keystore, [
++      { to: CLEAN, value: 0n, data: approve(CLEAN) }
++    ])
++
++    await until(() => ctrl.tocsin?.verdict === 'clean')
++    ctrl.updateStatus(SigningStatus.ReadyToSign)
++    expect(ctrl.readyToSign).toBe(true)
++    ctrl.reset()
++  })
++})
+diff --git a/src/controllers/signMessage/signMessage.ts b/src/controllers/signMessage/signMessage.ts
+index 336337b2b..dfefea537 100644
+--- a/src/controllers/signMessage/signMessage.ts
++++ b/src/controllers/signMessage/signMessage.ts
+@@ -11,6 +11,8 @@ import {
+   getVerifyMessageSignature,
+   verifyMessage
+ } from '../../libs/signMessage/signMessage'
++import { BLOCKED_SIGN_LINE, type TocsinCheck, tocsinCheck } from '../../libs/tocsin/check'
++import { signatureTargets, type Target } from '../../libs/tocsin/decode'
+ import { isPlainTextMessage } from '../../libs/transfer/userRequest'
+ import hexStringToUint8Array from '../../utils/hexStringToUint8Array'
+ import { AccountsController } from '../accounts/accounts'
+@@ -20,6 +22,7 @@ import { InviteController } from '../invite/invite'
+ import { KeystoreController } from '../keystore/keystore'
+ import { NetworksController } from '../networks/networks'
+ import { ProvidersController } from '../providers/providers'
++import type { TocsinController } from '../tocsin/tocsin'
+ 
+ const STATUS_WRAPPED_METHODS = {
+   sign: 'INITIAL'
+@@ -57,13 +60,18 @@ export class SignMessageController extends EventEmitter {
+ 
+   signedMessage: SignedMessage | null = null
+ 
++  #tocsin?: TocsinController
++
++  #lastTocsinLine = ''
++
+   constructor(
+     keystore: KeystoreController,
+     providers: ProvidersController,
+     networks: NetworksController,
+     accounts: AccountsController,
+     externalSignerControllers: ExternalSignerControllers,
+-    invite: InviteController
++    invite: InviteController,
++    tocsin?: TocsinController
+   ) {
+     super()
+ 
+@@ -73,6 +81,40 @@ export class SignMessageController extends EventEmitter {
+     this.#externalSignerControllers = externalSignerControllers
+     this.#accounts = accounts
+     this.#invite = invite
++    this.#tocsin = tocsin
++    // A sync or a finished assess can change the verdict; re-emit only when it did.
++    this.#tocsin?.onUpdate(() => {
++      const c = this.tocsin
++      const line = c ? `${c.verdict}:${c.assessments.map((a) => a.verdict).join()}` : ''
++      if (line === this.#lastTocsinLine) return
++      this.#lastTocsinLine = line
++      this.emitUpdate()
++    }, 'signMessage')
++  }
++
++  /** The permit spender (EIP-2612, Permit2) or the 7702 delegate, and the chain it is checked on. */
++  get tocsinTargets(): { targets: Target[]; chainId: bigint } | null {
++    const m = this.messageToSign
++    if (!m) return null
++    if (m.content.kind === 'authorization-7702') {
++      return {
++        targets: [
++          { address: m.content.contractAddr, context: 'delegate', why: 'EIP-7702 delegate' }
++        ],
++        chainId: m.chainId
++      }
++    }
++    if (m.content.kind !== 'typedMessage') return null
++    const { primaryType, domain, message } = m.content
++    const { targets, chainId } = signatureTargets({ primaryType, domain, message })
++    return targets.length ? { targets, chainId: chainId ?? m.chainId } : null
++  }
++
++  /** Null when the message has nothing tocsin checks. A block makes `sign()` refuse. */
++  get tocsin(): TocsinCheck | null {
++    const t = this.tocsinTargets
++    if (!this.#tocsin || !t) return null
++    return tocsinCheck(this.#tocsin, t.targets, t.chainId)
+   }
+ 
+   async init({
+@@ -93,6 +135,10 @@ export class SignMessageController extends EventEmitter {
+       if (dapp) this.dapp = dapp
+       this.messageToSign = messageToSign
+       this.isInitialized = true
++      const t = this.tocsinTargets
++      // assess never throws; the onUpdate in the constructor re-emits when the verdict lands.
++      // eslint-disable-next-line @typescript-eslint/no-floating-promises
++      if (t) this.#tocsin?.assess(t.targets, t.chainId)
+       this.emitUpdate()
+     } else {
+       this.emitError({
+@@ -138,6 +184,16 @@ export class SignMessageController extends EventEmitter {
+       return SignMessageController.#throwMissingSigningKey()
+     }
+ 
++    if (this.tocsin?.verdict === 'block') {
++      return Promise.reject(
++        new EmittableError({
++          level: 'major',
++          message: BLOCKED_SIGN_LINE,
++          error: new Error('signMessage: tocsin blocked this signature')
++        })
++      )
++    }
++
+     try {
+       this.#signer = await this.#keystore.getSigner(this.signingKeyAddr, this.signingKeyType)
+       if (this.#signer.init) this.#signer.init(this.#externalSignerControllers[this.signingKeyType])
+@@ -280,6 +336,14 @@ export class SignMessageController extends EventEmitter {
+     }
+   }
+ 
++  toJSON() {
++    return {
++      ...this,
++      ...super.toJSON(),
++      tocsin: this.tocsin
++    }
++  }
++
+   static #throwNotInitialized() {
+     const message =
+       'Looks like there is an error while processing your sign message. Please retry, or contact support if issue persists.'
+diff --git a/src/controllers/signMessage/signMessageTocsin.test.ts b/src/controllers/signMessage/signMessageTocsin.test.ts
+new file mode 100644
+index 000000000..a9176a24e
+--- /dev/null
++++ b/src/controllers/signMessage/signMessageTocsin.test.ts
+@@ -0,0 +1,109 @@
++// Permits and 7702 authorizations: a tocsin block on the spender stops signing before any signer is asked.
++import { expect } from '@jest/globals'
++
++import { produceMemoryStore } from '../../../test/helpers'
++import { CLEAN, fakeFetch, signedList, SPENDER, world } from '../../../test/helpers/tocsin'
++import { Message } from '../../interfaces/userRequest'
++import { BLOCKED_SIGN_LINE } from '../../libs/tocsin/check'
++import { StorageController } from '../storage/storage'
++import { TocsinController } from '../tocsin/tocsin'
++import { SignMessageController } from './signMessage'
++
++const OWN = '0x00000000000000000000000000000000000000aa'
++
++const until = async (cond: () => boolean) => {
++  for (let i = 0; i < 200 && !cond(); i++) {
++    // eslint-disable-next-line no-await-in-loop
++    await new Promise((r) => {
++      setTimeout(r, 5)
++    })
++  }
++  if (!cond()) throw new Error('condition not met')
++}
++
++async function setup() {
++  world.lists = { 'tocsin.eth': await signedList(`0x${'a1'.repeat(32)}`, 1n) }
++  const tocsin = new TocsinController({
++    storage: new StorageController(produceMemoryStore()),
++    fetch: fakeFetch
++  })
++  await tocsin.updateSettings({ rpcUrl: 'https://rpc.test' })
++  await tocsin.addList('tocsin.eth')
++  await tocsin.confirmAddList()
++  // Records every signer request, so a test can show signing never reached the keystore.
++  const signerRequests: string[] = []
++  const keystore = {
++    getSigner: async (addr: string) => {
++      signerRequests.push(addr)
++      throw new Error('no signer in this test')
++    }
++  }
++  const ctrl = new SignMessageController(
++    keystore as any,
++    {} as any,
++    { networks: [{ chainId: 11155111n }] } as any,
++    { initialLoadPromise: Promise.resolve(), accounts: [], accountStates: {} } as any,
++    {},
++    {} as any,
++    tocsin
++  )
++  return { ctrl, signerRequests }
++}
++
++const permit = (spender: string): Message => ({
++  fromActionId: 1,
++  accountAddr: OWN,
++  chainId: 11155111n,
++  signature: null,
++  content: {
++    kind: 'typedMessage',
++    primaryType: 'Permit',
++    domain: { name: 'Token', version: '1', chainId: 11155111, verifyingContract: CLEAN },
++    types: {},
++    message: { owner: OWN, spender, value: '1', nonce: '0', deadline: '9999999999' }
++  }
++})
++
++describe('SignMessageController with tocsin', () => {
++  test('a block on the permit spender rejects sign() before any signer is asked', async () => {
++    const { ctrl, signerRequests } = await setup()
++    await ctrl.init({ messageToSign: permit(SPENDER) })
++    await until(() => ctrl.tocsin?.verdict === 'block')
++    expect(ctrl.toJSON().tocsin?.assessments[0]?.target.why).toBe('EIP-2612 permit spender')
++
++    ctrl.setSigningKey(OWN, 'internal')
++    await ctrl.sign()
++    expect(signerRequests).toEqual([])
++    expect(ctrl.signedMessage).toBeNull()
++    expect(ctrl.emittedErrors.map((e) => e.message)).toContain(BLOCKED_SIGN_LINE)
++  })
++
++  test('an unflagged spender goes on to the signer; a 7702 authorization checks its delegate', async () => {
++    const { ctrl, signerRequests } = await setup()
++    await ctrl.init({ messageToSign: permit(CLEAN) })
++    await until(() => ctrl.tocsin?.verdict === 'clean')
++    ctrl.setSigningKey(OWN, 'internal')
++    await ctrl.sign()
++    expect(signerRequests).toEqual([OWN])
++
++    await ctrl.init({
++      messageToSign: {
++        fromActionId: 2,
++        accountAddr: OWN,
++        chainId: 11155111n,
++        signature: null,
++        content: {
++          kind: 'authorization-7702',
++          chainId: 11155111n,
++          nonce: 0n,
++          contractAddr: CLEAN,
++          message: '0x'
++        }
++      }
++    })
++    expect(ctrl.tocsinTargets?.targets).toEqual([
++      { address: CLEAN, context: 'delegate', why: 'EIP-7702 delegate' }
++    ])
++    await until(() => ctrl.tocsin?.verdict === 'clean')
++  })
++})
+diff --git a/src/controllers/tocsin/tocsin.test.ts b/src/controllers/tocsin/tocsin.test.ts
+new file mode 100644
+index 000000000..deacf081a
+--- /dev/null
++++ b/src/controllers/tocsin/tocsin.test.ts
+@@ -0,0 +1,216 @@
++// The Snap's bundle-test beats, run against the TocsinController with a fake Sepolia, list host and ENS.
++import { expect } from '@jest/globals'
++
++import { produceMemoryStore } from '../../../test/helpers'
++import {
++  CLEAN,
++  DRAINER,
++  fakeFetch,
++  MANUAL,
++  signedList,
++  SPENDER,
++  SUSPECT,
++  world
++} from '../../../test/helpers/tocsin'
++import { stringify } from '../../libs/richJson/richJson'
++import { tocsinCheck } from '../../libs/tocsin/check'
++import { causeOf, flagBanner, isChecking, recipientLine } from '../../libs/tocsin/display'
++import { StorageController } from '../storage/storage'
++import { TocsinController } from './tocsin'
++
++const SEPOLIA = 11155111n
++const KEY_A = `0x${'a1'.repeat(32)}` as const
++const KEY_B = `0x${'b2'.repeat(32)}` as const
++const recipient = (address: `0x${string}`) => ({
++  address,
++  context: 'recipient' as const,
++  why: 'recipient'
++})
++
++async function setup() {
++  world.lists = { 'tocsin.eth': await signedList(KEY_A, 1n) }
++  world.requests = []
++  const storage = produceMemoryStore()
++  const ctrl = new TocsinController({ storage: new StorageController(storage), fetch: fakeFetch })
++  await ctrl.initialLoadPromise
++  await ctrl.updateSettings({ rpcUrl: 'https://rpc.test' })
++  await ctrl.addList('tocsin.eth')
++  await ctrl.confirmAddList()
++  return { ctrl, storage }
++}
++
++describe('TocsinController', () => {
++  test('a fresh controller with no list is unavailable, never clean, and says why', async () => {
++    const ctrl = new TocsinController({
++      storage: new StorageController(produceMemoryStore()),
++      fetch: fakeFetch
++    })
++    await ctrl.initialLoadPromise
++    await ctrl.syncNow()
++    expect(ctrl.status?.error).toBe('follow at least one list')
++    const [a] = await ctrl.assess([recipient(DRAINER)], SEPOLIA)
++    expect(a!.verdict).toBe('unavailable')
++    expect(causeOf(ctrl, [a!]).title).toBe('Tocsin has not synced yet')
++  })
++
++  test('add a list: the candidate shows maintainer and writers before anything is pinned', async () => {
++    world.lists = { 'tocsin.eth': await signedList(KEY_A, 1n) }
++    const ctrl = new TocsinController({
++      storage: new StorageController(produceMemoryStore()),
++      fetch: fakeFetch
++    })
++    await ctrl.updateSettings({ rpcUrl: 'https://rpc.test' })
++    await ctrl.addList('tocsin.eth')
++    expect(ctrl.addListCandidate).toMatchObject({
++      name: 'tocsin.eth',
++      maintainer: world.lists['tocsin.eth']!.maintainer,
++      version: 1n,
++      writers: [MANUAL, expect.any(String)]
++    })
++    expect(ctrl.lists).toEqual([])
++    ctrl.cancelAddList()
++    expect(ctrl.addListCandidate).toBeNull()
++    await ctrl.addList('nodot')
++    expect(ctrl.formErrors.listName).toMatch(/not an ENS name/)
++    await ctrl.addList('missing.eth')
++    expect(ctrl.formErrors.listName).toBe('No Tocsin list found at missing.eth.')
++  })
++
++  test('beat 1: the drainer receiver blocks, the clean address has no flags, one weight-1 writer warns', async () => {
++    const { ctrl } = await setup()
++    expect(ctrl.status).toEqual({ at: expect.any(Number) })
++    expect(ctrl.sync?.flags).toBe(4)
++    expect(ctrl.names[MANUAL]).toBe('manual.tocsin.eth')
++    const [block, clean, warn] = await ctrl.assess(
++      [recipient(DRAINER), recipient(CLEAN), recipient(SUSPECT)],
++      SEPOLIA
++    )
++    expect(block).toMatchObject({
++      verdict: 'block',
++      findings: [{ writer: MANUAL, category: 3, list: 'tocsin.eth' }]
++    })
++    expect(clean!.verdict).toBe('clean')
++    expect(warn!.verdict).toBe('warn')
++    expect(ctrl.getAssessment(recipient(DRAINER), SEPOLIA)?.verdict).toBe('block')
++    expect(recipientLine(ctrl, block, isChecking(ctrl))).toMatch(
++      /^Tocsin blocked this recipient: Drainer receiver\./
++    )
++    const [spender] = await ctrl.assess(
++      [{ address: SPENDER, context: 'spender', why: 'ERC-20 approve spender' }],
++      SEPOLIA
++    )
++    expect(spender!.verdict).toBe('block')
++  })
++
++  test('beat 2 and 3: a lying RPC is unverifiable at the dropped sequence; switching back blocks again', async () => {
++    const { ctrl } = await setup()
++    await ctrl.assess([recipient(DRAINER)], SEPOLIA)
++    await ctrl.updateSettings({ rpcUrl: 'https://liar.test' })
++    const a = ctrl.getAssessment(recipient(DRAINER), SEPOLIA)!
++    expect(a.verdict).toBe('unavailable')
++    expect(ctrl.sync?.writers[MANUAL]).toMatchObject({ status: 'unavailable', divergedAt: 1n })
++    expect(causeOf(ctrl, [a]).title).toBe("The RPC's data does not match Ethereum")
++    expect(ctrl.lastGood?.flags).toBe(4)
++    await ctrl.updateSettings({ rpcUrl: 'https://rpc.test' })
++    expect(ctrl.getAssessment(recipient(DRAINER), SEPOLIA)?.verdict).toBe('block')
++  })
++
++  test('a changed maintainer is held as pending and excluded until accepted', async () => {
++    const { ctrl } = await setup()
++    world.lists = { 'tocsin.eth': await signedList(KEY_B, 2n) }
++    await ctrl.syncNow()
++    const [list] = ctrl.lists
++    expect(list).toMatchObject({ name: 'tocsin.eth', status: 'maintainer changed' })
++    expect(list!.pending?.maintainer).toBe(world.lists['tocsin.eth']!.maintainer)
++    expect(list!.pinned?.maintainer).not.toBe(list!.pending?.maintainer)
++    const [a] = await ctrl.assess([recipient(DRAINER)], SEPOLIA)
++    expect(a!.verdict).toBe('unavailable')
++    expect(causeOf(ctrl, [a!]).title).toBe('No list to check against')
++    await ctrl.acceptMaintainerChange('tocsin.eth')
++    expect(ctrl.lists[0]?.status).toBe('accepted')
++    expect(ctrl.lists[0]?.pending).toBeUndefined()
++    expect(ctrl.getAssessment(recipient(DRAINER), SEPOLIA)?.verdict).toBe('block')
++  })
++
++  test('unfollow drops the list from evaluation, follow keeps its pin, remove deletes it', async () => {
++    const { ctrl } = await setup()
++    await ctrl.assess([recipient(DRAINER)], SEPOLIA)
++    await ctrl.setFollowed('tocsin.eth', false)
++    expect(ctrl.getAssessment(recipient(DRAINER), SEPOLIA)?.verdict).toBe('unavailable')
++    await ctrl.setFollowed('tocsin.eth', true)
++    expect(ctrl.lists[0]?.pinned).toBeDefined()
++    expect(ctrl.getAssessment(recipient(DRAINER), SEPOLIA)?.verdict).toBe('block')
++    await ctrl.removeList('tocsin.eth')
++    expect(ctrl.lists).toEqual([])
++  })
++
++  test('an RPC on another chain fails the sync, keeps the last result and says so', async () => {
++    const { ctrl } = await setup()
++    world.chainId = '0x1'
++    await ctrl.syncNow()
++    world.chainId = '0xaa36a7'
++    expect(ctrl.status?.error).toMatch(/is not Sepolia/)
++    expect(ctrl.sync?.flags).toBe(4)
++  })
++
++  test('state survives a restart from storage, and no evaluated address is ever stored', async () => {
++    const { ctrl, storage } = await setup()
++    await ctrl.assess([recipient(DRAINER), recipient(CLEAN)], SEPOLIA)
++    // DRAINER is a flag subject in the log, so it is in the stored leaves; CLEAN appears nowhere but the check.
++    const stored = stringify(await storage.get(undefined))
++    expect(stored.toLowerCase()).not.toContain(CLEAN.slice(2).toLowerCase())
++    const again = new TocsinController({
++      storage: new StorageController(storage),
++      fetch: fakeFetch
++    })
++    await again.initialLoadPromise
++    expect(again.sync?.flags).toBe(4)
++    expect(again.assessments).toEqual({})
++    const [a] = await again.assess([recipient(DRAINER)], SEPOLIA)
++    expect(a!.verdict).toBe('block')
++  })
++
++  test('policy threshold 1 blocks on a single weight-1 writer, without a resync', async () => {
++    const { ctrl } = await setup()
++    await ctrl.assess([recipient(SUSPECT)], SEPOLIA)
++    const before = world.requests.length
++    await ctrl.setPolicy({ ...ctrl.policy, threshold: 1 })
++    expect(world.requests.length).toBe(before)
++    expect(ctrl.getAssessment(recipient(SUSPECT), SEPOLIA)?.verdict).toBe('block')
++  })
++
++  test('a warn-only category turns a weight-255 block into a warning and says why', async () => {
++    const { ctrl } = await setup()
++    await ctrl.assess([recipient(DRAINER)], SEPOLIA)
++    await ctrl.setPolicy({ ...ctrl.policy, warnOnly: [3] })
++    const a = ctrl.getAssessment(recipient(DRAINER), SEPOLIA)!
++    expect(a.verdict).toBe('warn')
++    expect(flagBanner(a, ctrl.policy).body).toMatch(
++      /Your policy makes DRAINER_RECEIVER warn only\.$/
++    )
++  })
++
++  test('checkApprovals off drops spenders and delegates from the check, on brings them back', async () => {
++    const { ctrl } = await setup()
++    const targets = [
++      { address: SPENDER, context: 'spender' as const, why: 'ERC-20 approve spender' },
++      { address: SPENDER, context: 'delegate' as const, why: 'EIP-7702 delegate' },
++      recipient(CLEAN)
++    ]
++    await ctrl.assess(targets, SEPOLIA)
++    expect(tocsinCheck(ctrl, targets, SEPOLIA).verdict).toBe('block')
++    await ctrl.setPolicy({ ...ctrl.policy, checkApprovals: false })
++    const off = tocsinCheck(ctrl, targets, SEPOLIA)
++    expect(off.verdict).toBe('clean')
++    expect(off.assessments.map((a) => a.target.context)).toEqual(['recipient'])
++    await ctrl.setPolicy({ ...ctrl.policy, checkApprovals: true })
++    expect(tocsinCheck(ctrl, targets, SEPOLIA).verdict).toBe('block')
++  })
++
++  test('bad RPC input is a field error and changes nothing', async () => {
++    const { ctrl } = await setup()
++    await ctrl.updateSettings({ rpcUrl: 'http://rpc.example' })
++    expect(ctrl.formErrors.rpcUrl).toBe('Enter an https URL (http only for localhost).')
++    expect(ctrl.settings.rpcUrl).toBe('https://rpc.test/')
++  })
++})
+diff --git a/src/controllers/tocsin/tocsin.ts b/src/controllers/tocsin/tocsin.ts
+new file mode 100644
+index 000000000..76fb40a05
+--- /dev/null
++++ b/src/controllers/tocsin/tocsin.ts
+@@ -0,0 +1,460 @@
++import { type Address, getAddress, isAddress } from 'viem'
++
++import type { Target } from '../../libs/tocsin/decode'
++import {
++  assessmentKey,
++  type ListSummary,
++  type ListView,
++  type SyncView,
++  type TocsinAssessment,
++  type TocsinView,
++  type WriterView
++} from '../../libs/tocsin/display'
++import {
++  assess as engineAssess,
++  type Assessment,
++  clearCheckpoints,
++  errorText,
++  fetchCandidate,
++  type FetchFn,
++  flagCount,
++  runSync,
++  verifiedPin
++} from '../../libs/tocsin/engine'
++import type { SyncResult, VerifiedList } from '../../libs/tocsin/reader'
++import { parseListName, parseRpcUrl } from '../../libs/tocsin/settings'
++import {
++  fromStored,
++  type LastGood,
++  type ListState,
++  type Settings,
++  type State,
++  STORAGE_KEY,
++  type SyncStatus,
++  type TocsinPolicy
++} from '../../libs/tocsin/state'
++import EventEmitter from '../eventEmitter/eventEmitter'
++// eslint-disable-next-line import/no-cycle
++import { StorageController } from '../storage/storage'
++
++/** The Snap's cron interval (`*\/5 * * * *`). */
++export const TOCSIN_SYNC_INTERVAL_MS = 5 * 60 * 1000
++
++/** Assessments kept in memory for the synchronous getter. Never persisted. */
++const MAX_CACHED_ASSESSMENTS = 100
++
++export type TocsinFormErrors = { rpcUrl?: string; listName?: string }
++
++export type AddListCandidate = { name: string } & ListSummary
++
++const summary = (l: VerifiedList | undefined): ListSummary | undefined =>
++  l && {
++    maintainer: l.maintainer,
++    version: l.version,
++    writers: 'entries' in l.list ? l.list.entries.map((e) => getAddress(e.writer)) : []
++  }
++
++const syncView = (s: SyncResult): SyncView => ({
++  block: {
++    number: s.block.number,
++    hash: s.block.hash,
++    ...(s.block.unverified && { unverified: true })
++  },
++  flags: flagCount(s),
++  writers: Object.fromEntries(
++    Object.entries(s.writers).map(([k, w]) => {
++      // SAFETY: engine.ts stores writer errors as their message.
++      const view: WriterView =
++        w.status === 'synced'
++          ? { status: w.status, writer: w.writer, seq: w.seq, head: w.head }
++          : {
++              status: w.status,
++              writer: w.writer,
++              seq: w.seq,
++              head: w.head,
++              ...(w.divergedAt !== undefined && { divergedAt: w.divergedAt }),
++              ...(w.error !== undefined && { error: String(w.error) })
++            }
++      return [k, view]
++    })
++  )
++})
++
++const toAssessment = (a: Assessment, chainId: bigint): TocsinAssessment => ({
++  target: a.target,
++  chainId,
++  verdict: a.evaluation.verdict,
++  findings: a.evaluation.findings.map((f, i) => ({
++    writer: f.writer,
++    category: f.category,
++    evidence: f.evidence,
++    seenBlock: f.leaf.leaf.seenBlock,
++    weight: f.weight,
++    list: a.listOf[i] ?? ''
++  })),
++  unavailable: a.evaluation.unavailable
++})
++
++const unavailable = (target: Target, chainId: bigint): TocsinAssessment => ({
++  target,
++  chainId,
++  verdict: 'unavailable',
++  findings: [],
++  unavailable: []
++})
++
++/** Targets from the UI port: checksummed, known context, anything else dropped. */
++const cleanTargets = (targets: readonly Target[]): Target[] =>
++  (Array.isArray(targets) ? targets : [])
++    .filter((t) => typeof t?.address === 'string' && isAddress(t.address, { strict: false }))
++    .map((t) => {
++      const context =
++        t.context === 'spender' || t.context === 'delegate' || t.context === 'token'
++          ? t.context
++          : 'recipient'
++      return {
++        address: getAddress(t.address),
++        context,
++        why: typeof t.why === 'string' ? t.why : context
++      }
++    })
++
++/**
++ * The tocsin reader in the background: lists, sync and verdicts, ported from the antibody Snap.
++ * Same trust level as the Snap: header and proofs from one RPC, best effort, not a light client.
++ * Evaluated addresses live only in memory (`assessments`) and are never written to storage.
++ */
++export class TocsinController extends EventEmitter implements TocsinView {
++  #storage: StorageController
++
++  #fetch: FetchFn
++
++  #state: State = fromStored(null)
++
++  /** Every mutation runs here in order, so a timer sync and a user action never overwrite each other. */
++  #queue: Promise<unknown> = Promise.resolve()
++
++  #queuedSync: Promise<void> | null = null
++
++  #candidate: { name: string; list: VerifiedList } | null = null
++
++  settings: Settings = this.#state.settings
++
++  policy: TocsinPolicy = this.#state.policy
++
++  lists: ListView[] = []
++
++  sync: SyncView | null = null
++
++  syncedAt: number | null = null
++
++  lastGood: LastGood | null = null
++
++  names: Record<Address, string> = {}
++
++  status: SyncStatus | null = null
++
++  isSyncing = false
++
++  isReady = false
++
++  /** Keyed by `assessmentKey(target, chainId)`. Recomputed after every sync and list change. */
++  assessments: Record<string, TocsinAssessment> = {}
++
++  /** A verified list waiting for `confirmAddList` or `cancelAddList` (the Snap's confirm dialog). */
++  addListCandidate: AddListCandidate | null = null
++
++  isFetchingCandidate = false
++
++  formErrors: TocsinFormErrors = {}
++
++  // Holds the initial load promise, so that one can wait until it completes
++  initialLoadPromise: Promise<void>
++
++  constructor({ storage, fetch }: { storage: StorageController; fetch: FetchFn }) {
++    super()
++
++    this.#storage = storage
++    this.#fetch = fetch
++
++    // First in the queue, so no action can run on the defaults and be overwritten by the load.
++    this.initialLoadPromise = this.#run(() => this.#load())
++  }
++
++  async #load() {
++    try {
++      await this.#publish(fromStored(await this.#storage.get(STORAGE_KEY, null)))
++    } catch (error) {
++      this.emitError({
++        level: 'minor',
++        message: 'Tocsin could not load its saved lists. It starts from the defaults.',
++        error: new Error('tocsin: load failed', { cause: error })
++      })
++      await this.#publish(fromStored(null))
++    }
++    this.isReady = true
++    this.emitUpdate()
++  }
++
++  #run<T>(op: () => Promise<T>): Promise<T> {
++    const next = this.#queue.then(op)
++    this.#queue = next.catch(() => undefined)
++    return next
++  }
++
++  /** Sets the state, derives the public fields, and re-evaluates cached targets. */
++  async #publish(next: State) {
++    this.#state = next
++    this.settings = next.settings
++    this.policy = next.policy
++    this.lists = await Promise.all(
++      Object.entries(next.lists).map(async ([name, l]) => {
++        const pinned = summary(await verifiedPin(l.pinned))
++        const pending = summary(await verifiedPin(l.pending))
++        return {
++          name,
++          followed: l.followed,
++          ...(l.status !== undefined && { status: l.status }),
++          ...(pinned && { pinned }),
++          ...(pending && { pending })
++        }
++      })
++    )
++    this.sync = next.sync ? syncView(next.sync) : null
++    this.syncedAt = next.syncedAt ?? null
++    this.lastGood = next.lastGood ?? null
++    this.names = next.names
++    this.status = next.status ?? null
++    await this.#reassess()
++  }
++
++  async #commit(next: State) {
++    await this.#publish(next)
++    await this.#storage.set(STORAGE_KEY, next)
++    this.emitUpdate()
++  }
++
++  #setList(name: string, l: ListState): State {
++    return { ...this.#state, lists: { ...this.#state.lists, [name]: l } }
++  }
++
++  /** Runs one sync now, or joins the one already queued. Never throws: failures land in `status`. */
++  syncNow(): Promise<void> {
++    if (!this.#queuedSync) {
++      this.#queuedSync = this.#run(async () => {
++        this.#queuedSync = null
++        await this.initialLoadPromise
++        this.isSyncing = true
++        this.emitUpdate()
++        try {
++          await this.#commit(await runSync(this.#state, this.#fetch))
++        } catch (error) {
++          // runSync never throws; this is storage or re-evaluation failing.
++          this.emitError({
++            level: 'minor',
++            message: 'Tocsin could not save its last sync.',
++            error: new Error('tocsin: sync commit failed', { cause: error })
++          })
++        } finally {
++          this.isSyncing = false
++          this.emitUpdate()
++        }
++      })
++    }
++    return this.#queuedSync
++  }
++
++  async #evaluate(targets: Target[], chainId: bigint): Promise<TocsinAssessment[]> {
++    try {
++      const result = await engineAssess(this.#state, targets, chainId)
++      return result
++        ? result.map((a) => toAssessment(a, chainId))
++        : targets.map((t) => unavailable(t, chainId))
++    } catch (error) {
++      this.emitError({
++        level: 'silent',
++        message: 'Tocsin could not evaluate an address.',
++        error: new Error(`tocsin: evaluate failed: ${errorText(error)}`, { cause: error })
++      })
++      return targets.map((t) => unavailable(t, chainId))
++    }
++  }
++
++  async #reassess() {
++    const entries = Object.values(this.assessments)
++    const fresh = await Promise.all(entries.map((a) => this.#evaluate([a.target], a.chainId)))
++    this.assessments = Object.fromEntries(
++      fresh.flat().map((a) => [assessmentKey(a.target, a.chainId), a])
++    )
++  }
++
++  /**
++   * Evaluates targets against the last sync and caches each result for `getAssessment`. Never
++   * throws; an address it cannot evaluate gets `unavailable`. Kept in memory only.
++   */
++  async assess(targets: readonly Target[], chainId: bigint): Promise<TocsinAssessment[]> {
++    await this.initialLoadPromise
++    const clean = cleanTargets(targets)
++    const chain = BigInt(chainId)
++    const results = await this.#evaluate(clean, chain)
++    const merged = {
++      ...this.assessments,
++      ...Object.fromEntries(results.map((a) => [assessmentKey(a.target, chain), a]))
++    }
++    // shortcut: drops the oldest keys past 100; an LRU is not worth it for one send screen.
++    const keys = Object.keys(merged)
++    this.assessments = Object.fromEntries(
++      keys.slice(Math.max(0, keys.length - MAX_CACHED_ASSESSMENTS)).map((k) => [k, merged[k]!])
++    )
++    this.emitUpdate()
++    return results
++  }
++
++  /** The cached result of `assess`, or undefined when it has not finished for this target. */
++  getAssessment(
++    target: Pick<Target, 'address' | 'context'>,
++    chainId: bigint
++  ): TocsinAssessment | undefined {
++    return this.assessments[assessmentKey(target, chainId)]
++  }
++
++  /** The Snap's Network form: a new RPC drops checkpoints and replays from genesis. */
++  async updateSettings({ rpcUrl }: { rpcUrl: string }) {
++    const parsed = parseRpcUrl(rpcUrl)
++    if ('error' in parsed) {
++      this.formErrors = { ...this.formErrors, rpcUrl: parsed.error }
++      this.emitUpdate()
++      return
++    }
++    const { rpcUrl: _, ...rest } = this.formErrors
++    this.formErrors = rest
++    await this.#run(async () => {
++      const s = this.#state
++      await this.#commit(
++        parsed.url === s.settings.rpcUrl
++          ? s
++          : clearCheckpoints({ ...s, settings: { ...s.settings, rpcUrl: parsed.url } })
++      )
++    })
++    await this.syncNow()
++  }
++
++  /**
++   * The Policy section. The synced flags are unchanged, so no resync; the commit re-evaluates every
++   * cached assessment, so open send and sign screens show the new verdict. Bad fields from the UI
++   * port keep their current value.
++   */
++  async setPolicy(policy: Partial<TocsinPolicy>) {
++    await this.#run(async () => {
++      const p = this.#state.policy
++      const next: TocsinPolicy = {
++        threshold:
++          policy?.threshold === 1 || policy?.threshold === 2 ? policy.threshold : p.threshold,
++        warnOnly: Array.isArray(policy?.warnOnly)
++          ? [...new Set(policy.warnOnly.filter((c) => Number.isInteger(c)))]
++          : p.warnOnly,
++        checkApprovals:
++          typeof policy?.checkApprovals === 'boolean' ? policy.checkApprovals : p.checkApprovals
++      }
++      await this.#commit({ ...this.#state, policy: next })
++    })
++  }
++
++  /** Unfollowing keeps the pin and the writers' flags; following again syncs. */
++  async setFollowed(name: string, followed: boolean) {
++    const changed = await this.#run(async () => {
++      const l = this.#state.lists[name]
++      if (!l) return false
++      await this.#commit(this.#setList(name, { ...l, followed }))
++      return true
++    })
++    if (changed && followed) await this.syncNow()
++  }
++
++  async removeList(name: string) {
++    await this.#run(async () => {
++      if (!this.#state.lists[name]) return
++      const { [name]: _, ...lists } = this.#state.lists
++      await this.#commit({ ...this.#state, lists })
++    })
++  }
++
++  /** Step one of "Add a list by ENS name": resolve, fetch and verify; the UI then confirms or cancels. */
++  async addList(rawName: string) {
++    await this.initialLoadPromise
++    const parsed = parseListName(rawName)
++    const fail = (listName: string) => {
++      this.formErrors = { ...this.formErrors, listName }
++      this.emitUpdate()
++    }
++    if ('error' in parsed) return fail(parsed.error)
++    if (this.#state.lists[parsed.name]) return fail(`${parsed.name} is already in your lists.`)
++    const { listName: _, ...rest } = this.formErrors
++    this.formErrors = rest
++    this.#candidate = null
++    this.addListCandidate = null
++    this.isFetchingCandidate = true
++    this.emitUpdate()
++    try {
++      const list = await fetchCandidate(this.#state, parsed.name, this.#fetch)
++      if (typeof list === 'string') return fail(list)
++      this.#candidate = { name: parsed.name, list }
++      this.addListCandidate = { name: parsed.name, ...summary(list)! }
++    } finally {
++      this.isFetchingCandidate = false
++      this.emitUpdate()
++    }
++  }
++
++  /** Step two: pin the candidate's maintainer (first-use pinning) and sync. */
++  async confirmAddList() {
++    const candidate = this.#candidate
++    this.#candidate = null
++    this.addListCandidate = null
++    if (!candidate) return this.emitUpdate()
++    const added = await this.#run(async () => {
++      if (this.#state.lists[candidate.name]) return false
++      await this.#commit(
++        this.#setList(candidate.name, {
++          followed: true,
++          pinned: candidate.list.signed,
++          status: 'accepted'
++        })
++      )
++      return true
++    })
++    if (added) await this.syncNow()
++    else this.emitUpdate()
++  }
++
++  cancelAddList() {
++    this.#candidate = null
++    this.addListCandidate = null
++    this.emitUpdate()
++  }
++
++  /** The Snap's Review dialog accepted: the pending maintainer becomes the pin, then sync. */
++  async acceptMaintainerChange(name: string) {
++    const accepted = await this.#run(async () => {
++      const l = this.#state.lists[name]
++      if (!l?.pending) return false
++      const { pending, ...rest } = l
++      await this.#commit(
++        this.#setList(name, {
++          ...rest,
++          pinned: pending,
++          status: 'accepted, new maintainer confirmed'
++        })
++      )
++      return true
++    })
++    if (accepted) await this.syncNow()
++  }
++
++  toJSON() {
++    return {
++      ...this,
++      ...super.toJSON()
++    }
++  }
++}
+diff --git a/src/controllers/transfer/transfer.ts b/src/controllers/transfer/transfer.ts
+index 6ac413fab..aab72ef21 100644
+--- a/src/controllers/transfer/transfer.ts
++++ b/src/controllers/transfer/transfer.ts
+@@ -1,8 +1,9 @@
+ import { ActivityController } from 'controllers/activity/activity'
+-import { formatUnits, isAddress, parseUnits } from 'ethers'
++import { formatUnits, isAddress, parseUnits, ZeroAddress } from 'ethers'
+ 
+ import { FEE_COLLECTOR } from '../../consts/addresses'
+ import { AddressState } from '../../interfaces/domains'
++import { Hex } from '../../interfaces/hex'
+ import { ExternalSignerControllers } from '../../interfaces/keystore'
+ import { TransferUpdate } from '../../interfaces/transfer'
+ import { isSmartAccount } from '../../libs/account/account'
+@@ -14,6 +15,14 @@ import { HumanizerMeta } from '../../libs/humanizer/interfaces'
+ import { randomId } from '../../libs/humanizer/utils'
+ import { TokenResult } from '../../libs/portfolio'
+ import { getTokenAmount } from '../../libs/portfolio/helpers'
++import {
++  isChecking,
++  recipientLine,
++  type TocsinAssessment,
++  tokenLine
++} from '../../libs/tocsin/display'
++import type { Verdict } from '../../libs/tocsin/reader'
++import { LOG_CHAIN_ID } from '../../libs/tocsin/state'
+ import { getSanitizedAmount } from '../../libs/transfer/amount'
+ import { buildTransferUserRequest } from '../../libs/transfer/userRequest'
+ import { validateSendTransferAddress, validateSendTransferAmount } from '../../services/validations'
+@@ -34,6 +43,17 @@ import { ProvidersController } from '../providers/providers'
+ import { SelectedAccountController } from '../selectedAccount/selectedAccount'
+ import { SignAccountOpController } from '../signAccountOp/signAccountOp'
+ import { StorageController } from '../storage/storage'
++import type { TocsinController } from '../tocsin/tocsin'
++
++/** The tocsin check of the send screen's recipient or token. `checking` never blocks. */
++export type TocsinRecipientCheck = {
++  address: string
++  chainId: bigint
++  verdict: Verdict | 'checking'
++  /** One line for the field, from libs/tocsin/display `recipientLine` or `tokenLine`. */
++  message: string
++  assessment?: TocsinAssessment
++}
+ 
+ const CONVERSION_PRECISION = 16
+ const CONVERSION_PRECISION_POW = BigInt(10 ** CONVERSION_PRECISION)
+@@ -141,6 +161,10 @@ export class TransferController extends EventEmitter {
+ 
+   #activity: ActivityController
+ 
++  #tocsin?: TocsinController
++
++  #lastTocsinLine = ''
++
+   constructor(
+     storage: StorageController,
+     humanizerInfo: HumanizerMeta,
+@@ -153,7 +177,8 @@ export class TransferController extends EventEmitter {
+     activity: ActivityController,
+     externalSignerControllers: ExternalSignerControllers,
+     providers: ProvidersController,
+-    relayerUrl: string
++    relayerUrl: string,
++    tocsin?: TocsinController
+   ) {
+     super()
+ 
+@@ -170,6 +195,16 @@ export class TransferController extends EventEmitter {
+     this.#externalSignerControllers = externalSignerControllers
+     this.#providers = providers
+     this.#relayerUrl = relayerUrl
++    this.#tocsin = tocsin
++    // A sync or a finished assess changes the recipient's or token's verdict; re-emit only when it did.
++    this.#tocsin?.onUpdate(() => {
++      const line = [this.tocsinRecipient, this.tocsinToken]
++        .map((c) => (c ? `${c.verdict}:${c.message}` : ''))
++        .join('|')
++      if (line === this.#lastTocsinLine) return
++      this.#lastTocsinLine = line
++      this.emitUpdate()
++    }, 'transfer')
+ 
+     this.#initialLoadPromise = this.#load()
+     this.emitUpdate()
+@@ -306,7 +341,79 @@ export class TransferController extends EventEmitter {
+       validationFormMsgsNew.amount = validateSendTransferAmount(this.amount, this.selectedToken)
+     }
+ 
+-    return validationFormMsgsNew
++    // A tocsin block fails the recipient, or the amount (the token field) for a flagged token.
++    // Checking, unverifiable, warn and no flags do not.
++    const tocsin = this.tocsinRecipient
++    const token = this.tocsinToken
++    return {
++      ...validationFormMsgsNew,
++      ...(tocsin?.verdict === 'block' && {
++        recipientAddress: { success: false, message: tocsin.message }
++      }),
++      ...(token?.verdict === 'block' && { amount: { success: false, message: token.message } })
++    }
++  }
++
++  /** The recipient's tocsin verdict, read synchronously from the TocsinController's cache. */
++  get tocsinRecipient(): TocsinRecipientCheck | null {
++    if (!this.#tocsin || this.isTopUp || !isAddress(this.recipientAddress)) return null
++    const chainId = this.selectedToken?.chainId ?? LOG_CHAIN_ID
++    const checking = isChecking(this.#tocsin)
++    const assessment = checking
++      ? undefined
++      : this.#tocsin.getAssessment(
++          { address: this.recipientAddress as Hex, context: 'recipient' },
++          chainId
++        )
++    return {
++      address: this.recipientAddress,
++      chainId,
++      verdict: assessment ? assessment.verdict : 'checking',
++      message: recipientLine(this.#tocsin, assessment, checking),
++      ...(assessment && { assessment })
++    }
++  }
++
++  /** The selected token contract's tocsin verdict (MALICIOUS_TOKEN). Null for the native token. */
++  get tocsinToken(): TocsinRecipientCheck | null {
++    const token = this.selectedToken
++    if (!this.#tocsin || this.isTopUp || !token || !isAddress(token.address)) return null
++    if (token.address === ZeroAddress) return null
++    const checking = isChecking(this.#tocsin)
++    const assessment = checking
++      ? undefined
++      : this.#tocsin.getAssessment(
++          { address: token.address as Hex, context: 'token' },
++          token.chainId
++        )
++    return {
++      address: token.address,
++      chainId: token.chainId,
++      verdict: assessment ? assessment.verdict : 'checking',
++      message: tokenLine(this.#tocsin, assessment, checking),
++      ...(assessment && { assessment })
++    }
++  }
++
++  #checkTocsinToken() {
++    const token = this.tocsinToken
++    if (!token) return
++    // eslint-disable-next-line @typescript-eslint/no-floating-promises
++    this.#tocsin?.assess(
++      [{ address: token.address as Hex, context: 'token', why: 'token contract' }],
++      token.chainId
++    )
++  }
++
++  /** Starts the async evaluation; the onUpdate subscription re-emits when it lands. */
++  #checkTocsinRecipient() {
++    if (!this.#tocsin || this.isTopUp || !isAddress(this.recipientAddress)) return
++    const chainId = this.selectedToken?.chainId ?? LOG_CHAIN_ID
++    // eslint-disable-next-line @typescript-eslint/no-floating-promises
++    this.#tocsin.assess(
++      [{ address: this.recipientAddress as Hex, context: 'recipient', why: 'recipient' }],
++      chainId
++    )
+   }
+ 
+   get isFormValid() {
+@@ -413,6 +520,9 @@ export class TransferController extends EventEmitter {
+       this.#setSWWarningVisibleIfNeeded()
+     }
+ 
++    if (addressState || selectedToken) this.#checkTocsinRecipient()
++    if (selectedToken) this.#checkTocsinToken()
++
+     await this.syncSignAccountOp()
+     this.emitUpdate()
+   }
+@@ -751,7 +861,9 @@ export class TransferController extends EventEmitter {
+       maxAmount: this.maxAmount,
+       maxAmountInFiat: this.maxAmountInFiat,
+       shouldSkipTransactionQueuedModal: this.shouldSkipTransactionQueuedModal,
+-      hasPersistedState: this.hasPersistedState
++      hasPersistedState: this.hasPersistedState,
++      tocsinRecipient: this.tocsinRecipient,
++      tocsinToken: this.tocsinToken
+     }
+   }
+ }
+diff --git a/src/controllers/transfer/transferTocsin.test.ts b/src/controllers/transfer/transferTocsin.test.ts
+new file mode 100644
+index 000000000..6b7ae7f98
+--- /dev/null
++++ b/src/controllers/transfer/transferTocsin.test.ts
+@@ -0,0 +1,151 @@
++// The send-screen hard block: a tocsin block verdict fails recipient (or, for the token contract,
++// amount) validation; nothing else does.
++import { expect } from '@jest/globals'
++
++import { produceMemoryStore } from '../../../test/helpers'
++import {
++  BAD_TOKEN,
++  CLEAN,
++  DRAINER,
++  fakeFetch,
++  signedList,
++  world
++} from '../../../test/helpers/tocsin'
++import { StorageController } from '../storage/storage'
++import { TocsinController } from '../tocsin/tocsin'
++import { TransferController } from './transfer'
++
++const OWN = '0x00000000000000000000000000000000000000aa'
++
++const until = async (cond: () => boolean) => {
++  for (let i = 0; i < 200 && !cond(); i++) {
++    // eslint-disable-next-line no-await-in-loop
++    await new Promise((r) => setTimeout(r, 5))
++  }
++  if (!cond()) throw new Error('condition not met')
++}
++
++function transferWith(tocsin: TocsinController) {
++  const stub = {} as any
++  return new TransferController(
++    new StorageController(produceMemoryStore()),
++    { knownAddresses: {} } as any,
++    {
++      account: { addr: OWN, associatedKeys: [OWN], creation: null },
++      initialLoadPromise: Promise.resolve()
++    } as any,
++    { networks: [{ chainId: 11155111n }] } as any,
++    // Both recipients are known contacts, so only tocsin can fail them.
++    { contacts: [{ address: DRAINER }, { address: CLEAN }] } as any,
++    stub,
++    stub,
++    stub,
++    stub,
++    {},
++    stub,
++    '',
++    tocsin
++  )
++}
++
++const to = (fieldValue: string) => ({
++  addressState: { fieldValue, ensAddress: '', isDomainResolving: false }
++})
++
++describe('TransferController with tocsin', () => {
++  test('a block verdict fails recipientAddress with the block message; a clean address passes', async () => {
++    world.lists = { 'tocsin.eth': await signedList(`0x${'a1'.repeat(32)}`, 1n) }
++    const tocsin = new TocsinController({
++      storage: new StorageController(produceMemoryStore()),
++      fetch: fakeFetch
++    })
++    await tocsin.updateSettings({ rpcUrl: 'https://rpc.test' })
++    await tocsin.addList('tocsin.eth')
++    await tocsin.confirmAddList()
++    const transfer = transferWith(tocsin)
++
++    await transfer.update(to(DRAINER))
++    await until(() => transfer.tocsinRecipient?.verdict === 'block')
++    expect(transfer.validationFormMsgs.recipientAddress.success).toBe(false)
++    expect(transfer.validationFormMsgs.recipientAddress.message).toMatch(
++      /^Tocsin blocked this recipient: Drainer receiver\./
++    )
++    expect(transfer.isFormValid).toBe(false)
++    expect(transfer.toJSON().tocsinRecipient?.verdict).toBe('block')
++
++    await transfer.update(to(CLEAN))
++    await until(() => transfer.tocsinRecipient?.verdict === 'clean')
++    // The module-level default messages were not mutated by the block.
++    expect(transfer.validationFormMsgs.recipientAddress).toEqual({ success: true, message: '' })
++  })
++
++  test('a flagged token contract fails amount with the block message; a clean token and the native token do not', async () => {
++    world.lists = { 'tocsin.eth': await signedList(`0x${'a1'.repeat(32)}`, 1n) }
++    const tocsin = new TocsinController({
++      storage: new StorageController(produceMemoryStore()),
++      fetch: fakeFetch
++    })
++    await tocsin.updateSettings({ rpcUrl: 'https://rpc.test' })
++    await tocsin.addList('tocsin.eth')
++    await tocsin.confirmAddList()
++    const transfer = transferWith(tocsin)
++    const token = (address: string) =>
++      ({ address, chainId: 11155111n, amount: 10n ** 18n, decimals: 18, priceIn: [] } as any)
++
++    await transfer.update({ ...to(CLEAN), selectedToken: token(BAD_TOKEN) })
++    await until(() => transfer.tocsinToken?.verdict === 'block')
++    expect(transfer.validationFormMsgs.amount.success).toBe(false)
++    expect(transfer.validationFormMsgs.amount.message).toMatch(
++      /^Tocsin blocked this token: Malicious token\./
++    )
++    expect(transfer.validationFormMsgs.recipientAddress.success).toBe(true)
++    expect(transfer.isFormValid).toBe(false)
++    expect(transfer.toJSON().tocsinToken?.verdict).toBe('block')
++
++    // BAD_TOKEN is flagged as a token only: in the recipient context it has no flags.
++    await transfer.update({ ...to(BAD_TOKEN), selectedToken: token(CLEAN) })
++    await until(
++      () =>
++        transfer.tocsinToken?.verdict === 'clean' && transfer.tocsinRecipient?.verdict === 'clean'
++    )
++    expect(transfer.validationFormMsgs.amount.message).not.toMatch(/Tocsin/)
++
++    await transfer.update({ selectedToken: token('0x0000000000000000000000000000000000000000') })
++    expect(transfer.tocsinToken).toBeNull()
++  })
++
++  test('while the first sync runs the recipient is "checking" and is not blocked', async () => {
++    world.lists = { 'tocsin.eth': await signedList(`0x${'a1'.repeat(32)}`, 1n) }
++    let release = () => {}
++    const gate = new Promise<void>((r) => {
++      release = r
++    })
++    const storage = new StorageController(produceMemoryStore())
++    // A pinned list from an earlier run, but no sync yet: the case right after install.
++    const seeded = new TocsinController({ storage, fetch: fakeFetch })
++    await seeded.updateSettings({ rpcUrl: 'https://rpc.test' })
++    await seeded.addList('tocsin.eth')
++    await seeded.confirmAddList()
++    const raw = await storage.get('tocsin', null)
++    await storage.set('tocsin', { ...raw, sync: undefined, syncedAt: undefined, checkpoints: {} })
++
++    const tocsin = new TocsinController({
++      storage,
++      fetch: async (i, init) => {
++        await gate
++        return fakeFetch(i, init)
++      }
++    })
++    const transfer = transferWith(tocsin)
++    await tocsin.initialLoadPromise
++    const syncing = tocsin.syncNow()
++    await transfer.update(to(DRAINER))
++    expect(tocsin.isSyncing).toBe(true)
++    expect(transfer.tocsinRecipient?.verdict).toBe('checking')
++    expect(transfer.validationFormMsgs.recipientAddress.success).toBe(true)
++    release()
++    await syncing
++    await until(() => transfer.tocsinRecipient?.verdict === 'block')
++    expect(transfer.validationFormMsgs.recipientAddress.success).toBe(false)
++  })
++})
+diff --git a/src/interfaces/storage.ts b/src/interfaces/storage.ts
+index 5a40df07c..1456564a9 100644
+--- a/src/interfaces/storage.ts
++++ b/src/interfaces/storage.ts
+@@ -4,6 +4,7 @@ import { StoredPhishingDetection } from '../controllers/phishing/phishing'
+ import { SubmittedAccountOp } from '../libs/accountOp/submittedAccountOp'
+ import { NetworksWithPositionsByAccounts } from '../libs/defiPositions/types'
+ import { CustomToken, TokenPreference } from '../libs/portfolio/customToken'
++import type { State as TocsinState } from '../libs/tocsin/state'
+ import {
+   AccountAssetsState as PortfolioAccountAssetsState,
+   PreviousHintsStorage
+@@ -44,6 +45,8 @@ export type StorageProps = {
+   selectedAccount: string | null
+   swapAndBridgeActiveRoutes: SwapAndBridgeActiveRoute[]
+   termsState?: object
++  /** Lists, checkpoints and the last sync. Never an evaluated address. */
++  tocsin?: TocsinState
+ }
+ 
+ export interface Storage {
+diff --git a/src/libs/tocsin/check.ts b/src/libs/tocsin/check.ts
+new file mode 100644
+index 000000000..4a065fda9
+--- /dev/null
++++ b/src/libs/tocsin/check.ts
+@@ -0,0 +1,47 @@
++// The combined verdict for the addresses one signing request touches, read from the
++// TocsinController's cache. The signing controllers use it to decide and to block.
++import type { Target } from './decode'
++import { assessmentKey, isChecking, type TocsinAssessment, type TocsinView, worst } from './display'
++import type { Verdict } from './reader'
++import type { TocsinPolicy } from './state'
++
++export type TocsinCheck = {
++  chainId: bigint
++  /** The worst verdict over every target; `checking` until each target has an assessment. */
++  verdict: Verdict | 'checking'
++  /** One per target that has finished, in target order. */
++  assessments: TocsinAssessment[]
++}
++
++/** The TocsinController itself, or its serialised state on the UI side. */
++type Cache = TocsinView & { assessments: Record<string, TocsinAssessment> }
++
++export const BLOCKED_SEND_LINE =
++  'Sending is blocked. Tocsin flagged an address in this transaction.'
++export const BLOCKED_SIGN_LINE = 'Signing is blocked. Tocsin flagged an address in this signature.'
++
++/** One target per address and context, so an address used twice in a batch is listed once. */
++export const uniqueTargets = (targets: readonly Target[]): Target[] =>
++  targets.filter(
++    (t, i) => targets.findIndex((u) => assessmentKey(u, 0n) === assessmentKey(t, 0n)) === i
++  )
++
++/** The targets the policy checks: spenders and 7702 delegates only while `checkApprovals` is on. */
++export const checkedTargets = (policy: TocsinPolicy, targets: readonly Target[]): Target[] =>
++  targets.filter(
++    (t) => policy.checkApprovals || (t.context !== 'spender' && t.context !== 'delegate')
++  )
++
++export function tocsinCheck(
++  cache: Cache,
++  allTargets: readonly Target[],
++  chainId: bigint
++): TocsinCheck {
++  if (isChecking(cache)) return { chainId, verdict: 'checking', assessments: [] }
++  const targets = checkedTargets(cache.policy, allTargets)
++  const assessments = targets
++    .map((t) => cache.assessments[assessmentKey(t, chainId)])
++    .filter((a): a is TocsinAssessment => a !== undefined)
++  const verdict = assessments.length < targets.length ? 'checking' : worst(assessments)
++  return { chainId, verdict, assessments }
++}
+diff --git a/src/libs/tocsin/decode.test.ts b/src/libs/tocsin/decode.test.ts
+new file mode 100644
+index 000000000..b74aaf82e
+--- /dev/null
++++ b/src/libs/tocsin/decode.test.ts
+@@ -0,0 +1,202 @@
++// Which address tocsin evaluates, and in which context. Ported from the antibody Snap's
++// test/decode.test.ts; jest's global `test` replaces node:test, the assertions are unchanged.
++import assert from 'node:assert/strict'
++import { encodeFunctionData, getAddress, maxUint256, parseAbi, zeroAddress } from 'viem'
++import { signatureTargets, transactionTargets } from './decode'
++import { parseListName, parseRpcUrl } from './settings'
++
++const TOKEN = getAddress('0x1111111111111111111111111111111111111111')
++const BAD = getAddress('0xbad0000000000000000000000000000000000bad')
++const PERMIT2 = getAddress('0x000000000022D473030F116dDEE9F6B43aC78BA3')
++
++const abi = parseAbi([
++  'function transfer(address to, uint256 amount)',
++  'function approve(address spender, uint256 amount)',
++  'function setApprovalForAll(address operator, bool approved)',
++  'function permit(address owner, address spender, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s)',
++  'function approve(address token, address spender, uint160 amount, uint48 expiration)',
++  'struct PermitDetails { address token; uint160 amount; uint48 expiration; uint48 nonce; }',
++  'struct PermitSingle { PermitDetails details; address spender; uint256 sigDeadline; }',
++  'struct PermitBatch { PermitDetails[] details; address spender; uint256 sigDeadline; }',
++  'function permit(address owner, PermitSingle permitSingle, bytes signature)',
++  'function permit(address owner, PermitBatch permitBatch, bytes signature)',
++  'function balanceOf(address who) view returns (uint256)',
++  'struct ExactInputSingleParams { address tokenIn; address tokenOut; uint24 fee; address recipient; uint256 amountIn; uint256 amountOutMinimum; uint160 sqrtPriceLimitX96; }',
++  'function exactInputSingle(ExactInputSingleParams params) payable returns (uint256 amountOut)'
++])
++const ROUTER = getAddress('0x2222222222222222222222222222222222222222')
++const details = { token: TOKEN, amount: 1n, expiration: 1, nonce: 0 }
++const pick = (ts: ReturnType<typeof transactionTargets>) => ts.map((t) => [t.address, t.context])
++
++test('a plain send evaluates `to` as recipient', () => {
++  assert.deepEqual(pick(transactionTargets({ to: BAD.toLowerCase(), data: '0x' })), [
++    [BAD, 'recipient']
++  ])
++})
++
++test('contract creation has no target', () => {
++  assert.deepEqual(transactionTargets({ to: null, data: '0x6080' }), [])
++})
++
++test('ERC-20 transfer adds the decoded recipient', () => {
++  const data = encodeFunctionData({ abi, functionName: 'transfer', args: [BAD, 5n] })
++  assert.deepEqual(pick(transactionTargets({ to: TOKEN, data })), [
++    [TOKEN, 'recipient'],
++    [BAD, 'recipient'],
++    [TOKEN, 'token']
++  ])
++})
++
++test('ERC-20 approve adds the spender', () => {
++  const data = encodeFunctionData({ abi, functionName: 'approve', args: [BAD, maxUint256] })
++  const ts = transactionTargets({ to: TOKEN, data })
++  assert.deepEqual(pick(ts), [
++    [TOKEN, 'recipient'],
++    [BAD, 'spender'],
++    [TOKEN, 'token']
++  ])
++  assert.equal(ts[1]?.why, 'ERC-20 approve spender')
++})
++
++test('setApprovalForAll adds the operator as spender', () => {
++  const data = encodeFunctionData({ abi, functionName: 'setApprovalForAll', args: [BAD, true] })
++  assert.deepEqual(pick(transactionTargets({ to: TOKEN, data }))[1], [BAD, 'spender'])
++})
++
++test('EIP-2612 permit sent as a transaction adds the spender, not the owner', () => {
++  const data = encodeFunctionData({
++    abi,
++    functionName: 'permit',
++    args: [TOKEN, BAD, 1n, 1n, 27, `0x${'11'.repeat(32)}`, `0x${'22'.repeat(32)}`]
++  })
++  const ts = transactionTargets({ to: TOKEN, data })
++  assert.deepEqual(pick(ts)[1], [BAD, 'spender'])
++  assert.equal(ts[1]?.why, 'EIP-2612 permit spender')
++})
++
++test('Permit2 approve adds the spender, not the token', () => {
++  const data = encodeFunctionData({ abi, functionName: 'approve', args: [TOKEN, BAD, 1n, 1] })
++  const ts = transactionTargets({ to: PERMIT2, data })
++  assert.deepEqual(pick(ts), [
++    [PERMIT2, 'recipient'],
++    [BAD, 'spender']
++  ])
++  assert.equal(ts[1]?.why, 'Permit2 approve spender')
++})
++
++test('Permit2 permit, single and batch, adds the spender', () => {
++  const single = encodeFunctionData({
++    abi,
++    functionName: 'permit',
++    args: [TOKEN, { details, spender: BAD, sigDeadline: 1n }, '0x']
++  })
++  const batch = encodeFunctionData({
++    abi,
++    functionName: 'permit',
++    args: [TOKEN, { details: [details, details], spender: BAD, sigDeadline: 1n }, '0x']
++  })
++  for (const data of [single, batch]) {
++    const ts = transactionTargets({ to: PERMIT2, data })
++    assert.deepEqual(pick(ts)[1], [BAD, 'spender'])
++    assert.equal(ts[1]?.why, 'Permit2 permit spender')
++  }
++})
++
++test('SwapRouter02 exactInputSingle adds the swap recipient alongside the router', () => {
++  const data = encodeFunctionData({
++    abi,
++    functionName: 'exactInputSingle',
++    args: [
++      {
++        tokenIn: TOKEN,
++        tokenOut: zeroAddress,
++        fee: 3000,
++        recipient: BAD,
++        amountIn: 1n,
++        amountOutMinimum: 0n,
++        sqrtPriceLimitX96: 0n
++      }
++    ]
++  })
++  const ts = transactionTargets({ to: ROUTER, data })
++  assert.deepEqual(pick(ts), [
++    [ROUTER, 'recipient'],
++    [BAD, 'recipient']
++  ])
++  assert.equal(ts[1]?.why, 'swap recipient')
++})
++
++test('unknown or malformed calldata adds nothing beyond `to`', () => {
++  const known = encodeFunctionData({ abi, functionName: 'balanceOf', args: [BAD] })
++  assert.deepEqual(pick(transactionTargets({ to: TOKEN, data: known })), [[TOKEN, 'recipient']])
++  assert.deepEqual(pick(transactionTargets({ to: TOKEN, data: '0xa9059cbb1234' })), [
++    [TOKEN, 'recipient']
++  ])
++})
++
++const permit = {
++  types: {
++    EIP712Domain: [{ name: 'chainId', type: 'uint256' }],
++    Permit: [
++      { name: 'owner', type: 'address' },
++      { name: 'spender', type: 'address' }
++    ]
++  },
++  primaryType: 'Permit',
++  domain: { name: 'Token', chainId: 11155111, verifyingContract: TOKEN },
++  message: { owner: TOKEN, spender: BAD.toLowerCase(), value: '1', nonce: '0', deadline: '1' }
++}
++
++test('EIP-2612 typed data yields the spender and the domain chain, as an object or a JSON string', () => {
++  for (const data of [permit, JSON.stringify(permit)]) {
++    const { targets, chainId } = signatureTargets(data)
++    assert.deepEqual(pick(targets), [[BAD, 'spender']])
++    assert.equal(chainId, 11155111n)
++  }
++})
++
++test('Permit2 typed data yields the spender', () => {
++  for (const primaryType of [
++    'PermitSingle',
++    'PermitBatch',
++    'PermitTransferFrom',
++    'PermitWitnessTransferFrom'
++  ]) {
++    const data = {
++      primaryType,
++      domain: { name: 'Permit2', chainId: '0xaa36a7' },
++      message: { details, spender: BAD }
++    }
++    const { targets, chainId } = signatureTargets(data)
++    assert.deepEqual(pick(targets), [[BAD, 'spender']], primaryType)
++    assert.equal(targets[0]?.why, 'Permit2 permit spender')
++    assert.equal(chainId, 11155111n)
++  }
++})
++
++test('other typed data and garbage yield no target', () => {
++  assert.deepEqual(signatureTargets({ ...permit, primaryType: 'Mail' }).targets, [])
++  assert.deepEqual(
++    signatureTargets({ ...permit, message: { spender: 'not an address' } }).targets,
++    []
++  )
++  assert.deepEqual(
++    signatureTargets({ ...permit, message: { spender: zeroAddress } }).targets.length,
++    1
++  )
++  assert.deepEqual(signatureTargets('{not json').targets, [])
++  assert.deepEqual(signatureTargets(null).targets, [])
++})
++
++test('RPC URL: https anywhere, http only for localhost', () => {
++  assert.deepEqual(parseRpcUrl(' https://rpc.example '), { url: 'https://rpc.example/' })
++  assert.deepEqual(parseRpcUrl('http://127.0.0.1:8550'), { url: 'http://127.0.0.1:8550/' })
++  for (const bad of ['http://rpc.example', 'ftp://x', '', 7])
++    assert.ok('error' in parseRpcUrl(bad), String(bad))
++})
++
++test('list name: normalised ENS name with a dot', () => {
++  assert.deepEqual(parseListName(' Seal.Tocsin.eth '), { name: 'seal.tocsin.eth' })
++  for (const bad of ['nodot', '', undefined, 'a b.eth'])
++    assert.ok('error' in parseListName(bad), String(bad))
++})
+diff --git a/src/libs/tocsin/decode.ts b/src/libs/tocsin/decode.ts
+new file mode 100644
+index 000000000..d598263e8
+--- /dev/null
++++ b/src/libs/tocsin/decode.ts
+@@ -0,0 +1,148 @@
++// Which addresses in a transaction or a typed-data signature the reader evaluates, and as what.
++// Copied from the antibody Snap (dapp/packages/snap/src/decode.ts). Pure: imports only viem.
++import {
++  type Address,
++  type Hex,
++  decodeFunctionData,
++  getAddress,
++  isAddress,
++  isHex,
++  parseAbi
++} from 'viem'
++
++/** Mirrors the reader's `Context` for the ones the Snap's hooks can see. */
++/** `delegate` is Kohaku's addition: an EIP-7702 authorization's contract, where MALICIOUS_DELEGATE applies. */
++export type Target = {
++  address: Address
++  context: 'recipient' | 'spender' | 'delegate' | 'token'
++  why: string
++}
++
++const callsAbi = parseAbi([
++  'function transfer(address to, uint256 amount)',
++  'function approve(address spender, uint256 amount)',
++  'function setApprovalForAll(address operator, bool approved)',
++  // EIP-2612 permit sent as a transaction (anyone may relay it).
++  'function permit(address owner, address spender, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s)',
++  // Permit2 AllowanceTransfer.
++  'function approve(address token, address spender, uint160 amount, uint48 expiration)',
++  'struct PermitDetails { address token; uint160 amount; uint48 expiration; uint48 nonce; }',
++  'struct PermitSingle { PermitDetails details; address spender; uint256 sigDeadline; }',
++  'struct PermitBatch { PermitDetails[] details; address spender; uint256 sigDeadline; }',
++  'function permit(address owner, PermitSingle permitSingle, bytes signature)',
++  'function permit(address owner, PermitBatch permitBatch, bytes signature)',
++  // Uniswap SwapRouter02.
++  'struct ExactInputSingleParams { address tokenIn; address tokenOut; uint24 fee; address recipient; uint256 amountIn; uint256 amountOutMinimum; uint160 sqrtPriceLimitX96; }',
++  'function exactInputSingle(ExactInputSingleParams params) payable returns (uint256 amountOut)'
++])
++
++const unique = (targets: Target[]): Target[] =>
++  targets.filter(
++    (t, i) => targets.findIndex((u) => u.address === t.address && u.context === t.context) === i
++  )
++
++/** `to` as recipient, plus the spender, recipient, or operator decoded from known calldata. Unknown calldata adds nothing. */
++export function transactionTargets(tx: { to?: string | null; data?: string | null }): Target[] {
++  const out: Target[] = []
++  if (tx.to && isAddress(tx.to, { strict: false }))
++    out.push({ address: getAddress(tx.to), context: 'recipient', why: 'recipient' })
++  if (!tx.data || !isHex(tx.data) || tx.data.length < 10) return out
++  let call
++  try {
++    call = decodeFunctionData({ abi: callsAbi, data: tx.data as Hex })
++  } catch {
++    return out // not one of the calls above
++  }
++  const { functionName, args } = call
++  if (functionName === 'transfer')
++    out.push({
++      address: getAddress(args[0]),
++      context: 'recipient',
++      why: 'ERC-20 transfer recipient'
++    })
++  else if (functionName === 'exactInputSingle')
++    out.push({
++      address: getAddress(args[0].recipient),
++      context: 'recipient',
++      why: 'swap recipient'
++    })
++  else if (functionName === 'setApprovalForAll')
++    out.push({
++      address: getAddress(args[0]),
++      context: 'spender',
++      why: 'setApprovalForAll operator'
++    })
++  else if (functionName === 'approve')
++    out.push(
++      args.length === 2
++        ? { address: getAddress(args[0]), context: 'spender', why: 'ERC-20 approve spender' }
++        : { address: getAddress(args[1]), context: 'spender', why: 'Permit2 approve spender' }
++    )
++  else if (functionName === 'permit')
++    out.push(
++      args.length === 7
++        ? { address: getAddress(args[1]), context: 'spender', why: 'EIP-2612 permit spender' }
++        : {
++            address: getAddress(args[1].spender),
++            context: 'spender',
++            why: 'Permit2 permit spender'
++          }
++    )
++  // A send or approve of an ERC-20 (not Permit2, whose `to` is Permit2): the contract may be a flagged token.
++  const erc20 =
++    functionName === 'transfer' ||
++    (functionName === 'approve' && args.length === 2) ||
++    (functionName === 'permit' && args.length === 7)
++  if (erc20 && tx.to && isAddress(tx.to, { strict: false }))
++    out.push({ address: getAddress(tx.to), context: 'token', why: 'token contract' })
++  return unique(out)
++}
++
++/** Permit2 primary types whose message carries `spender` at the top level. */
++const PERMIT2_TYPES = new Set([
++  'PermitSingle',
++  'PermitBatch',
++  'PermitTransferFrom',
++  'PermitBatchTransferFrom',
++  'PermitWitnessTransferFrom',
++  'PermitBatchWitnessTransferFrom'
++])
++
++/**
++ * The spender of an EIP-2612 `Permit` or a Permit2 permit in `eth_signTypedData_v3/v4` data, and the
++ * chain id from its domain. Anything else, including malformed data, yields no target.
++ */
++export function signatureTargets(data: unknown): { targets: Target[]; chainId?: bigint } {
++  let typed: unknown = data
++  if (typeof data === 'string') {
++    try {
++      typed = JSON.parse(data)
++    } catch {
++      return { targets: [] }
++    }
++  }
++  if (typeof typed !== 'object' || typed === null) return { targets: [] }
++  // SAFETY: only read through optional access; each field is checked before use.
++  const t = typed as {
++    primaryType?: unknown
++    domain?: { chainId?: unknown }
++    message?: { spender?: unknown }
++  }
++  const raw = t.domain?.chainId
++  const chainId =
++    typeof raw === 'number' || (typeof raw === 'string' && /^(0x[0-9a-fA-F]+|\d+)$/.test(raw))
++      ? BigInt(raw)
++      : undefined
++  const spender = t.message?.spender
++  const kind =
++    t.primaryType === 'Permit'
++      ? 'EIP-2612 permit spender'
++      : PERMIT2_TYPES.has(String(t.primaryType))
++      ? 'Permit2 permit spender'
++      : undefined
++  const targets: Target[] =
++    kind && typeof spender === 'string' && isAddress(spender, { strict: false })
++      ? [{ address: getAddress(spender), context: 'spender', why: kind }]
++      : []
++  return chainId === undefined ? { targets } : { targets, chainId }
++}
+diff --git a/src/libs/tocsin/display.ts b/src/libs/tocsin/display.ts
+new file mode 100644
+index 000000000..4e65510fc
+--- /dev/null
++++ b/src/libs/tocsin/display.ts
+@@ -0,0 +1,391 @@
++// The words every Tocsin screen uses, without any UI framework. Ported from the antibody Snap's
++// ui.tsx (dapp/packages/snap/src/ui.tsx) so Kohaku screens say exactly what the Snap says.
++// Inputs are the TocsinController's public state (`TocsinView`) and its cached assessments.
++import type { Address, Hex } from 'viem'
++
++import type { Target } from './decode'
++import type { Verdict } from './reader'
++import {
++  type LastGood,
++  LOG_CHAIN_ID,
++  type Settings,
++  type SyncStatus,
++  type TocsinPolicy
++} from './state'
++
++/** A verified list, reduced to what a screen shows. */
++export type ListSummary = { maintainer: Address; version: bigint; writers: Address[] }
++
++export type ListView = {
++  name: string
++  followed: boolean
++  /** acceptList's status at the last sync, e.g. "accepted", "stale", "rejected (bad-signature)". */
++  status?: string
++  pinned?: ListSummary
++  /** Set when the maintainer changed: the list is excluded until `acceptMaintainerChange`. */
++  pending?: ListSummary
++}
++
++/** The reader's WriterSync without its leaves, error as text. */
++export type WriterView = {
++  status: 'synced' | 'unavailable'
++  writer: Address
++  seq: bigint
++  head: Hex
++  /** First writer sequence whose replayed data did not match the proven head (lying RPC). */
++  divergedAt?: bigint
++  error?: string
++}
++
++export type SyncView = {
++  /** `unverified` is always true here: the header comes from an RPC, not a light client. */
++  block: { number: bigint; hash: Hex; unverified?: true }
++  flags: number
++  writers: Record<Address, WriterView>
++}
++
++export type TocsinFinding = {
++  writer: Address
++  /** ERC category number; `category(n)` gives its name, title and description. */
++  category: number
++  /** A transaction hash or the hash of an off-chain evidence bundle. */
++  evidence: Hex
++  seenBlock: bigint
++  weight: number
++  /** The followed list that carries this writer. */
++  list: string
++}
++
++export type TocsinAssessment = {
++  target: Target
++  chainId: bigint
++  /** `unavailable` also when there is no sync or no usable list yet; `causeOf` says which. */
++  verdict: Verdict
++  findings: TocsinFinding[]
++  /** Pinned writers whose leaves are unavailable. */
++  unavailable: Address[]
++}
++
++/** The TocsinController fields these helpers read. */
++export type TocsinView = {
++  settings: Settings
++  policy: TocsinPolicy
++  lists: ListView[]
++  sync: SyncView | null
++  syncedAt: number | null
++  lastGood: LastGood | null
++  names: Record<Address, string>
++  status: SyncStatus | null
++  isSyncing: boolean
++  /** False until the stored state has loaded. */
++  isReady: boolean
++}
++
++export const PRIVACY_LINE = 'Checked on this device. Nothing was sent to anyone.'
++/** Baked in at build time (.env via babel): tor, nym or direct. Localhost RPCs always go direct. */
++export const TRANSPORT = process.env.TOCSIN_TRANSPORT || 'tor'
++const isLocalhost = (url: string) => {
++  try {
++    return /^(localhost|127\.0\.0\.1|\[::1\])$/.test(new URL(url).hostname)
++  } catch {
++    return false
++  }
++}
++/** How reads to this RPC leave the browser (tocsinAnonRpc.ts sends localhost direct). */
++export const transportLine = (rpcUrl: string) =>
++  TRANSPORT === 'direct' || isLocalhost(rpcUrl)
++    ? 'direct to the RPC, not anonymised'
++    : `RPC traffic through the ${TRANSPORT} Anon-RPC worker`
++export const NETWORK_NOTE =
++  TRANSPORT === 'direct'
++    ? 'Tocsin reads one RPC here, best effort, not a light client. The RPC you pick can see which flags you download, never which address you check.'
++    : `Tocsin reads one RPC here through the ${TRANSPORT} Anon-RPC worker, best effort, not a light client. The RPC sees which flags are downloaded, never who asked or which address you check.`
++/** Categories the Policy section offers as warn-only (snap-ui spec 5.3). */
++export const WARN_ONLY_CHOICES = [2, 8]
++export const POLICY_FOOTNOTE =
++  'A weight-255 writer on a list you follow blocks on its own, except in a warn-only category.'
++export const ABOUT_LINE =
++  'Tocsin is an open, append-only log of scam infrastructure on Ethereum. Flags come from writers on lists you choose. Nothing is ever removed.'
++export const STANDARD_URL = 'https://tocsin.eth.limo/erc.html'
++export const SOURCE_URL = 'https://github.com/easonchai/antibody'
++
++/** The ERC's category table: name, plain title, and what the subject is. */
++export const CATEGORY: Record<number, { name: string; title: string; desc: string }> = {
++  1: {
++    name: 'POISONING_OPERATOR',
++    title: 'Poisoning operator',
++    desc: "This account sends transfers that plant lookalike addresses in victims' histories."
++  },
++  2: {
++    name: 'POISONING_FUNDER',
++    title: 'Poisoning funder',
++    desc: 'This account funded addresses later used in address poisoning.'
++  },
++  3: {
++    name: 'DRAINER_RECEIVER',
++    title: 'Drainer receiver',
++    desc: 'This address receives funds forwarded by wallet drainers.'
++  },
++  4: {
++    name: 'MALICIOUS_DELEGATE',
++    title: 'Malicious delegate',
++    desc: "This EIP-7702 delegate sweeps the delegating account's assets to a hard-coded address."
++  },
++  5: {
++    name: 'MALICIOUS_TOKEN',
++    title: 'Malicious token',
++    desc: 'This token contract emits misleading transfer events.'
++  },
++  6: {
++    name: 'PAID_LOOKALIKE',
++    title: 'Paid lookalike',
++    desc: 'A victim has already paid this lookalike address.'
++  },
++  7: {
++    name: 'DRAINER_SPENDER',
++    title: 'Drainer spender',
++    desc: 'This contract has used permits and approvals to drain wallets.'
++  },
++  8: {
++    name: 'THEFT_PROCEEDS',
++    title: 'Theft proceeds',
++    desc: 'This account holds the proceeds of a theft a writer verified.'
++  }
++}
++export const category = (c: number) =>
++  CATEGORY[c] ?? {
++    name: `CATEGORY_${c}`,
++    title: `Writer-defined category ${c}`,
++    desc: 'A category the writer defines.'
++  }
++
++export const short = (a: string) => `${a.slice(0, 6)}…${a.slice(-4)}`
++export const num = (n: number | bigint) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ',')
++export const plural = (n: number, word: string) => `${num(n)} ${word}${n === 1 ? '' : 's'}`
++export function ago(at: number, now = Date.now()): string {
++  const m = Math.round((now - at) / 60_000)
++  if (m < 1) return 'just now'
++  if (m < 60) return `${m} min ago`
++  const h = Math.round(m / 60)
++  return h < 48 ? `${h} h ago` : `${Math.round(h / 24)} days ago`
++}
++export const host = (url: string) => {
++  try {
++    return new URL(url).host
++  } catch {
++    return url
++  }
++}
++const unique = <T>(xs: readonly T[]) => [...new Set(xs)]
++
++/** Writers are shown by forward-checked ENS name, else a shortened address. */
++export const writerLabel = (view: TocsinView, w: Address) => view.names[w] ?? short(w)
++
++/** The key `TocsinController.assessments` uses. */
++export const assessmentKey = (target: Pick<Target, 'address' | 'context'>, chainId: bigint) =>
++  `${target.context}:${target.address.toLowerCase()}:${chainId}`
++
++export const RANK: Record<Verdict, number> = { clean: 0, unavailable: 1, warn: 2, block: 3 }
++export const worst = (as: readonly { verdict: Verdict }[]): Verdict =>
++  as.reduce<Verdict>((v, a) => (RANK[a.verdict] > RANK[v] ? a.verdict : v), 'clean')
++
++/** Followed lists the check applies: pinned and with no pending maintainer change. */
++export const usable = (l: ListView) =>
++  l.followed && l.pinned !== undefined && l.pending === undefined
++
++/** No sync result yet and one is running, or the controller has not loaded: say "checking", never block. */
++export const isChecking = (view: TocsinView) => !view.isReady || (!view.sync && view.isSyncing)
++
++export function whyUnavailable(s: WriterView | undefined): string {
++  if (!s) return 'not synced yet'
++  if (s.status === 'synced') return `synced to sequence ${s.seq}`
++  if (s.divergedAt !== undefined) return `chain mismatch at sequence ${s.divergedAt}`
++  return `source failed${s.error ? `: ${s.error}` : ''}`
++}
++
++export const proven = (view: TocsinView): string => {
++  const s = view.sync
++  if (!s) return 'nothing proven yet'
++  const ws = Object.values(s.writers)
++  return ws.length === 1
++    ? `head ${short(ws[0]!.head)} · block ${num(s.block.number)}`
++    : `${plural(ws.length, 'writer head')} · block ${num(s.block.number)}`
++}
++
++export const sourceLine = (view: TocsinView) =>
++  `header and proof from ${host(view.settings.rpcUrl)} · ${transportLine(
++    view.settings.rpcUrl
++  )} · best effort, not a light client`
++
++/** "41,207 flags · 2 writers · 4 min ago", or "never". */
++export const syncedLine = (view: TocsinView) =>
++  view.sync && view.syncedAt
++    ? `${num(view.sync.flags)} flags · ${plural(
++        Object.keys(view.sync.writers).length,
++        'writer'
++      )} · ${ago(view.syncedAt)}`
++    : 'never'
++
++/** Shown under a result when the newest sync failed and the result uses the one before it. */
++export const staleLine = (view: TocsinView) =>
++  view.sync && view.status?.error
++    ? `The last sync failed (${view.status.error}); this result uses the sync before it.`
++    : undefined
++
++/** Followed lists left out of this check, and a chain that is not the log's. Warning-coloured lines. */
++export function notes(view: TocsinView, chainId: bigint): string[] {
++  const left = view.lists
++    .filter((l) => l.followed && !usable(l))
++    .map(
++      (l) =>
++        `${l.name} (${
++          l.pending ? 'its maintainer changed; review it in Tocsin' : 'no verified list yet'
++        })`
++    )
++  return [
++    ...(left.length > 0 ? [`Not checked: ${left.join(', ')}.`] : []),
++    ...(chainId !== LOG_CHAIN_ID
++      ? [
++          `This request is on chain ${chainId}, not Sepolia. Only flags written for chain ${chainId} or for every chain count here.`
++        ]
++      : [])
++  ]
++}
++
++export type Cause = { title: string; body: string }
++
++/** Why a result is unverifiable: the info banner's title and body (snap-ui spec 3.5). */
++export function causeOf(
++  view: TocsinView,
++  assessments: readonly TocsinAssessment[] | undefined
++): Cause {
++  const last = view.lastGood
++    ? `Last good sync ${ago(view.lastGood.at)} at block ${num(view.lastGood.block)}.`
++    : 'No good sync yet.'
++  const rpc = host(view.settings.rpcUrl)
++  if (!view.sync) {
++    if (view.isSyncing) {
++      const n = view.lists.filter((l) => l.followed).length
++      return {
++        title: 'First sync in progress',
++        body: `Downloading flags for ${plural(n, 'list')}. Usually under a minute.`
++      }
++    }
++    return {
++      title: 'Tocsin has not synced yet',
++      body: `${
++        view.status?.error ? `${view.status.error}. ` : ''
++      }Open Tocsin in Settings and press Sync now.`
++    }
++  }
++  if (!assessments || !view.lists.some(usable))
++    return { title: 'No list to check against', body: 'Follow a list in Tocsin settings.' }
++  const s = view.sync
++  const ws = unique(assessments.flatMap((a) => a.unavailable)).map((w) => s.writers[w])
++  if (ws.some((w) => w?.status === 'unavailable' && w.divergedAt !== undefined)) {
++    return {
++      title: "The RPC's data does not match Ethereum",
++      body: `Replayed the flags from ${rpc} and they did not reach the head proven at block ${num(
++        s.block.number
++      )}. One or more flags are missing or altered. Switch RPC in Tocsin settings.`
++    }
++  }
++  const failed = ws.find((w) => w?.status === 'unavailable')
++  if (failed) return { title: `Could not reach ${rpc}`, body: `${whyUnavailable(failed)}. ${last}` }
++  return { title: 'Not every writer synced', body: last }
++}
++
++/** The banner for one flagged address (snap-ui spec 3.2 and 3.3): danger on block, warning on warn. */
++export function flagBanner(a: TocsinAssessment, policy: TocsinPolicy): Cause {
++  const block = a.verdict === 'block'
++  const cats = unique(a.findings.map((f) => f.category)).map(category)
++  const writers = unique(a.findings.map((f) => f.writer))
++  const lists = unique(a.findings.map((f) => f.list).filter(Boolean))
++  const why = block
++    ? ''
++    : a.findings.every((f) => f.category === 8) && a.target.context === 'recipient'
++    ? ' Theft proceeds are a warning by policy; this category is meant for exchanges and bridges, not send screens.'
++    : a.findings.every((f) => policy.warnOnly.includes(f.category))
++    ? ` Your policy makes ${cats.map((c) => c.name).join(', ')} warn only.`
++    : policy.threshold === 1
++    ? ' The flag is countered by an independent writer or comes from a weight-0 entry.'
++    : ' Your policy blocks only on a weight-255 writer or two independent writers.'
++  const first = cats[0] ?? category(0)
++  return {
++    title: first.title,
++    body: `${first.desc} Flagged by ${plural(writers.length, 'writer')} on ${lists.join(
++      ', '
++    )}.${why}`
++  }
++}
++
++/** "manual.tocsin.eth · via tocsin.eth" per distinct writer and list. */
++export const flaggedBy = (view: TocsinView, a: TocsinAssessment) =>
++  unique(a.findings.map((f) => `${writerLabel(view, f.writer)} · via ${f.list}`))
++
++/** "block 11,482,100 · 2 h ago" for the earliest finding, against the proven head. */
++export function seenLine(view: TocsinView, a: TocsinAssessment): string {
++  if (a.findings.length === 0) return ''
++  const seen = a.findings.reduce(
++    (m, f) => (f.seenBlock < m ? f.seenBlock : m),
++    a.findings[0]!.seenBlock
++  )
++  const head = view.sync?.block.number
++  const seenAgo =
++    head !== undefined && seen <= head ? ` · ${ago(0, Number(head - seen) * 12_000)}` : ''
++  return `block ${num(seen)}${seenAgo}`
++}
++
++/** The panel heading per verdict. "Clean" is never the word on screen. */
++export const verdictTitle = (v: Verdict | 'checking') =>
++  ({
++    block: 'Blocked',
++    warn: 'Warning',
++    clean: 'No flags',
++    unavailable: 'Unverifiable',
++    checking: 'Checking'
++  }[v])
++
++/** The "No flags" subtitle: what was checked and when. */
++export const cleanLine = (view: TocsinView) =>
++  `Checked against ${plural(view.lists.filter(usable).length, 'list')}, ${num(
++    view.sync?.flags ?? 0
++  )} flags, synced ${view.syncedAt ? ago(view.syncedAt) : 'never'}.`
++
++export const CHECKING_LINE = 'Tocsin is still syncing. This address is not checked yet.'
++export const UNVERIFIABLE_LINE =
++  'Tocsin could not verify the flag log. Treat this address as unchecked.'
++
++/** One line for the send screen: the recipient field's message for each verdict. */
++export function recipientLine(
++  view: TocsinView,
++  a: TocsinAssessment | undefined,
++  checking: boolean
++): string {
++  if (checking || !a) return CHECKING_LINE
++  if (a.verdict === 'block') {
++    const b = flagBanner(a, view.policy)
++    return `Tocsin blocked this recipient: ${b.title}. ${b.body}`
++  }
++  if (a.verdict === 'warn')
++    return `Tocsin warning: ${
++      flagBanner(a, view.policy).title
++    }. Check this address before you send.`
++  if (a.verdict === 'clean') return `No flags. ${cleanLine(view)}`
++  return UNVERIFIABLE_LINE
++}
++
++/** The send screen's line for the selected token's contract (MALICIOUS_TOKEN). */
++export function tokenLine(
++  view: TocsinView,
++  a: TocsinAssessment | undefined,
++  checking: boolean
++): string {
++  if (!checking && a?.verdict === 'block') {
++    const b = flagBanner(a, view.policy)
++    return `Tocsin blocked this token: ${b.title}. ${b.body}`
++  }
++  if (!checking && a?.verdict === 'warn')
++    return `Tocsin warning: ${flagBanner(a, view.policy).title}. Check this token before you send.`
++  return recipientLine(view, a, checking)
++}
+diff --git a/src/libs/tocsin/engine.ts b/src/libs/tocsin/engine.ts
+new file mode 100644
+index 000000000..cf7261d7d
+--- /dev/null
++++ b/src/libs/tocsin/engine.ts
+@@ -0,0 +1,314 @@
++// The reader wired to Kohaku: one fetch-based RPC for header, proofs, ENS and leaves. Ported from
++// the antibody Snap (dapp/packages/snap/src/engine.ts); `fetch` is passed in instead of global.
++import { type Hex, getAddress, isHex } from 'viem'
++
++import type { Target } from './decode'
++import {
++  type EthCall,
++  type Evaluation,
++  type RpcRequest,
++  type SyncResult,
++  type VerifiedList,
++  acceptList,
++  decodeListRecord,
++  evaluate,
++  resolveListRecord,
++  reverseName,
++  rpcLeafSource,
++  rpcProofSource,
++  sync
++} from './reader'
++import {
++  FROM_BLOCK,
++  LOG,
++  LOG_CHAIN_ID,
++  type ListState,
++  RECORD_OVERRIDES,
++  type State
++} from './state'
++
++export type FetchFn = typeof globalThis.fetch
++
++const TIMEOUT_MS = 20_000
++
++async function fetchWithTimeout(
++  fetch: FetchFn,
++  url: string,
++  init?: RequestInit
++): Promise<Response> {
++  const ctl = new AbortController()
++  const timer = setTimeout(() => ctl.abort(), TIMEOUT_MS)
++  try {
++    const res = await fetch(url, { ...init, signal: ctl.signal })
++    if (!res.ok) throw new Error(`HTTP ${res.status} from ${new URL(url).host}`)
++    return res
++  } catch (error) {
++    throw new Error(`request to ${new URL(url).host} failed`, { cause: error })
++  } finally {
++    clearTimeout(timer)
++  }
++}
++
++let rpcId = 0
++/** A plain JSON-RPC client over fetch. Bypasses Kohaku's providers (no Colibri, no Helios). */
++export function rpcRequest(url: string, fetch: FetchFn): RpcRequest {
++  return async ({ method, params = [] }) => {
++    const res = await fetchWithTimeout(fetch, url, {
++      method: 'POST',
++      headers: { 'content-type': 'application/json' },
++      body: JSON.stringify({ jsonrpc: '2.0', id: ++rpcId, method, params })
++    })
++    const body = (await res.json()) as { result?: unknown; error?: { message?: string } }
++    if (body.error) throw new Error(`${method}: ${body.error.message ?? 'RPC error'}`)
++    return body.result
++  }
++}
++
++const ethCall =
++  (request: RpcRequest): EthCall =>
++  async ({ to, data }) => {
++    const out = await request({ method: 'eth_call', params: [{ to, data }, 'latest'] })
++    if (!isHex(out)) throw new Error('eth_call did not return hex')
++    return out
++  }
++
++/** The current record and document for a list name, or undefined when either cannot be fetched (acceptList then reports stale). */
++async function fetchList(
++  name: string,
++  call: EthCall,
++  fetch: FetchFn
++): Promise<{ record: Hex; document: unknown } | undefined> {
++  const record = RECORD_OVERRIDES[name] ?? (await resolveListRecord(call, name))
++  if (!record) return undefined
++  try {
++    const { listURI } = decodeListRecord(record)
++    return { record, document: await (await fetchWithTimeout(fetch, listURI)).json() }
++  } catch {
++    return undefined // undecodable record or unreachable document: unverifiable, keep the pin
++  }
++}
++
++type Usable = { next: ListState; list?: VerifiedList }
++
++/**
++ * Applies acceptList's pinning to one list name. A list signed by a new maintainer is held in
++ * `pending` and the list is excluded until the user accepts it; no prompt here, so a timer tick
++ * never interrupts the user.
++ */
++async function syncList(
++  name: string,
++  prev: ListState,
++  call: EthCall,
++  fetch: FetchFn
++): Promise<Usable> {
++  const outcome = await acceptList({
++    kind: 'list',
++    log: LOG,
++    chainId: LOG_CHAIN_ID,
++    fetched: await fetchList(name, call, fetch),
++    ...(prev.pinned && { pinned: prev.pinned })
++  })
++  if (outcome.status === 'conflict')
++    return { next: { ...prev, pending: outcome.candidate.signed, status: 'maintainer changed' } }
++  const { pending: _, ...rest } = prev
++  const next: ListState = {
++    ...rest,
++    status: outcome.status === 'rejected' ? `rejected (${outcome.reason})` : outcome.status,
++    ...(outcome.status === 'accepted' && { pinned: outcome.list.signed })
++  }
++  return { next, ...(outcome.list && 'entries' in outcome.list.list && { list: outcome.list }) }
++}
++
++/** Live and dead FLAG leaves across synced writers: what "N flags" means on screen. */
++export const flagCount = (s: SyncResult): number =>
++  Object.values(s.writers).reduce(
++    (n, w) => n + (w.status === 'synced' ? w.leaves.filter((l) => l.leaf.op === 0).length : 0),
++    0
++  )
++
++export const errorText = (error: unknown): string =>
++  error instanceof Error
++    ? error.cause instanceof Error
++      ? `${error.message}: ${error.cause.message}`
++      : error.message
++    : String(error)
++
++/** Writer errors as their message, so the result stores and crosses the UI port as plain JSON. */
++const plainErrors = (s: SyncResult): SyncResult => ({
++  ...s,
++  writers: Object.fromEntries(
++    Object.entries(s.writers).map(([k, w]) => [
++      k,
++      w.status === 'unavailable' && w.error !== undefined ? { ...w, error: errorText(w.error) } : w
++    ])
++  )
++})
++
++/**
++ * Resolves and pins every followed list, proves every listed writer's head through the RPC in one
++ * call, syncs leaves from the same RPC, and returns the next state. Never throws: failures land in
++ * `status.error`.
++ */
++export async function runSync(state: State, fetch: FetchFn): Promise<State> {
++  const { rpcUrl } = state.settings
++  const at = Date.now()
++  const followed = Object.keys(state.lists).filter((n) => state.lists[n]!.followed)
++  if (followed.length === 0) return { ...state, status: { at, error: 'follow at least one list' } }
++  try {
++    const request = rpcRequest(rpcUrl, fetch)
++    const call = ethCall(request)
++    const chainId = await request({ method: 'eth_chainId' })
++    if (!isHex(chainId) || BigInt(chainId) !== LOG_CHAIN_ID)
++      throw new Error(
++        `the RPC at ${new URL(rpcUrl).host} is not Sepolia (chain ${String(chainId)})`
++      )
++    const lists = { ...state.lists }
++    const verified: VerifiedList[] = []
++    for (const name of followed) {
++      // eslint-disable-next-line no-await-in-loop
++      const { next, list } = await syncList(name, lists[name]!, call, fetch)
++      lists[name] = next
++      if (list) verified.push(list)
++    }
++    const base = { ...state, lists }
++    if (verified.length === 0)
++      return { ...base, status: { at, error: 'no usable list for the followed names yet' } }
++
++    // A writer on two lists is proved and synced once.
++    const writers = [
++      ...new Set(
++        verified.flatMap((l) =>
++          'entries' in l.list ? l.list.entries.map((e) => getAddress(e.writer)) : []
++        )
++      )
++    ]
++    const checkpoints = { ...state.checkpoints }
++    const result = plainErrors(
++      await sync({
++        log: LOG,
++        writers: writers.map((writer) => ({ writer })),
++        proofs: rpcProofSource({ request }),
++        leaves: rpcLeafSource({ request, log: LOG, fromBlock: FROM_BLOCK }),
++        checkpoints: {
++          get: async (k) => checkpoints[k],
++          set: async (k, v) => {
++            checkpoints[k] = v
++          }
++        }
++      })
++    )
++    const names = { ...state.names }
++    await Promise.all(
++      Object.keys(result.writers).map(async (w) => {
++        const name = await reverseName(call, getAddress(w))
++        if (name) names[getAddress(w)] = name
++        else delete names[getAddress(w)]
++      })
++    )
++    const all = Object.values(result.writers)
++    const lastGood = all.every((w) => w.status === 'synced')
++      ? { flags: flagCount(result), writers: all.length, block: result.block.number, at }
++      : state.lastGood
++    return {
++      ...base,
++      checkpoints,
++      sync: result,
++      syncedAt: at,
++      names,
++      status: { at },
++      ...(lastGood && { lastGood })
++    }
++  } catch (error) {
++    return { ...state, status: { at, error: errorText(error) } }
++  }
++}
++
++/** A changed RPC drops checkpoints so the next sync replays the new source from genesis instead of trusting the old one's tail. */
++export const clearCheckpoints = (state: State): State => ({ ...state, checkpoints: {} })
++
++/** A list a user is about to add: fetched and verified, not pinned yet. */
++export async function fetchCandidate(
++  state: State,
++  name: string,
++  fetch: FetchFn
++): Promise<VerifiedList | string> {
++  try {
++    const call = ethCall(rpcRequest(state.settings.rpcUrl, fetch))
++    const outcome = await acceptList({
++      kind: 'list',
++      log: LOG,
++      chainId: LOG_CHAIN_ID,
++      fetched: await fetchList(name, call, fetch)
++    })
++    if (outcome.status === 'accepted' && 'entries' in outcome.list.list) return outcome.list
++    return outcome.status === 'rejected'
++      ? `The list at ${name} failed verification (${outcome.reason}).`
++      : `No Tocsin list found at ${name}.`
++  } catch (error) {
++    return `Could not read ${name}: ${errorText(error)}.`
++  }
++}
++
++/** Every finding's list name, in `evaluation.findings` order. */
++export type Assessment = { target: Target; evaluation: Evaluation; listOf: string[] }
++
++export type NamedList = { name: string; list: VerifiedList }
++
++/** Followed lists with an accepted pin and no pending maintainer change, re-verified from state. */
++export async function pinnedLists(state: State): Promise<NamedList[]> {
++  const out: NamedList[] = []
++  for (const [name, l] of Object.entries(state.lists)) {
++    if (!l.followed || !l.pinned || l.pending) continue
++    // eslint-disable-next-line no-await-in-loop
++    const { list } = await acceptList({
++      kind: 'list',
++      log: LOG,
++      chainId: LOG_CHAIN_ID,
++      pinned: l.pinned
++    })
++    if (list && 'entries' in list.list) out.push({ name, list })
++  }
++  return out
++}
++
++/** The verified list a pin holds, for showing its maintainer and writers. */
++export async function verifiedPin(pinned: ListState['pinned']): Promise<VerifiedList | undefined> {
++  if (!pinned) return undefined
++  return (
++    await acceptList({ kind: 'list', log: LOG, chainId: LOG_CHAIN_ID, pinned }).catch(
++      () => undefined
++    )
++  )?.list
++}
++
++/**
++ * Evaluates each target against the last sync under the user's threshold and warn-only policy.
++ * Undefined when there is nothing to evaluate against yet. `checkApprovals` is applied where the
++ * verdict is read (check.ts `checkedTargets`), so the cache keeps every target and a re-enabled
++ * toggle never leaves an open screen waiting on an assessment nobody computes.
++ */
++export async function assess(
++  state: State,
++  targets: readonly Target[],
++  chainId: bigint
++): Promise<Assessment[] | undefined> {
++  const lists = await pinnedLists(state)
++  if (lists.length === 0 || !state.sync) return undefined
++  const s = state.sync
++  const { threshold, warnOnly } = state.policy
++  return targets.map((target) => {
++    const evaluation = evaluate({
++      subject: target.address,
++      context: target.context,
++      sync: s,
++      // Every followed list is marked blocking (spec, Trust lists); escalation is OR across them.
++      lists: lists.map(({ list }) => ({ list, blocking: true })),
++      safelists: [],
++      logChainId: LOG_CHAIN_ID,
++      chainId,
++      policy: { threshold, warnOnly }
++    })
++    const listOf = evaluation.findings.map((f) => lists.find((l) => l.list === f.list)?.name ?? '')
++    return { target, evaluation, listOf }
++  })
++}
+diff --git a/src/libs/tocsin/settings.ts b/src/libs/tocsin/settings.ts
+new file mode 100644
+index 000000000..3a6c9f8c1
+--- /dev/null
++++ b/src/libs/tocsin/settings.ts
+@@ -0,0 +1,26 @@
++// Settings input validation, copied from the antibody Snap (dapp/packages/snap/src/settings.ts).
++import { normalize } from 'viem/ens'
++
++/** An https URL, or http for localhost (the lying proxy). */
++export function parseRpcUrl(raw: unknown): { url: string } | { error: string } {
++  try {
++    const u = new URL(typeof raw === 'string' ? raw.trim() : '')
++    const local = u.hostname === '127.0.0.1' || u.hostname === 'localhost'
++    if (u.protocol === 'https:' || (u.protocol === 'http:' && local)) return { url: u.href }
++  } catch {
++    // fall through
++  }
++  return { error: 'Enter an https URL (http only for localhost).' }
++}
++
++/** A normalised ENS name with at least one dot. */
++export function parseListName(raw: unknown): { name: string } | { error: string } {
++  const s = typeof raw === 'string' ? raw.trim() : ''
++  try {
++    const name = normalize(s)
++    if (name.includes('.')) return { name }
++  } catch {
++    // fall through
++  }
++  return { error: `"${s}" is not an ENS name such as name.tocsin.eth.` }
++}
+diff --git a/src/libs/tocsin/state.ts b/src/libs/tocsin/state.ts
+new file mode 100644
+index 000000000..2378fd257
+--- /dev/null
++++ b/src/libs/tocsin/state.ts
+@@ -0,0 +1,116 @@
++// Tocsin state: the RPC, the lists, checkpoints, and the last sync. Ported from the antibody Snap
++// (dapp/packages/snap/src/state.ts). Ambire storage serialises through richJson, which keeps
++// bigints, so the Snap's own JSON codec is gone. Nothing about an evaluated address is ever stored
++// (snap-ui spec, section 7).
++import type { Address, Hex } from 'viem'
++
++import type { SignedList, SyncResult, WriterCheckpoint } from './reader'
++
++export type Settings = {
++  /** Header, proofs, ENS and leaves all come from this one RPC. */
++  rpcUrl: string
++}
++
++/** The settings screen's Policy section (snap-ui spec 5.3). */
++export type TocsinPolicy = {
++  threshold: 1 | 2
++  /** Categories that warn and never block. */
++  warnOnly: number[]
++  /** Evaluate approve, permit and setApprovalForAll spenders, and EIP-7702 delegates. */
++  checkApprovals: boolean
++}
++
++/** POISONING_FUNDER and THEFT_PROCEEDS warn, everything else blocks on two independent writers. */
++export const DEFAULT_POLICY: TocsinPolicy = { threshold: 2, warnOnly: [2, 8], checkApprovals: true }
++
++export type SyncStatus = {
++  at: number
++  /** Why the last sync could not run (no list, RPC down). */
++  error?: string
++}
++
++/** One list name. Kept while unfollowed, so following it again keeps the first-use pin. */
++export type ListState = {
++  followed: boolean
++  pinned?: SignedList
++  /** A list signed by a new maintainer. The list is excluded until the user accepts it. */
++  pending?: SignedList
++  /** acceptList's status at the last sync, plus the reject reason. */
++  status?: string
++}
++
++/** The last sync where every writer synced. Shown when the current one is unverifiable. */
++export type LastGood = { flags: number; writers: number; block: bigint; at: number }
++
++export type State = {
++  settings: Settings
++  policy: TocsinPolicy
++  lists: Record<string, ListState>
++  checkpoints: Record<string, WriterCheckpoint>
++  /** Writer errors are kept as their message (engine.ts `plainErrors`), so the state stores as JSON. */
++  sync?: SyncResult
++  /** When `sync` was taken. */
++  syncedAt?: number
++  lastGood?: LastGood
++  /** Forward-checked ENS names of writers. */
++  names: Record<Address, string>
++  status?: SyncStatus
++}
++
++/** The Ambire storage key. */
++export const STORAGE_KEY = 'tocsin'
++
++export const LOG: Address = '0xB639d15A0E7aE24E4C32E851Fbe0E57585565b14'
++export const LOG_CHAIN_ID = 11155111n
++/** The log's deployment block, where eth_getLogs scans start. Build-time only (.env via babel). */
++export const FROM_BLOCK = BigInt(process.env.TOCSIN_LOG_FROM_BLOCK || '0')
++
++const csv = (s: string | undefined) =>
++  (s ?? '')
++    .split(',')
++    .map((x) => x.trim())
++    .filter(Boolean)
++const DEFAULT_LISTS = csv(process.env.TOCSIN_LIST_NAME)
++
++export const DEFAULT_SETTINGS: Settings = {
++  // 0xrpc.io passes proofs at "latest"; publicnode fails about 1 in 6 (antibody runbook.md:144).
++  rpcUrl: process.env.TOCSIN_RPC_URL || 'https://0xrpc.io/sep'
++}
++
++/**
++ * Record hex per name that replaces the ENS lookup, for a rehearsal before the name exists:
++ * `TOCSIN_LIST_RECORDS=a.eth=0x…,b.eth=0x…`, and `TOCSIN_LIST_RECORD` for the first default name.
++ */
++export const RECORD_OVERRIDES: Record<string, Hex> = Object.fromEntries([
++  ...(DEFAULT_LISTS[0] && process.env.TOCSIN_LIST_RECORD
++    ? [[DEFAULT_LISTS[0], process.env.TOCSIN_LIST_RECORD as Hex]]
++    : []),
++  ...csv(process.env.TOCSIN_LIST_RECORDS).map((pair) => pair.split('=').map((x) => x.trim()))
++])
++
++export const freshState = (): State => ({
++  settings: DEFAULT_SETTINGS,
++  policy: DEFAULT_POLICY,
++  lists: Object.fromEntries(DEFAULT_LISTS.map((n) => [n, { followed: true }])),
++  checkpoints: {},
++  names: {}
++})
++
++/** The stored state merged over defaults. Only the TocsinController writes it. */
++export function fromStored(stored: Partial<State> | null | undefined): State {
++  const fresh = freshState()
++  if (!stored) return fresh
++  const lists = Object.fromEntries(
++    Object.entries(stored.lists ?? fresh.lists).map(([n, l]) => [
++      n,
++      { ...l, followed: l.followed ?? true }
++    ])
++  )
++  return {
++    ...fresh,
++    ...stored,
++    policy: { ...DEFAULT_POLICY, ...stored.policy },
++    settings: { ...DEFAULT_SETTINGS, rpcUrl: stored.settings?.rpcUrl ?? DEFAULT_SETTINGS.rpcUrl },
++    lists
++  }
++}
+diff --git a/test/helpers/tocsin.ts b/test/helpers/tocsin.ts
+new file mode 100644
+index 000000000..b3fd21e20
+--- /dev/null
++++ b/test/helpers/tocsin.ts
+@@ -0,0 +1,239 @@
++// A fake Sepolia JSON-RPC, a lying RPC, the list host and ENS, ported from the antibody Snap's
++// bundle test (dapp/packages/snap/test/bundle.test.ts). Fixtures are built with the reader's own
++// chain and list helpers so the hashes cannot drift.
++import {
++  type Address,
++  decodeFunctionData,
++  encodeAbiParameters,
++  encodeEventTopics,
++  encodeFunctionResult,
++  getAddress,
++  type Hex,
++  hexToBigInt,
++  numberToHex,
++  pad,
++  parseAbi,
++  toFunctionSelector,
++  zeroHash
++} from 'viem'
++import { privateKeyToAccount } from 'viem/accounts'
++
++import {
++  encodeListRecord,
++  foldHead,
++  leafHash,
++  listRoot,
++  listRootTypedData,
++  threatFlagLogAbi,
++  writerHeadSlot,
++  writerSeqSlot
++} from '../../src/libs/tocsin/reader'
++
++export const LOG = getAddress('0xB639d15A0E7aE24E4C32E851Fbe0E57585565b14')
++const UR = getAddress('0xeEeEEEeE14D718C2B47D9923Deab1335E144EeEe')
++export const MANUAL = getAddress('0x00000000000000000000000000000000000a11ce')
++export const DETECTOR = getAddress('0x00000000000000000000000000000000000de7ec')
++export const DRAINER = getAddress('0xd7a1000000000000000000000000000000000bad')
++export const SPENDER = getAddress('0x5bead00000000000000000000000000000000bad')
++export const CLEAN = getAddress('0xc1ea000000000000000000000000000000000001')
++export const SUSPECT = getAddress('0x5005000000000000000000000000000000000bad')
++/** A MALICIOUS_TOKEN contract, like fakeUSDC on Sepolia. */
++export const BAD_TOKEN = getAddress('0x70ce000000000000000000000000000000000bad')
++const EVIDENCE: Hex = `0x${'ee'.repeat(32)}`
++
++// --- the log: three FLAG leaves from the manual writer (weight 255), one from the detector (weight 1)
++type Raw = { blockNumber: bigint; topics: Hex[]; data: Hex; writer: Address; writerSeq: bigint }
++const appended = threatFlagLogAbi.find((x) => x.type === 'event' && x.name === 'Appended')!
++const dataParams = (appended as { inputs: readonly { indexed?: boolean }[] }).inputs.filter(
++  (i) => !('indexed' in i)
++)
++const logs: Raw[] = []
++const heads: Record<Address, { head: Hex; seq: bigint }> = {
++  [MANUAL]: { head: zeroHash, seq: 0n },
++  [DETECTOR]: { head: zeroHash, seq: 0n }
++}
++const flags: [Address, Address, number][] = [
++  [MANUAL, DRAINER, 3],
++  [MANUAL, SPENDER, 7],
++  [DETECTOR, SUSPECT, 3],
++  [MANUAL, BAD_TOKEN, 5]
++]
++flags.forEach(([writer, subject, category], i) => {
++  const h = heads[writer]!
++  const writerSeq = h.seq + 1n
++  const globalSeq = BigInt(i + 1)
++  const blockNumber = 101n + BigInt(i)
++  const leaf = {
++    chainId: 11155111n,
++    subject,
++    category,
++    op: 0,
++    evidence: EVIDENCE,
++    seenBlock: 100n,
++    refLeaf: zeroHash
++  }
++  const lh = leafHash({ writer, blockNumber, writerSeq, globalSeq, leaf })
++  heads[writer] = { head: foldHead(h.head, lh), seq: writerSeq }
++  logs.push({
++    blockNumber,
++    writer,
++    writerSeq,
++    topics: encodeEventTopics({
++      abi: threatFlagLogAbi,
++      eventName: 'Appended',
++      args: { writer, writerSeq }
++    }) as Hex[],
++    data: encodeAbiParameters(
++      dataParams as never,
++      [globalSeq, lh, heads[writer]!.head, heads[writer]!.head, leaf] as never
++    )
++  })
++})
++const slotValue = new Map<string, Hex>()
++Object.entries(heads).forEach(([w, v]) => {
++  slotValue.set(writerHeadSlot(w as Address), v.head)
++  slotValue.set(writerSeqSlot(w as Address), numberToHex(v.seq))
++})
++
++// --- lists ------------------------------------------------------------------------------------
++const entry = (writer: Address, weight: number) => ({
++  writer,
++  weight,
++  operator: zeroHash,
++  upstream: zeroHash,
++  fromBlock: 0n,
++  toBlock: 0n,
++  headPin: zeroHash,
++  categories: 1n, // bit 0: trust categories 1 to 127
++  snapshotURI: `https://mirror.test/${writer}.json`
++})
++export async function signedList(
++  key: Hex,
++  version: bigint,
++  entries = [entry(MANUAL, 255), entry(DETECTOR, 1)],
++  listURI = 'https://lists.test/default.json'
++) {
++  const maintainer = privateKeyToAccount(key)
++  const list = { log: LOG, chainId: 11155111n, maintainer: maintainer.address, version, entries }
++  const root = listRoot(list)
++  const signature = await maintainer.signTypedData(listRootTypedData(list, root))
++  const document = JSON.parse(
++    JSON.stringify(list, (_k, v) => (typeof v === 'bigint' ? v.toString() : v))
++  )
++  return {
++    record: encodeListRecord({ root, version, signature, listURI }),
++    document,
++    listURI,
++    maintainer: maintainer.address
++  }
++}
++export type Signed = Awaited<ReturnType<typeof signedList>>
++
++// --- fake network -----------------------------------------------------------------------------
++const urAbi = parseAbi([
++  'function resolveWithGateways(bytes name, bytes data, string[] gateways) view returns (bytes result, address resolver)',
++  'function reverseWithGateways(bytes lookupAddress, uint256 coinType, string[] gateways) view returns (string name, address resolver, address reverseResolver)'
++])
++const resolverAbi = parseAbi([
++  'function text(bytes32 node, string key) view returns (string)',
++  'function addr(bytes32 node) view returns (address)'
++])
++const RESOLVER = getAddress('0x0000000000000000000000000000000000000e45')
++
++/** `lists` by ENS name. `requests` records every host the code reached. */
++export type World = { lists: Record<string, Signed>; requests: string[]; chainId: Hex }
++export const world: World = { lists: {}, requests: [], chainId: '0xaa36a7' }
++
++/** DNS wire format, as the Universal Resolver takes names. */
++function dnsName(h: Hex): string {
++  const b = Buffer.from(h.slice(2), 'hex')
++  const labels: string[] = []
++  for (let i = 0; b[i]; i += b[i]! + 1) labels.push(b.subarray(i + 1, i + 1 + b[i]!).toString())
++  return labels.join('.')
++}
++const reverted = () => Object.assign(new Error('execution reverted'), { rpc: true })
++
++function rpc(method: string, params: any[], lying: boolean): unknown {
++  if (method === 'eth_chainId') return world.chainId
++  if (method === 'eth_blockNumber') return '0x200'
++  if (method === 'eth_getBlockByNumber')
++    return {
++      number: params[0] === 'finalized' ? '0x1f0' : '0x200',
++      hash: pad('0x200', { size: 32 }),
++      stateRoot: pad('0x5', { size: 32 })
++    }
++  if (method === 'eth_getProof')
++    return {
++      storageProof: (params[1] as Hex[]).map((key) => ({
++        key,
++        value: slotValue.get(key) ?? '0x0',
++        proof: []
++      }))
++    }
++  if (method === 'eth_getLogs') {
++    const [{ topics, fromBlock, toBlock }] = params
++    return (
++      logs
++        // the lying RPC drops the manual writer's first leaf
++        .filter((l) => !(lying && l.writer === MANUAL && l.writerSeq === 1n))
++        .filter((l) => l.topics[1] === topics[1] && (!topics[2] || l.topics[2] === topics[2]))
++        .filter(
++          (l) => l.blockNumber >= hexToBigInt(fromBlock) && l.blockNumber <= hexToBigInt(toBlock)
++        )
++        .map((l) => ({
++          blockNumber: numberToHex(l.blockNumber),
++          topics: l.topics,
++          data: l.data,
++          removed: false
++        }))
++    )
++  }
++  if (method === 'eth_call') {
++    const { to, data } = params[0] as { to: Address; data: Hex }
++    if (getAddress(to) !== UR) throw new Error('every ENS read goes to the Universal Resolver')
++    if (data.startsWith(toFunctionSelector(urAbi[1]))) {
++      const [lookup] = decodeFunctionData({ abi: urAbi, data }).args as [Hex, bigint, string[]]
++      if (getAddress(lookup) !== MANUAL) throw reverted()
++      return encodeFunctionResult({
++        abi: urAbi,
++        functionName: 'reverseWithGateways',
++        result: ['manual.tocsin.eth', RESOLVER, RESOLVER]
++      })
++    }
++    const [name, inner] = decodeFunctionData({ abi: urAbi, data }).args as [Hex, Hex, string[]]
++    const call = decodeFunctionData({ abi: resolverAbi, data: inner })
++    const named = world.lists[dnsName(name)]
++    if (call.functionName === 'text' && !named) throw reverted() // no such name
++    const result =
++      call.functionName === 'text'
++        ? encodeFunctionResult({ abi: resolverAbi, functionName: 'text', result: named!.record })
++        : encodeFunctionResult({ abi: resolverAbi, functionName: 'addr', result: MANUAL })
++    return encodeFunctionResult({
++      abi: urAbi,
++      functionName: 'resolveWithGateways',
++      result: [result, RESOLVER]
++    })
++  }
++  throw new Error(`unexpected ${method}`)
++}
++
++const json = (body: unknown) =>
++  new Response(JSON.stringify(body), { headers: { 'content-type': 'application/json' } })
++
++/** `https://rpc.test` is honest, `https://liar.test` drops one leaf, `https://lists.test` serves list documents. */
++export async function fakeFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
++  const url = new URL(String(input))
++  world.requests.push(url.host)
++  if (url.host === 'rpc.test' || url.host === 'liar.test') {
++    const { id, method, params } = JSON.parse(String(init?.body))
++    try {
++      return json({ jsonrpc: '2.0', id, result: rpc(method, params, url.host === 'liar.test') })
++    } catch (e) {
++      if (!(e as { rpc?: boolean }).rpc) throw e
++      return json({ jsonrpc: '2.0', id, error: { code: 3, message: 'execution reverted' } })
++    }
++  }
++  if (url.host === 'lists.test')
++    return json(Object.values(world.lists).find((l) => l.listURI === url.href)!.document)
++  return new Response('not found', { status: 404 })
++}

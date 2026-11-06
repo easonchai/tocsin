@@ -1,0 +1,34 @@
+{
+  "name": "@tocsin/infra",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check-types": "tsc --noEmit",
+    "seed": "tsx src/seed.ts",
+    "seed-curators": "tsx src/seed-curators.ts",
+    "seed-tokens": "tsx src/seed-tokens.ts",
+    "relay": "tsx src/relay-cli.ts",
+    "detect": "tsx src/detect-cli.ts",
+    "eval": "tsx src/evaluate-cli.ts",
+    "mirror": "tsx src/mirror.ts",
+    "lying-proxy": "tsx src/lying-proxy.ts",
+    "wallet": "tsx src/wallet-cli.ts",
+    "ens-setup": "tsx src/ens-setup.ts setup",
+    "ens-publish": "tsx src/ens-setup.ts publish",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@ensdomains/ensjs": "5.2.12",
+    "@tocsin/reader": "workspace:*",
+    "dotenv": "~16.3.1",
+    "viem": "2.57.16"
+  },
+  "devDependencies": {
+    "@types/node": "~22.10.0",
+    "tsx": "4.23.15",
+    "typescript": "5.8.3",
+    "vite": "8.3.5",
+    "vitest": "5.0.5"
+  }
+}

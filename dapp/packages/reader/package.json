@@ -1,0 +1,26 @@
+{
+  "name": "@tocsin/reader",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "check-types": "tsc --noEmit",
+    "publish-list": "tsx cli/publish-list.ts"
+  },
+  "dependencies": {
+    "viem": "2.57.16"
+  },
+  "devDependencies": {
+    "@types/node": "~22.10.0",
+    "tsx": "4.23.15",
+    "typescript": "5.8.3",
+    "vite": "8.3.5",
+    "vitest": "5.0.5"
+  }
+}

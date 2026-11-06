@@ -62,14 +62,14 @@ Evaluate every address found. The panel shows the worst verdict first, then one 
 
 Component tree, top to bottom. Words in quotes are the literal copy.
 
-1. `Box` horizontal: `Image` (the mark, 20 px) and `Heading` "Blocked". Below it, `Text` color `error`: "Reject this transaction."
+1. `Text` color `error`: "Reject this transaction." No heading: MetaMask already titles the panel "Insights from Tocsin".
 2. `Banner` severity `danger`, title "Drainer receiver": "This address receives funds forwarded by wallet drainers. Flagged by 2 of 2 lists you follow."
 3. `Section` with `Row`s, in this order:
    - `Row` label "address", value `Address` component with the flagged address (jazzicon makes it recognisable against the Details tab).
    - `Row` label "role", value `Text` "recipient" (or "spender", "operator", "delegate", matching where the address was found).
    - `Row` label "category", value `Text` "DRAINER_RECEIVER", with a `Tooltip` on the row giving the plain-language definition from the spec's category table.
-   - `Row` label "flagged by", value: one `Text` per writer, the writer's ENS name, with `Text` color `muted` after it naming the list that carries it. Example lines: "seal.tocsin.eth · via seal list", "scamsniffer.tocsin.eth · via scamsniffer list". If two writers are on the same list, both still appear.
-   - `Row` label "evidence", value `Link` to the evidence transaction on the chain's explorer, text being the truncated hash, followed by `Copyable` with the full hash. One per writer if they differ.
+   - `Row` label "flagged by", value: a `Box` with one `Text` per writer, the writer's ENS name. One label, stacked values. The banner names the lists.
+   - `Row` label "evidence", value: a `Box` with one `Link` per distinct hash to the evidence transaction on the chain's explorer, text being the truncated hash. One label, stacked values.
    - `Row` label "seen", value `Text` "block 23,410,118 · 14 days ago" from the leaf's `seenBlock`.
 4. `Divider`.
 5. Sync state, three `Row`s with `Text` color `muted`:
@@ -85,26 +85,25 @@ No buttons. MetaMask's Reject button is the action, and the panel told the user 
 
 Same as Blocked with these differences:
 
-1. `Heading` "Warning". `Text` color `warning`: "Check this address before you continue."
+1. `Text` color `warning`: "Check this address before you continue."
 2. `Banner` severity `warning`, title from the category, body says why it is a warning and not a block: "Flagged by 1 of 2 lists you follow. Your policy blocks only on two independent writers." or "Theft proceeds are a warning by policy; this category is meant for exchanges and bridges, not send screens."
 3. Rows identical.
 
 ### 3.4 NO FLAGS
 
-1. `Box` horizontal: `Image` (mark) and `Heading` "No flags".
-2. `Banner` severity `success`, title "Not on any list you follow": "Checked against 2 lists, 41,207 flags, synced 4 min ago."
-3. `Section`:
+1. `Banner` severity `success`, title "Not on any list you follow": "Checked against 2 lists, 41,207 flags, synced 4 min ago."
+2. `Section`:
    - `Row` "checked": `Text` "recipient 0x8c1D…4e9a" (and any spender or delegate also checked, one per line).
    - `Row` "lists": `Text` "seal, scamsniffer".
-4. `Divider`, then the same three sync rows as 3.2 step 5, then the "Checked on this device" line.
+3. `Divider`, then the same three sync rows as 3.2 step 5, then the "Checked on this device" line.
 
-Keep this panel short. It exists so the user sees the Snap is working and sees the honesty line. If the SDK's `IconName` enum has a shield or security-check icon, put it beside the heading; otherwise use the mark alone. Do not draw a custom green shield as an SVG; it reads as a third-party badge.
+Keep this panel short. It exists so the user sees the Snap is working and sees the honesty line. Do not draw a custom green shield as an SVG; it reads as a third-party badge.
 
 ### 3.5 UNVERIFIABLE
 
 This is the state the lying-RPC demo lands on. It must look different from both red and green.
 
-1. `Heading` "Unverifiable". `Text` color `warning`: "Tocsin could not verify the flag log. Treat this address as unchecked."
+1. `Text` color `warning`: "Tocsin could not verify the flag log. Treat this address as unchecked."
 2. `Banner` severity `info`, title depends on cause:
    - Replay mismatch: title "The RPC's data does not match Ethereum", body "Replayed 41,206 flags from rpc.evil.example and the chain did not reach the head proven at block 11,482,207. One or more flags are missing or altered. Switch RPC in Tocsin settings."
    - Unreachable: title "Could not reach rpc.sepolia.org", body "Last good sync 2 h ago at head 0x9c4e…a1f0."

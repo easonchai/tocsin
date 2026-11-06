@@ -1,6 +1,6 @@
 {
   "chainId": "11155111",
-  "domainSeparator": "0x85aaf2f1277f7634ef7a77f877342db22bdc89051fd10c52d870858a41f4bcdb",
+  "domainSeparator": "0x2025cf087a77b93d175aee9b5d309f0029d6bfe7df5a40e711c6660371f4a76d",
   "format": "All integers are decimal strings. Addresses are EIP-55 checksummed hex; bytes32 and bytes are 0x-prefixed lowercase hex. leaves are in globalSeq order; blockNumber is the block the leaf was appended in. leafHash = keccak256(abi.encode(writer, blockNumber, writerSeq, globalSeq, leaf)); writerHeadAfter and globalHeadAfter fold keccak256(abi.encodePacked(previousHead, leafHash)) from bytes32(0). The log is deployed with deployCodeTo at the predicted Sepolia CREATE2 address with chainid 11155111, so domainSeparator is the one that address has on Sepolia. Each signed batch covers the leaves with globalSeq firstGlobalSeq to firstGlobalSeq + count - 1; signature is r || s || v over digest = keccak256(0x1901 || domainSeparator || hashStruct(Append(leaves, deadline, nonce))). writers holds each writer's final head, seq and signatureNonce as read from the log.",
   "globalHead": "0x4b13a792fa4623279cbd4c3cee1ab13139926452e41534af4c9c8c35fca71649",
   "globalSeq": "12",
@@ -234,16 +234,16 @@
       "writerSeq": "7"
     }
   ],
-  "log": "0xC5616bb2FDCcdD761aa969c5C0dFb3D5c7d93865",
+  "log": "0xB639d15A0E7aE24E4C32E851Fbe0E57585565b14",
   "signedBatches": [
     {
       "blockNumber": "9000001",
       "count": "2",
       "deadline": "1790003600",
-      "digest": "0x5a6401d9c3e64d0aa1fd0dfd09d739635462cf821ca3bb2925a5380f15828781",
+      "digest": "0xdf4b1458e0be3c329a0dae18124904c100af91743b764fdee30de72d13205294",
       "firstGlobalSeq": "4",
       "nonce": "0",
-      "signature": "0x41fe3169d5696218cb472a2dd0a92b61017ad40be9ab56b7226df8074e5bc36f2136aa6e2fe13967031aba334b02d664edaa5e33bfe219797eb5ce78e2aa7ca91c",
+      "signature": "0x638a09fc11c57da875c29f40a2819daba9fdf9505e6a37de3e75729605680b0f762a7a4fd602c77ead257a869dda4d629767b7826139ee79b32d8b5d0fbc5a2d1b",
       "submitter": "0x810B24FF505c00F595A30fB98D6CECbE253c93A3",
       "writer": "0x6FBfDEAA475323a879c506Bcda1d0489996E75F9"
     },
@@ -251,10 +251,10 @@
       "blockNumber": "9000010",
       "count": "3",
       "deadline": "1790003600",
-      "digest": "0xf8c2a41da5a185bc6063f5b87dd7eabc56c1c6a382e7108f84a591df37ed58c1",
+      "digest": "0x07c44603a1f5ee21743eb44693fea407523cc50a279270aa609d747044c04e92",
       "firstGlobalSeq": "9",
       "nonce": "1",
-      "signature": "0x7130b3a047a241c254011618c56d6bc9c3ab2f72cc22212ac1da6bd24d4a03df366c6a553fe37a2b9a6c6e634cb75aaa2ee891ca2e90dc6066953e715b93a7c41c",
+      "signature": "0x4131b6ec80ddf5fc5ee9932b55671ef99798046d693d921881277b3b6cbef55239bbf3c73a6930363ad781331deeb5dce8cf305213abf82533ad759c50d483d71b",
       "submitter": "0x810B24FF505c00F595A30fB98D6CECbE253c93A3",
       "writer": "0x6FBfDEAA475323a879c506Bcda1d0489996E75F9"
     }

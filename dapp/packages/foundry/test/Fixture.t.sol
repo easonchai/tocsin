@@ -9,7 +9,7 @@ import { IThreatFlagLog } from "../contracts/IThreatFlagLog.sol";
 /// Every hash is checked against an independent model before the file is written.
 contract FixtureTest is LogBase {
     string internal constant PATH = "fixtures/parity.json";
-    address internal constant LOG = 0xC5616bb2FDCcdD761aa969c5C0dFb3D5c7d93865; // predicted Sepolia CREATE2 address
+    address internal constant LOG = 0xB639d15A0E7aE24E4C32E851Fbe0E57585565b14; // predicted Sepolia CREATE2 address
     uint256 internal constant CHAIN = 11155111;
     uint256 internal constant T0 = 1_790_000_000;
     uint256 internal constant DEADLINE = T0 + 3600;

@@ -1,0 +1,392 @@
+{
+  "chainId": 11155111,
+  "log": "0xB639d15A0E7aE24E4C32E851Fbe0E57585565b14",
+  "relayer": "0x7Bae2bbcEC2c9424aCCBB6a7EB43301D8Cc92C98",
+  "writers": {
+    "core.tocsin.eth": "0x36a279136adDde960599fcA356369C04A96D387E",
+    "blockaid.tocsin.eth": "0x6f1524F5A1152d6b08ef8833E42E4311151e904F",
+    "scamsniffer.tocsin.eth": "0x3a05D06949b9890aEAD4700AA5ECEbf4D1BA0Ba0"
+  },
+  "txs": [
+    {
+      "batch": "core.tocsin.eth/flags",
+      "list": "core.tocsin.eth",
+      "writer": "0x36a279136adDde960599fcA356369C04A96D387E",
+      "via": "appendSigned",
+      "hash": "0x616286317427b54f4e5ac81ce4dc8632e235bfbef526805a4e27ba87cff10834",
+      "block": "12078189",
+      "leaves": 24,
+      "gasUsed": "428979",
+      "costWei": "8150601",
+      "fromSeq": "92",
+      "toSeq": "116",
+      "flags": [
+        {
+          "label": "drainer-receiver-1",
+          "subject": "0x79fDaE13B1A677E5b8Ac9f5411F6664788A17537",
+          "category": 3,
+          "op": 0,
+          "writerSeq": "93",
+          "leafHash": "0xb95193ddc32d5b3944d06aabfe582b652ef8a104d5ee5b28cd7ac81b290486fa"
+        },
+        {
+          "label": "drainer-receiver-2",
+          "subject": "0x9b8d5317e56272468B5e86c2984E65e7e62ec42e",
+          "category": 3,
+          "op": 0,
+          "writerSeq": "94",
+          "leafHash": "0x486f30c98a6fb63a84b12249c56f51ae984f186b4d6f2e187d4c01d607ac213c"
+        },
+        {
+          "label": "drainer-receiver-3",
+          "subject": "0x28042e65FbA1b9bD9165F4C02052a191802337E2",
+          "category": 3,
+          "op": 0,
+          "writerSeq": "95",
+          "leafHash": "0xe64c040e0f78c9f3713766d7f855ac7d4eb3dba4d74d50f3cdba055802488bf4"
+        },
+        {
+          "label": "drainer-receiver-4",
+          "subject": "0xe25d04e7a7B357179eBf53b16f4C5304c6818fb9",
+          "category": 3,
+          "op": 0,
+          "writerSeq": "96",
+          "leafHash": "0x0177548c3449ba7174485395eaf33242a9e0ad5d723f9db2d08b3d9035f85d51"
+        },
+        {
+          "label": "drainer-receiver-5",
+          "subject": "0x9CC6d47d216e93A4d6fc5eebB0CE76fD136077F9",
+          "category": 3,
+          "op": 0,
+          "writerSeq": "97",
+          "leafHash": "0xba1c1bbc60e71f6f8eb2c5c42e83ab26ec2c84575c575b05c9b6eb5473e2fb1d"
+        },
+        {
+          "label": "drainer-spender-1",
+          "subject": "0x7d77cf49d8c1851781C3cEfCdD9Bd9871366782e",
+          "category": 7,
+          "op": 0,
+          "writerSeq": "98",
+          "leafHash": "0x78d920b771818e00728a545d18cc43525184019fcc6e11fcabd252a4fed645c8"
+        },
+        {
+          "label": "drainer-spender-2",
+          "subject": "0x179d846C5cD28b5c8349E5E9015Cb40c7d387d1f",
+          "category": 7,
+          "op": 0,
+          "writerSeq": "99",
+          "leafHash": "0x4c9faf614b8304141319e604d90df3806301e84593220b018c2ce9b6eef21ec6"
+        },
+        {
+          "label": "drainer-spender-3",
+          "subject": "0x8B718c1308600e67d1D4D712D981D11dB8274739",
+          "category": 7,
+          "op": 0,
+          "writerSeq": "100",
+          "leafHash": "0xea85e166902ce521462adcf103b7942e2886caa432ddd65f0341e073a311f0fb"
+        },
+        {
+          "label": "drainer-spender-4",
+          "subject": "0x297d1D4cC22e4eDf76DBb5577525A7f2d3ef5435",
+          "category": 7,
+          "op": 0,
+          "writerSeq": "101",
+          "leafHash": "0xaf731edc41828cedd1d48dd8a413f3dedf70c4f71019e071bd92013908a2ce17"
+        },
+        {
+          "label": "drainer-spender-5",
+          "subject": "0xC52ca0e1e7105bedA46b45b95611D5567e5CB679",
+          "category": 7,
+          "op": 0,
+          "writerSeq": "102",
+          "leafHash": "0x60d86a844b36f1543034904c38421876c0184f5c79ac3663258ec9c14b3ff0d4"
+        },
+        {
+          "label": "paid-lookalike-1",
+          "subject": "0x8B075F39Bb2bFd0125e6599d879B994b813530b1",
+          "category": 6,
+          "op": 0,
+          "writerSeq": "103",
+          "leafHash": "0x22fe56772ecd7cf85d404055ae922056d8b4947711f3013bc1f0c486d97031ac"
+        },
+        {
+          "label": "paid-lookalike-2",
+          "subject": "0x0CCC1E5Fc88A58529e9e4104d7f0856c7f737c51",
+          "category": 6,
+          "op": 0,
+          "writerSeq": "104",
+          "leafHash": "0x75cf72b59cbc51e344456aa249c26c672557587084e4b1ca102a2cb749b6e63d"
+        },
+        {
+          "label": "paid-lookalike-3",
+          "subject": "0xe7Df501EfF3806f81a253AB06Db8a8E0f5b65847",
+          "category": 6,
+          "op": 0,
+          "writerSeq": "105",
+          "leafHash": "0xcefb942b6ac168c7f4b6383cf7da098768424f9d15f61e2fb41a80fdb6049513"
+        },
+        {
+          "label": "paid-lookalike-4",
+          "subject": "0x0461270428B72b4dD322E89f8abB2ebA8f561c76",
+          "category": 6,
+          "op": 0,
+          "writerSeq": "106",
+          "leafHash": "0x1e5f6a9866fe87e36e2d8f0becdef4cc8b7a7d671958eec2a5f3cb6820ac7a33"
+        },
+        {
+          "label": "paid-lookalike-retracted",
+          "subject": "0x9dF85792C46Ff0D052090AB6d911C9651F44CF34",
+          "category": 6,
+          "op": 0,
+          "writerSeq": "107",
+          "leafHash": "0x7ed67342a31241201e1e564004f5fc8bcaccddc341a9c563d8cddaa614444174"
+        },
+        {
+          "label": "poisoning-operator-m1",
+          "subject": "0x837F03f70B94d9215B2782514312A978309D46eE",
+          "category": 1,
+          "op": 0,
+          "writerSeq": "108",
+          "leafHash": "0xade587ff7728b7defd90a87c73c387f63050391f283ad66d12c391d929e16dc1"
+        },
+        {
+          "label": "poisoning-operator-m2",
+          "subject": "0xd09354Cce681E370239E1fb37744C80Ca863C5f8",
+          "category": 1,
+          "op": 0,
+          "writerSeq": "109",
+          "leafHash": "0xd1b3e9916c36fbbd1bed3e2b4bb77965d2a125798d7b9cdd10f46d5fa2af50eb"
+        },
+        {
+          "label": "poisoning-operator-m3",
+          "subject": "0x9C4779a81289aB963f0F1662b23156312b6981F5",
+          "category": 1,
+          "op": 0,
+          "writerSeq": "110",
+          "leafHash": "0xcc352a878d41233f66f209923f7fc84ee7caa96764122b73618a0a5ce8f5e79f"
+        },
+        {
+          "label": "poisoning-operator-m4",
+          "subject": "0x216CD9D7256140FE47A3E975C2F4aC8c1094b585",
+          "category": 1,
+          "op": 0,
+          "writerSeq": "111",
+          "leafHash": "0xce730946ece64ac73849f16be30a9c871220522b286c212b2b55a405eca60456"
+        },
+        {
+          "label": "poisoning-operator-m5",
+          "subject": "0xbc9DA53a829DF115B44a4723c919C41f3C7E6430",
+          "category": 1,
+          "op": 0,
+          "writerSeq": "112",
+          "leafHash": "0xeffaddb69f71bb15ac2154e41cecdf2cb9cac7917f923198b2d4e2fa575538ca"
+        },
+        {
+          "label": "poisoning-operator-m6",
+          "subject": "0xcC03101031C91e925d1db66a52320c6d5d5EB461",
+          "category": 1,
+          "op": 0,
+          "writerSeq": "113",
+          "leafHash": "0xbf87fcf914b84f7588df89c6d05e81e92ed72e898c3d53969d2629eb8f04c65f"
+        },
+        {
+          "label": "theft-proceeds-1",
+          "subject": "0xCd2698C9c9b2b69625DD2a56252190647F34913d",
+          "category": 8,
+          "op": 0,
+          "writerSeq": "114",
+          "leafHash": "0x66b42afa7e2c17f1b4910ea92ed0d9cfa37b5836565ee32ccd120b29489b94f7"
+        },
+        {
+          "label": "malicious-delegate-1",
+          "subject": "0x2F360fc5bD5a7FC606a039be9DE33253D11a8748",
+          "category": 4,
+          "op": 0,
+          "writerSeq": "115",
+          "leafHash": "0xbf3969298e9ba2d288ce7ab8d3650dd9dfcbd798bd5d74f0db7caabc03e3224b"
+        },
+        {
+          "label": "fakeUSDC",
+          "subject": "0x2Ba2B2F4bd18D04C3bA92DB9F73a49d19c87b4B8",
+          "category": 5,
+          "op": 0,
+          "writerSeq": "116",
+          "leafHash": "0x1343d043f3449ffac6027895a4f767633a7617ec4fa3750a9475b47ee293d3fb"
+        }
+      ]
+    },
+    {
+      "batch": "blockaid.tocsin.eth/flags",
+      "list": "blockaid.tocsin.eth",
+      "writer": "0x6f1524F5A1152d6b08ef8833E42E4311151e904F",
+      "via": "appendSigned",
+      "hash": "0x776b16f173dd1078251b0f34af6de52e9c918737694fd3eaf780c554667cb8e7",
+      "block": "12078190",
+      "leaves": 7,
+      "gasUsed": "453003",
+      "costWei": "8607057",
+      "fromSeq": "0",
+      "toSeq": "7",
+      "flags": [
+        {
+          "label": "drainer-receiver-1",
+          "subject": "0x79fDaE13B1A677E5b8Ac9f5411F6664788A17537",
+          "category": 3,
+          "op": 0,
+          "writerSeq": "1",
+          "leafHash": "0xa2276bb0169be8da24916f9ac3e42d85a0ec75a079587838d1fa98aa7c8b4c12"
+        },
+        {
+          "label": "drainer-receiver-2",
+          "subject": "0x9b8d5317e56272468B5e86c2984E65e7e62ec42e",
+          "category": 3,
+          "op": 0,
+          "writerSeq": "2",
+          "leafHash": "0xf9b27a5dd2712e6baea5f4f378eb888d6968ac25387ba268e028a7258b0685b1"
+        },
+        {
+          "label": "drainer-receiver-3",
+          "subject": "0x28042e65FbA1b9bD9165F4C02052a191802337E2",
+          "category": 3,
+          "op": 0,
+          "writerSeq": "3",
+          "leafHash": "0x7d38d417916d65bbde3dd8fe60f5e44c323c8d9155dfb4b004685dbb877d6fae"
+        },
+        {
+          "label": "drainer-spender-1",
+          "subject": "0x7d77cf49d8c1851781C3cEfCdD9Bd9871366782e",
+          "category": 7,
+          "op": 0,
+          "writerSeq": "4",
+          "leafHash": "0xd9d8c3f21d690645b1722b18eba07a42607ecdf93be5310ab465d78bf88a32f2"
+        },
+        {
+          "label": "harbor-drainer-receiver-1",
+          "subject": "0x43F13e6b61E179FD0227749499E87e28fC1e46F7",
+          "category": 3,
+          "op": 0,
+          "writerSeq": "5",
+          "leafHash": "0x52dee1c6871b021b0234c5cbf93a15588871c05c54b1067f6dd7194c4c19b53a"
+        },
+        {
+          "label": "harbor-drainer-receiver-2",
+          "subject": "0xE17A976744A6168b7e2150047eEc17460cCf9BFE",
+          "category": 3,
+          "op": 0,
+          "writerSeq": "6",
+          "leafHash": "0x3bc175d3fbd1ec4a132d67ef8c660fc8b6aed6df3dca2153db92e42525af68be"
+        },
+        {
+          "label": "harbor-drainer-spender-1",
+          "subject": "0x7D55A2380dA4ac015BFff9cDa5C9719Fbd75CFf6",
+          "category": 7,
+          "op": 0,
+          "writerSeq": "7",
+          "leafHash": "0xf20735b27160d71314d8ae04bfbc6af723724b4b44cc1fdfc50f2f2f8bf27916"
+        }
+      ]
+    },
+    {
+      "batch": "scamsniffer.tocsin.eth/flags",
+      "list": "scamsniffer.tocsin.eth",
+      "writer": "0x3a05D06949b9890aEAD4700AA5ECEbf4D1BA0Ba0",
+      "via": "appendSigned",
+      "hash": "0xf2679337c09e898c9a905875f284d0cbf665fe8424b740699b0d4987cc54028b",
+      "block": "12078191",
+      "leaves": 7,
+      "gasUsed": "452991",
+      "costWei": "8606829",
+      "fromSeq": "0",
+      "toSeq": "7",
+      "flags": [
+        {
+          "label": "drainer-receiver-1",
+          "subject": "0x79fDaE13B1A677E5b8Ac9f5411F6664788A17537",
+          "category": 3,
+          "op": 0,
+          "writerSeq": "1",
+          "leafHash": "0x0471764424b743e0950771310066f088bbba76d4742bd3651dcf16b172d1785d"
+        },
+        {
+          "label": "poisoning-operator-1",
+          "subject": "0x5126633bCFdb9E4A2FE7AB445394AE0a217f9120",
+          "category": 1,
+          "op": 0,
+          "writerSeq": "2",
+          "leafHash": "0xcc4fe44981544f7ec6ba8d42ccc78984aca17e00491fbb2f1302ae74d6765dbd"
+        },
+        {
+          "label": "poisoning-operator-2",
+          "subject": "0x141142085f71d9a466014ddA50C26A48Cc4bCfFC",
+          "category": 1,
+          "op": 0,
+          "writerSeq": "3",
+          "leafHash": "0x5ab8fc5a600d4e92fa15bbad8d2154232d575a7d759c60e1736827cd0601b12e"
+        },
+        {
+          "label": "paid-lookalike-1",
+          "subject": "0x8B075F39Bb2bFd0125e6599d879B994b813530b1",
+          "category": 6,
+          "op": 0,
+          "writerSeq": "4",
+          "leafHash": "0x291ec1232492168f573310c2ed8ac6154a22f7fbe4d9c14666cdb4f0ab485659"
+        },
+        {
+          "label": "lantern-poisoning-operator-1",
+          "subject": "0xd59557f9a8f3574f58FDc8ea63E4f9B1F7486B22",
+          "category": 1,
+          "op": 0,
+          "writerSeq": "5",
+          "leafHash": "0x011058896a6b27e3c0a3bd46b843179f1c468f8bed378b4c19220d7cdde18984"
+        },
+        {
+          "label": "lantern-poisoning-operator-2",
+          "subject": "0x2e98c029dC7ab1d53829AaB49fE0Dfe78e598581",
+          "category": 1,
+          "op": 0,
+          "writerSeq": "6",
+          "leafHash": "0x515b2a928bd2b769f2e4c995b87bee7506c9150da174d4e443eab5145ce102cc"
+        },
+        {
+          "label": "poisoning-funder-1",
+          "subject": "0xC6c795A123830c94299c35ecDa2539E039D85908",
+          "category": 2,
+          "op": 0,
+          "writerSeq": "7",
+          "leafHash": "0x463d31d4b66aff7bdfd2ad3fd4dbf39c8ed4eb9afa1ca08e40e7d3877066f1ed"
+        }
+      ]
+    },
+    {
+      "batch": "core.tocsin.eth/retract",
+      "list": "core.tocsin.eth",
+      "writer": "0x36a279136adDde960599fcA356369C04A96D387E",
+      "via": "appendSigned",
+      "hash": "0x5c1d36e71779297a7865e8530040400dae7ec2b5e78195035112e6a29ab7bc47",
+      "block": "12078192",
+      "leaves": 2,
+      "gasUsed": "109083",
+      "costWei": "2072577",
+      "fromSeq": "116",
+      "toSeq": "118",
+      "flags": [
+        {
+          "label": "paid-lookalike-retracted",
+          "subject": "0x9dF85792C46Ff0D052090AB6d911C9651F44CF34",
+          "category": 6,
+          "op": 1,
+          "writerSeq": "117",
+          "leafHash": "0xc90aa8aae8edc8943411ef4760aafff8cc37ce871819f6ae9846b8bfab50d5dd"
+        },
+        {
+          "label": "poisoning-operator-countered",
+          "subject": "0x9B513B74936bBA852C95184bC85DE92d43D655e8",
+          "category": 1,
+          "op": 2,
+          "writerSeq": "118",
+          "leafHash": "0x2890e97963ebe9b7df6153f8a09251a626fe8ed6cbdc564673a2d3b1c4aa7ea9"
+        }
+      ]
+    }
+  ]
+}

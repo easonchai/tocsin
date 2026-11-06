@@ -1,0 +1,42 @@
+{
+  "version": "0.0.1",
+  "description": "Checks recipients, spenders and permits against threat flags in an on-chain log, from writers on a signed list you pin. Best-effort: the header comes from an RPC.",
+  "proposedName": "Tocsin",
+  "source": {
+    "shasum": "Kirvl3DXxJMxcHTND+3rnvgZmjvEdyJlxVx783ojGoQ=",
+    "location": {
+      "npm": {
+        "filePath": "dist/bundle.js",
+        "iconPath": "images/icon.svg",
+        "packageName": "@tocsin/snap",
+        "registry": "https://registry.npmjs.org/"
+      }
+    }
+  },
+  "initialPermissions": {
+    "endowment:transaction-insight": {
+      "allowTransactionOrigin": false
+    },
+    "endowment:signature-insight": {
+      "allowSignatureOrigin": false
+    },
+    "endowment:cronjob": {
+      "jobs": [
+        {
+          "expression": "*/5 * * * *",
+          "request": {
+            "method": "sync"
+          }
+        }
+      ]
+    },
+    "endowment:network-access": {},
+    "endowment:lifecycle-hooks": {},
+    "endowment:page-settings": {},
+    "endowment:page-home": {},
+    "snap_manageState": {},
+    "snap_dialog": {}
+  },
+  "platformVersion": "12.1.0",
+  "manifestVersion": "0.1"
+}

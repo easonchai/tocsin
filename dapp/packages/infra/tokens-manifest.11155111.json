@@ -1,0 +1,13 @@
+{
+  "chainId": 11155111,
+  "wallet": "0xE0DFbd2B761929D02b30f2173C3386f0ec4B3cca",
+  "fakeUSDC": {
+    "address": "0x2Ba2B2F4bd18D04C3bA92DB9F73a49d19c87b4B8",
+    "tx": "0xf84ac5895ea99f84a8bd54aed7b5f3acbd9c3f07312f3fe5d3cb4b8b5afd7b41"
+  },
+  "realUSDC": {
+    "address": "0xf53749FD5e85d4169E95E18FeD40b9A5219FC039",
+    "tx": "0x8e10de32a028787666a5c24701560309f6fd80aad40033125d2db9568891333a"
+  },
+  "flagTx": "0xdc0dd8d51d45c05f6c012ae65ce4cd592f1554ad6aa9bfa86e80fed6f19f3cfb"
+}

@@ -1,0 +1,63 @@
+{
+  "chainId": 11155111,
+  "log": "0xB639d15A0E7aE24E4C32E851Fbe0E57585565b14",
+  "seenBlock": "12075028",
+  "curators": {
+    "harborwatch.eth": {
+      "writer": "0x6A690bB216f9e691FB4706eb7D59Fae610D081ad",
+      "tx": "0x3725c75cfdcd2a59dc1721ded1001aa0a83123c1f63e52e0043de64565af9dce",
+      "subjects": {
+        "drainer-receiver-1": "0x79fDaE13B1A677E5b8Ac9f5411F6664788A17537",
+        "drainer-receiver-2": "0x9b8d5317e56272468B5e86c2984E65e7e62ec42e",
+        "drainer-receiver-3": "0x28042e65FbA1b9bD9165F4C02052a191802337E2",
+        "drainer-spender-1": "0x7d77cf49d8c1851781C3cEfCdD9Bd9871366782e",
+        "harbor-drainer-receiver-1": "0x43F13e6b61E179FD0227749499E87e28fC1e46F7",
+        "harbor-drainer-receiver-2": "0xE17A976744A6168b7e2150047eEc17460cCf9BFE",
+        "harbor-drainer-spender-1": "0x7D55A2380dA4ac015BFff9cDa5C9719Fbd75CFf6"
+      }
+    },
+    "lanterndao.eth": {
+      "writer": "0x81fA2D7b81B951071738263f5b24688b15a6972C",
+      "tx": "0xa84cc88a1c65e0216e26b1c39d34386e32abaae0579552f6c18b64d4f0becb16",
+      "subjects": {
+        "drainer-receiver-1": "0x79fDaE13B1A677E5b8Ac9f5411F6664788A17537",
+        "poisoning-operator-1": "0x5126633bCFdb9E4A2FE7AB445394AE0a217f9120",
+        "poisoning-operator-2": "0x141142085f71d9a466014ddA50C26A48Cc4bCfFC",
+        "paid-lookalike-1": "0x8B075F39Bb2bFd0125e6599d879B994b813530b1",
+        "lantern-poisoning-operator-1": "0xd59557f9a8f3574f58FDc8ea63E4f9B1F7486B22",
+        "lantern-poisoning-operator-2": "0x2e98c029dC7ab1d53829AaB49fE0Dfe78e598581",
+        "poisoning-funder-1": "0xC6c795A123830c94299c35ecDa2539E039D85908"
+      }
+    }
+  },
+  "appends": [
+    {
+      "list": "lanterndao.eth",
+      "writer": "0x81fA2D7b81B951071738263f5b24688b15a6972C",
+      "tx": "0x988a1aaf67898b5d65aed3661646fb80a8f1f182e236979051ea682f0af2b11e",
+      "fromSeq": "6",
+      "toSeq": "7",
+      "flags": [
+        {
+          "label": "poisoning-funder-1",
+          "subject": "0xC6c795A123830c94299c35ecDa2539E039D85908",
+          "category": 2
+        }
+      ]
+    },
+    {
+      "list": "tocsin.eth",
+      "writer": "0x1D3B86A924ffb140bdD74Ee6a7533921ed141583",
+      "tx": "0x88a576a1152820f789585028789afecc7b0eda1b03531cf13b363c8657929aa3",
+      "fromSeq": "26",
+      "toSeq": "27",
+      "flags": [
+        {
+          "label": "malicious-delegate-1",
+          "subject": "0x2F360fc5bD5a7FC606a039be9DE33253D11a8748",
+          "category": 4
+        }
+      ]
+    }
+  ]
+}

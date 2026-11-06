@@ -4,7 +4,7 @@
     "$id": "ThreatFlagLog Append",
     "eip712": {
       "domain": { "name": "ThreatFlagLog", "version": "1" },
-      "deployments": [{ "chainId": 11155111, "address": "0xC5616bb2FDCcdD761aa969c5C0dFb3D5c7d93865" }]
+      "deployments": [{ "chainId": 11155111, "address": "0xB639d15A0E7aE24E4C32E851Fbe0E57585565b14" }]
     }
   },
   "metadata": {

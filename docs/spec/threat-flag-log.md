@@ -129,7 +129,7 @@ interface IThreatFlagLog {
 ```
 
 - `append` MUST use `msg.sender` as the writer.
-- `appendSigned` MUST verify an [EIP-712](https://eips.ethereum.org/EIPS/eip-712) signature by `writer` over the typed structure `Append(Leaf[] leaves,uint256 deadline,uint256 nonce)Leaf(uint64 chainId,address subject,uint8 category,uint8 op,bytes32 evidence,uint64 seenBlock,bytes32 refLeaf)`, where the `leaves` array is encoded per EIP-712 as the keccak256 of the concatenated `hashStruct` of each leaf. The domain has name `"ThreatFlagLog"` and version `"1"`. If `writer` has code, the log MUST verify through [ERC-1271](https://eips.ethereum.org/EIPS/eip-1271) `isValidSignature`; otherwise it MUST recover the signer with `ecrecover` and require it to equal `writer`. It MUST revert if `block.timestamp > deadline` or if `nonce != signatureNonce(writer)`, and MUST increment `signatureNonce(writer)` on success.
+- `appendSigned` MUST verify an [EIP-712](https://eips.ethereum.org/EIPS/eip-712) signature by `writer` over the typed structure `Append(Leaf[] leaves,uint256 deadline,uint256 nonce)Leaf(uint64 chainId,address subject,uint8 category,uint8 op,bytes32 evidence,uint64 seenBlock,bytes32 refLeaf)`, where the `leaves` array is encoded per EIP-712 as the keccak256 of the concatenated `hashStruct` of each leaf. The domain has name `"ThreatFlagLog"` and version `"1"`. If `writer` has code, the log MUST verify through [ERC-1271](https://eips.ethereum.org/EIPS/eip-1271) `isValidSignature`; otherwise it MUST recover the signer with `ecrecover` and require it to equal `writer`. It MUST reject every signature for `writer = address(0)`, because `ecrecover` returns the zero address for an invalid signature. It MUST revert if `block.timestamp > deadline` or if `nonce != signatureNonce(writer)`, and MUST increment `signatureNonce(writer)` on success.
 - The domain separator MUST be recomputed when `block.chainid` differs from the chain id at construction, so that a signature cannot be replayed across a chain split.
 - Every deployment MUST publish an [ERC-7730](https://eips.ethereum.org/EIPS/eip-7730) clear-signing descriptor covering `append`, `appendSigned`, and the `Append` typed data, mapping `category` and `op` values to their names, so that a signing device displays each subject and category rather than a hash. The `Append` structure MUST NOT contain any field that is only a hash of the leaves.
 - Both functions MUST emit `Appended` once per leaf, in order, with the values used in the chain computation.
@@ -153,14 +153,15 @@ The following slot positions are normative, so that a storage proof can be built
 
 The canonical log SHOULD be deployed on Ethereum mainnet. A consensus light client verifies a mainnet state root from sync-committee signatures alone, so a proven slot is trustless. A light client for a rollup either trusts the sequencer's signature on recent blocks or waits for the rollup's state to be proven on L1, so a reader on any chain verifies the canonical log with a mainnet light client; the chain the user transacts on does not matter to the read.
 
-The log MUST be deployed through the deterministic deployment proxy at `0x4e59b44847b379578588920cA78FbF26c0B4956C` with salt `bytes32(0)` and the init code of the reference implementation below, so that the address is the same on every chain where it is deployed. The canonical address and runtime code hash will be recorded here once deployed. Other deployments are permitted; readers choose which they pin.
+The log MUST be deployed through the deterministic deployment proxy at `0x4e59b44847b379578588920cA78FbF26c0B4956C` with salt `bytes32(0)` and the init code of the reference implementation below, so that the address is the same on every chain where it is deployed. The canonical mainnet address and runtime code hash will be recorded here once deployed. Other deployments are permitted; readers choose which they pin.
 
-Testnet deployment (Sepolia, chain id 11155111), predicted and not yet broadcast:
+Testnet deployment (Sepolia, chain id 11155111):
 
 | Field | Value |
 | --- | --- |
-| Address | `0xC5616bb2FDCcdD761aa969c5C0dFb3D5c7d93865` |
-| Runtime code hash | `0xdc59334640b4a42e076253a531f923cb65fa6e1091f535da8ff17ce74c24b93c`, measured on a fork of Sepolia; the runtime code embeds the chain id and address through immutables |
+| Address | `0xB639d15A0E7aE24E4C32E851Fbe0E57585565b14` |
+| Deployment | transaction `0x10e8e5dab0c7571012fbdabddd9200bcedfb8fb68426452f1c5a55709e1061b8`, block 12074077; verified on Sourcify and Etherscan |
+| Runtime code hash | `0xd9f882ccb806d16653f80dc459f533e23363936675d52e08f9ed7e7ee56a4ea5`, read from Sepolia; the runtime code embeds the chain id and address through immutables |
 | Compiler | solc 0.8.28, optimizer on, 200 runs, EVM version `cancun`, default CBOR metadata |
 | ERC-7730 descriptors | [`calldata-ThreatFlagLog.json`](../../dapp/packages/foundry/erc7730/calldata-ThreatFlagLog.json) for `append` and `appendSigned`, [`eip712-ThreatFlagLog.json`](../../dapp/packages/foundry/erc7730/eip712-ThreatFlagLog.json) for `Append`. ERC-7730 v2 does not allow calldata and EIP-712 contexts in one file, so the descriptor is a pair |
 
@@ -477,7 +478,8 @@ contract ThreatFlagLog {
             );
             return ok && ret.length == 32 && abi.decode(ret, (bytes4)) == IERC1271.isValidSignature.selector;
         }
-        if (sig.length != 65) return false;
+        // ecrecover returns address(0) on an invalid signature, so the zero writer would accept any garbage
+        if (writer == address(0) || sig.length != 65) return false;
         bytes32 r = bytes32(sig[0:32]);
         bytes32 s = bytes32(sig[32:64]);
         uint8 v = uint8(sig[64]);

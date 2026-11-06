@@ -94,14 +94,16 @@ Names in the hub:
 
 The two claims come from separate keys, each of which first registered its own `.eth` name (`blockaid.eth` in `0x5ada2ed4…c81431770`, `scamsniffer.eth` in `0x89b3173d…ca307009`) and deployed its own resolver. They are demo claims by keys we control, named after the organisations as placeholders. The real ones belong to whoever owns `blockaid.eth` and `scamsniffer.eth` on mainnet when the hub goes there. `etherscan.eth` is on the Sepolia registrar's reserved list, so that role is now `scamsniffer`. To claim your own: `docs/claim-a-name.md`.
 
-Published lists, both signed by the maintainer key `0x8E2C…3e31`:
+Published lists. core and detector are signed by the maintainer key `0x8E2C…3e31`, each claimant's by its own key. The demo wallet follows core, blockaid and scamsniffer:
 
 | Name | Record | Writers |
 | --- | --- | --- |
-| `core.tocsin.eth` | `tocsin.list` version 3, root `0x62ea0207…`, tx `0xe88b75c1…9178047d` | core writer `0x36a2…387E` at weight 255 (92 leaves), detector writer `0xe3a9…A999` at weight 1, warn (25 leaves) |
+| `core.tocsin.eth` | `tocsin.list` version 5, root `0x756fe5e6…`, tx `0xd0680d38…10d99b99` | core writer `0x36a2…387E` at weight 255 (92 seed leaves plus 26 Sepolia demo leaves), detector writer `0xe3a9…A999` at weight 1, warn (25 leaves) |
 | `detector.tocsin.eth` | `tocsin.list` version 2, root `0x30cf0073…`, tx `0xe2b7a7d9…a995887c` | detector writer `0xe3a9…A999` at weight 255 (25 leaves) |
+| `blockaid.tocsin.eth` | `tocsin.list` version 1, tx `0xaf1148cf…ae68bc1` | blockaid's key `0x6f15…904F` at weight 255 (7 demo leaves) |
+| `scamsniffer.tocsin.eth` | `tocsin.list` version 1, tx `0x5f2aeacf…6b3f696` | scamsniffer's key `0x3a05…0Ba0` at weight 1, warn (7 demo leaves) |
 
-The documents the records point at are `docs/plan/demo/seed/core.list.json` and `detector.list.json`.
+The documents the records point at are `docs/plan/demo/seed/<label>.list.json`. The demo's flags per subject, with the tx that wrote each, are in `docs/plan/demo/seed/demo-flags.sepolia.json`.
 
 Hub setup on 6 November 2026: MirrorRegistrar deployed in `0x62b66b34…7cc49bd4` (around block 12077305), granted registrar and renew in `0xf93fd6a1…6378c265` (block 12077307), subregistry emancipated in `0x50be9f1f…f9a36c1` (block 12077441). Checked afterwards: `isEmancipated()` is true, `hasAssignees(ROOT, dangerousRoles)` is false, every name resolves through the Universal Resolver proxy. Current state: `scripts/ens/state.sepolia.json` and `scripts/ens/claims.sepolia.json`; full hashes in ticket 15.
 
@@ -218,6 +220,9 @@ The resolver uses the same system and is not emancipated, on purpose. The mainta
 | `docs/claim-a-name.md` | How anyone claims `<label>.tocsin.eth` on Sepolia and publishes under it |
 | `docs/pitch/arguments.md` | Pitch copy: the supply-chain argument, fake heads, why not ENS, one-liners |
 | `docs/plan/demo/` | Demo spec, Snap UI spec, seed list, build tickets 01 to 15 |
+| `RUNBOOK.md` | Run the demo on a fresh clone: `./demo.sh`, then the beats in Kohaku and the Snap |
+| `bootstrap.sh`, `docs/agents/bootstrap.md` | Your own writers and lists on the shared log, no deploy: generates the keys, asks for one Sepolia ETH transfer, seeds, signs, and feeds `demo.sh` |
+| `docs/plan/demo/runbook.md` | Operator side: commands and env var names to seed, relay, detect, mirror, lie, publish lists, and build the extension, plus where each judge check is shown |
 | `docs/plan/log-contract/` | Contract spec and tickets |
 | `docs/wallet-integrations.md` | The three hosts: Kohaku, Snap, extension |
 | `docs/ideas/` | Parked ideas, such as the open-silicon signer |
@@ -225,6 +230,10 @@ The resolver uses the same system and is not emancipated, on purpose. The mainta
 | `scripts/seed/` | Seed the log from `core.json` |
 | `scripts/agent/` | The detector: an agent writer with its own name |
 | `HANDOFF.md` | Settled decisions, build order, open items |
+| `dapp/packages/reader` | The reader library every host shares: sync, verify, evaluate, trust lists, ENS |
+| `dapp/packages/infra` | Demo scripts: seed, relayer, detector, lying proxy, mirror, three-beat CLI, ENS setup |
+| `dapp/packages/snap` | The MetaMask Snap, the primary host |
+| `dapp/packages/extension` | The provider-proxy extension with Helios and Anon-RPC |
 | `dapp/packages/foundry` | The log contract, its Foundry tests, and the CREATE2 deploy script (Scaffold-ETH 2, Foundry flavour) |
 | `GLOSSARY.md` | Log, writer, leaf, subject, head, maintainer, reader |
 
@@ -280,7 +289,7 @@ cd dapp/packages/foundry
 forge test
 ```
 
-Sepolia only for now. The address comes from the deterministic deployment proxy `0x4e59b44847b379578588920cA78FbF26c0B4956C` with salt zero, so it is the same on every chain. For the current build it is `0xC5616bb2FDCcdD761aa969c5C0dFb3D5c7d93865`. Any edit to the contract or to the compiler settings in `foundry.toml` moves it.
+Sepolia only for now. The address comes from the deterministic deployment proxy `0x4e59b44847b379578588920cA78FbF26c0B4956C` with salt zero, so it is the same on every chain. For the current build it is `0xB639d15A0E7aE24E4C32E851Fbe0E57585565b14`. Any edit to the contract or to the compiler settings in `foundry.toml` moves it.
 
 One-time setup:
 
@@ -299,15 +308,17 @@ The script refuses to start unless the normative and boundary suites pass, the c
 To check a deployment yourself:
 
 ```sh
-cast code 0xC5616bb2FDCcdD761aa969c5C0dFb3D5c7d93865 --rpc-url "$SEPOLIA_RPC_URL" | cast keccak
-cast call 0xC5616bb2FDCcdD761aa969c5C0dFb3D5c7d93865 "globalSeq()(uint64)" --rpc-url "$SEPOLIA_RPC_URL"
+cast code 0xB639d15A0E7aE24E4C32E851Fbe0E57585565b14 --rpc-url "$SEPOLIA_RPC_URL" | cast keccak
+cast call 0xB639d15A0E7aE24E4C32E851Fbe0E57585565b14 "globalSeq()(uint64)" --rpc-url "$SEPOLIA_RPC_URL"
 ```
 
-The first should print `0xdc59334640b4a42e076253a531f923cb65fa6e1091f535da8ff17ce74c24b93c`, the runtime code hash in the spec's Deployment section.
+The first should print `0xd9f882ccb806d16653f80dc459f533e23363936675d52e08f9ed7e7ee56a4ea5`, the runtime code hash in the spec's Deployment section.
 
 For a local chain, SE-2's usual `yarn chain` and `yarn deploy` in `dapp/` deploy to the same address on anvil.
 
 ## Run things
+
+The demo, on a fresh clone: `./demo.sh`, then follow `RUNBOOK.md`. It needs Node 22, Chrome, and `tor-js-gateway` (or `TOCSIN_TRANSPORT=direct`); nothing else and no keys. For writers and lists of your own on the same log, `./bootstrap.sh` first (`docs/agents/bootstrap.md`).
 
 Preview the site from the repo root:
 
@@ -356,15 +367,39 @@ A reader downloads only the writers it pins. Fifty thousand flags a year is abou
 
 ## CROPS
 
-The Ethereum Foundation's test for the properties Ethereum must keep: censorship resistance, open source, privacy, security.
+Censorship resistance, open source, privacy, security: the Ethereum Foundation's test for what Ethereum must keep. This section describes the code as it ships on this branch. The log is deployed and verified on Sepolia at `0xB639d15A0E7aE24E4C32E851Fbe0E57585565b14`. `docs/plan/demo/runbook.md` maps each judge check to a file, command, or demo beat.
 
-**CR.** Nothing we run sits between the user and the data. The log has no owner and `append` is open to anyone. Entries are verified by replay against a proven head, so any RPC, mirror, or snapshot host is interchangeable, and a lying one produces "unverifiable," not a false "clean." Lists are signed by their maintainer and pinned on first use, so losing our name or domain cannot swap a reader's list. The hub registry is emancipated. A block is always overridable on the device.
+- **C.** We run the `tocsin.eth` name, the static host for list documents and mirror files, and the demo RPC. None of them sits in the read path after first sync: the log has no owner, pause, or delete, and every host keeps its pinned list and checkpoints on the device and replays leaves from any Sepolia RPC. If all three vanish or refuse a user, an installed host still blocks, which `dapp/packages/snap/test/bundle.test.ts` tests by deleting them. A fresh install has nothing to pin until someone serves a list record, and a writer whose relayer refuses sends `append` itself.
+- **O.** MIT for the repo, CC0 for the spec and the reference implementation. A clone builds and runs every piece with public RPCs and no account, key, or service of ours. `forge test`, the Snap and extension builds, and `dapp/packages/kohaku/setup.sh` are in this file and the runbook.
+- **P.** No per-address query leaves the device. In Kohaku and the extension, every Tocsin read (header, proofs, ENS, leaves) goes through the Anon-RPC worker, so the Sepolia RPC sees a Tor or Nym exit, not the user. The mainnet consensus server that verifies the worker hash sees the user's IP and learns that a light client runs. In the Snap, the configured RPC sees the IP, the log address, and the pinned writers. Our static host sees the IP of a Snap or extension that fetches a list document directly. No analytics, indexer, or backend of ours exists. Upstream Kohaku ships Sentry crash reporting behind `SENTRY_DSN_BROWSER_EXTENSION`; `setup.sh` leaves it empty, so it never initialises.
+- **S.** Tocsin holds no keys and signs nothing. It reads, and the wallet keeps custody. Pinned lists, checkpoints, and overrides live in Snap state or extension storage and never leave. Trust, in order: the pinned maintainer key of each list, the writers those lists name within their block ranges, the Sepolia RPC for the header in the Snap and Kohaku, and the sync committee plus pinned checkpoint in the extension. A read that fails to verify shows as unverifiable, never as clean.
 
-**O.** MIT for this repository, CC0 for the spec and the reference implementation. It builds from the repo alone. No backend, indexer, or API of ours.
+**Before and after.** Before ETHGlobal Mumbai, this repo held the ERC draft, its reference implementation with nine Foundry tests, and the landing page. Nothing was deployed and no wallet could read it. The hackathon put the log on Sepolia, registered the ENSv2 names and signed lists, and built the reader and three hosts: the Snap, the provider-proxy extension, and the Kohaku patches. The new property is C. A wallet now blocks a flagged address from a log nobody owns, and keeps blocking after our name, host, and RPC are gone. P is new in Kohaku, where the Anon-RPC worker carries every Tocsin read. Stock Kohaku sends to the drainer receiver with no warning. Patched Kohaku blocks it, and still blocks it when the RPC lies.
 
-**P.** The RPC sees one storage proof for the writers in the user's lists and bounded log ranges by writer, over the EF's Anon-RPC worker where the host allows it. Nobody sees the recipient, the spender, or the user's own address in connection with a check, because every check runs on the device against a locally replayed set.
+**Operator powers: none on the log.** `ThreatFlagLog.sol` has two state-changing functions, `append` and `appendSigned`, and no owner, pause, upgrade, allowlist, or delete. Anyone can relay a signed batch, and a writer whose relayer refuses can send `append` itself. Two powers exist off the contract. The ENS name owner can repoint the list record, and the list maintainer can sign a new version. Hosts pin the maintainer on first use. In the Snap, a list signed by a different key opens a confirmation dialog. The extension keeps the old pin and says so on the overlay. A stolen maintainer key can still sign a higher version that hosts accept without asking. The maintainer's ENSv2 publish grant covers every name on its resolver, the writer subnames included.
 
-**S.** The wallet holds no keys of ours and sends no user data anywhere. Trust assumptions, in order: the sync committee and the pinned weak-subjectivity checkpoint; the maintainers of the lists the user pinned; the writers those lists name, bounded by block ranges. Walkaway test: delete the team, the domain, and every server, and the log, the pinned lists, the names, and the wallet keep working.
+**What survives the team disappearing.** The log survives because nobody controls it. Every installed host survives because it keeps its pinned list and checkpoints on the device, in Snap state or in `chrome.storage.local`, and reads leaves from any Sepolia RPC and verifies them by replay. The walkaway test in `dapp/packages/snap/test/bundle.test.ts` deletes the team's ENS records, list host, and mirror, and the built Snap still blocks the seeded drainer receiver from the pinned list and the log. The extension falls back to its pin through the same code, without a test of its own. Three things stop. The mirror source fails, because the team serves those files. Writer names fall back to short addresses. A fresh install has nothing to pin until someone serves a list record and its document. The code is MIT, and the spec and the reference implementation are CC0. No host talks to a backend, indexer, or API of ours. The only team-run server is the static host for list documents and mirror files, and the reader verifies everything it serves.
+
+**What an observer learns.** No per-subject query leaves the device. Recipients, spenders, and permit spenders are checked inside the host against the replayed set. Evidence links open the explorer only when the user clicks. What does leave:
+
+| Read | Snap | Kohaku, `tor` or `nym` | Extension, `tor` or `nym` | Extension, `direct` |
+| --- | --- | --- | --- | --- |
+| Header, storage proof for the pinned writers only, ENS record and writer names | The RPC set in settings, direct. It sees the user's IP, the log, and the pinned writers | The RPC set in Settings, through the Anon-RPC worker. No light client checks the header | Sepolia Helios. Its execution calls go through the Anon-RPC worker. The consensus server is contacted directly | Sepolia Helios, direct to its RPC |
+| Leaves, `eth_getLogs` per pinned writer | The same RPC or the custom URL, direct | Through the Anon-RPC worker | Through the Anon-RPC worker | Direct |
+| List document at `listURI` | Direct | Through the Anon-RPC worker. Localhost goes direct | Direct, not through the worker | Direct |
+| Mirror files at `snapshotURI` | Direct, when the source is the mirror | Not read | Not read | Not read |
+| Worker bootstrap | None | Mainnet Helios, direct. Learns that a light client runs and which worker it loads | Mainnet Helios, direct. Learns that a light client runs and which worker it loads | None |
+
+The spec says readers SHOULD fetch list documents over the anonymising transport. Kohaku does. The extension does not yet, so the static host learns the user's IP and which list they read. Kohaku's own reads, for balances and its bundler, are untouched and go to its configured RPC directly. That is a stated trade-off, not a gap: Tocsin anonymises what Tocsin adds.
+
+**Trust level of each host,** as `docs/wallet-integrations.md` defines it, adjusted for what shipped:
+
+- MetaMask Snap, the primary host: best-effort. The header and storage proofs come from the configured RPC and no light client checks them. A lying RPC whose answers agree with each other could forge a head. One whose logs disagree with its proven head produces "cannot vouch", never "clean". The panel says the header is unverified and the RPC is not anonymised. The Snap cannot stop a transaction. It raises MetaMask's critical warning, and the confirm button stays the user's.
+- Provider-proxy extension: built for the full claim. Helios checks the header and proofs, and the Anon-RPC worker carries execution reads. It has not run in a real browser yet. It has no settings page and no mirror source. RPCs, transport, and list name are fixed at build time. The override enables after five seconds, on the device, and nobody is told.
+- Kohaku, as two patches on upstream in `dapp/packages/kohaku`: best-effort for the header, like the Snap, since one RPC serves it and Kohaku's own Helios is not wired to Tocsin yet. Private for every read, since the worker carries them all. The send screen and both sign screens block on a verdict. Settings gets a Tocsin page with the RPC URL and a sync button, which is how the lying-RPC beat is shown.
+- The `/harness` page in `dapp/packages/nextjs`: once produced a light-client-verified proof over Nym. Over Tor it reached the RPC once and never completed a proof, because the public demo gateway failed most cold starts. The stage needs our own `tor-js-gateway` or the Nym switch.
+
+Trust assumptions, in order: the sync committee and the pinned weak-subjectivity checkpoint, in the extension only; the RPC, in the Snap and Kohaku; the maintainers of the pinned lists; the writers those lists name, bounded by block ranges.
 
 ## Before going further
 
@@ -403,6 +438,35 @@ Per-name registries, per-account resolvers, and revocable roles made "a director
 5. `UserRegistryImpl.initialize` grants must include the admin bits for any role you will later grant to a registrar, or the grant reverts. The docs mention it. A warning next to the initialize example would stop the dead-end deploy.
 6. The role bitmap composer is good. An emancipation recipe next to it, `revokeRootRoles(roles(ROOT, me), me)` followed by `isEmancipated()`, would make the strongest access-control feature easy to show.
 7. Worked without friction: the Universal Resolver returning a freshly claimed subname within seconds, the Verifiable Factory's predictable addresses on first deploy, and the resolver's DNS-name setters and `grantSetterRoles` behaving exactly as the docs describe.
+
+### Ethereum Foundation: Best CROPS App, with Anon-RPC
+
+EF places a project in one of its tracks. We fit CROPS first, because censorship resistance is why Tocsin exists, and Anon-RPC second, because it is how the privacy letter holds in Kohaku and the extension.
+
+**Why we are applicable**
+
+Tocsin is an ownerless, append-only log of scam infrastructure in Ethereum state, so a wallet can check an address without asking Etherscan, Blockaid, or us. Censorship resistance is the reason it exists. The last on-chain address list, the Chainalysis sanctions oracle, stopped in March 2026 because it had an owner. This one has no owner, no pause, no delete, and every installed host keeps working if our ENS name, list host, and mirror all vanish. `dapp/packages/snap/test/bundle.test.ts` deletes all three and the built Snap still blocks the seeded drainer receiver.
+
+Privacy holds too. No per-address query leaves the device. In Kohaku, every Tocsin read (header, proofs, ENS, log leaves, the list document) goes through the Anon-RPC worker, booted from the on-chain specifier and verified through a mainnet Helios. Kohaku's own balance and bundler reads stay direct, on purpose, and the CROPS section above says so. MIT code, CC0 spec, no trackers, no backend.
+
+**Link to the line of code**
+
+https://github.com/easonchai/tocsin/blob/main/dapp/packages/foundry/contracts/ThreatFlagLog.sol#L92
+
+That is the fold, `wHead = keccak256(abi.encodePacked(wHead, leafHash))`. It is the whole censorship-resistance claim in one line: the contract has no operation that produces a head any other way, so no owner, writer, or relayer can edit, remove, or reorder a flag. For the privacy side, the Anon-RPC worker boots in `dapp/packages/nextjs/utils/harness/anonHelios.ts` at the `AnonRpcWorker` import, and Kohaku calls it from `dapp/packages/kohaku/patches/kohaku-extension.patch` in the offscreen page that answers the controller's fetches.
+
+**Ease of use: 6 out of 10**
+
+The worker and specifier model are clean, and the demo page runs as documented. Every integration past that page cost a workaround, listed below.
+
+**Feedback for the sponsor**
+
+1. The harness builds its isolation frame from an inline `srcdoc`, which an MV3 extension CSP blocks. We serve `iframe-boot.js` from a manifest sandbox page and pass an `iframeUrl` that the 0.4.0 host reads but its types do not declare. Document and type it.
+2. Specifier contracts live only on mainnet, so an app on Sepolia runs a mainnet light client just to verify the worker hash. Specifiers on Sepolia would remove a whole Helios instance from the boot path.
+3. The harness reads the specifier at `latest`, which trips Helios's out-of-sync check when the consensus server lags an epoch. We measured 236 seconds on mainnet. Read at `finalized`.
+4. The Nym worker drops the `content-type` header, so its RPC must accept a body without one. The public Tor demo gateway failed most cold starts, so we run our own `tor-js-gateway`. Ship a gateway teams can rely on, or say up front that one is expected.
+5. Helios collapses worker errors into "error sending request". The worker's own reason is only visible if you wrap `fetch` yourself. Surface it.
+6. Worked without friction: the specifier read, the hash check, and the worker's `request` once the frame loaded.
 
 ## License
 

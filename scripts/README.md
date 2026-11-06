@@ -6,7 +6,7 @@ All Sepolia, on the ENSv2 contract set the Universal Resolver reads (the 1 Octob
 node --env-file=scripts/.env scripts/ens/setup-all.mjs
 ```
 
-The keys, one per role: `TOCSIN_PRIVATE_KEY` is the maintainer (owns `tocsin.eth`, the subregistry before emancipation, the maintainer resolver, `core` and `detector`, and signs both lists). `CORE_WRITER_PRIVATE_KEY` is the key whose 92 leaves are in the log; only its address is used, and it defaults to the maintainer. `BLOCKAID_PRIVATE_KEY` and `SCAMSNIFFER_PRIVATE_KEY` are the two claimants; the label each claims is the slot name. `DETECTOR_PRIVATE_KEY` is read only by `scripts/agent/detector.mjs`.
+The keys, one per role: `TOCSIN_PRIVATE_KEY` is the maintainer (owns `tocsin.eth`, the subregistry before emancipation, the maintainer resolver, `core` and `detector`, and signs both lists). `CORE_WRITER_PRIVATE_KEY` is the key whose 92 leaves are in the log; only its address is used, and it defaults to the maintainer. `BLOCKAID_PRIVATE_KEY` and `SCAMSNIFFER_PRIVATE_KEY` are the two claimants; the label each claims is the slot name, and each signs its own list. `DETECTOR_PRIVATE_KEY` is read only by `scripts/agent/detector.mjs`.
 
 What it does, in order, skipping anything already in place:
 
@@ -17,13 +17,13 @@ What it does, in order, skipping anything already in place:
 5. Registers `core.tocsin.eth` to the maintainer, expiry mirrored from `tocsin.eth`, and sets addr records.
 6. For each of the `BLOCKAID` and `SCAMSNIFFER` keys present: registers `<label>.eth` if needed, takes that key's resolver from `claims.sepolia.json` if it has code there (the factory reverts on a reused salt, so a second deploy would fail), else deploys one, claims `<label>.tocsin.eth` through the MirrorRegistrar, sets its addr.
 7. Reads `detector.tocsin.eth`, which the maintainer registered for the detector agent before this script existed. Whatever address it resolves to is the detector's writer. The script does not run the detector and does not claim that name.
-8. Publishes, from the maintainer key, `detector.tocsin.eth`'s list naming the detector writer and `core.tocsin.eth`'s list naming the core writer at weight 255 and the detector writer at weight 1 (warn), under the text key `tocsin.list`, skipping any record whose content is already live.
+8. Publishes, from the maintainer key, `detector.tocsin.eth`'s list naming the detector writer and `core.tocsin.eth`'s list naming the core writer at weight 255 and the detector writer at weight 1 (warn), under the text key `tocsin.list`, skipping any record whose content is already live. Then each claimant publishes, from its own key, `<label>.tocsin.eth`'s list naming that key: blockaid at weight 255, scamsniffer at weight 1 (warn), operator `<label>.eth`. Each record's list URI is that list's `docs/plan/demo/seed/<label>.list.json` on GitHub `main`, so a list loads from ENS only once its file is on `main`. `demo.sh` follows core, blockaid and scamsniffer.
 9. Emancipates the subregistry: revokes every root role from the maintainer, then records `isEmancipated()` and `hasAssignees(ROOT, dangerousRoles)`.
 10. Resolves every name through the Universal Resolver proxy and prints what any app would see.
 
 Flags: `--keep-roles` skips emancipation (irreversible once run), `--skip-claims`, `--skip-lists`.
 
-Outputs to commit: `scripts/ens/state.sepolia.json`, `scripts/ens/claims.sepolia.json`, `docs/plan/demo/seed/core.list.json`, `docs/plan/demo/seed/detector.list.json`.
+Outputs to commit: `scripts/ens/state.sepolia.json`, `scripts/ens/claims.sepolia.json`, `docs/plan/demo/seed/<label>.list.json` for core, detector, blockaid and scamsniffer, and the demo copies above. The demo flags behind those lists come from `dapp/packages/infra/src/seed-names.ts` (`docs/plan/demo/runbook.md`, step 2c).
 
 A claimant label must be free on the registrar. `registerEth` stops with "not available (status N: reserved or in grace)" when `isAvailable(label)` is false. `etherscan` is on the Sepolia registrar's reserved list (status 1), which is why the second claimant is `scamsniffer`. Check a label first with `cast call 0xf633e7FC17e2bbE0D0965D18ec1821dcB754a3d3 'isAvailable(string)(bool)' <label> --rpc-url $SEPOLIA_RPC`.
 

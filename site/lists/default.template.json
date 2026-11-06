@@ -1,0 +1,33 @@
+{
+  "log": "0xB639d15A0E7aE24E4C32E851Fbe0E57585565b14",
+  "chainId": 11155111,
+  "maintainer": "{{MAINTAINER}}",
+  "version": 1,
+  "entries": [
+    {
+      "writer": "{{MANUAL_WRITER}}",
+      "weight": 255,
+      "operator": "{{OPERATOR_NAMEHASH}}",
+      "upstream": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "fromBlock": 0,
+      "toBlock": 0,
+      "headPin": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "categories": "0x1",
+      "snapshotURI": "{{SITE_BASE_URL}}/mirror/{{MANUAL_WRITER}}.json"
+    },
+    {
+      "writer": "{{DETECTOR_WRITER}}",
+      "weight": 1,
+      "operator": "{{OPERATOR_NAMEHASH}}",
+      "upstream": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "fromBlock": 0,
+      "toBlock": 0,
+      "headPin": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "categories": "0x2",
+      "snapshotURI": "{{SITE_BASE_URL}}/mirror/{{DETECTOR_WRITER}}.json"
+    }
+  ],
+  "labels": {
+    "{{OPERATOR_NAME}}": "{{OPERATOR_NAMEHASH}}"
+  }
+}

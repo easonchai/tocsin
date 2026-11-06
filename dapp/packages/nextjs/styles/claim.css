@@ -1,0 +1,23 @@
+/* claim.html links style.css, then its inline <style>; the import keeps that order. */
+@import "./landing.css";
+
+/* The inline <style> of site/claim.html. */
+.claim { max-width: 760px; margin: 0 auto; padding: 56px 24px 96px; position: relative; z-index: 1; }
+.claim h1 { font-size: clamp(34px, 5vw, 52px); margin: 10px 0 14px; }
+.claim .lede { margin-bottom: 36px; }
+.panel { background: var(--ink-800); border: var(--hair); border-radius: var(--r); padding: 22px 24px; margin-bottom: 20px; }
+.panel h2 { font-size: 18px; margin: 0 0 14px; display: flex; align-items: center; gap: 12px; }
+.panel h2 .n { font-family: var(--mono); font-size: 12px; color: var(--ink-400); letter-spacing: .08em; }
+.row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+input[type=text] { font-family: var(--mono); font-size: 15px; padding: 10px 12px; background: var(--ink-900); color: var(--paper-100); border: 1px solid var(--ink-600); border-radius: var(--r); min-width: 220px; }
+input[type=text]:focus { outline: none; border-color: var(--paper-200); }
+.suffix { font-family: var(--mono); color: var(--ink-400); }
+.status { font-family: var(--mono); font-size: 13px; color: var(--paper-200); margin-top: 12px; line-height: 1.7; white-space: pre-wrap; }
+.status .ok { color: var(--paper-100); } .status .bad { color: var(--alert); } .status .amber { color: var(--signal); } .status .muted { color: var(--ink-400); }
+.btn[disabled] { opacity: .45; pointer-events: none; }
+.kv { display: grid; grid-template-columns: 160px 1fr; gap: 6px 16px; font-family: var(--mono); font-size: 13px; }
+.kv span:first-child { color: var(--ink-400); }
+.kv a { color: var(--paper-100); border-bottom: 1px solid var(--ink-600); }
+.claims li { font-family: var(--mono); font-size: 13px; padding: 6px 0; border-bottom: var(--hair); display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.claims li span:last-child { color: var(--ink-400); }
+.note { font-size: 14px; color: var(--ink-400); margin-top: 10px; }
