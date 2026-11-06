@@ -4,8 +4,8 @@ Read this first if you are picking the project up. Everything that matters is in
 
 ## What exists
 
-- The ERC draft, `erc/eip-draft_threat_flag_log.md`. Version two. It has been through an eight-lens review against the ethskills guides and the EIP-1 format. The reference implementation in its last section compiled and passed nine Foundry tests covering normative cases 1 to 9 on 5 November. The Solidity files are deliberately not in the repo yet; extract the reference section into a Foundry project when you start the contract work.
-- The site, `site/`. Static, fonts bundled, no external requests. `site/erc.html` is generated from the markdown by `scripts/build-erc.mjs`.
+- The spec, `docs/spec/threat-flag-log.md`. Version two. It has been through an eight-lens review against the ethskills guides. Not submitted to any standards body. The reference implementation in its last section compiled and passed nine Foundry tests covering normative cases 1 to 9 on 5 November. The Solidity files are deliberately not in the repo yet; extract the reference section into a Foundry project when you start the contract work.
+- The site, `site/`. Static, fonts bundled, no external requests.
 - The PRD, a Claude Doc: https://claude.ai/artifact/6zCRXmy9mmdUBX9okV4nCY. It predates the review and still mentions Chainlink CRE, which we dropped.
 
 ## Decisions that are settled
@@ -17,7 +17,7 @@ Read this first if you are picking the project up. Everything that matters is in
 - The log has no access control. Writer is `msg.sender` or the EIP-712 or ERC-1271 signer. Anyone writes into their own namespace.
 - Gas: about 10,000 gas per flag batched, event-dominated, under half a cent at this week's median. Say "about half a cent a flag". Glamsterdam calldata repricing is noted in the Rationale, not acted on.
 - `chainId = 0` only for categories 1, 2, 6. Category 1 is the authorizer (4337 sender), never the bundler. Category 4's subject is the address after the `0xef0100` designator.
-- Blob mode removed to a later ERC. A Bloom-filter mode for very large writers and a state-storage fallback for data availability were discussed and not written.
+- Blob mode removed to a later revision of the spec. A Bloom-filter mode for very large writers and a state-storage fallback for data availability were discussed and not written.
 - No Chainlink CRE. The automated writer is a plain detector script with its own key, listed at warn weight.
 - Deploy with CREATE2 through `0x4e59b44847b379578588920cA78FbF26c0B4956C`, salt zero, on Sepolia and mainnet so the address matches. Append two or three real mainnet flags before judging.
 - Anon-RPC host (6 Nov): upstream Kohaku does not route reads through Anon-RPC, so our patch adds it for Tocsin's reads only (`dapp/packages/kohaku`, an offscreen document with the tor-js worker, hash verified through mainnet Helios). The Kohaku module is the Anon-RPC prize entry; the provider-proxy extension is the fallback, since it meets the same rule. Kohaku's own balance, gas and simulation reads still go direct.
@@ -79,11 +79,10 @@ Questions to put to mentors: who would sign entries under their own key as the f
 
 ## People to find at Devcon 8
 
-The speaker on a shared evidence layer for on-chain crime (first writer or closest competitor, find out which). The address-poisoning evolution speaker (data for the backtest). The Kohaku, PIR, and verified-reads people (the EF side of the Anon-RPC prize). The author of the trustless log index proposal for Geth (cite it in the ERC). The ENSv2 irreversibility speaker (sanity-check the subregistry plan).
+The speaker on a shared evidence layer for on-chain crime (first writer or closest competitor, find out which). The address-poisoning evolution speaker (data for the backtest). The Kohaku, PIR, and verified-reads people (the EF side of the Anon-RPC prize). The author of the trustless log index proposal for Geth (cite it in the spec). The ENSv2 irreversibility speaker (sanity-check the subregistry plan).
 
 ## Open items
 
-- Replace the `discussions-to` TODO after the Ethereum Magicians post.
-- Backtest before the ERC PR: share of lost dollars to addresses that met the write criteria at least an hour before the loss. Under 10 percent, stop; over 25 percent, build.
+- Backtest before going further: share of lost dollars to addresses that met the write criteria at least an hour before the loss. Under 10 percent, stop; over 25 percent, build.
 - The landing page's blind design critique plateaued around 7 of 10. Remaining asks are taste calls on the hero and the trace panel.
 - Update the PRD to drop Chainlink CRE.

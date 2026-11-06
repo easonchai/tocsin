@@ -1,6 +1,6 @@
 # 08: ENS lists on Sepolia (ENSv2, fallback text record)
 
-Spec: `docs/plan/demo/spec.md`, Implementation decisions, Trust lists, publication and ENSv2; Further notes, ENSv2 unverified. PRD: `erc/eip-draft_threat_flag_log.md`, Trust lists, publication method (b) and the verified-lookup bullet. HANDOFF step 4.
+Spec: `docs/plan/demo/spec.md`, Implementation decisions, Trust lists, publication and ENSv2; Further notes, ENSv2 unverified. PRD: `docs/spec/threat-flag-log.md`, Trust lists, publication method (b) and the verified-lookup bullet. HANDOFF step 4.
 
 **What to build:** A reader that knows only the team's ENS name finds the current signed list on Sepolia through verified state, with no gateway in the path. The team's name is an ENSv2 subregistry, writers are subnames, and the maintainer key holds the publish role; if ENSv2 is not on Sepolia, a plain text record on the same name and the ENS prize is dropped.
 
@@ -79,7 +79,7 @@ Spec: `docs/plan/demo/spec.md`, Implementation decisions, Trust lists, publicati
 - 2026-11-06, from `main`, June-set run. This comment records the first run, on the 29 June 2026 contracts-v2 set, which the Universal Resolver does not read, so resolvers never saw these names or records. Its addresses and hashes are superseded by the next comment, and the scripts it names were replaced by `scripts/ens/setup-all.mjs`. Built at the time:
   - tocsin.eth registered on the v2 ETHRegistry; its own UserRegistry subregistry 0x61F6B44C598d7171947eE059e1d486eDd6950b88 and PermissionedResolver 0x1cBF0A41B77416381C6eEC40b703BBe4722519E6, both through the Verifiable Factory; registry emancipated.
   - Writers as subnames through the MirrorRegistrar (ticket 15): core, blockaid, etherscan, detector.
-  - The list record under the key tocsin.list (the ERC's erc-XXXX.list until numbered), published by scripts/seed/publish-list.mjs from the maintainer key: core.tocsin.eth v2 naming both writers, detector.tocsin.eth v1 naming itself. Records decode, signers recover to the maintainers, documents hash to the roots.
+  - The list record under the key tocsin.list (the key the spec names), published by scripts/seed/publish-list.mjs from the maintainer key: core.tocsin.eth v2 naming both writers, detector.tocsin.eth v1 naming itself. Records decode, signers recover to the maintainers, documents hash to the roots.
   - Publish-role delegation exists (scripts/ens/5-delegate-publisher.mjs, authorizeTextRoles) and is not exercised yet; the maintainer key publishes directly.
 - 2026-11-06, from `main`, October set redeploy. The names and lists were rebuilt on the 1 October 2026 ENSv2 set the Universal Resolver reads (addresses from `@ensdomains/ensjs` 5.2.12, `ensL1Contracts[11155111]`; the `deployments/sepolia` folder in `ensdomains/contracts-v2` is still the June set). Run with `node --env-file=scripts/.env scripts/ens/setup-all.mjs`.
   - tocsin.eth owned by the maintainer key 0x8E2Cc65A08154a357136C8060DE5232FDdEe3e31; subregistry 0x45cb8bE82D927d8d310cd6B357708b0367B4435B, emancipated in 0x50be9f1fdeba9c0007203af4b147c51a2c1761ae0187d4902cf12f064f9a36c1; maintainer resolver 0xedB3Ac2276803E249be532E6Bab168Af4b9549A6.

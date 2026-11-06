@@ -92,9 +92,10 @@ cat >"$OUT/demo.env" <<EOF
 # Written by bootstrap.sh. demo.sh sources this before its defaults; source it yourself for the CLI beats (yarn workspace @tocsin/infra eval).
 export TOCSIN_LIST_NAME=tocsin.eth,harborwatch.eth,lanterndao.eth
 export TOCSIN_LIST_RECORD=$record
+export TOCSIN_LIST_NAME=tocsin.eth,harborwatch.eth,lanterndao.eth
 export TOCSIN_LIST_RECORDS=harborwatch.eth=$harbor,lanterndao.eth=$lantern
 export TOCSIN_LOG_FROM_BLOCK=$FROM_BLOCK
-export PROXY_DROP_WRITER=$MANUAL_WRITER_ADDRESS
+export PROXY_DROP_WRITER=$MANUAL_WRITER_ADDRESS PROXY_DROP_SEQ=1
 export RPC_URL=$RPC_URL CHAIN_ID=$CHAIN_ID LOG_ADDRESS=$LOG_ADDRESS
 export LIST_RECORD=$record LIST_DOCUMENT=$LOCAL/lists/default.json LOG_FROM_BLOCK=$FROM_BLOCK
 EOF

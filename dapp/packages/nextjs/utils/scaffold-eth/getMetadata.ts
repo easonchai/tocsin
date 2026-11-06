@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
 
-const baseUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL
-  ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-  : `http://localhost:${process.env.PORT || 3000}`;
+// NEXT_PUBLIC_PRODUCTION_URL is for the IPFS build (e.g. https://tocsin.eth.limo), which Vercel's variable never reaches.
+const baseUrl =
+  process.env.NEXT_PUBLIC_PRODUCTION_URL ??
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL
+    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+    : `http://localhost:${process.env.PORT || 3000}`);
 const titleTemplate = "%s | Tocsin";
 
 export const getMetadata = ({

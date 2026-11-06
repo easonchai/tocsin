@@ -67,7 +67,7 @@ Component tree, top to bottom. Words in quotes are the literal copy.
 3. `Section` with `Row`s, in this order:
    - `Row` label "address", value `Address` component with the flagged address (jazzicon makes it recognisable against the Details tab).
    - `Row` label "role", value `Text` "recipient" (or "spender", "operator", "delegate", matching where the address was found).
-   - `Row` label "category", value `Text` "DRAINER_RECEIVER", with a `Tooltip` on the row giving the plain-language definition from the ERC's category table.
+   - `Row` label "category", value `Text` "DRAINER_RECEIVER", with a `Tooltip` on the row giving the plain-language definition from the spec's category table.
    - `Row` label "flagged by", value: a `Box` with one `Text` per writer, the writer's ENS name. One label, stacked values. The banner names the lists.
    - `Row` label "evidence", value: a `Box` with one `Link` per distinct hash to the evidence transaction on the chain's explorer, text being the truncated hash. One label, stacked values.
    - `Row` label "seen", value `Text` "block 23,410,118 · 14 days ago" from the leaf's `seenBlock`.
@@ -150,7 +150,7 @@ Below the cards, a `Form` with `Field` "Add a list by ENS name", `Input` placeho
 ### 5.3 Policy
 
 - `Dropdown` "Block when flagged by": options "1 writer", "2 independent writers" (default 2).
-- `Checkbox` per warn-only category, defaulting to the ERC's recommendation: `POISONING_FUNDER` warn, `THEFT_PROCEEDS` warn, everything else block.
+- `Checkbox` per warn-only category, defaulting to the spec's recommendation: `POISONING_FUNDER` warn, `THEFT_PROCEEDS` warn, everything else block.
 - `Checkbox` "Also check approvals, permits and 7702 delegates" (default on).
 
 ### 5.4 Network
@@ -162,7 +162,7 @@ Below the cards, a `Form` with `Field` "Add a list by ENS name", `Input` placeho
 ### 5.5 About
 
 - `Text`: "Tocsin is an open, append-only log of scam infrastructure on Ethereum. Flags come from writers on lists you choose. Nothing is ever removed."
-- `Link` "Read the standard" to the ERC page, `Link` "Source" to the repo. Version string.
+- `Link` "Read the spec" to the spec, `Link` "Source" to the repo. Version string.
 
 ## 6. Install
 
@@ -185,7 +185,7 @@ Nothing about evaluated addresses is ever written. No history, no counters, no t
 - Never "safe," never "clean," never "verified" in the Snap. The Snap verifies replay against an RPC-served header, and the honesty line says so. "No flags" and "proven head" are the strongest words allowed.
 - Writers are always shown by ENS name, never by address alone. The list that carries each writer is named, so "2 of 2 lists" is explainable at a glance.
 - Every panel ends with "Checked on this device. Nothing was sent to anyone."
-- Category names stay in their ERC form (`DRAINER_RECEIVER`) as the row value, with the plain-language meaning in the banner title and tooltip.
+- Category names stay in their spec form (`DRAINER_RECEIVER`) as the row value, with the plain-language meaning in the banner title and tooltip.
 
 ## 9. Demo beats this UI must carry
 

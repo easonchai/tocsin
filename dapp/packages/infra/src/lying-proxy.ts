@@ -2,11 +2,10 @@
 // Demo beat 2. A JSON-RPC forwarder to RPC_URL that passes every method through unchanged except
 // eth_getLogs, where it drops the Appended log of one writer sequence. Handles batch requests.
 //   PROXY_PORT          listen port, default 8550 (binds 127.0.0.1)
-//   PROXY_DROP_WRITER   writer whose log to drop, default the manual writer in seed-manifest.<CHAIN_ID>.json
-//   PROXY_DROP_SEQ      writer sequence to drop, default 1 (the seeded drainer receiver's flag)
-import { readFile } from "node:fs/promises";
+//   PROXY_DROP_WRITER   writer whose log to drop, default core.tocsin.eth's core writer
+//   PROXY_DROP_SEQ      writer sequence to drop, default 93, that writer's drainer-receiver-1 flag (names-manifest.11155111.json)
 import { createServer } from "node:http";
-import { fileURLToPath, pathToFileURL } from "node:url";
+import { pathToFileURL } from "node:url";
 import { type Address, encodeEventTopics, getAddress, hexToBigInt, isAddress, isHex, pad } from "viem";
 import { threatFlagLogAbi } from "./abi.js";
 import { required } from "./env.js";
@@ -56,26 +55,17 @@ const CORS = {
   "access-control-allow-headers": "content-type",
 };
 
-async function dropTarget(): Promise<DropTarget> {
-  const seq = BigInt(process.env.PROXY_DROP_SEQ?.trim() || "1");
-  const raw = process.env.PROXY_DROP_WRITER?.trim();
-  if (raw) {
-    if (!isAddress(raw, { strict: false })) throw new Error("PROXY_DROP_WRITER is not an address");
-    return { writer: getAddress(raw), seq };
-  }
-  const chainId = process.env.CHAIN_ID?.trim();
-  if (!chainId) throw new Error("set PROXY_DROP_WRITER, or CHAIN_ID to read the manual writer from the seed manifest");
-  const path = fileURLToPath(new URL(`../seed-manifest.${chainId}.json`, import.meta.url));
-  const manifest = JSON.parse(await readFile(path, "utf8")) as { writers?: { manual?: unknown } };
-  const manual = manifest.writers?.manual;
-  if (typeof manual !== "string" || !isAddress(manual)) throw new Error(`${path} names no manual writer`);
-  return { writer: getAddress(manual), seq };
+function dropTarget(): DropTarget {
+  const seq = BigInt(process.env.PROXY_DROP_SEQ?.trim() || "93");
+  const raw = process.env.PROXY_DROP_WRITER?.trim() || "0x36a279136adDde960599fcA356369C04A96D387E";
+  if (!isAddress(raw, { strict: false })) throw new Error("PROXY_DROP_WRITER is not an address");
+  return { writer: getAddress(raw), seq };
 }
 
 async function main() {
   const upstream = required("RPC_URL");
   const port = Number(process.env.PROXY_PORT?.trim() || "8550");
-  const target = await dropTarget();
+  const target = dropTarget();
 
   const server = createServer(async (req, res) => {
     if (req.method === "OPTIONS") return void res.writeHead(204, CORS).end();

@@ -5,7 +5,7 @@ import { LogBase } from "./utils/LogBase.sol";
 import { OwnerWallet, FixedWallet } from "./utils/Mocks.sol";
 import { IThreatFlagLog } from "../contracts/IThreatFlagLog.sol";
 
-/// @notice ERC Test Cases 1 to 9, one test each. Cases 10 to 12 belong to the reader (demo spec).
+/// @notice spec Test Cases 1 to 9, one test each. Cases 10 to 12 belong to the reader (demo spec).
 contract NormativeCasesTest is LogBase {
     address internal alice = makeAddr("alice");
     address internal bob = makeAddr("bob");

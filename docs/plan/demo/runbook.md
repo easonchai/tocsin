@@ -82,6 +82,16 @@ TEST_WALLET=0xE0DFbd2B761929D02b30f2173C3386f0ec4B3cca yarn workspace @tocsin/in
 
 `seed-tokens` needs `MANUAL_WRITER_PRIVATE_KEY` and a `forge build` in `packages/foundry` first. It deploys fakeUSDC and realUSDC, both with symbol USDC, mints 1,000 of each to `TEST_WALLET`, and has the manual writer flag fakeUSDC as category 5 with the deployment transaction as evidence. realUSDC stays unflagged as the control. It writes `packages/infra/tokens-manifest.11155111.json`. Both are done on Sepolia; the addresses are in `RUNBOOK.md`'s token table.
 
+### 2c. The three names the demo follows
+
+The demo wallet follows `core.tocsin.eth`, `blockaid.tocsin.eth` and `scamsniffer.tocsin.eth`, not the three lists above. `seed-names` has their writers flag the same subjects with the same categories: core's writer `0x36a2…387E` takes over the manual writer's flags (fakeUSDC and the tombstoned lookalike included), blockaid's key the harborwatch subjects, scamsniffer's key the lanterndao ones. Each writer signs, the relayer pays. The detector's 25 leaves already count under core.
+
+```sh
+yarn workspace @tocsin/infra tsx --env-file=../../../scripts/.env src/seed-names.ts
+```
+
+Done on Sepolia in 4 transactions. They are in `packages/infra/names-manifest.11155111.json`, and per subject in `docs/plan/demo/seed/demo-flags.sepolia.json`. Core's drainer-receiver-1 flag is its sequence 93. The lists are published by `scripts/ens/setup-all.mjs` (`scripts/README.md`), which also writes the demo copies in `site/lists/<name>.json` and `dapp/list-record.<label>.hex`.
+
 ## 3. Trust list and mirror
 
 Pick the static host first. It serves `site/`, and the list document and mirror files live under `TOCSIN_SITE_BASE_URL`. It must send `access-control-allow-origin: *`, because the Snap and the extension fetch cross-origin. `python3 -m http.server` does not send that header.
@@ -96,7 +106,7 @@ yarn workspace @tocsin/reader publish-list sign "$PWD/../site/lists/default.json
 
 `mirror` writes `site/mirror/<writer>.json` for both writers in the seed manifest and refuses to write a short snapshot. Pass writer addresses as arguments to mirror others, which is how the two curator writers from step 2b got theirs. Commit `site/lists/default.json` and `site/mirror/*.json`, deploy `site/`, and check that both `snapshotURI` values in the list answer. Put the contents of `list-record.hex` in `LIST_RECORD`. It is not secret.
 
-The curator lists, `site/lists/harborwatch.json` and `site/lists/lanterndao.json`, each name one `feed` writer and were signed the same way with that curator's maintainer key in `MAINTAINER_PRIVATE_KEY`. Their records are committed as `dapp/list-record.harborwatch.hex` and `dapp/list-record.lanterndao.hex` and set under `tocsin.list` on each name, which is where the hosts read them. `TOCSIN_LIST_RECORDS` replaces that lookup for a rehearsal.
+The curator lists `harborwatch.eth` and `lanterndao.eth` each named one `feed` writer and were signed the same way with that curator's maintainer key. The demo no longer follows them, and their documents and records are gone from the repo.
 
 The detector appends on its own schedule, and each new leaf makes the detector's mirror file stale. Rerun `mirror` and redeploy `site/` right before the demo.
 
@@ -139,16 +149,17 @@ In one terminal:
 yarn workspace @tocsin/infra lying-proxy
 ```
 
-It listens on `127.0.0.1:8550` and drops the manual writer's `Appended` log at sequence 1, the drainer receiver flag. Then:
+It listens on `127.0.0.1:8550` and drops core.tocsin.eth's writer `0x36a2…387E` at sequence 93, its drainer receiver flag. Point the CLI at core's list, then:
 
 ```sh
+export LIST_DOCUMENT="$PWD/../site/lists/core.tocsin.eth.json" LIST_RECORD="$(cat list-record.core.hex)" LOG_FROM_BLOCK=12074077
 yarn workspace @tocsin/infra eval 0x79fDaE13B1A677E5b8Ac9f5411F6664788A17537 --source rpc
 yarn workspace @tocsin/infra eval 0x79fDaE13B1A677E5b8Ac9f5411F6664788A17537 --source proxy
 yarn workspace @tocsin/infra eval 0x79fDaE13B1A677E5b8Ac9f5411F6664788A17537 --source mirror
 yarn workspace @tocsin/infra eval 0xCd2698C9c9b2b69625DD2a56252190647F34913d --source rpc --context recipient
 ```
 
-Expect `block`, then `unavailable, chain mismatch at sequence 1`, then `block`, then `warn`.
+Expect `block`, then `unavailable, chain mismatch at sequence 93`, then `unavailable` (core's entries have no `snapshotURI`), then `warn`. The mirror beat still works on the old `tocsin.eth` list: `site/lists/default.json` with `list-record.hex`, and the proxy started with `PROXY_DROP_WRITER=0x1D3B86A924ffb140bdD74Ee6a7533921ed141583 PROXY_DROP_SEQ=1`.
 
 ## 7. The Snap and Kohaku
 

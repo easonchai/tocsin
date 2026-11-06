@@ -1,6 +1,6 @@
 # 03: Fuzz and handler invariant
 
-Spec: `docs/plan/log-contract/spec.md`, Testing decisions, fuzz and invariant paragraphs. PRD: `erc/eip-draft_threat_flag_log.md`, Leaf hash and chains.
+Spec: `docs/plan/log-contract/spec.md`, Testing decisions, fuzz and invariant paragraphs. PRD: `docs/spec/threat-flag-log.md`, Leaf hash and chains.
 
 **What to build:** A property search over the contract that does not depend on hand-picked values. Random leaves and batch sizes go through both entry points, an independent recomputation in the test checks every emitted hash and head, and a handler-driven invariant run proves that replaying the events reproduces the stored heads after arbitrary sequences.
 

@@ -1,6 +1,6 @@
 # Run the demo
 
-Nothing team-side is needed. The log is deployed and seeded on Sepolia, the three trust lists, `core.tocsin.eth`, `harborwatch.eth` and `lanterndao.eth`, are published as `tocsin.list` records on their ENS names. The wallets resolve them through ENS on first sync. Core's document is on GitHub; the two curator documents are served from this repo's `site/` folder by the script below. One command on a fresh clone gets you a Kohaku wallet and a MetaMask Snap that check addresses against the log.
+Nothing team-side is needed. The log is deployed and seeded on Sepolia, the three trust lists (`core.tocsin.eth`, `blockaid.tocsin.eth`, `scamsniffer.tocsin.eth`) are signed and committed, and their documents are served from this repo's `site/` folder by the script below. One command on a fresh clone gets you a Kohaku wallet and a MetaMask Snap that check addresses against the log.
 
 ## Prereqs
 
@@ -42,7 +42,7 @@ Logs go to `/tmp/tocsin-demo`. Ctrl-C stops what the script started.
 The three beats:
 
 1. Honest RPC. Send, paste the drainer receiver `0x79fDaE13B1A677E5b8Ac9f5411F6664788A17537`. The panel says Blocked and Send stays disabled.
-2. Lying RPC. Settings, Tocsin, RPC URL `http://127.0.0.1:8550`, Save and sync. The page shows "chain mismatch at sequence 1". On Send the same address is Unverifiable, never green. The wallet cannot be fed a clean answer, only an unverifiable one.
+2. Lying RPC. Settings, Tocsin, RPC URL `http://127.0.0.1:8550`, Save and sync. The page shows "chain mismatch at sequence 93" for core.tocsin.eth's writer. The wallet cannot be fed a clean answer, only an unverifiable one. With all three lists followed, `0x79fD…7537` itself still reads Blocked, because blockaid.tocsin.eth's flag on it is untouched. Paste drainer-receiver-4 `0xe25d04e7a7B357179eBf53b16f4C5304c6818fb9`, which only core.tocsin.eth flags, to show Unverifiable.
 3. Back. RPC URL `https://0xrpc.io/sep`, Save and sync, paste again. Blocked.
 
 Token check. On the Dashboard, scroll the token list to the bottom, "+ Add custom token", network Sepolia, paste the address, Add Token. Once for each:
@@ -67,7 +67,7 @@ The deep reference, patches, settings and tests: `dapp/packages/kohaku/README.md
 
    Approve. Menu, Snaps, Tocsin opens the home page: the followed lists, each writer's synced sequence, and the one RPC URL the Snap uses.
 3. Send to `0x79fDaE13B1A677E5b8Ac9f5411F6664788A17537`. The transaction insight says Blocked.
-4. On the home page set the RPC URL to `http://127.0.0.1:8550` and press Sync now. The list card shows "chain mismatch at sequence 1". The same send is Unverifiable.
+4. On the home page set the RPC URL to `http://127.0.0.1:8550` and press Sync now. The list card shows "chain mismatch at sequence 93". With all three lists followed, `0x79fD…7537` itself still reads Blocked, because blockaid.tocsin.eth's flag on it is untouched. Paste drainer-receiver-4 `0xe25d04e7a7B357179eBf53b16f4C5304c6818fb9`, which only core.tocsin.eth flags, to show Unverifiable.
 5. Set it back to `https://0xrpc.io/sep`, Sync now, send again. Blocked.
 
 If Chrome blocks the Snap from reaching `127.0.0.1`, put the lying proxy behind an https tunnel and enter that URL instead.

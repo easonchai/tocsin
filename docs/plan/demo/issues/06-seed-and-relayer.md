@@ -1,6 +1,6 @@
 # 06: Seed the Sepolia log and the relayer
 
-Spec: `docs/plan/demo/spec.md`, Implementation decisions, Demo infrastructure, seed, relayer, funding; Keys. PRD: `erc/eip-draft_threat_flag_log.md`, Interface; Categories. HANDOFF step 2.
+Spec: `docs/plan/demo/spec.md`, Implementation decisions, Demo infrastructure, seed, relayer, funding; Keys. PRD: `docs/spec/threat-flag-log.md`, Interface; Categories. HANDOFF step 2.
 
 **What to build:** The deployed log on Sepolia holds about fifty leaves from two writers that cover every leaf kind the demo shows, and a relayer script submits any signed batch a key-without-gas hands it.
 

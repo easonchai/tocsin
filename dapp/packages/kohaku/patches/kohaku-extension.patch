@@ -14,7 +14,7 @@ index bde94fd8d..b7a738f8c 100644
 +TOCSIN_LIST_NAME=""
 +# Record hex that replaces the ENS lookup of the first TOCSIN_LIST_NAME (rehearsal before the name exists).
 +TOCSIN_LIST_RECORD=""
-+# Record hex for more names, name=0x… pairs separated by commas: harborwatch.eth=0x…,lanterndao.eth=0x…
++# Record hex for more names, name=0x… pairs separated by commas: blockaid.tocsin.eth=0x…,scamsniffer.tocsin.eth=0x…
 +TOCSIN_LIST_RECORDS=""
 +# The ThreatFlagLog deploy block, where the first log scan starts. Defaults to 0.
 +TOCSIN_LOG_FROM_BLOCK=""

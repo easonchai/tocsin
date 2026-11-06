@@ -55,9 +55,9 @@ SEPOLIA_RPC_URL="${SEPOLIA_RPC_URL:-https://ethereum-sepolia-rpc.publicnode.com}
 BROWSER_EXTENSION_PUBLIC_KEY="$EXTENSION_PUBLIC_KEY" \
 REACT_APP_PIMLICO_API_KEY="${REACT_APP_PIMLICO_API_KEY:-dummy}" \
 TOCSIN_RPC_URL="${TOCSIN_RPC_URL:-https://0xrpc.io/sep}" \
-TOCSIN_LIST_NAME="${TOCSIN_LIST_NAME:-core.tocsin.eth,harborwatch.eth,lanterndao.eth}" \
-TOCSIN_LIST_RECORD="${TOCSIN_LIST_RECORD:-}" \
-TOCSIN_LIST_RECORDS="${TOCSIN_LIST_RECORDS:-}" \
+TOCSIN_LIST_NAME="${TOCSIN_LIST_NAME:-core.tocsin.eth,blockaid.tocsin.eth,scamsniffer.tocsin.eth}" \
+TOCSIN_LIST_RECORD="${TOCSIN_LIST_RECORD-$(tr -d '[:space:]' < "$DAPP/list-record.core.hex")}" \
+TOCSIN_LIST_RECORDS="${TOCSIN_LIST_RECORDS-blockaid.tocsin.eth=$(tr -d '[:space:]' < "$DAPP/list-record.blockaid.hex"),scamsniffer.tocsin.eth=$(tr -d '[:space:]' < "$DAPP/list-record.scamsniffer.hex")}" \
 TOCSIN_LOG_FROM_BLOCK="${TOCSIN_LOG_FROM_BLOCK:-12074077}" \
 TOCSIN_TRANSPORT="${TOCSIN_TRANSPORT:-tor}" \
 TOCSIN_TOR_GATEWAYS="${TOCSIN_TOR_GATEWAYS:-127.0.0.1:12298:uEiDmYGjwNwrPIT33fsdOLp4inBsIhgiqQAEWvspt4G2uPQ}" \

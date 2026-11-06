@@ -45,10 +45,10 @@ fi
 DEMO_ENV="$ROOT/.tocsin-demo/demo.env"
 [[ -f "$DEMO_ENV" ]] && { echo "Using your lists from $DEMO_ENV"; source "$DEMO_ENV"; }
 export TOCSIN_RPC_URL="${TOCSIN_RPC_URL:-https://0xrpc.io/sep}"
-# The hosts read each name's tocsin.list record through ENS. TOCSIN_LIST_RECORD(S) replace that lookup; demo.env sets them.
-export TOCSIN_LIST_NAME="${TOCSIN_LIST_NAME:-core.tocsin.eth,harborwatch.eth,lanterndao.eth}"
-export TOCSIN_LIST_RECORD="${TOCSIN_LIST_RECORD:-}"
-export TOCSIN_LIST_RECORDS="${TOCSIN_LIST_RECORDS:-}"
+# The records are the live tocsin.list values with the listURI pointed at site/lists/ (scripts/ens/setup-all.mjs writes both).
+export TOCSIN_LIST_NAME="${TOCSIN_LIST_NAME:-core.tocsin.eth,blockaid.tocsin.eth,scamsniffer.tocsin.eth}"
+export TOCSIN_LIST_RECORD="${TOCSIN_LIST_RECORD-$(hex list-record.core.hex)}"
+export TOCSIN_LIST_RECORDS="${TOCSIN_LIST_RECORDS-blockaid.tocsin.eth=$(hex list-record.blockaid.hex),scamsniffer.tocsin.eth=$(hex list-record.scamsniffer.hex)}"
 export TOCSIN_LOG_FROM_BLOCK="${TOCSIN_LOG_FROM_BLOCK:-12074077}"
 # The certhash comes from this machine's gateway key, so the build must carry this machine's value.
 # `init` prints it without rotating an existing key, but refuses if its config file exists, so drop the throwaway one.
@@ -84,10 +84,10 @@ for var in TOCSIN_TOR_GATEWAYS TOCSIN_LIST_NAME TOCSIN_LIST_RECORD TOCSIN_LIST_R
 done
 [[ -d "$BUILD" ]] || { echo "Building Kohaku production bundle (a few minutes)"; kohaku_yarn build:web:webkit; }
 [[ -d "$DAPP/node_modules" ]] || { echo "Installing dapp workspace"; dapp_yarn install; }
-# The Snap bakes in the same values; a stamp in dist says which ones the current bundle carries.
-snap_env="$(env | grep -E '^TOCSIN_(RPC_URL|LIST_NAME|LIST_RECORDS?|LOG_FROM_BLOCK)=' | sort)"
-if [[ "$(cat "$SNAP_DIST/.tocsin-env" 2>/dev/null)" != "$snap_env" ]]; then
-  echo "Building the Snap"; dapp_yarn workspace @tocsin/snap build && printf '%s\n' "$snap_env" >"$SNAP_DIST/.tocsin-env"
+# The Snap bakes these in too; dist/.tocsin-env records what the current build carries.
+snap_env="$(printf '%s\n' "$TOCSIN_RPC_URL" "$TOCSIN_LIST_NAME" "$TOCSIN_LIST_RECORD" "$TOCSIN_LIST_RECORDS" "$TOCSIN_LOG_FROM_BLOCK")"
+if [[ ! -d "$SNAP_DIST" || "$(cat "$SNAP_DIST/.tocsin-env" 2>/dev/null)" != "$snap_env" ]]; then
+  echo "Building the Snap"; dapp_yarn workspace @tocsin/snap build; printf '%s\n' "$snap_env" >"$SNAP_DIST/.tocsin-env"
 fi
 
 # --- Servers -----------------------------------------------------------------------------------------------
@@ -130,7 +130,7 @@ h.ThreadingHTTPServer(("127.0.0.1", 8000), f.partial(H, directory=sys.argv[1])).
   wait_for "static site" 10 curl -sfI http://127.0.0.1:8000/
 fi
 
-# 3. Lying proxy for beat 2. Forwards to RPC_URL and drops the drainer flag (PROXY_DROP_WRITER from demo.env, else the committed manual writer).
+# 3. Lying proxy for beat 2. Forwards to RPC_URL and drops the drainer flag (PROXY_DROP_WRITER/SEQ from demo.env, else core's writer at 93).
 if proxy_up >/dev/null 2>&1; then
   echo "  reusing: lying proxy already on 127.0.0.1:8550"
 else

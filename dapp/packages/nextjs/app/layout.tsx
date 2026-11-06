@@ -1,25 +1,23 @@
-import "@rainbow-me/rainbowkit/styles.css";
-import "@scaffold-ui/components/styles.css";
-import { ScaffoldEthAppWithProviders } from "~~/components/ScaffoldEthAppWithProviders";
-import { ThemeProvider } from "~~/components/ThemeProvider";
-import "~~/styles/globals.css";
+import type { Metadata } from "next";
+import "~~/styles/kit.css";
 import { getMetadata } from "~~/utils/scaffold-eth/getMetadata";
 
-export const metadata = getMetadata({
-  title: "Tocsin demo board",
-  description: "One button per scenario. The wallet checks each transaction against the threat flag log.",
-});
+// No providers and no header here: each page renders SiteHeader, and wallet code loads only in app/(wallet).
+export const metadata: Metadata = {
+  ...getMetadata({
+    title: "Tocsin",
+    description: "Scam addresses, verified on chain.",
+    imageRelativePath: "/og.png",
+  }),
+  icons: { icon: "/favicon.svg" },
+};
 
-const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
+const RootLayout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <html suppressHydrationWarning className={``}>
-      <body>
-        <ThemeProvider enableSystem>
-          <ScaffoldEthAppWithProviders>{children}</ScaffoldEthAppWithProviders>
-        </ThemeProvider>
-      </body>
+    <html lang="en" suppressHydrationWarning>
+      <body>{children}</body>
     </html>
   );
 };
 
-export default ScaffoldEthApp;
+export default RootLayout;
