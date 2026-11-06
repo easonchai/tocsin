@@ -20,6 +20,20 @@ The log says nothing about who to believe. A trust list is a signed, versioned s
 
 The attacker cannot lie to you, and cannot tell it is you.
 
+### Append-only by folding, not by list
+
+There is no list in the contract. Nothing is stored per flag. The contract keeps a head and a count per writer, and one pair for the whole log. A head is a running hash. When a writer submits a flag, the contract hashes it and folds it in:
+
+```
+head = keccak(head, hash(flag))
+```
+
+Then it emits the flag as an event and forgets it. The event, in transaction history, is the only copy. "Append" means fold one more hash into the running value, not push onto an array. Thirty-two bytes in, thirty-two bytes out, however many flags came before.
+
+A fold has one direction. The new head depends on the old head, back to zero, and the contract has no operation that produces a head any other way. You cannot edit a flag, because it was never stored and the head already contains it. You cannot remove one, because every head after it would have to be recomputed without it. You cannot insert or reorder, because every leaf hash includes its sequence number. Append-only is not a rule enforced by access control. It is the only move the contract has.
+
+That is what a wallet needs. It proves the head from a block header, fetches the events from anyone, even a liar, and folds them itself. Landing on the proven head means every flag is real and none is missing. Not landing means something was changed, dropped, or added. One comparison of 32 bytes checks the whole history. A wrong flag is corrected by folding a tombstone after it, and the mistake stays in the record forever, which is the point.
+
 ## How the wallet knows without trusting anyone
 
 1. The contract hashes every flag into a chain. The end of the chain, the head, sits in Ethereum's state.
