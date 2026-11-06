@@ -4,7 +4,7 @@
 // claims the name through the MirrorRegistrar, and sets an addr record. Needs the registrar address from state.sepolia.json.
 import { ENSV2, abi, clients, namehash, send, keccak256, toHex, RESOLVER_ADMIN_ROLES, readUntil } from './common.mjs';
 import { encodeFunctionData, decodeEventLog, parseAbi } from 'viem';
-import { readFileSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 
 const label = process.argv[2];
 if (!label || label.includes('.')) { console.error('usage: 3-claim.mjs <label>   (the label of a .eth name you own, without .eth)'); process.exit(1); }
@@ -45,5 +45,10 @@ console.log(`resolver ${resolver}`);
 const r = await send(pub, wallet, `claim ${label}.tocsin.eth`, { address: state.registrar, abi: registrarAbi, functionName: 'claim', args: [label, resolver] });
 for (const log of r.logs) { try { const ev = decodeEventLog({ abi: registrarAbi, data: log.data, topics: log.topics }); if (ev.eventName === 'Claimed') console.log(`claimed, expiry ${new Date(Number(ev.args.expiry) * 1000).toISOString().slice(0, 10)}, tokenId ${ev.args.tokenId}`); } catch {} }
 await send(pub, wallet, `set addr for ${label}.tocsin.eth`, { address: resolver, abi: abi.resolver, functionName: 'setAddr', args: [namehash(`${label}.tocsin.eth`), account.address] });
+const claimsFile = new URL('./claims.sepolia.json', import.meta.url);
+const claims = existsSync(claimsFile) ? JSON.parse(readFileSync(claimsFile, 'utf8')) : {};
+claims[label] = { owner: account.address, resolver, node: namehash(`${label}.tocsin.eth`), claimTx: r.transactionHash };
+writeFileSync(claimsFile, JSON.stringify(claims, null, 2) + '\n');
+console.log(`recorded in scripts/ens/claims.sepolia.json`);
 console.log(`done: https://sepolia.app.ens.domains/${label}.tocsin.eth`);
-console.log(`to publish a list under it, set text key erc-threat-flag-log.list on your resolver for node ${namehash(`${label}.tocsin.eth`)}`);
+console.log(`to publish a list under it, set text key tocsin.list on your resolver for node ${namehash(`${label}.tocsin.eth`)}`);

@@ -1,0 +1,14 @@
+{
+  "blockaid": {
+    "owner": "0x6f1524F5A1152d6b08ef8833E42E4311151e904F",
+    "resolver": "0x27209FA079b88bf30DCc43d4324D7c8A4f4E2b33",
+    "node": "0x1601f93a3c51429b4ad6778fa9e7e669a5684b80254e211b078b97f9499f115b",
+    "claimTx": "0x59611357a55183df37a558010fe2b1fa63066a9743a66a8af0df9dabd0c3c976"
+  },
+  "etherscan": {
+    "owner": "0x3a05D06949b9890aEAD4700AA5ECEbf4D1BA0Ba0",
+    "resolver": "0xf8c4d03277e3a124821c3D426fEAE6056Ad9aA92",
+    "node": "0x048d97ca3621eda571ab6a2bb86a765ac4221bf6741ea1874d82b297cb825c27",
+    "claimTx": "0x456da39e5c259c58cfafd0897449145ef924950c8177e9bf70a476fee8557808"
+  }
+}

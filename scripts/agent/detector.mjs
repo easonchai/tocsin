@@ -2,7 +2,7 @@
 // It scans recent Ethereum mainnet blocks for address-poisoning dust (zero-value ERC-20 Transfer events sent to many
 // recipients by one sender), flags the senders as POISONING_OPERATOR with the dust transaction as evidence, and
 // appends them to the log under its own key. Its key owns nothing but detector.eth and the publish role on its name.
-// Run: node --env-file=scripts/.env scripts/agent/detector.mjs [--blocks 60] [--min-recipients 25] [--dry]
+// Run: node --env-file=scripts/.env scripts/agent/detector.mjs [--blocks 60] [--min-recipients 25] [--limit 5] [--dry]
 // Keys: DETECTOR_PRIVATE_KEY (or load it from your secret store, such as 1Claw, into that variable before running).
 // Output: docs/plan/demo/seed/detector.json (candidates with evidence), appended on-chain when LOG_ADDRESS is set.
 import { createPublicClient, createWalletClient, http, parseAbi, parseAbiItem } from 'viem';
@@ -14,6 +14,7 @@ const arg = (k, d) => { const i = process.argv.indexOf(k); return i > 0 ? proces
 const dry = process.argv.includes('--dry');
 const BLOCKS = BigInt(arg('--blocks', '60'));
 const MIN_RECIPIENTS = Number(arg('--min-recipients', '25'));
+const LIMIT = Number(arg('--limit', '0')); // 0 = append every new candidate
 const env = (n, d) => { const v = process.env[n]; return v && v !== '0x' ? v : d; };
 const out = new URL('../../docs/plan/demo/seed/detector.json', import.meta.url);
 
@@ -54,7 +55,7 @@ const candidates = [...bySender].filter(([, e]) => e.recipients.size >= MIN_RECI
 }));
 const prev = existsSync(out) ? JSON.parse(readFileSync(out, 'utf8')) : [];
 const known = new Set(prev.map((c) => c.subject));
-const fresh = candidates.filter((c) => !known.has(c.subject));
+const fresh = candidates.filter((c) => !known.has(c.subject)).slice(0, LIMIT || undefined);
 writeFileSync(out, JSON.stringify([...prev, ...fresh], null, 1) + '\n');
 console.log(`${candidates.length} operators above ${MIN_RECIPIENTS} recipients, ${fresh.length} new; written to docs/plan/demo/seed/detector.json`);
 for (const c of fresh.slice(0, 10)) console.log(`  ${c.subject}  ${c.note}  evidence ${c.evidence}`);
