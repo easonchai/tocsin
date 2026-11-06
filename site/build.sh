@@ -9,7 +9,8 @@ cp site/fonts/* dist/fonts/
 cp design/kit/tokens.css design/kit/ringfield.js design/kit/scenes.js design/kit/scenes.css design/kit/favicon.svg design/kit/mark.svg design/kit/icon.svg dist/kit/
 cp design/screens/cover-1280x720.png dist/og.png
 cp design/screens/logo-512.png dist/icon-512.png
-mkdir -p dist/screens/raw && cp design/screens/demo-page-final.png dist/screens/ && cp design/screens/raw/snap-block.jpg dist/screens/raw/
+mkdir -p dist/screens/raw
+cp design/screens/raw/snap-block.jpg design/screens/raw/kohaku-swap-block.jpg design/screens/raw/kohaku-theft-warn.jpg dist/screens/raw/
 # repo-relative kit paths become dist-relative
 sed -i '' 's#\.\./design/kit/#kit/#g; s#\.\./design/screens/#screens/#g' dist/index.html dist/claim.html dist/style.css
 sed -i '' 's#\.\./\.\./site/fonts/fonts\.css#../fonts/fonts.css#' dist/kit/tokens.css

@@ -76,100 +76,111 @@
   .board.paper .sub { color: var(--ink-700); }
   .board.paper .top .label, .board.paper .foot { color: var(--ink-400); }
   .board.paper .pair figcaption { color: var(--ink-700); }
+
+  /* November 7 captures: original pixels, framed in CSS. */
+  .board { padding: 120px 96px; }
+  .top { top: 46px; }
+  .foot { bottom: 40px; font-size: 13px; gap: 30px; }
+  figure { margin: 0; }
+  figcaption { margin-top: 18px; font: 16px var(--mono); color: var(--paper-200); }
+  .capture { overflow: hidden; background: #111215; border-radius: 12px; }
+  .capture img { display: block; width: 100%; height: auto; transform: translateY(var(--y, 0)); }
+  .snap-hero { width: 430px; height: 760px; --y: -145px; }
+  .meta-line { margin-top: 40px; font: 15px var(--mono); color: var(--ink-400); }
+  .comparison { grid-template-columns: 440px 1fr; gap: 48px; }
+  .comparison h1 { font-size: 58px; }
+  .comparison .sub { font-size: 23px; }
+  .pair { gap: 28px; }
+  .pair .capture { width: 430px; height: 660px; }
+  .pair .pass-shot { --y: -420px; }
+  .pair .block-shot { --y: -148px; }
+  .pair figcaption { display: flex; align-items: center; gap: 12px; font-size: 15px; }
+  .status { width: 7px; height: 7px; display: inline-block; background: var(--paper-100); }
+  .status.block { background: var(--alert); }
+  .anatomy { grid-template-columns: 500px 1fr; gap: 100px; }
+  .anatomy .capture { width: 500px; height: 500px; --y: -590px; }
+  .anatomy h1 { font-size: 70px; margin-bottom: 36px; }
+  .co p { font-size: 21px; line-height: 1.4; color: var(--paper-200); max-width: 31ch; }
+  .co .label { margin-bottom: 6px; }
+  .kohaku { grid-template-columns: 1fr 600px; }
+  .kohaku h1 { font-size: 76px; }
+  .wallet-shot { width: 600px; position: relative; border-radius: 14px; overflow: hidden; background: #111; }
+  .wallet-shot img { position: absolute; display: block; max-width: none; height: auto; top: 0; }
+  .wallet-shot.warn { height: 796px; }
+  .wallet-shot.warn img { width: 238.139535%; left: -138.139535%; }
+  .wallet-shot.blocked { height: 742px; }
+  .wallet-shot.blocked img { width: 233.789954%; left: -133.789954%; }
+  .policy { margin-top: 42px; display: grid; gap: 16px; max-width: 520px; }
+  .policy-row { display: flex; justify-content: space-between; gap: 24px; padding-top: 16px; border-top: var(--hair-strong); color: var(--paper-200); font-size: 20px; }
+  .policy-row b { color: var(--signal); font-weight: 500; }
+  .policy-row .red { color: var(--alert); }
+  .board.demo { display: block; }
+  body.one .board.demo.on { display: block; }
+  .demo .intro { display: flex; align-items: end; justify-content: space-between; gap: 64px; margin: 14px 0 24px; }
+  .demo h1 { font-size: 58px; }
+  .demo .sub { font-size: 21px; max-width: 34ch; margin: 0; }
+  .demo-screens { display: grid; grid-template-columns: 960px 1fr; gap: 32px; align-items: center; }
+  .demo-main img, .demo-side img { display: block; width: 100%; height: auto; border-radius: 10px; }
+  .demo-side p { font-size: 20px; line-height: 1.45; color: var(--paper-200); margin: 24px 0 0; }
+  .demo-side .label { margin-bottom: 16px; }
+  .demo-side .url { color: var(--signal); font-family: var(--mono); font-size: 15px; overflow-wrap: anywhere; margin-top: 28px; }
+
 </style>
 </head>
 <body>
 
-<!-- 01 cover: the moment the wallet says no -->
 <section class="board" data-b="1">
   <canvas class="field" data-state="blocked"></canvas>
-  <div class="top"><span class="wordmark"><img src="mark.svg" alt="">tocsin</span><span class="label">01 / 06 · Sepolia demo · example writers</span></div>
-  <div>
-    <h1 style="font-size:84px">Scam warnings,<br>verified <em>on chain.</em></h1>
-    <p class="sub">Choose whose reports to follow. Verify the published record. Check recipients on your device before you sign.</p>
-  </div>
-  <div class="panel" style="--y:-440px"><img src="../screens/raw/snap-block.jpg?v=3" alt="MetaMask Flask transaction insight from Tocsin: Blocked, drainer receiver"></div>
-  <div class="chip" style="right: 56px; top: 150px"><div class="label">flagged by</div><div class="v">Example writer identities</div></div>
-  <div class="chip" style="right: 520px; bottom: 150px"><div class="label">checked</div><div class="v">Recipient checked locally</div></div>
-  <div class="foot"><span>tocsin-eth.vercel.app/demo</span><span>github.com/easonchai/tocsin</span></div>
+  <div class="top"><span class="wordmark"><img src="mark.svg" alt="">tocsin</span><span class="label">01 / 06 · MetaMask Snap · Sepolia</span></div>
+  <div><h1 style="font-size:84px">Scam warnings.<br>Before you<br><em>sign.</em></h1><p class="sub">An onchain report registry, trust lists you choose, and a warning inside your wallet.</p><div class="meta-line">Real capture · MetaMask Flask + Tocsin Snap</div></div>
+  <div class="capture snap-hero"><img src="../screens/raw/snap-block.jpg?v=4" width="734" height="2108" alt="Tocsin's drainer-receiver warning in MetaMask Flask, with writers and evidence links"></div>
+  <div class="foot"><span>Sepolia demo · example publisher names · RPC-supplied headers</span><span>tocsin.eth</span></div>
 </section>
-
-<!-- 02 pass vs block -->
-<section class="board" data-b="2" style="grid-template-columns: 1fr auto; padding-top: 120px">
+<section class="board comparison" data-b="2">
   <canvas class="field" data-state="idle"></canvas>
-  <div class="top"><span class="wordmark"><img src="mark.svg" alt="">tocsin</span><span class="label">02 / 06 · same send, two recipients</span></div>
-  <div>
-    <h1 style="font-size:52px">Same send.<br>Lists <em>you</em> chose.<br>One verdict.</h1>
-    <p class="sub">The wallet checks a locally synced log against your chosen lists. No per-address security lookup is needed; syncing still uses the network.</p>
-  </div>
+  <div class="top"><span class="wordmark"><img src="mark.svg" alt="">tocsin</span><span class="label">02 / 06 · two recipients, two results</span></div>
+  <div><h1>Same wallet.<br>Same lists.<br>Different<br><em>recipients.</em></h1><p class="sub">The Snap checks the recipient against your synced reports. It shows a warning when your chosen sources flag an address.</p><div class="meta-line">No matching report ≠ a safety guarantee.</div></div>
   <div class="pair">
-    <figure><div class="panel sm" style="--y:-600px"><img src="../screens/raw/snap-pass.jpg?v=3" alt="No flags"></div><figcaption><b class="pass">Pass</b>no matching flag</figcaption></figure>
-    <figure><div class="panel sm" style="--y:-390px"><img src="../screens/raw/snap-block.jpg?v=3" alt="Blocked"></div><figcaption><b class="block">Block</b>drainer receiver</figcaption></figure>
+    <figure><div class="capture pass-shot"><img src="../screens/raw/snap-pass.jpg?v=4" width="740" height="2090" alt="MetaMask Snap: recipient is not on any list the user follows"></div><figcaption><span class="status"></span>No matching flag</figcaption></figure>
+    <figure><div class="capture block-shot"><img src="../screens/raw/snap-block.jpg?v=4" width="734" height="2108" alt="MetaMask Snap advises rejecting a transaction to a reported drainer receiver"></div><figcaption><span class="status block"></span>Reject recommendation</figcaption></figure>
   </div>
-  <div class="foot"><span>Illustrative Snap screens · example writers</span><span>tocsin.eth</span></div>
+  <div class="foot"><span>Sepolia captures · example publisher names · RPC-supplied headers</span><span>tocsin.eth</span></div>
 </section>
-
-<!-- 03 anatomy of a flag -->
-<section class="board" data-b="3" style="grid-template-columns: auto 1fr; gap: 96px">
+<section class="board anatomy" data-b="3">
   <canvas class="field" data-state="idle"></canvas>
-  <div class="top"><span class="wordmark"><img src="mark.svg" alt="">tocsin</span><span class="label">03 / 06 · one flag, opened</span></div>
-  <div class="panel" style="--y:-700px; height: 600px"><img src="../screens/raw/snap-block.jpg?v=3" alt="Flag detail"></div>
-  <div class="callouts">
-    <h1 style="font-size:82px;margin-bottom:12px">Every flag carries<br>its receipts.</h1>
-    <div class="co"><div class="label">who said it</div><p>Each report is attributed to its writer. <span>The names in this demo are examples.</span></p></div>
-    <div class="co"><div class="label">why</div><p>A category your wallet understands: drainer receiver. <span>Warn or block is your policy, not ours.</span></p></div>
-    <div class="co"><div class="label">proof</div><p>Evidence links let you inspect the source. <span>Proof of publication does not prove a report is true.</span></p></div>
-    <div class="co"><div class="label">when</div><p>The report records when it was seen. <span>Published flags remain in the append-only log.</span></p></div>
-  </div>
-  <div class="foot"><span>tocsin.eth · sepolia</span><span>github.com/easonchai/tocsin</span></div>
+  <div class="top"><span class="wordmark"><img src="mark.svg" alt="">tocsin</span><span class="label">03 / 06 · inspect the report</span></div>
+  <figure><div class="capture"><img src="../screens/raw/snap-block.jpg?v=4" width="734" height="2108" alt="Report details: recipient, drainer-receiver category, writer addresses, evidence transactions and observed block"></div><figcaption>Actual Snap report details · Sepolia</figcaption></figure>
+  <div><h1>A warning you<br>can <em>inspect.</em></h1><div class="callouts">
+    <div class="co"><div class="label">Who reported it</div><p>Writer addresses identify the sources behind the warning.</p></div>
+    <div class="co"><div class="label">What was reported</div><p>A specific address, its role in this transaction, and a threat category.</p></div>
+    <div class="co"><div class="label">Supporting evidence</div><p>Transaction links let you investigate the report yourself.</p></div>
+    <div class="co"><div class="label">When it was seen</div><p>The block number records when the activity was observed.</p></div>
+  </div></div>
+  <div class="foot"><span>Proof of publication does not prove an accusation true.</span><span>github.com/easonchai/tocsin</span></div>
 </section>
-
-<!-- 04 trust lists -->
-<section class="board" data-b="4">
+<section class="board kohaku" data-b="4">
   <canvas class="field" data-state="idle"></canvas>
-  <div class="top"><span class="wordmark"><img src="mark.svg" alt="">tocsin</span><span class="label">04 / 06 · trust lists on ens</span></div>
-  <div>
-    <h1 style="font-size:78px">You pick who gets<br>to ring the <em>bell</em>.</h1>
-    <p class="sub">An ENS text record points to a signed trust list. Your wallet verifies its signature and applies the writer weights you chose.</p>
-  </div>
-  <div class="lists">
-    <div class="label">Illustrative policy · your choices</div>
-    <div class="lcard"><div class="name">One writer reports</div><div class="who">An ordinary writer contributes one vote</div><div class="w">Warn</div></div>
-    <div class="lcard"><div class="name">Two independent writers</div><div class="who">Two ordinary writers agree on the address</div><div class="w">Block</div></div>
-    <div class="lcard"><div class="name">Same source, two lists</div><div class="who">Following it twice adds no extra vote</div><div class="w">Counts once</div></div>
-    <div class="lcard me"><div class="name">Chosen blocking writer</div><div class="who">You explicitly give this writer block weight</div><div class="w">Blocks alone</div></div>
-  </div>
-  <div class="foot"><span>Signed lists · ENS lookup · Sepolia prototype</span><span>tocsin.eth</span></div>
+  <div class="top"><span class="wordmark"><img src="mark.svg" alt="">tocsin</span><span class="label">04 / 06 · Kohaku · warning policy</span></div>
+  <div><h1>Context changes<br>the <em>decision.</em></h1><p class="sub">Theft proceeds trigger a warning in this send policy. Kohaku shows the category and evidence, then leaves the decision with you.</p><div class="policy"><div class="label">Outcomes shown in this demo</div><div class="policy-row"><span>Reported drainer receiver</span><b class="red">Block</b></div><div class="policy-row"><span>Theft proceeds</span><b>Warn</b></div></div></div>
+  <div class="wallet-shot warn"><img src="../screens/raw/kohaku-theft-warn.jpg" width="2560" height="1605" alt="Kohaku shows a theft-proceeds warning and keeps its Sign action available"></div>
+  <div class="foot"><span>Sepolia capture · example publisher names · RPC-supplied headers</span><span>tocsin.eth</span></div>
 </section>
-
-<!-- 05 the demo page -->
-<section class="board" data-b="5" style="grid-template-columns: 1fr auto; gap: 56px">
+<section class="board demo" data-b="5">
   <canvas class="field" data-state="idle"></canvas>
-  <div class="top"><span class="wordmark"><img src="mark.svg" alt="">tocsin</span><span class="label">05 / 06 · try it</span></div>
-  <div>
-    <h1 style="font-size:52px">Six scenarios.<br>See the <em>decision.</em></h1>
-    <p class="sub">Explore six Sepolia scenarios, including pass, warn and block outcomes. Pick one and compare the explanation with the Snap response.</p>
-    <p class="sub" style="font-family:var(--mono);font-size:20px;color:var(--signal)">tocsin-eth.vercel.app/demo</p>
+  <div class="top"><span class="wordmark"><img src="mark.svg" alt="">tocsin</span><span class="label">05 / 06 · the demo and the wallet</span></div>
+  <div class="intro"><h1>Follow the report.<br>See the <em>response.</em></h1><p class="sub">Choose a scenario in the demo. Compare its explanation with the actual response inside MetaMask.</p></div>
+  <div class="demo-screens">
+    <figure class="demo-main"><img src="../screens/raw/snap-demo-block.jpg" width="2560" height="1577" alt="Full Sepolia demo with a reported drainer recipient and the corresponding MetaMask Snap warning"><figcaption>Reported recipient → Snap recommends rejecting</figcaption></figure>
+    <div class="demo-side"><div class="label">A different recipient</div><img src="../screens/raw/snap-demo-pass.jpg" width="2560" height="1567" alt="The demo and MetaMask Snap show no matching report for the demo account"><p>The same lists return no matching flag for the demo account.</p><p class="url">tocsin-eth.vercel.app/demo</p></div>
   </div>
-  <div class="browser"><div class="bar"><i></i><i></i><i></i><span>Prototype UI · example writers</span></div><img src="../screens/demo-page-final.png" alt="Prototype demo layout with illustrative writer identities and proof flow"></div>
-  <div class="foot"><span>sepolia · metamask flask + tocsin snap</span><span>github.com/easonchai/tocsin</span></div>
+  <div class="foot"><span>Left: demo illustration. Right: actual Snap; its header source is RPC.</span><span>Example publisher names</span></div>
 </section>
-
-<!-- 06 integration roles and current status -->
-<section class="board" data-b="6">
-  <canvas class="field" data-state="idle"></canvas>
-  <div class="top"><span class="wordmark"><img src="mark.svg" alt="">tocsin</span><span class="label">06 / 06 · integration prototype</span></div>
-  <div>
-    <h1 style="font-size:82px">A wallet that can<br>check the <em>record.</em></h1>
-    <p class="sub">Local recipient checks are one part. Private requests and independent verification each have their own role.</p>
-    <p class="sub">Today’s demo trusts an RPC-supplied header. Full consensus verification is the next step.</p>
-  </div>
-  <div class="lists roles">
-    <div class="lcard"><div class="name">Kohaku</div><div class="who">Wallet integration prototype: bring the reader into the signing flow.</div></div>
-    <div class="lcard"><div class="name">Anon-RPC</div><div class="who">Private request transport: reduce what the RPC can learn about who is asking.</div></div>
-    <div class="lcard me"><div class="name">Light-client verification</div><div class="who">Verify the Ethereum header independently, then check the log against it. Full consensus proof path next.</div></div>
-  </div>
-  <div class="foot"><span>Sepolia prototype · integration work in progress</span><span>github.com/easonchai/tocsin</span></div>
+<section class="board kohaku" data-b="6">
+  <canvas class="field" data-state="blocked"></canvas>
+  <div class="top"><span class="wordmark"><img src="mark.svg" alt="">tocsin</span><span class="label">06 / 06 · Kohaku · swap recipient</span></div>
+  <div><h1>Check where<br>the swap<br><em>really sends.</em></h1><p class="sub">The transaction calls a router. Tocsin checks the recipient inside the swap and finds a reported drainer receiver.</p><p class="sub">Kohaku shows the evidence and disables signing for this blocked transaction.</p><div class="meta-line">SwapRouter02 → recipient → wallet verdict</div></div>
+  <div class="wallet-shot blocked"><img src="../screens/raw/kohaku-swap-block.jpg" width="2560" height="1581" alt="Kohaku blocks a swap to a drainer receiver, shows evidence and disables Sign"></div>
+  <div class="foot"><span>Sepolia capture · RPC traffic through the Tor Anon-RPC worker</span><span>RPC-supplied headers</span></div>
 </section>
 
 <script src="ringfield.js"></script>
@@ -181,9 +192,9 @@
   document.querySelectorAll('.board').forEach(function (sec, i) {
     if (b && !sec.classList.contains('on')) return;
     var c = sec.querySelector('.field');
-    var rf = Tocsin.ringfield(c, { seed: 7 + i, state: c.dataset.state, mask: 'h1, .sub, .top, .foot, .co, .lcard, .pair figcaption, .chip' });
+    var rf = Tocsin.ringfield(c, { seed: 7 + i, state: c.dataset.state, mask: 'h1, .sub, .top, .foot, .co, .policy, figcaption, .meta-line, .demo-side' });
     window.fields.push(rf);
-    var t = sec.querySelector('.panel, .pair, .lists, .browser'); var r = t.getBoundingClientRect(), s = sec.getBoundingClientRect();
+    var t = sec.querySelector('.capture, .wallet-shot, .demo-screens'); var r = t.getBoundingClientRect(), s = sec.getBoundingClientRect();
     setTimeout(function () { rf.strike(r.left - s.left + r.width / 2, r.top - s.top + r.height / 2); }, 200);
   });
 </script>

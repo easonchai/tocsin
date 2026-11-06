@@ -83,10 +83,13 @@ The November 6 landing refinement preserves the original low-set hero, floating 
 The trust-list section pairs three selectable steps with simple coded diagrams: a name resolves to a list, a pinned signer checks updates, and independent reports combine into a verdict. It advances every nine seconds, with a thin amber progress line. Clicking a step resets its timer and continues playback; keyboard navigation, the pause button and leaving the viewport stop it. Reduced-motion visitors start in manual mode with completed diagrams. On phones, the steps become compact tabs above the example.
 
 - `screens/cover-1280x720.png`: refreshed 1280×720 cover, also copied by `site/build.sh` to `dist/og.png`.
-- `screens/showcase-01.png` through `showcase-06.png`: refreshed 1600×1000 gallery boards. Source: `kit/showcase.html?b=1` through `?b=6`.
+- `screens/showcase-01.png` through `showcase-06.png`: 1600×1000 gallery boards, refreshed November 7 with the supplied MetaMask Flask and Kohaku captures. Source: `kit/showcase.html?b=1` through `?b=6`.
 - `screens/landing-hero.png`: current desktop landing-page capture.
 - `screens/logo-512.png`: existing finished icon, unchanged.
-- The Snap captures and `screens/demo-page-final.png` remain example UI. The gallery labels those examples; they are not evidence of a live hosted demo or external publisher participation.
+- `screens/raw/` contains the six unchanged November 7 source captures: `snap-block.jpg`, `snap-pass.jpg`, `snap-demo-block.jpg`, `snap-demo-pass.jpg`, `kohaku-swap-block.jpg` and `kohaku-theft-warn.jpg`. Gallery and website crops are CSS only. Publisher names remain demo examples, not external partnerships. The wallet captures identify RPC-supplied headers; the explanatory demo diagram is not evidence of independent consensus verification.
+- `screens/demo-page-final.png` and the older demo-page captures are historical mockups. They are no longer used in the current gallery or site build.
+
+The six upload boards now cover: (1) Snap warning, (2) two-recipient comparison, (3) report details, (4) Kohaku theft-proceeds warning, (5) demo plus actual Snap responses, and (6) Kohaku blocked swap recipient. All six PNG exports have been regenerated from the updated template. The website uses the current Snap capture and both Kohaku captures, with links to the complete source images.
 
 To export the cover, serve the repo root, load `kit/cover.html` at 1280×720, wait for local fonts, and capture `#cover`. For gallery boards, use a 1600×1000 viewport and capture `.board.on`. Reduced-motion mode provides a stable dot field. The build copies these PNGs; it does not regenerate them.
 
