@@ -1,0 +1,3 @@
+/* The kit sits in the lowest cascade layer, so DaisyUI on the scaffold routes wins its .btn and .label there,
+   while page CSS (landing.css, claim.css) still overrides it as site/style.css does. */
+@import "./tokens.css" layer(kit);
