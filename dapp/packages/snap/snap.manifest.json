@@ -2,8 +2,13 @@
   "version": "0.0.1",
   "description": "Checks recipients, spenders and permits against threat flags in an on-chain log, from writers on a signed list you pin. Best-effort: the header comes from an RPC.",
   "proposedName": "Tocsin",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/easonchai/tocsin.git",
+    "directory": "dapp/packages/snap"
+  },
   "source": {
-    "shasum": "/Bnkg+0PT15ED8IdUUZjUoXAPQ0DdLvZl23s3v2bLnU=",
+    "shasum": "sI4HzqdODIwJofKaNZCXVt+XhrT4/IxBTmqNqvh2y/I=",
     "location": {
       "npm": {
         "filePath": "dist/bundle.js",
