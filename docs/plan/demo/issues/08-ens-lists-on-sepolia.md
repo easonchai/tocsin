@@ -8,14 +8,14 @@ Spec: `docs/plan/demo/spec.md`, Implementation decisions, Trust lists, publicati
 
 **Ethskills:** addresses, standards, tools (per AGENTS.md; load before starting)
 
-**Status:** ready-for-human
+**Status:** done (6 Nov 2026)
 
 - [x] First action: check whether ENSv2, a permissioned resolver, and Enhanced Access Control are deployed on Sepolia, and record the answer with addresses from official sources in Comments. No address is guessed.
-- [ ] If yes: the team's name mounted as a subregistry, each writer a subname, the `erc-threat-flag-log.list` record in a permissioned resolver, the publish role granted to the maintainer key. If no: the record on the plain name, and the spec's judge-checks note that the prize is not claimable.
+- [x] If yes: the team's name mounted as a subregistry, each writer a subname, the `erc-threat-flag-log.list` record in a permissioned resolver, the publish role granted to the maintainer key. If no: the record on the plain name, and the spec's judge-checks note that the prize is not claimable.
 - [x] The CLI from ticket 04 publishes the record value from the maintainer key read at run time.
 - [x] The reader resolves the record through `eth_call` with CCIP-read off, verifies root and signature, and shows an unverifiable record as stale while keeping the last verified version.
 - [x] Writer names reverse-resolve with the forward record checked; a mismatched forward record shows the shortened address.
-- [ ] Transaction hashes for the name setup recorded in Comments.
+- [x] Transaction hashes for the name setup recorded in Comments.
 
 ## Comments
 
@@ -76,3 +76,8 @@ Spec: `docs/plan/demo/spec.md`, Implementation decisions, Trust lists, publicati
   - `lanterndao.eth`: register `0xc13b958ad653efa465840cd6dd359fcf132d5e59ac9b74e2772ab8deb48624f8`. Resolver `0xFeB718C1754de75130EB5A9FBdD0eaC3eEbD3aE9` (`0xf3ff39a3f318603bc793ae4acedb6bc6f8777469565abbd0b93916b351bd80ba`), setResolver `0x595cfef57e11001b1ac098a84c8e855959c1faa7b07bdb64a82ba4e384ace63e`, subregistry `0x8fb9C0909c714E7345034331c13abF6eC342B33E` (`0xba5cbb2ed8fe497242a1256bebb5f2f203de18b4509bb8f797efa66c6c710e30`, set `0x3036b13f79a5276a1a3ac27c5d024e6b2e629c05ff18cc78ac18ab3e6dd874f6`), `feed` subname `0x25ce238b3d206e621b02c45045c0b635a1e23c332b3ec2a67a225b2b704f00f1`, addr `0x2e9bf7f792640070e06a5db3808883b1d2a6600a2365570db047a84677a27e03`, grants `0x5a0b408920b489a04d4aa1ec35b73031f34d24687036ee4742bcb02d2372fb45` and `0x4fee8f2149c5e452a94014f28842d175d8b8e3df21038f6db788a0078fc4d1b1` to maintainer `0xAf85cDA5fAb801FbCd6aB0060f21B5125f02Ae24`, reverse `0x30433dd2d4f2d557b75f350ff2b3ba438898398f05a91249ed5528031a7a1ed2`, list record `0x0387675b09a436c3d1db08ff657888b95710d13daef7351cfea75478f484896d`. Writer `feed.lanterndao.eth` = `0x81fA2D7b81B951071738263f5b24688b15a6972C`, weight 1, 6 flags relayed in `0xa84cc88a1c65e0216e26b1c39d34386e32abaae0579552f6c18b64d4f0becb16`.
   - Read back through the Universal Resolver with CCIP-read off: all three names return a v1 record. Reverse names verify for manual, both feeds; the detector has none.
   - The funding, approve and commit hashes were not captured; the owner's Sepolia history has them.
+- 2026-11-06, from `main`: ENSv2 is live on Sepolia (contracts-v2 deployment of 29 June 2026; addresses in README). Built and verified:
+  - tocsin.eth registered on the v2 ETHRegistry; its own UserRegistry subregistry 0x61F6B44C598d7171947eE059e1d486eDd6950b88 and PermissionedResolver 0x1cBF0A41B77416381C6eEC40b703BBe4722519E6, both through the Verifiable Factory; registry emancipated.
+  - Writers as subnames through the MirrorRegistrar (ticket 15): core, blockaid, etherscan, detector.
+  - The list record under the key tocsin.list (the ERC's erc-XXXX.list until numbered), published by scripts/seed/publish-list.mjs from the maintainer key: core.tocsin.eth v2 naming both writers, detector.tocsin.eth v1 naming itself. Records decode, signers recover to the maintainers, documents hash to the roots.
+  - Publish-role delegation exists (scripts/ens/5-delegate-publisher.mjs, authorizeTextRoles) and is not exercised yet; the maintainer key publishes directly.

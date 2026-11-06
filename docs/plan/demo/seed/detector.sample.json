@@ -1,0 +1,47 @@
+[
+ {
+  "chainId": 1,
+  "subject": "0x517dc8e50b8bf03a1d69c84d27bf96dc5a911db2",
+  "category": "POISONING_OPERATOR",
+  "evidence": "0x9147d74ef5749b7f27eb2e2528e5a611060b3f609b435f7f50ac87f49e5b957c",
+  "seenBlock": 19788642,
+  "note": "tx.from of the batch call to 0xab3393c9 that planted a fake-ETH transfer victim -> 0xd9a1c378, hours before the $68M payment. Also deployed fake token 0x73935233 (0x981cf0c3) and the batch contract.",
+  "campaign": "May 2024 $68M WBTC poisoning"
+ },
+ {
+  "chainId": 1,
+  "subject": "0x70f374f9a480fbcf03a91229b5a855c045a8cf68",
+  "category": "POISONING_OPERATOR",
+  "evidence": "0xfc1ea6df1228546a9634dd26cf1bf602f1f7fcb0540752c8c95def0743c091be",
+  "seenBlock": 24047447,
+  "note": "tx.from of the batch call (via contract 0x6b5796e8) that produced the zero-value USDT transferFrom victim 0xcb80784e -> lookalike 0xbaff2f13, 113 blocks (~23 min) before the loss.",
+  "campaign": "Dec 2025 $50M USDT poisoning"
+ },
+ {
+  "chainId": 1,
+  "subject": "0x173763b0a652481ce99ceb7035a43e31b6d18be1",
+  "category": "POISONING_OPERATOR",
+  "evidence": "0x2733bf1d559657be6ef29de0456095a1c9a99d57fe351c55ad1cbe316d2b1405",
+  "seenBlock": 24047457,
+  "note": "tx.from of the fake-USDT (0xfa2c55c4) emission via batch contract 0xe213ff2a that forged a 50 USDT transfer victim 0xcb80784e -> 0xbaff2f13.",
+  "campaign": "Dec 2025 $50M USDT poisoning"
+ },
+ {
+  "chainId": 1,
+  "subject": "0x24da8a34deb6a915ccd261a938ef508397a7087c",
+  "category": "POISONING_OPERATOR",
+  "evidence": "0x0caea853acd5679a7fffb0dac7acb66d8a5d93f1203e1f17b646bb88edc9f51c",
+  "seenBlock": 24047694,
+  "note": "Second EOA driving batch poisoner 0xe213ff2a; this tx emits 41 forged transfers from fake USDT 0x77820cba. Low confidence on crew attribution.",
+  "campaign": "Dec 2025 poisoning wave"
+ },
+ {
+  "chainId": 1,
+  "subject": "0x2ef45c5a56892684a42cc1c5546d5dd533b2dc5b",
+  "category": "POISONING_OPERATOR",
+  "evidence": "0xd460826223059f49244c12505d79490f4f694b628583708b51d68b3e19c347b0",
+  "seenBlock": 21926555,
+  "note": "tx.from of a 420-log batch of zero-value USDC/USDT/DAI transferFroms via contract 0xac52ed1e, including USDC victim 0xd6741220 -> lookalike 0x6d9052b2: the first poisoning, 11 months before the loss.",
+  "campaign": "Jan 2026 4,556 ETH poisoning"
+ }
+]

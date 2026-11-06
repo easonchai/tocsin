@@ -1,0 +1,11 @@
+{
+  "resolver": "0x1cBF0A41B77416381C6eEC40b703BBe4722519E6",
+  "userRegistry": "0x61F6B44C598d7171947eE059e1d486eDd6950b88",
+  "registrar": "0x081d9c8ea86b6022c3e2f0a61f5c26cf9a7cb436",
+  "names": {
+    "parent": "tocsin.eth",
+    "list": "core.tocsin.eth",
+    "listNode": "0x0551573d8cba9f9ca27a75d85f7ca91d68a7c6b956c2c582c15d5ca027e18abc"
+  },
+  "emancipated": true
+}
