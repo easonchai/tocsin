@@ -21,7 +21,10 @@ const abi = parseAbi([
   "function permit(address owner, PermitSingle permitSingle, bytes signature)",
   "function permit(address owner, PermitBatch permitBatch, bytes signature)",
   "function balanceOf(address who) view returns (uint256)",
+  "struct ExactInputSingleParams { address tokenIn; address tokenOut; uint24 fee; address recipient; uint256 amountIn; uint256 amountOutMinimum; uint160 sqrtPriceLimitX96; }",
+  "function exactInputSingle(ExactInputSingleParams params) payable returns (uint256 amountOut)",
 ]);
+const ROUTER = getAddress("0x2222222222222222222222222222222222222222");
 const details = { token: TOKEN, amount: 1n, expiration: 1, nonce: 0 };
 const pick = (ts: ReturnType<typeof transactionTargets>) => ts.map((t) => [t.address, t.context]);
 
@@ -95,6 +98,20 @@ test("Permit2 permit, single and batch, adds the spender", () => {
     assert.deepEqual(pick(ts)[1], [BAD, "spender"]);
     assert.equal(ts[1]?.why, "Permit2 permit spender");
   }
+});
+
+test("SwapRouter02 exactInputSingle adds the swap recipient alongside the router", () => {
+  const data = encodeFunctionData({
+    abi,
+    functionName: "exactInputSingle",
+    args: [{ tokenIn: TOKEN, tokenOut: zeroAddress, fee: 3000, recipient: BAD, amountIn: 1n, amountOutMinimum: 0n, sqrtPriceLimitX96: 0n }],
+  });
+  const ts = transactionTargets({ to: ROUTER, data });
+  assert.deepEqual(pick(ts), [
+    [ROUTER, "recipient"],
+    [BAD, "recipient"],
+  ]);
+  assert.equal(ts[1]?.why, "swap recipient");
 });
 
 test("unknown or malformed calldata adds nothing beyond `to`", () => {

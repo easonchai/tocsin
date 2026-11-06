@@ -3,7 +3,7 @@
   "description": "Checks recipients, spenders and permits against threat flags in an on-chain log, from writers on a signed list you pin. Best-effort: the header comes from an RPC.",
   "proposedName": "Tocsin",
   "source": {
-    "shasum": "oJ45BzrPBClQ0ir8dwkKMtwTY2OoaFz+cEJ4SiuuqYY=",
+    "shasum": "g3Cz9yGrlEWvB4vxDF3y9oXBhhcvnrMi5JwrluHYORI=",
     "location": {
       "npm": {
         "filePath": "dist/bundle.js",

@@ -18,6 +18,9 @@ const callsAbi = parseAbi([
   "struct PermitBatch { PermitDetails[] details; address spender; uint256 sigDeadline; }",
   "function permit(address owner, PermitSingle permitSingle, bytes signature)",
   "function permit(address owner, PermitBatch permitBatch, bytes signature)",
+  // Uniswap V3 SwapRouter02: the output goes to `recipient`, not to the sender.
+  "struct ExactInputSingleParams { address tokenIn; address tokenOut; uint24 fee; address recipient; uint256 amountIn; uint256 amountOutMinimum; uint160 sqrtPriceLimitX96; }",
+  "function exactInputSingle(ExactInputSingleParams params) payable returns (uint256 amountOut)",
 ]);
 
 const unique = (targets: Target[]): Target[] =>
@@ -49,6 +52,7 @@ export function transactionTargets(tx: { to?: string | null; data?: string | nul
         ? { address: getAddress(args[1]), context: "spender", why: "EIP-2612 permit spender" }
         : { address: getAddress(args[1].spender), context: "spender", why: "Permit2 permit spender" },
     );
+  else if (functionName === "exactInputSingle") out.push({ address: getAddress(args[0].recipient), context: "recipient", why: "swap recipient" });
   // A send or approve of an ERC-20 (not Permit2, whose `to` is Permit2): the contract may be a flagged token.
   const erc20 = functionName === "transfer" || (functionName === "approve" && args.length === 2) || (functionName === "permit" && args.length === 7);
   if (erc20 && tx.to && isAddress(tx.to, { strict: false })) out.push({ address: getAddress(tx.to), context: "token", why: "token contract" });

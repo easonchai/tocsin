@@ -11,14 +11,15 @@
     "theftProceeds": "0xCd2698C9c9b2b69625DD2a56252190647F34913d",
     "tombstoned": "0x9dF85792C46Ff0D052090AB6d911C9651F44CF34",
     "countered": "0x9B513B74936bBA852C95184bC85DE92d43D655e8",
-    "disputed": "0x1D3B86A924ffb140bdD74Ee6a7533921ed141583"
+    "disputed": "0x1D3B86A924ffb140bdD74Ee6a7533921ed141583",
+    "malicious-delegate-1": "0x2F360fc5bD5a7FC606a039be9DE33253D11a8748"
   },
   "leavesSent": {
     "manual": 25,
     "detector": 25
   },
   "writerSeq": {
-    "manual": "25",
+    "manual": "27",
     "detector": "25"
   },
   "seenBlock": "12074111",
@@ -49,6 +50,15 @@
       "leaves": 3,
       "gasUsed": "93405",
       "costWei": "1868100"
+    },
+    {
+      "batch": "append-malicious-delegate-1",
+      "writer": "0x1D3B86A924ffb140bdD74Ee6a7533921ed141583",
+      "via": "appendSigned",
+      "hash": "0x88a576a1152820f789585028789afecc7b0eda1b03531cf13b363c8657929aa3",
+      "leaves": 1,
+      "gasUsed": "196546",
+      "costWei": "4324012"
     }
   ]
 }
