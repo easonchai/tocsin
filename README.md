@@ -57,9 +57,11 @@ Built:
 - The claim page, `site/claim.html`: connect a Sepolia wallet, register a `.eth` name if needed, claim the subname, and read the registry's guarantees live. Two names claimed through it from separate keys so far.
 - The detector agent, `scripts/agent/detector.mjs`: a template for an automated writer with its own name, `detector.tocsin.eth`. Flags a sample of verified poisoning operators by default; its live mode, a zero-value-transfer heuristic, found two real sprayers in a 40-block scan. Replace the detection, keep the rest.
 - The log deployed on Sepolia and seeded: 92 leaves under the core writer key, 25 under the detector's.
-- Build tickets under `docs/plan/`, one per piece of the demo.
+- Build tickets under `docs/plan/`, one per piece of the demo. The demo page itself is specified in `docs/plan/demo-page/explainer-spec.md`: pick a scenario, watch an animated explainer of who flagged it and how the rule counts them, then the wallet answers.
 
-Next, in the order the handoff sets:
+On the `feat/demo` branch (PR #3, not merged into main yet): the reader, the Snap, the provider-proxy extension, the lying-RPC proxy, the seeders and the first demo board.
+
+Next on main, in the order the handoff sets:
 
 1. The reader: prove heads through Helios, replay, evaluate.
 2. The three hosts: Kohaku module (full claim), MetaMask Snap (privacy half, RPC header), provider-proxy extension.
@@ -367,9 +369,9 @@ https://github.com/easonchai/tocsin/blob/main/scripts/ens/contracts/MirrorRegist
 
 That is the `HUB.register` call: the subregistry minting a name with the claimant's role bitmap and the expiry mirrored from the `.eth` registry, right after the ownership check. Subregistry `0x45cb8bE82D927d8d310cd6B357708b0367B4435B`, registrar `0x9319461337a2c5fb1992fd467708cc46d716a427`, both on Sepolia. Transaction hashes are in `docs/plan/demo/issues/15-mirror-registrar.md`.
 
-**Ease of use: 6 out of 10**
+**Ease of use: 7 out of 10**
 
-Per-name registries, per-account resolvers, and revocable roles made "a directory nobody can take back" a one-day build, and the deployed contracts match the docs. We lost the second day to addresses. The `deployments/sepolia` folder in the `contracts-v2` repo is a June 2026 set that is still live but that the Universal Resolver does not read. We built the whole hub on it, and none of the names resolved anywhere. The set that resolvers use is only in the `ensjs` source.
+Per-name registries, per-account resolvers, and revocable roles made "a directory nobody can take back" a one-day build, and the deployed contracts match the docs. Three points off for addresses, which cost us the second day. The `deployments/sepolia` folder in the `contracts-v2` repo is a June 2026 set that is still live but that the Universal Resolver does not read. We built the whole hub on it, and none of the names resolved anywhere. The set that resolvers use is only in the `ensjs` source.
 
 **Feedback for the sponsor**
 
