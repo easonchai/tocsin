@@ -351,39 +351,33 @@ The Ethereum Foundation's test for the properties Ethereum must keep: censorship
 
 **Why we are applicable**
 
-Tocsin is an append-only log of scam infrastructure on Ethereum. The contract stores no list, only a running hash per writer, so what a wallet needs is a way to decide which writers to believe and where to find their signed lists. That is the job we gave ENSv2, and it is the trust layer of the product, not a vanity name.
+Tocsin is an append-only log of scam infrastructure on Ethereum. The contract keeps a running hash per writer and nothing else, so a wallet needs two things from outside the log: which writers to believe, and where to find their signed lists. ENSv2 answers both. Names are how a wallet finds and trusts a list, which makes ENS part of the trust model rather than a label on top of it.
 
-On Sepolia, `tocsin.eth` owns its own UserRegistry subregistry, deployed through the Verifiable Factory. A 60-line MirrorRegistrar mints `label.tocsin.eth` to whoever owns `label.eth`, expiry mirrored, no approval, no fee. Each claimant gets their own Permissioned Resolver. Then we used Enhanced Access Control to emancipate the registry: the owner revoked every root role, including its own registrar role, so the only account that can mint is the registrar contract and no account can change, transfer, or remove a name. One `hasAssignees` call proves it.
+On Sepolia, [`tocsin.eth` owns its own UserRegistry subregistry](https://github.com/easonchai/tocsin/blob/main/scripts/ens/2-setup-core.mjs#L43), deployed through the Verifiable Factory alongside [our Permissioned Resolver](https://github.com/easonchai/tocsin/blob/main/scripts/ens/2-setup-core.mjs#L40). A 60-line [MirrorRegistrar](https://github.com/easonchai/tocsin/blob/main/scripts/ens/contracts/MirrorRegistrar.sol) mints `label.tocsin.eth` to whoever owns `label.eth`, with the subname's expiry copied from the `.eth` name and a public `sync` to extend it after renewal. Each claimant [deploys their own resolver](https://github.com/easonchai/tocsin/blob/main/scripts/ens/3-claim.mjs#L30). After setup, the owner [revokes every root role it holds](https://github.com/easonchai/tocsin/blob/main/scripts/ens/2-setup-core.mjs#L89), including its own registrar role, so only the registrar contract can mint and no account can change, transfer, or remove a name. `hasAssignees(ROOT_RESOURCE, dangerousRoles)` returns false, and [the claim page reads that live](https://github.com/easonchai/tocsin/blob/main/site/claim.html#L207).
 
-Trust lists live on those names. `core.tocsin.eth` carries the `tocsin.list` text record: the list's hash, a version, the maintainer's EIP-712 signature, and the document URI. A wallet pins the maintainer key on first use, so a lapsed or re-sold name cannot swap the list it follows. The detector, an automated writer, has its own name, key, and self-list at `detector.tocsin.eth`, and sits at warn weight in the core list: an agent as a namespace with its own permissions.
+Trust lists live on those names. `core.tocsin.eth` carries the `tocsin.list` text record, [built and signed here](https://github.com/easonchai/tocsin/blob/main/scripts/seed/publish-list.mjs#L74): the list's hash, a version, the maintainer's EIP-712 signature, and the document URI. A wallet pins the maintainer key the first time, so a lapsed or re-sold name cannot replace the list it follows. The detector, an automated writer, has its own name, key, and self-list at `detector.tocsin.eth` and sits at warn weight in the core list, which is an agent as a namespace with its own permissions. [`authorizeTextRoles`](https://github.com/easonchai/tocsin/blob/main/scripts/ens/5-delegate-publisher.mjs#L20) lets the name owner hand a hot key the right to update only that one record.
 
-Live today: four names claimed, three from independent keys; two signed lists verified end to end; a claim page that registers a `.eth` name, claims the subname, and reads the registry's guarantees from a browser wallet; seven fork tests against the deployed ENSv2 contracts.
+Live today: four names claimed, three of them from separate keys; two signed lists verified end to end; a claim page that registers a `.eth` name, claims the subname, and shows the registry's guarantees from a browser wallet; [seven fork tests](https://github.com/easonchai/tocsin/blob/main/scripts/ens/test/MirrorRegistrar.t.sol) against the deployed ENSv2 contracts.
 
-**Where the tech is used**
+**Link to the line of code**
 
-- Claim rule and registration into the subregistry: https://github.com/easonchai/tocsin/blob/main/scripts/ens/contracts/MirrorRegistrar.sol#L44
-- Emancipation through EAC: https://github.com/easonchai/tocsin/blob/main/scripts/ens/2-setup-core.mjs#L89
-- Resolver and subregistry proxies from the Verifiable Factory: https://github.com/easonchai/tocsin/blob/main/scripts/ens/2-setup-core.mjs#L40
-- Signed trust list as a Permissioned Resolver text record: https://github.com/easonchai/tocsin/blob/main/scripts/seed/publish-list.mjs#L74
-- Delegating one text key with `authorizeTextRoles`: https://github.com/easonchai/tocsin/blob/main/scripts/ens/5-delegate-publisher.mjs#L20
-- The claim page, live against Sepolia: https://github.com/easonchai/tocsin/blob/main/site/claim.html#L195
-- Fork tests against the deployed ENSv2 contracts: https://github.com/easonchai/tocsin/blob/main/scripts/ens/test/MirrorRegistrar.t.sol
+https://github.com/easonchai/tocsin/blob/main/scripts/ens/contracts/MirrorRegistrar.sol#L50
 
-Deployed on Sepolia: subregistry `0x61F6B44C598d7171947eE059e1d486eDd6950b88`, MirrorRegistrar `0x081d9c8ea86b6022c3e2f0a61f5c26cf9a7cb436`, names `core`, `blockaid`, `etherscan`, `detector` under `tocsin.eth`. Every transaction hash is in `docs/plan/demo/issues/15-mirror-registrar.md`.
+That is the `HUB.register` call: the ENSv2 subregistry minting a name with the claimant's role bitmap and the expiry mirrored from the `.eth` registry, after the ownership check on the line above it. Subregistry `0x61F6B44C598d7171947eE059e1d486eDd6950b88`, registrar `0x081d9c8ea86b6022c3e2f0a61f5c26cf9a7cb436`. Every transaction hash is in `docs/plan/demo/issues/15-mirror-registrar.md`.
 
 **Ease of use: 7 out of 10**
 
-The design is a clear step up from v1. Per-name registries, per-account resolvers, and reversible roles instead of fuses turned "a directory nobody can revoke" into a one-day build, and our fork tests passed on the first run with the right addresses. Three points off: the Sepolia deployment does not match the docs in places, and the addresses were hard to find.
+Per-name registries, per-account resolvers, and reversible roles made "a directory nobody can revoke" a one-day build, and the fork tests passed on the first run once we had the right addresses. Three points off because the Sepolia deployment differs from the docs in places, and the addresses took an hour to find.
 
 **Feedback for the sponsor**
 
-1. The deployed Sepolia `PermissionedResolverImpl` differs from the Permissioned Resolver docs. Docs: setters take a DNS-encoded name, scoped roles come from `grantSetterRoles(setter, account)`. Deployed ABI: `setText`, `setAddr`, `setContenthash` take `bytes32 node`, and scoping is `authorizeTextRoles(bytes toName, string key, address account, bool grant)` with siblings. Code written from the docs reverts.
-2. Docs say every registry exposes `isEmancipated()`. The deployed `ETHRegistry` and `UserRegistryImpl` do not. `hasAssignees(ROOT_RESOURCE, dangerousRoles)` works, but say so, or ship the function.
-3. The Deployments page renders addresses from a React component, so they are missing from `llms-full.txt` and any scrape. We got them from `contracts/deployments/sepolia/*.json` in `contracts-v2`. A plain table or a linked `deployments.json` would save every team an hour.
-4. There is no end-to-end "register a .eth name on Sepolia" example for the v2 registrar: commit, wait, `register` with its eight arguments, and the test USDC mint. The v1 page with a callout is what `llms-full.txt` serves under "ETH Registrar." We read the ABI.
-5. `UserRegistryImpl.initialize(rootAccount, roleBitmap)` must include the admin bits for any role you will later grant to a registrar, or the grant reverts. The docs say it; a warning next to the initialize example would prevent a dead-end deploy.
-6. The role bitmap composer is great. A documented emancipation recipe, `revokeRootRoles(roles(ROOT, me), me)` with the expected `roleCount` before and after, would make the best EAC feature easy to demo.
-7. What worked without friction: the Sepolia ENS app resolving v2 subnames, the Verifiable Factory's deterministic addresses, and the registrar flow once the ABI was known.
+1. The deployed Sepolia `PermissionedResolverImpl` differs from the Permissioned Resolver docs. The docs say setters take a DNS-encoded name and scoped roles come from `grantSetterRoles(setter, account)`. The deployed ABI takes `bytes32 node` in `setText`, `setAddr`, and `setContenthash`, and scopes roles with `authorizeTextRoles(bytes toName, string key, address account, bool grant)`. Code written from the docs reverts.
+2. The docs say every registry exposes `isEmancipated()`. The deployed `ETHRegistry` and `UserRegistryImpl` do not. `hasAssignees(ROOT_RESOURCE, dangerousRoles)` does the job. Either ship the function or say it is missing.
+3. The Deployments page renders addresses from a React component, so they are missing from `llms-full.txt` and from any scrape. We took them from `contracts/deployments/sepolia/*.json` in the `contracts-v2` repo. A plain table or a linked `deployments.json` would save every team that hour.
+4. There is no end-to-end example of registering a `.eth` name on Sepolia with the v2 registrar: commit, wait, `register` with its eight arguments, and the test USDC mint. `llms-full.txt` serves the v1 page with a callout under "ETH Registrar." We read the ABI instead.
+5. `UserRegistryImpl.initialize(rootAccount, roleBitmap)` must include the admin bits for any role you will grant to a registrar later, or the grant reverts. The docs mention it. A warning next to the initialize example would stop the dead-end deploy.
+6. The role bitmap composer is good. An emancipation recipe next to it, `revokeRootRoles(roles(ROOT, me), me)` with the expected `roleCount` before and after, would make the strongest EAC feature easy to show.
+7. Worked without friction: the Sepolia ENS app resolving v2 subnames, the Verifiable Factory's predictable addresses, and the registrar once the ABI was known.
 
 ## License
 
