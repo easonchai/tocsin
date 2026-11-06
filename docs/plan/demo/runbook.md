@@ -178,6 +178,17 @@ yarn workspace @tocsin/extension test
 
 `TOCSIN_TRANSPORT` is `tor` by default. Set it to `nym`, or to `direct` if the venue network blocks both. `direct` is not anonymised and the overlay says so. `TOCSIN_LIST_RECORD` works as in the Snap. The RPC and consensus endpoints come from `packages/nextjs/.env.local`. The Sepolia execution RPC depends on the transport, as in step 9. Rebuild after changing it, because the build bakes it in. Tor needs the local gateway running. Load `packages/extension/dist` unpacked at `chrome://extensions`. Ticket 13's Comments give the acceptance steps.
 
+### Kohaku
+
+Kohaku with Tocsin is not a workspace. It is two patches on upstream Kohaku, applied by a script, with Node 22.12 or later 22.x:
+
+```sh
+packages/kohaku/setup.sh
+cd packages/kohaku/kohaku-extension && npx yarn@1.22.22 web:webkit
+```
+
+Load `packages/kohaku/kohaku-extension/build/webkit-dev` unpacked. It needs the static site and, for beat 2, the lying proxy. `packages/kohaku/README.md` has the settings, the beats and how to update the patches.
+
 ## 9. The harness page
 
 ```sh
