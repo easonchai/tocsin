@@ -6079,6 +6079,12 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@tocsin/extension@workspace:packages/extension":
+  version: 0.0.0-use.local
+  resolution: "@tocsin/extension@workspace:packages/extension"
+  languageName: unknown
+  linkType: soft
+
 "@tocsin/infra@workspace:packages/infra":
   version: 0.0.0-use.local
   resolution: "@tocsin/infra@workspace:packages/infra"

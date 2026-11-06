@@ -9,6 +9,7 @@ Tocsin built into Kohaku, the EF privacy wallet extension. The send screen and b
 | `patches/kohaku-commons.patch` | Controller side: `TocsinController`, the block in transfer, sign-account-op and sign-message, and the jest suites |
 | `setup.sh` | Clones, applies both patches, copies `../reader/src` and the Helios plus Anon-RPC helper in, installs, writes `.env` |
 | `update-patches.sh` | Writes `patches/` back out from a clone you edited |
+| `demo.sh` | Starts the Tor gateway, the static site with CORS and the lying proxy, waits for each, prints the Chrome load path and the three beats. Ctrl-C stops them. Reuses any of the three already running |
 
 The reader is not in the patches. `setup.sh` copies `dapp/packages/reader/src` into `src/ambire-common/src/libs/tocsin/reader/` every time, so Kohaku runs the same reader as the Snap and the extension. The same goes for `dapp/packages/nextjs/utils/harness` (Helios bootstrap, Anon-RPC worker boot, pinned checkpoints), copied into `src/web/extension-services/tocsin-offscreen/harness/`.
 
@@ -68,7 +69,11 @@ YARN_IGNORE_PATH=1 npx yarn@1.22.22 build:web:webkit    # one-off build into bui
 
 Load `build/webkit-prod` instead.
 
-Start the static site with CORS from the runbook's "Servers on the demo laptop" (the list document lives there), plus the lying proxy for beat 2.
+Start the static site with CORS from the runbook's "Servers on the demo laptop" (the list document lives there), plus the lying proxy for beat 2. Or let one script do it, the gateway included:
+
+```sh
+dapp/packages/kohaku/demo.sh    # logs in /tmp/tocsin-demo, Ctrl-C stops everything it started
+```
 
 ## The three beats
 
