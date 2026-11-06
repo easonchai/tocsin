@@ -1,6 +1,6 @@
 # Glossary
 
-Terms as the ERC's Definitions section states them (`erc/eip-draft_threat_flag_log.md`). Use these words in code, tests, tickets and the pitch.
+Terms as the spec's Definitions section states them (`docs/spec/threat-flag-log.md`). Use these words in code, tests, tickets and the pitch.
 
 **Log.** The ThreatFlagLog contract. It stores heads and sequence numbers, emits every leaf, and has no owner.
 

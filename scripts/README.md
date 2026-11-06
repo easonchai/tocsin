@@ -49,6 +49,6 @@ Pin the block; the public RPC is load balanced and a bare `latest` fork can hit 
 
 ## Lists and the record key
 
-A list is a signed `TrustList` document; its hash, version, maintainer signature, and URI go into the `tocsin.list` text record on the publishing name. The ERC calls the key `erc-XXXX.list` until numbered; any string works as long as readers use the same one. Both of our writers declare the same operator, `tocsin.eth`, so a reader never counts them as independent.
+A list is a signed `TrustList` document; its hash, version, maintainer signature, and URI go into the `tocsin.list` text record on the publishing name. Any key string works as long as readers use the same one. Both of our writers declare the same operator, `tocsin.eth`, so a reader never counts them as independent.
 
 Delegating the publish right to a hot key uses the resolver's `grantSetterRoles(setter, account)` with a `setText` calldata whose key is `tocsin.list`; the owner's key stays cold. Not wired into the mega script yet.

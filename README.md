@@ -2,7 +2,7 @@
 
 An append-only log of scam infrastructure on Ethereum that any light-client wallet verifies without trusting an RPC, an explorer, or a security vendor. Anyone writes flags under their own name. Nothing is ever removed. Wallets choose whose flags to believe through signed trust lists, and check every address on the device.
 
-Built at Devcon 8 and ETHGlobal Mumbai, 5 to 7 November 2026. Written up as an ERC draft, "Append-Only Threat Flag Log." Demo: https://tocsin-eth.vercel.app. Site: https://tocsin.eth.limo (once the content hash is set). Repo: https://github.com/easonchai/tocsin.
+Built at Devcon 8 and ETHGlobal Mumbai, 5 to 7 November 2026. Scam prevention infrastructure on Ethereum: an append-only log, a light-client reader and signed trust lists on ENS. The spec is `docs/spec/threat-flag-log.md`. Demo: https://tocsin-eth.vercel.app. Site: https://tocsin.eth.limo (once the content hash is set). Repo: https://github.com/easonchai/tocsin.
 
 ## The problem
 
@@ -42,13 +42,13 @@ That is what a wallet needs. It proves the head from a block header, fetches the
 4. It downloads the flags from anywhere, even a lying RPC, and replays them. They land on the proven head or they do not. Landing means real and complete. Not landing means unverifiable, never clean.
 5. It evaluates addresses locally. No per-address query ever leaves the device.
 
-The ERC specifies the contract interface, the leaf encoding, the trust-list encoding, the light-client read procedure, and a recommended reader policy. It does not say who is right.
+The spec covers the contract interface, the leaf encoding, the trust-list encoding, the light-client read procedure, and a recommended reader policy. It does not say who is right.
 
 ## Status, 6 November 2026
 
 Built:
 
-- The ERC draft, `erc/eip-draft_threat_flag_log.md`, with a reference implementation that passed nine Foundry tests on the normative cases. Rendered at `site/erc.html` and as `docs/erc-draft.pdf`.
+- The spec, `docs/spec/threat-flag-log.md`, with a reference implementation that passed nine Foundry tests on the normative cases.
 - The landing page, `site/`, on the brand kit under `design/`. The kit has the mark, tokens, the dot-field background, three animated how-it-works scenes, wallet mocks, and a designer handoff.
 - The MetaMask Snap UI, specified screen by screen in `docs/plan/demo/snap-ui.md` and mocked in `design/kit/snap.html`.
 - The seed list, `docs/plan/demo/seed/`: 92 attacker addresses across eight categories, each with an evidence transaction that was replayed and checked on-chain. Drainer kits, address-poisoning crews, EIP-7702 sweepers, and exploit proceeds.
@@ -66,7 +66,7 @@ Next on main, in the order the handoff sets:
 1. The reader: prove heads through Helios, replay, evaluate.
 2. The three hosts: Kohaku module (full claim), MetaMask Snap (privacy half, RPC header), provider-proxy extension.
 3. The three demo beats: honest RPC blocks the drainer receiver; a lying RPC produces "unverifiable, chain mismatch"; a mirror restores the block.
-4. The backtest, then the Ethereum Magicians thread, then the PR to `ethereum/ERCs`.
+4. The backtest.
 
 ## Addresses
 
@@ -125,7 +125,7 @@ The namehash is how ENS turns a name into a fixed 32-byte key, by hashing the la
 
 Two ways to publish a list, and both work with the same reader:
 
-- Under your own name. Put the `tocsin.list` text record on a name you own. (The ERC draft names the key `erc-threat-flag-log.list`, becoming `erc-N.list` once numbered; the Sepolia deployment uses `tocsin.list` until then. Any key string works, readers just have to agree on it.) The ERC locates a list by any name record and authenticates it by the maintainer's signature, so no hub is needed. This is the token-lists model and it is the primary one.
+- Under your own name. Put the `tocsin.list` text record on a name you own. (Any key string works, readers just have to agree on it.) The spec locates a list by any name record and authenticates it by the maintainer's signature, so no hub is needed. This is the token-lists model and it is the primary one.
 - Under the hub. Own `james.eth`, claim `james.tocsin.eth` in one transaction through the MirrorRegistrar. The subname's expiry mirrors the `.eth` name's. After setup, no account holds a dangerous role on the hub registry, so nobody can revoke a claimed name or change its resolver. Check `hasAssignees(0, dangerousRoles)` on the registry.
 
 `core.tocsin.eth` is our own list: the 92 seed entries under the core writer plus the detector at warn weight, signed by the maintainer key. Wallets ship names like browsers ship root CAs, and the user sees "flagged by seal.eth, listed by core.tocsin.eth," never a hex address.
@@ -165,7 +165,7 @@ flowchart LR
   c --> d["our PermissionedResolver<br/>text(namehash, tocsin.list)"]
 ```
 
-The Tocsin reader does the same walk through `eth_getProof` against the light client's state root, so the list record is verified the same way the log head is. That is why the ERC treats a record resolved through an unverifiable gateway as unverified.
+The Tocsin reader does the same walk through `eth_getProof` against the light client's state root, so the list record is verified the same way the log head is. That is why the spec treats a record resolved through an unverifiable gateway as unverified.
 
 Who can do what once setup has run:
 
@@ -212,10 +212,9 @@ The resolver uses the same system and is not emancipated, on purpose. The mainta
 
 | Path | What it is |
 | --- | --- |
-| `erc/eip-draft_threat_flag_log.md` | The ERC draft, EIP-1 format |
-| `site/` | Landing page, ERC page, the claim page (`claim.html`), fonts, `build.sh` for an IPFS-ready `dist/` |
+| `docs/spec/threat-flag-log.md` | The spec: log, reader and trust lists |
+| `site/` | Landing page, the claim page (`claim.html`), fonts, `build.sh` for an IPFS-ready `dist/` |
 | `design/` | Brand kit, scenes, mocks, Snap screens, explorations, designer handoff (`design/README.md`) |
-| `docs/erc-draft.pdf` | The ERC as a PDF |
 | `docs/claim-a-name.md` | How anyone claims `<label>.tocsin.eth` on Sepolia and publishes under it |
 | `docs/pitch/arguments.md` | Pitch copy: the supply-chain argument, fake heads, why not ENS, one-liners |
 | `docs/plan/demo/` | Demo spec, Snap UI spec, seed list, build tickets 01 to 15 |
@@ -225,7 +224,6 @@ The resolver uses the same system and is not emancipated, on purpose. The mainta
 | `scripts/ens/` | ENSv2 Sepolia: `setup-all.mjs` registers, sets up the hub, claims, publishes the lists, and emancipates; `common.mjs` holds the addresses; the MirrorRegistrar and its fork tests |
 | `scripts/seed/` | Seed the log from `core.json` |
 | `scripts/agent/` | The detector: an agent writer with its own name |
-| `scripts/build-erc.mjs` | Regenerates `site/erc.html` from the markdown |
 | `HANDOFF.md` | Settled decisions, build order, open items |
 | `dapp/packages/foundry` | The log contract, its Foundry tests, and the CREATE2 deploy script (Scaffold-ETH 2, Foundry flavour) |
 | `GLOSSARY.md` | Log, writer, leaf, subject, head, maintainer, reader |
@@ -245,7 +243,7 @@ Nobody can stop a writer: a relayer that refuses a batch is bypassed by sending 
 
 Any process with a key can be a writer. The detector in `scripts/agent/detector.mjs` is the template: it finds candidates, attaches on-chain evidence, appends them under its own key, and gets its own name and list. Keep the shape, replace the detection.
 
-The one function to write returns candidates. Each one needs the chain, the subject, a category from the ERC's table, the transaction that proves the subject's role, and the block it was seen in:
+The one function to write returns candidates. Each one needs the chain, the subject, a category from the spec's table, the transaction that proves the subject's role, and the block it was seen in:
 
 ```js
 async function findCandidates() {
@@ -305,7 +303,7 @@ cast code 0xC5616bb2FDCcdD761aa969c5C0dFb3D5c7d93865 --rpc-url "$SEPOLIA_RPC_URL
 cast call 0xC5616bb2FDCcdD761aa969c5C0dFb3D5c7d93865 "globalSeq()(uint64)" --rpc-url "$SEPOLIA_RPC_URL"
 ```
 
-The first should print `0xdc59334640b4a42e076253a531f923cb65fa6e1091f535da8ff17ce74c24b93c`, the runtime code hash in the ERC's Deployment section.
+The first should print `0xdc59334640b4a42e076253a531f923cb65fa6e1091f535da8ff17ce74c24b93c`, the runtime code hash in the spec's Deployment section.
 
 For a local chain, SE-2's usual `yarn chain` and `yarn deploy` in `dapp/` deploy to the same address on anvil.
 
@@ -315,13 +313,6 @@ Preview the site from the repo root:
 
 ```
 python3 -m http.server 8732      # open http://127.0.0.1:8732/site/
-```
-
-Rebuild the ERC page after editing the markdown:
-
-```
-npm install
-npm run build:erc
 ```
 
 Publish the site to IPFS and ENS:
@@ -359,7 +350,7 @@ With ETH at $2,200:
 | 1 gwei | about 2 cents | about $1,100 |
 | 10 gwei | about 22 cents | about $11,000 |
 
-The base fee moves fifty-fold within a day, so the sentence for a pitch is "about half a cent a flag." Calldata repricing proposed for Glamsterdam would raise the current encoding by about 40 percent; the ERC notes it and a packed encoding would absorb it.
+The base fee moves fifty-fold within a day, so the sentence for a pitch is "about half a cent a flag." Calldata repricing proposed for Glamsterdam would raise the current encoding by about 40 percent; the spec notes it and a packed encoding would absorb it.
 
 A reader downloads only the writers it pins. Fifty thousand flags a year is about 5 MB packed. A fresh install syncs from a recent anchor and never replays from the beginning.
 
@@ -369,17 +360,15 @@ The Ethereum Foundation's test for the properties Ethereum must keep: censorship
 
 **CR.** Nothing we run sits between the user and the data. The log has no owner and `append` is open to anyone. Entries are verified by replay against a proven head, so any RPC, mirror, or snapshot host is interchangeable, and a lying one produces "unverifiable," not a false "clean." Lists are signed by their maintainer and pinned on first use, so losing our name or domain cannot swap a reader's list. The hub registry is emancipated. A block is always overridable on the device.
 
-**O.** MIT for this repository, CC0 for the ERC. It builds from the repo alone. No backend, indexer, or API of ours.
+**O.** MIT for this repository, CC0 for the spec and the reference implementation. It builds from the repo alone. No backend, indexer, or API of ours.
 
 **P.** The RPC sees one storage proof for the writers in the user's lists and bounded log ranges by writer, over the EF's Anon-RPC worker where the host allows it. Nobody sees the recipient, the spender, or the user's own address in connection with a check, because every check runs on the device against a locally replayed set.
 
 **S.** The wallet holds no keys of ours and sends no user data anywhere. Trust assumptions, in order: the sync committee and the pinned weak-subjectivity checkpoint; the maintainers of the lists the user pinned; the writers those lists name, bounded by block ranges. Walkaway test: delete the team, the domain, and every server, and the log, the pinned lists, the names, and the wallet keep working.
 
-## Before the ERC is posted
+## Before going further
 
-1. Run the backtest: the share of lost dollars that went to an address which met the write criteria at least an hour before the loss. Under 10 percent, stop. Over 25 percent, proceed.
-2. Create the Ethereum Magicians thread and replace the `TODO` in `discussions-to`.
-3. Open the PR against `ethereum/ERCs`.
+Run the backtest: the share of lost dollars that went to an address which met the write criteria at least an hour before the loss. Under 10 percent, stop. Over 25 percent, proceed.
 
 ## Prize submissions
 
@@ -417,4 +406,4 @@ Per-name registries, per-account resolvers, and revocable roles made "a director
 
 ## License
 
-MIT for this repository. CC0 for everything under `erc/`, as the EIP process requires.
+MIT for this repository. CC0 for `docs/spec/` and the reference implementation in it.

@@ -1,6 +1,6 @@
 # 05: Parity fixture for the reader
 
-Spec: `docs/plan/log-contract/spec.md`, Testing decisions, fixture line; `docs/plan/demo/spec.md`, reader parity test. PRD: `erc/eip-draft_threat_flag_log.md`, Test Cases (the missing test vectors).
+Spec: `docs/plan/log-contract/spec.md`, Testing decisions, fixture line; `docs/plan/demo/spec.md`, reader parity test. PRD: `docs/spec/threat-flag-log.md`, Test Cases (the missing test vectors).
 
 **What to build:** A Foundry test that runs a fixed scenario and writes a JSON file the demo reader's parity test loads. The file carries everything a reader needs to recompute every hash from scratch, including the append block number, which the event does not carry.
 

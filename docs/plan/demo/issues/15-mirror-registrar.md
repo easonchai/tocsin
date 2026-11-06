@@ -1,6 +1,6 @@
 # 15: Mirror registrar: claim `<label>.tocsin.eth` by owning `<label>.eth`
 
-Spec: this file. ERC: `erc/eip-draft_threat_flag_log.md`, Trust lists, publication method (b). ENSv2 docs: Permissioned Registry, Enhanced Access Control, For Contract Developers (the subname registrar tutorial), Verifiable Factory.
+Spec: this file. PRD: `docs/spec/threat-flag-log.md`, Trust lists, publication method (b). ENSv2 docs: Permissioned Registry, Enhanced Access Control, For Contract Developers (the subname registrar tutorial), Verifiable Factory.
 
 **What to build:** A permissionless, non-revocable directory of list names under `tocsin.eth` on ENSv2 Sepolia. Whoever owns `james.eth` can claim `james.tocsin.eth` in one transaction. Nobody, including the team, can take a claimed name back, change its resolver, or mint names outside the rule, and that is checkable on-chain.
 

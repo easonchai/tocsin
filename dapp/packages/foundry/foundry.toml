@@ -4,7 +4,7 @@ out = 'out'
 libs = ['lib', 'node_modules']
 fs_permissions = [{ access = "read-write", path = "./"}]
 extra_output = ["evm.bytecode.opcodes"]
-# Pinned: the runtime code hash recorded in the ERC's Deployment section depends on these.
+# Pinned: the runtime code hash recorded in the spec's Deployment section depends on these.
 solc_version = "0.8.28"
 evm_version = "cancun"
 optimizer = true

@@ -1,6 +1,6 @@
 # 09: Detector
 
-Spec: `docs/plan/demo/spec.md`, Implementation decisions, Demo infrastructure, detector and relayer. PRD: `erc/eip-draft_threat_flag_log.md`, Categories, category 1 and the forged-evidence bullet. HANDOFF step 5.
+Spec: `docs/plan/demo/spec.md`, Implementation decisions, Demo infrastructure, detector and relayer. PRD: `docs/spec/threat-flag-log.md`, Categories, category 1 and the forged-evidence bullet. HANDOFF step 5.
 
 **What to build:** A Node process watches new Sepolia blocks, spots dust transfers to lookalike addresses, and within the hour the log carries category 1 leaves from the detector key with the dust transaction as evidence, submitted by the relayer. The detector key never holds ETH.
 

@@ -23,7 +23,7 @@ contract BoundariesTest is LogBase {
         return Snap(tfl.writerHead(w), tfl.writerSeq(w), tfl.globalSeq());
     }
 
-    /// @dev The writer head advanced by exactly this leaf, hashed with the ERC formula.
+    /// @dev The writer head advanced by exactly this leaf, hashed with the spec formula.
     function _assertLanded(address w, Snap memory s, IThreatFlagLog.Leaf memory l) internal view {
         assertEq(tfl.writerHead(w), _next(s.head, _leafHash(w, block.number, s.wSeq + 1, s.gSeq + 1, l)), "head");
         assertEq(tfl.writerSeq(w), s.wSeq + 1, "writerSeq");

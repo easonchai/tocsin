@@ -1,6 +1,6 @@
 # 08: ENS lists on Sepolia (ENSv2, fallback text record)
 
-Spec: `docs/plan/demo/spec.md`, Implementation decisions, Trust lists, publication and ENSv2; Further notes, ENSv2 unverified. PRD: `erc/eip-draft_threat_flag_log.md`, Trust lists, publication method (b) and the verified-lookup bullet. HANDOFF step 4.
+Spec: `docs/plan/demo/spec.md`, Implementation decisions, Trust lists, publication and ENSv2; Further notes, ENSv2 unverified. PRD: `docs/spec/threat-flag-log.md`, Trust lists, publication method (b) and the verified-lookup bullet. HANDOFF step 4.
 
 **What to build:** A reader that knows only the team's ENS name finds the current signed list on Sepolia through verified state, with no gateway in the path. The team's name is an ENSv2 subregistry, writers are subnames, and the maintainer key holds the publish role; if ENSv2 is not on Sepolia, a plain text record on the same name and the ENS prize is dropped.
 
@@ -23,7 +23,7 @@ Spec: `docs/plan/demo/spec.md`, Implementation decisions, Trust lists, publicati
 
 - tocsin.eth registered on the v2 ETHRegistry; its own UserRegistry subregistry 0x61F6B44C598d7171947eE059e1d486eDd6950b88 and PermissionedResolver 0x1cBF0A41B77416381C6eEC40b703BBe4722519E6, both through the Verifiable Factory; registry emancipated.
 - Writers as subnames through the MirrorRegistrar (ticket 15): core, blockaid, etherscan, detector.
-- The list record under the key tocsin.list (the ERC's erc-XXXX.list until numbered), published by scripts/seed/publish-list.mjs from the maintainer key: core.tocsin.eth v2 naming both writers, detector.tocsin.eth v1 naming itself. Records decode, signers recover to the maintainers, documents hash to the roots.
+- The list record under the key tocsin.list (the key the spec names), published by scripts/seed/publish-list.mjs from the maintainer key: core.tocsin.eth v2 naming both writers, detector.tocsin.eth v1 naming itself. Records decode, signers recover to the maintainers, documents hash to the roots.
 - Publish-role delegation exists (scripts/ens/5-delegate-publisher.mjs, authorizeTextRoles) and is not exercised yet; the maintainer key publishes directly.
 
 Remaining items belong to the reader, not to ENS setup: resolving the record through eth_call with CCIP-read off against the verified state root, the maintainer pin and stale handling, and writer names from list entries. Tracked under ticket 03.

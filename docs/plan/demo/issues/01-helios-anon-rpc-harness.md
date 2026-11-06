@@ -1,6 +1,6 @@
 # 01: Hour 0 to 6 harness: Helios plus Anon-RPC on Sepolia
 
-Spec: `docs/plan/demo/spec.md`, Implementation decisions, Hour 0 to 6 harness. PRD: `erc/eip-draft_threat_flag_log.md`, Light-client read procedure; Security Considerations, Query privacy. HANDOFF step 1.
+Spec: `docs/plan/demo/spec.md`, Implementation decisions, Hour 0 to 6 harness. PRD: `docs/spec/threat-flag-log.md`, Light-client read procedure; Security Considerations, Query privacy. HANDOFF step 1.
 
 **What to build:** One page in the scaffold's Next.js package that opens, syncs Helios on Sepolia, bootstraps the Anon-RPC worker through Helios, routes Helios's execution reads through the worker over Tor, and prints the proven values of the log's storage slots 2 and 3 together with the transport in use. Switching to Nym works; passthrough does not exist. At hour six the team records go or no-go.
 

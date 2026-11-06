@@ -1,6 +1,6 @@
 # 11: Kohaku signing and activity surfaces, override, maintainer prompt
 
-Spec: `docs/plan/demo/spec.md`, Implementation decisions, Host 1: Kohaku module, surfaces and verdict panel; Testing decisions, manual checklist for Kohaku. PRD: `erc/eip-draft_threat_flag_log.md`, Reader policy rule 9; Security Considerations, Liability.
+Spec: `docs/plan/demo/spec.md`, Implementation decisions, Host 1: Kohaku module, surfaces and verdict panel; Testing decisions, manual checklist for Kohaku. PRD: `docs/spec/threat-flag-log.md`, Reader policy rule 9; Security Considerations, Liability.
 
 **What to build:** The same reader answers on the signing surface (spender for approvals and permits, delegate for 7702 authorizations, the account's own delegate) and in the activity list (incoming sender and token contract). A `block` can be overridden locally after a short delay. A list whose maintainer changed prompts in settings instead of applying.
 

@@ -13,7 +13,7 @@ The name: a tocsin is the bell a town rings when something is coming. One strike
 ## Why we are doing this
 
 - We are building it at Devcon 8 and ETHGlobal Mumbai, 5 to 7 November 2026. Submissions close 8 November, 09:00 IST.
-- It is written up as an Ethereum standard, an ERC called "Append-Only Threat Flag Log", so any wallet can implement the same reader. The draft is in `erc/`.
+- The log format and the reader rules are written up as a spec, so any wallet can implement the same reader. The spec is in `docs/spec/threat-flag-log.md`.
 - The audience is Ethereum developers, wallet teams, and hackathon judges. The pitch in one line: your wallet checked Ethereum itself and caught the lie.
 - The second idea, which the brand carries in motion rather than in words: one flag reaches every wallet that syncs. The bell, not the list.
 
@@ -71,7 +71,7 @@ In order of value to the hackathon pitch:
 1. **The mark, finished.** A2 is chosen but it has only been drawn in code. Refine the curve weights, the lip, the strike dot, and the optical centring at 16, 32, 96, 512. Deliver SVG. Keep the three-curve bell idea and the square caps.
 2. **A hero still and an OG image.** One frame that says "the wallet caught the lie": the trace ending in Blocked, the amber word, the field with one struck region. 1200 by 630 for the social card, plus a 16:9 for the pitch deck title.
 3. **The three wallet screens, polished.** `mocks.html` has the content and the hierarchy. Make them look like the real hosts (Kohaku is an Ambire fork; the Snap lives inside MetaMask's confirmation; the extension overlays any dapp) while keeping the Tocsin block the only thing with a voice.
-4. **The pitch deck frames.** Eight to ten slides on the kit: title, the problem (wallets trust companies), the idea (a dumb log, chosen lists, one proof), the demo beat (honest RPC blocks, lying RPC caught, mirror restores), the standard, the ask.
+4. **The pitch deck frames.** Eight to ten slides on the kit: title, the problem (wallets trust companies), the idea (a dumb log, chosen lists, one proof), the demo beat (honest RPC blocks, lying RPC caught, mirror restores), the spec, the ask.
 5. **Motion polish on the three scenes.** They are built and loop under ten seconds. If you see a better beat for any of them, sketch it; we will rebuild from your storyboard.
 
 Not wanted: shields, locks, eyes, radar sweeps, node graphs with glowing edges, purple, gradients as texture, grain, a bell with a notification badge, any AI-generated imagery until Eason has approved the direction you propose.
