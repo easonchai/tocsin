@@ -331,6 +331,40 @@ The Ethereum Foundation's test for the properties Ethereum must keep: censorship
 2. Create the Ethereum Magicians thread and replace the `TODO` in `discussions-to`.
 3. Open the PR against `ethereum/ERCs`.
 
+## Prize submissions
+
+### ENS: Best Use of ENSv2
+
+**Why we are applicable**
+
+Tocsin is an append-only log of scam infrastructure on Ethereum, and ENSv2 is its trust layer, not its address book. Every writer and every trust list is an ENSv2 name on Sepolia. `tocsin.eth` owns its own UserRegistry subregistry, deployed through the Verifiable Factory, in which a 60-line MirrorRegistrar lets whoever owns `label.eth` claim `label.tocsin.eth` in one transaction, with the subname's expiry mirrored from the `.eth` name. Every claimant gets their own Permissioned Resolver. After setup, the registry is emancipated through Enhanced Access Control: no account, including ours, holds a role that can change or remove a name, which anyone can check with one `hasAssignees` call. Wallets find a maintainer's signed trust list by name, through the `tocsin.list` text record on `core.tocsin.eth`, verified by the maintainer's EIP-712 signature so a lapsed or re-sold name cannot swap a reader's list. An agent writer, `detector.tocsin.eth`, has its own name, its own key, its own list, and a warn-weight entry in the core list. Four names are claimed, two signed lists are live, and the claim page registers, claims, and reads the registry's guarantees from a browser wallet.
+
+**Where the tech is used**
+
+- Claim rule and registration into the subregistry: https://github.com/easonchai/tocsin/blob/main/scripts/ens/contracts/MirrorRegistrar.sol#L44
+- Emancipation of the subregistry through EAC: https://github.com/easonchai/tocsin/blob/main/scripts/ens/2-setup-core.mjs#L89
+- Resolver and subregistry proxies from the Verifiable Factory: https://github.com/easonchai/tocsin/blob/main/scripts/ens/2-setup-core.mjs#L40
+- Signed trust list published as a Permissioned Resolver text record: https://github.com/easonchai/tocsin/blob/main/scripts/seed/publish-list.mjs#L74
+- Delegating one text key to a publishing key with `authorizeTextRoles`: https://github.com/easonchai/tocsin/blob/main/scripts/ens/5-delegate-publisher.mjs#L20
+- The claim page, live against Sepolia: https://github.com/easonchai/tocsin/blob/main/site/claim.html#L195
+- Fork tests against the deployed ENSv2 contracts: https://github.com/easonchai/tocsin/blob/main/scripts/ens/test/MirrorRegistrar.t.sol
+
+Deployed on Sepolia: subregistry `0x61F6B44C598d7171947eE059e1d486eDd6950b88`, MirrorRegistrar `0x081d9c8ea86b6022c3e2f0a61f5c26cf9a7cb436`, names `core`, `blockaid`, `etherscan`, `detector` under `tocsin.eth`. Every transaction hash is in `docs/plan/demo/issues/15-mirror-registrar.md`.
+
+**Ease of use: 7 out of 10**
+
+The model is a real improvement over v1. Per-name registries, per-account resolvers, and role bitmaps instead of fuses made "a directory nobody can revoke" a one-day build, and the fork tests against the live contracts passed on the first run that had the addresses right. The points came off for the gap between the docs and what is deployed on Sepolia, and for how hard the addresses were to find.
+
+**Feedback for the sponsor**
+
+1. The deployed Sepolia `PermissionedResolverImpl` does not match the Permissioned Resolver docs. The docs say setters take a DNS-encoded name and that argument-scoped roles are granted with `grantSetterRoles(setter, account)`. The deployed ABI takes `bytes32 node` in `setText`, `setAddr`, `setContenthash`, and exposes `authorizeTextRoles(bytes toName, string key, address account, bool grant)` and siblings instead. We built against the ABI, but anyone following the docs first will write code that reverts.
+2. The docs say every registry reports `isEmancipated()`. Neither the deployed `ETHRegistry` nor `UserRegistryImpl` has it. We used `hasAssignees(ROOT_RESOURCE, dangerousRoles)`, which works, but the docs should either match the deployment or say which version adds the function.
+3. The Deployments page renders addresses from a React component, so they are absent from `llms-full.txt` and from any scraped copy. We found them in `contracts/deployments/sepolia/*.json` in the `contracts-v2` repo. A plain table in the docs, or a `deployments.json` the docs link to, would save every builder an hour.
+4. The "ETH Registrar" page in `llms-full.txt` is the v1 page with a callout; the v2 registrar's commit, reveal, and `register` signature are not documented as a flow anywhere we could find. We read the ABI. A short "register a .eth name on Sepolia with viem" example, including the test USDC mint, would be the first thing most teams need.
+5. `UserRegistryImpl.initialize(rootAccount, roleBitmap)` requires choosing the admin roles up front, and granting a role later needs its admin. The docs mention it, but a note like "include the admin bits for anything you will grant to a registrar later" next to the initialize example would prevent a dead-end deploy.
+6. The role bitmap composer is excellent. A matching "emancipate" helper, or a documented `revokeRootRoles(roles(ROOT, me), me)` pattern with the expected before and after of `roleCount`, would make the strongest EAC feature easier to demonstrate.
+7. The Sepolia ENS app resolved our v2 names correctly, and the commit-reveal plus test USDC flow worked without surprises once the ABI was in hand.
+
 ## License
 
 MIT for this repository. CC0 for everything under `erc/`, as the EIP process requires.
