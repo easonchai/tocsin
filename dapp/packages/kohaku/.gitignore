@@ -1,1 +1,4 @@
 kohaku-extension/
+# Per-developer Node version pins; setup.sh checks the version itself.
+mise.toml
+.nvmrc

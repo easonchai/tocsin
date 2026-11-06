@@ -22,7 +22,7 @@ dapp/packages/kohaku/setup.sh            # clones into dapp/packages/kohaku/koha
 dapp/packages/kohaku/setup.sh ~/kohaku   # or anywhere else
 ```
 
-It takes about four minutes. Run it again into a new directory to start over; it refuses to touch one that exists.
+It takes about four minutes on a fast connection. If the install fails, run it again: once both patches have applied it reuses the clone and carries on from the install. To start over, delete the clone.
 
 `.env` gets public demo values: publicnode for Kohaku's own Sepolia reads, a dummy Pimlico key, a fresh extension ID key in `key.pem` (not a wallet key), and the Tocsin settings below. Set any of them in the shell before running `setup.sh` to override.
 
@@ -39,10 +39,10 @@ The build bakes these in. Edit `.env` and rebuild to change them.
 
 ```sh
 cd dapp/packages/kohaku/kohaku-extension
-npx yarn@1.22.22 web:webkit    # watching dev build into build/webkit-dev, about a minute
+YARN_IGNORE_PATH=1 npx yarn@1.22.22 web:webkit    # watching dev build into build/webkit-dev, about a minute
 ```
 
-Use `npx yarn@1.22.22`, not a global yarn 4, which would rewrite Kohaku's lockfile. In Chrome, open `chrome://extensions`, turn on Developer mode, choose Load unpacked, and pick `build/webkit-dev`. Onboard with a fresh account. A view-only import of any funded Sepolia address is enough to reach the send form.
+Use `npx yarn@1.22.22`, not a global yarn 4, which would rewrite Kohaku's lockfile. `YARN_IGNORE_PATH=1` stops yarn 1 from handing off to the dapp's yarn 4, which `dapp/.yarnrc.yml` names for everything below `dapp/`. In Chrome, open `chrome://extensions`, turn on Developer mode, choose Load unpacked, and pick `build/webkit-dev`. Onboard with a fresh account. A view-only import of any funded Sepolia address is enough to reach the send form.
 
 Start the static site with CORS from the runbook's "Servers on the demo laptop" (the list document lives there), plus the lying proxy for beat 2.
 

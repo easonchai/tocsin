@@ -184,7 +184,7 @@ Kohaku with Tocsin is not a workspace. It is two patches on upstream Kohaku, app
 
 ```sh
 packages/kohaku/setup.sh
-cd packages/kohaku/kohaku-extension && npx yarn@1.22.22 web:webkit
+cd packages/kohaku/kohaku-extension && YARN_IGNORE_PATH=1 npx yarn@1.22.22 web:webkit
 ```
 
 Load `packages/kohaku/kohaku-extension/build/webkit-dev` unpacked. It needs the static site and, for beat 2, the lying proxy. `packages/kohaku/README.md` has the settings, the beats and how to update the patches.
