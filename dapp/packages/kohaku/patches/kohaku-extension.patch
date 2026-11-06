@@ -1,5 +1,5 @@
 diff --git a/.env-sample b/.env-sample
-index bde94fd8d..b7a738f8c 100644
+index bde94fd8d..8d4cef423 100644
 --- a/.env-sample
 +++ b/.env-sample
 @@ -77,6 +77,25 @@ COLIBRI_PROVER_URLS="https://sepolia.colibri-proof.tech/"
@@ -379,18 +379,21 @@ index 0a4a2e879..5df33b2ab 100644
    | OpenExtensionPopupAction
    | SignAccountOpUpdateAction
 diff --git a/src/web/extension-services/background/background.ts b/src/web/extension-services/background/background.ts
-index cad1274dc..cf4ab80ab 100644
+index cad1274dc..789037758 100644
 --- a/src/web/extension-services/background/background.ts
 +++ b/src/web/extension-services/background/background.ts
-@@ -21,6 +21,7 @@ import {
+@@ -21,6 +21,10 @@ import {
  import EventEmitter, { ErrorRef } from '@ambire-common/controllers/eventEmitter/eventEmitter'
  import { MainController } from '@ambire-common/controllers/main/main'
  import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
-+import { TOCSIN_SYNC_INTERVAL_MS } from '@ambire-common/controllers/tocsin/tocsin'
++import {
++  TOCSIN_SIGNING_SYNC_INTERVAL_MS,
++  TOCSIN_SYNC_INTERVAL_MS
++} from '@ambire-common/controllers/tocsin/tocsin'
  import { Fetch } from '@ambire-common/interfaces/fetch'
  import { SwapAndBridgeActiveRoute } from '@ambire-common/interfaces/swapAndBridge'
  import { WindowManager } from '@ambire-common/interfaces/window'
-@@ -50,6 +51,11 @@ import {
+@@ -50,6 +54,11 @@ import {
  import * as Sentry from '@sentry/browser'
  import { ensureInitialized as ensureRailgunInitialized } from '@kohaku-eth/railgun'
  import { browser, platform } from '@web/constants/browserapi'
@@ -402,7 +405,7 @@ index cad1274dc..cf4ab80ab 100644
  import { Action } from '@web/extension-services/background/actions'
  import AutoLockController from '@web/extension-services/background/controllers/auto-lock'
  import { BadgesController } from '@web/extension-services/background/controllers/badges'
-@@ -224,7 +230,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp:
+@@ -224,7 +233,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp:
  }
  
  // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -411,7 +414,7 @@ index cad1274dc..cf4ab80ab 100644
    // Init sentry
    if (CONFIG.SENTRY_DSN_BROWSER_EXTENSION) {
      Sentry.init({
-@@ -373,10 +379,19 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp:
+@@ -373,10 +382,19 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp:
      console.error('[BG] Railgun WASM init failed', err)
    }
  
@@ -431,7 +434,7 @@ index cad1274dc..cf4ab80ab 100644
      relayerUrl: RELAYER_URL,
      velcroUrl: VELCRO_URL,
      privacyPoolsAspUrl: PRIVACY_POOLS_ASP_URL,
-@@ -490,6 +505,12 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp:
+@@ -490,6 +508,21 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp:
  
    scheduleNetworkSync()
  
@@ -440,11 +443,20 @@ index cad1274dc..cf4ab80ab 100644
 +  // eslint-disable-next-line @typescript-eslint/no-floating-promises
 +  tocsinWorkerReady.then(() => mainCtrl.tocsin.syncNow())
 +  setInterval(() => mainCtrl.tocsin.syncNow(), TOCSIN_SYNC_INTERVAL_MS)
++  // The sign controllers re-check on every Tocsin update, so syncing is all an open screen needs.
++  // syncNow joins a queued sync, so a slow one over Tor never piles up ticks.
++  setInterval(() => {
++    const signing =
++      mainCtrl.signAccountOp ||
++      mainCtrl.transfer.signAccountOpController ||
++      mainCtrl.signMessage.isInitialized
++    if (signing) mainCtrl.tocsin.syncNow()
++  }, TOCSIN_SIGNING_SYNC_INTERVAL_MS)
 +
    async function initPortfolioContinuousUpdate() {
      if (backgroundState.updatePortfolioInterval)
        clearTimeout(backgroundState.updatePortfolioInterval)
-@@ -1191,4 +1212,4 @@ browser.runtime.onInstalled.addListener(({ reason }: any) => {
+@@ -1191,4 +1224,4 @@ browser.runtime.onInstalled.addListener(({ reason }: any) => {
  // TODO: Found the root cause of this! Event handler of 'disconnect' event must be added on the initial
  // evaluation of worker script. More info: https://developer.chrome.com/docs/extensions/mv3/service_workers/events/
  // Would be tricky to replace this workaround with different logic, but it's doable.
