@@ -1,0 +1,1120 @@
+[
+ {
+  "chainId": 1,
+  "subject": "0x000037bb05b2cef17c6469f4bcdb198826ce0000",
+  "category": "DRAINER_RECEIVER",
+  "evidence": "0x74399c282443b400e66df56aaa529efca38c168d7ebd73037c90df63d85a0e54",
+  "seenDate": "2025-02-24",
+  "campaign": "Inferno Drainer (2024-25 reloaded)",
+  "sources": [
+   "https://research.checkpoint.com/2025/inferno-drainer-reloaded-deep-dive-into-the-return-of-the-most-sophisticated-crypto-drainer/"
+  ],
+  "note": "Inferno 'Receiver' contract (same address on many chains). Fake token 0x00002687 forwards the victim's 0.00968 ETH to it as an internal call (callTracer). Also receives 33.5 ETH in 0x808d9a95...b3db. Still receiving in 2026."
+ },
+ {
+  "chainId": 1,
+  "subject": "0x0000db5c8b030ae20308ac975898e09741e70000",
+  "category": "DRAINER_RECEIVER",
+  "evidence": "0x0975274097e0100c3a5e06064d2258527e4a4cdd658ab6322a6e0bb9514a545f",
+  "seenDate": "2025-08-06",
+  "campaign": "Inferno Drainer (2024-25 reloaded)",
+  "sources": [
+   "https://research.checkpoint.com/2025/inferno-drainer-reloaded-deep-dive-into-the-return-of-the-most-sophisticated-crypto-drainer/"
+  ],
+  "note": "Inferno operator EOA (drainerAddress; owns Receiver, StorageContract and fake tokens, sends every drain tx). Evidence: 38.03 ETH internal transfer from Inferno vanity contract 0x0000edec...0000 to it. Blockscout flags it scam. Medium confidence on category fit."
+ },
+ {
+  "chainId": 1,
+  "subject": "0x1fe92e288b2b2792bcdee8b8f286e0ed16724da6",
+  "category": "DRAINER_RECEIVER",
+  "evidence": "0x2e122bed57044a997bd710b25bb58310a124bd10941e881a88393d62e7e1540d",
+  "seenDate": "2025-02-24",
+  "campaign": "Inferno Drainer (2024-25 reloaded)",
+  "sources": [
+   "https://research.checkpoint.com/2025/inferno-drainer-reloaded-deep-dive-into-the-return-of-the-most-sophisticated-crypto-drainer/"
+  ],
+  "note": "Inferno operator cashout (fee share), first seen 2025-01-26. Receives the ELON fee split in this CPR-cited drain (Fig. 14); same role in 0x02da9274, 0xb07988d2 and 0xc34310a3."
+ },
+ {
+  "chainId": 1,
+  "subject": "0x66bc4b94a47fb1c7f8a3252ca01f66917d2414a1",
+  "category": "DRAINER_RECEIVER",
+  "evidence": "0xff653849ff06a050346604413c79ff5242467f732c582159a22fd8df67b8d3a6",
+  "seenDate": "2025-03-07",
+  "campaign": "Inferno Drainer (2024-25 reloaded)",
+  "sources": [
+   "https://research.checkpoint.com/2025/inferno-drainer-reloaded-deep-dive-into-the-return-of-the-most-sophisticated-crypto-drainer/"
+  ],
+  "note": "Inferno operator cashout active from 2025-03. Receives the fee share of an 80,000 USDC drain sent by operator 0x0000db5c."
+ },
+ {
+  "chainId": 1,
+  "subject": "0xaa862f977d6916a1e89e856fc11fd99a2f2fabf8",
+  "category": "DRAINER_RECEIVER",
+  "evidence": "0x598e022e221288e8f7837e5ffdde30c3a0e502600859a1401b0eb46c14e45b3b",
+  "seenDate": "2024-10-01",
+  "campaign": "Inferno Drainer (2024-25 reloaded)",
+  "sources": [
+   "https://research.checkpoint.com/2025/inferno-drainer-reloaded-deep-dive-into-the-return-of-the-most-sophisticated-crypto-drainer/"
+  ],
+  "note": "Inferno operator cashout (2024-08 to 2024-10). Receives the fee share of a 500,346 ENA drain; also in USDC drain 0x48814377 and PEPE/APU drain 0xd330ff04."
+ },
+ {
+  "chainId": 1,
+  "subject": "0x2b022b3dff934b9ff5a82ed949970b129ec555fc",
+  "category": "DRAINER_RECEIVER",
+  "evidence": "0x983c889cc9e39f5de2dc0325fbd50cd6520f739a1bff8b916449c64450bbcc86",
+  "seenDate": "2024-11-15",
+  "campaign": "Inferno Drainer (2024-25 reloaded)",
+  "sources": [
+   "https://research.checkpoint.com/2025/inferno-drainer-reloaded-deep-dive-into-the-return-of-the-most-sophisticated-crypto-drainer/"
+  ],
+  "note": "Inferno operator cashout (2024-10 to 2024-12). Received 44,000 USDT, the 20% commission on a 220k USDT drain run through factory 0xed0e416e. Also in 0xbf7f719c and 0xe03721."
+ },
+ {
+  "chainId": 1,
+  "subject": "0x077db731adafa3200f18543d5ed62768ad66846a",
+  "category": "DRAINER_RECEIVER",
+  "evidence": "0xfaa4ace41b901a62d115a3553656dca5972aaf617780a279783d6d3a8a8a8673",
+  "seenDate": "2024-12-06",
+  "campaign": "Inferno Drainer (2024-25 reloaded)",
+  "sources": [
+   "https://research.checkpoint.com/2025/inferno-drainer-reloaded-deep-dive-into-the-return-of-the-most-sophisticated-crypto-drainer/"
+  ],
+  "note": "Inferno operator cashout (2024-12 to 2025-01). Receives USDC fee splits here and in 0x0fafcc."
+ },
+ {
+  "chainId": 1,
+  "subject": "0x4df845dfebbb2815cd026586e883147152025a99",
+  "category": "DRAINER_RECEIVER",
+  "evidence": "0x3e8e6f90b4194423879603aa757454bd627c597980807dd7999ba0cafebf311b",
+  "seenDate": "2024-12-27",
+  "campaign": "Inferno Drainer (2024-25 reloaded)",
+  "sources": [
+   "https://research.checkpoint.com/2025/inferno-drainer-reloaded-deep-dive-into-the-return-of-the-most-sophisticated-crypto-drainer/"
+  ],
+  "note": "Inferno operator cashout. Receives the fee share of a 3,387 LINK drain sent by operator 0x0000db5c."
+ },
+ {
+  "chainId": 1,
+  "subject": "0x412f10aad96fd78da6736387e2c84931ac20313f",
+  "category": "DRAINER_RECEIVER",
+  "evidence": "0xb60c32fb28aa6160df6f472f494f162b997aa49fb06776dce250aff80602a8a3",
+  "seenDate": "2023-12-12",
+  "campaign": "Angel Drainer",
+  "sources": [
+   "https://research.checkpoint.com/2023/the-rising-threat-of-phishing-attacks-with-crypto-drainers/"
+  ],
+  "note": "angel_drainer_wallet, the Angel fee wallet. Received 1.68 stETH (operator cut) in a Permit-based stETH drain sent by Angel executor 0x0000d38a."
+ },
+ {
+  "chainId": 1,
+  "subject": "0x00002ebec71f959a906058752307b312bed30000",
+  "category": "DRAINER_RECEIVER",
+  "evidence": "0x1a106212d0f93f8116de27bdf1f5af8f6f4d1954ad4ea465e9962c0f0a29c55c",
+  "seenDate": "2024-01-01",
+  "campaign": "Angel Drainer",
+  "sources": [
+   "https://research.checkpoint.com/2023/the-rising-threat-of-phishing-attacks-with-crypto-drainers/"
+  ],
+  "note": "Angel fee-split contract found by tracing from the CPR-named 0x0000d38a. Receives the victim's 0.00193 ETH directly (tx.to) and splits ~85% to the affiliate and ~15% to 0x0000d38a. Internal split not re-traced. Medium confidence."
+ },
+ {
+  "chainId": 1,
+  "subject": "0x9fa7bb759641fcd37fe4ae41f725e0f653f2c726",
+  "category": "DRAINER_RECEIVER",
+  "evidence": "0x15bc5516ed7490041904f1a4c594c33740060e0f0271cb89fe9ed43c974a7a69",
+  "seenDate": "2023-12-28",
+  "campaign": "Pink Drainer",
+  "sources": [
+   "https://quillaudits.substack.com/p/infamous-pink-drainer-trapped-another"
+  ],
+  "note": "Etherscan tag 'PinkDrainer: Wallet 2', the Pink fee wallet. Receives the Pink cut of a victim's LINK, pulled by Wallet 1 0x63605e53 in the $4.4M theft."
+ },
+ {
+  "chainId": 1,
+  "subject": "0x8fae6d798ec0a2127f962ce49573492894d2e70e",
+  "category": "DRAINER_RECEIVER",
+  "evidence": "0x70026eae27a76205cfb2271108e201570cb03b7daa7e8395280f9acdfbd82a05",
+  "seenDate": "2023-12-28",
+  "campaign": "Pink Drainer",
+  "sources": [
+   "https://quillaudits.substack.com/p/infamous-pink-drainer-trapped-another"
+  ],
+  "note": "Etherscan Fake_Phishing269918. Affiliate receiver of ~206.8k LINK transferFrom'd from victim 0xea69653e by Pink Wallet 1 0x63605e53."
+ },
+ {
+  "chainId": 1,
+  "subject": "0xf86cbc195defd74db19b525b4ef60c0d24f11419",
+  "category": "DRAINER_RECEIVER",
+  "evidence": "0x48b6686c0fee888c71123b2cfb170d76f046f782733fd9b75bad5cd5659e299f",
+  "seenDate": "2022-11",
+  "campaign": "Monkey Drainer",
+  "sources": [
+   "https://www.certik.com/blog/exposing-wallet-drainer-scammers-zentoh-and-co"
+  ],
+  "note": "Etherscan Fake_Phishing7147. Received ~4.38M USDC transferFrom'd from victim 0x922990ae by EOA 0xeb45156a in the theft CertiK attributes to a Monkey Drainer site. CertiK names the tx; address read from the trace. Medium confidence."
+ },
+ {
+  "chainId": 1,
+  "subject": "0x77dd9a93d7a1ab9dd3bdd4a70a51b2e8c9b2350d",
+  "category": "DRAINER_RECEIVER",
+  "evidence": "0x87c07a0bb5c8ffc205e475a163f2e4f247049c9a08473478ac867775e622dde4",
+  "seenDate": "2026-10-25",
+  "campaign": "CrimeEnjoyor EIP-7702 sweepers",
+  "sources": [
+   "https://blag.nullteilerfrei.de/?p=6189"
+  ],
+  "note": "Hard-coded (XOR-obfuscated) theft destination of CrimeEnjoyor v3 0x89046d34. Delegated EOA 0x99325955 forwards 0.00429 ETH to it by internal call; also 0.0257 ETH in 0x4ecf1f40. EOA."
+ },
+ {
+  "chainId": 1,
+  "subject": "0x63a3aaba7b12573ff0a68a45b56eeea5508c4dbf",
+  "category": "DRAINER_RECEIVER",
+  "evidence": "0x289488c64c7694fa5f0b20058d55a002ad9f919f2f86050047951f42291cc50d",
+  "seenDate": "2026-10-30",
+  "campaign": "CrimeEnjoyor EIP-7702 sweepers",
+  "sources": [
+   "https://blag.nullteilerfrei.de/?p=6189",
+   "https://eth.blockscout.com/address/0x63a3aaba7b12573ff0a68a45b56eeea5508c4dbf"
+  ],
+  "note": "CrimeEnjoyor v1 deployer and collector; ~20 sweeps Oct-Nov 2026 from EOAs delegated to 0x8332. This tx: 0.25 ETH internal call from 0x0633 to it. Itself a 7702-delegated EOA (0xef0100 63c0c19a...). Not re-checked: that 0x0633 is delegated to 0x8332."
+ },
+ {
+  "chainId": 1,
+  "subject": "0x8863786bebe8eb9659df00b49f8f1eeec7e2c8c1",
+  "category": "DRAINER_RECEIVER",
+  "evidence": "0xc1b63c0a7512d02e983364bd94098267b22fdcabe623631a656bef68b0843ca2",
+  "seenDate": "2026-11-01",
+  "campaign": "CrimeEnjoyor EIP-7702 sweepers",
+  "sources": [
+   "https://blag.nullteilerfrei.de/?p=6189",
+   "https://eth.blockscout.com/address/0x8863786beBE8eB9659DF00b49f8f1eeEc7e2C8c1"
+  ],
+  "note": "Deployer of v2 (0x6b7879), Forwarder (0xfc2c64) and fake 'MetaMaskSwapRouter' (0xb0645b) delegates. Receives 0.1613 ETH forwarded by 0xe4b4 (delegated to 0x8332). Itself a 7702-delegated EOA."
+ },
+ {
+  "chainId": 1,
+  "subject": "0x810b0cfd3efc3006e8819a2f96225be6a228b752",
+  "category": "DRAINER_RECEIVER",
+  "evidence": "0x20d4726fed203d24a20512076430d2fa8e1371e437b4aefebb49f1d49e58b076",
+  "seenDate": "2026-11-01",
+  "campaign": "CrimeEnjoyor EIP-7702 sweepers",
+  "sources": [
+   "https://eth.blockscout.com/address/0x810b0cFd3eFC3006e8819a2f96225Be6A228b752",
+   "https://blag.nullteilerfrei.de/?p=6189"
+  ],
+  "note": "Deployer of Forwarder 0x0727ca41 and fake 'MetaMaskSwapRouter' 0x88cf071b. Receives ~0.0015 ETH forwarded by 0x1f2c (delegated to 0x8332). EOA."
+ },
+ {
+  "chainId": 1,
+  "subject": "0x2a98741765b58e4de3873b8783e750a2a4d40760",
+  "category": "DRAINER_RECEIVER",
+  "evidence": "0xadd299acf3d8abda3d110df572fbdcc18fbfaaacb42561676c5073512d0c0f19",
+  "seenDate": "2026-10-18",
+  "campaign": "CrimeEnjoyor EIP-7702 sweepers",
+  "sources": [
+   "https://eth.blockscout.com/address/0x2A98741765B58e4DE3873b8783e750a2a4D40760",
+   "https://blag.nullteilerfrei.de/?p=6189"
+  ],
+  "note": "Deployer of four v3 delegates (0x668924, 0xcc3f09, 0x34ee0e, 0xff413c). Receives 0.00262 ETH forwarded by 0x27fe (delegated to 0xff413c). Itself a 7702-delegated EOA."
+ },
+ {
+  "chainId": 1,
+  "subject": "0xbe7e372eb7d95037c8f657ca62a1991b3f1e869d",
+  "category": "DRAINER_RECEIVER",
+  "evidence": "0x1de0166059e3baa3d7be69eabc5ce76eb52a7e22878a442156f72d51520cede8",
+  "seenDate": "2026-06-17",
+  "campaign": "CrimeEnjoyor EIP-7702 sweepers",
+  "sources": [
+   "https://eth.blockscout.com/address/0xbE7e372eb7D95037c8f657ca62A1991b3f1E869d",
+   "https://blag.nullteilerfrei.de/?p=6189"
+  ],
+  "note": "Deployer of clones 0x710fad and 0x6a690c. Receives 0.00149 ETH forwarded by 0xc77c (delegated to 0x0727ca41); 10+ sweeps Mar-Jul 2026. EOA."
+ },
+ {
+  "chainId": 1,
+  "subject": "0x00002687313c403c002143b6c9a521c39eef0000",
+  "category": "DRAINER_SPENDER",
+  "evidence": "0x2e122bed57044a997bd710b25bb58310a124bd10941e881a88393d62e7e1540d",
+  "seenDate": "2025-02-24",
+  "campaign": "Inferno Drainer (2024-25 reloaded)",
+  "sources": [
+   "https://research.checkpoint.com/2025/inferno-drainer-reloaded-deep-dive-into-the-return-of-the-most-sophisticated-crypto-drainer/"
+  ],
+  "note": "Inferno fake-token/multicall contract. Holds victim approvals (spender in the Approval events) and Permit2 (0xb07988d2) and transferFroms victim tokens, splitting between cashout 0x1fe92e28 and customer 0xdb185f8f. CPR Fig. 14."
+ },
+ {
+  "chainId": 1,
+  "subject": "0xed0e416e0feea5b484ba5c95d375545ac2b60572",
+  "category": "DRAINER_SPENDER",
+  "evidence": "0x983c889cc9e39f5de2dc0325fbd50cd6520f739a1bff8b916449c64450bbcc86",
+  "seenDate": "2024-11-15",
+  "campaign": "Inferno Drainer (2024-25 reloaded)",
+  "sources": [
+   "https://research.checkpoint.com/2025/inferno-drainer-reloaded-deep-dive-into-the-return-of-the-most-sophisticated-crypto-drainer/"
+  ],
+  "note": "Inferno factory that deploys single-use drain contracts at precomputed addresses. Here it moved a victim's 220,000 USDT to cashout 0x2b022b3d (44k) and customer 0x4bd61b63 (176k). Same pattern in 0x48814377, 0xd330ff04, 0xe03721 and 0x0fafcc."
+ },
+ {
+  "chainId": 1,
+  "subject": "0x0000af467f84271741772dbb83b6f9289e380000",
+  "category": "DRAINER_SPENDER",
+  "evidence": "0xc34310a3c33f26b4449dea3c30e51b1a7164726498c3262777bfea5b2d4a1557",
+  "seenDate": "2025-01-29",
+  "campaign": "Inferno Drainer (2024-25 reloaded)",
+  "sources": [
+   "https://research.checkpoint.com/2025/inferno-drainer-reloaded-deep-dive-into-the-return-of-the-most-sophisticated-crypto-drainer/"
+  ],
+  "note": "Inferno vanity multicall contract called by operator 0x0000db5c; drained 16,939 LINK from a victim (CPR lists the tx; address read from it). LINK amount not re-checked. Medium confidence."
+ },
+ {
+  "chainId": 1,
+  "subject": "0x47cbbfee58e6a134d00ea3a8f1ddfff60a8d94d6",
+  "category": "DRAINER_SPENDER",
+  "evidence": "0xb60c32fb28aa6160df6f472f494f162b997aa49fb06776dce250aff80602a8a3",
+  "seenDate": "2023-12-12",
+  "campaign": "Angel Drainer",
+  "sources": [
+   "https://research.checkpoint.com/2023/the-rising-threat-of-phishing-attacks-with-crypto-drainers/"
+  ],
+  "note": "Angel scammer_contract_2 (factory/orchestrator). Called by 0x0000d38a (selector 0x095838d2), CREATEs the precomputed permit spender 0xc55b8ebf and runs permit + transferFrom on victim stETH."
+ },
+ {
+  "chainId": 1,
+  "subject": "0xc55b8ebf5ec4c76fb9182e86cb2a29eb363d919c",
+  "category": "DRAINER_SPENDER",
+  "evidence": "0xb60c32fb28aa6160df6f472f494f162b997aa49fb06776dce250aff80602a8a3",
+  "seenDate": "2023-12-12",
+  "campaign": "Angel Drainer",
+  "sources": [
+   "https://research.checkpoint.com/2023/the-rising-threat-of-phishing-attacks-with-crypto-drainers/"
+  ],
+  "note": "Angel scammer_contract_1, single-use precomputed permit spender. Spender in three stETH Approval events; transferFroms victim stETH to 0x412f10aa (fee) and 0xfbcbc1dc (affiliate)."
+ },
+ {
+  "chainId": 1,
+  "subject": "0x8332a5c2f00ab7e20c53210be2192aea7bdc77f0",
+  "category": "MALICIOUS_DELEGATE",
+  "evidence": "0xc1b63c0a7512d02e983364bd94098267b22fdcabe623631a656bef68b0843ca2",
+  "seenDate": "2026-11-01",
+  "campaign": "CrimeEnjoyor EIP-7702 sweepers",
+  "sources": [
+   "https://eth.blockscout.com/address/0x8332A5C2f00ab7E20C53210Be2192aEa7bdc77f0",
+   "https://blag.nullteilerfrei.de/?p=6189"
+  ],
+  "note": "Most active sweeper seen; deployed by v1 deployer 0x63a3 (creation 0x613bcc20...). tx.to 0xe4b4 has code 0xef0100+this address and forwards the full 0.1613 ETH to 0x8863. Dozens of delegated EOAs forward to 0x63a3/0x8863/0x810b/0x2a98."
+ },
+ {
+  "chainId": 1,
+  "subject": "0x89046d34e70a65acab2152c26a0c8e493b5ba629",
+  "category": "MALICIOUS_DELEGATE",
+  "evidence": "0x87c07a0bb5c8ffc205e475a163f2e4f247049c9a08473478ac867775e622dde4",
+  "seenDate": "2026-10-25",
+  "campaign": "CrimeEnjoyor EIP-7702 sweepers",
+  "sources": [
+   "https://blag.nullteilerfrei.de/?p=6189"
+  ],
+  "note": "CrimeEnjoyor v3 (AdvancedCrimeEnjoyor2), deployed 2025-05-31 by 0x86d9ad92 in 0x1487d3b6. Delegated EOA 0x99325955 (code 0xef0100+this address) forwards 0.00429 ETH to 0x77dd9a93; also 0x4ecf1f40."
+ },
+ {
+  "chainId": 1,
+  "subject": "0xff413c217a33e0e35979ed8117f2e8634f47076a",
+  "category": "MALICIOUS_DELEGATE",
+  "evidence": "0xadd299acf3d8abda3d110df572fbdcc18fbfaaacb42561676c5073512d0c0f19",
+  "seenDate": "2026-10-18",
+  "campaign": "CrimeEnjoyor EIP-7702 sweepers",
+  "sources": [
+   "https://blag.nullteilerfrei.de/?p=6189"
+  ],
+  "note": "v3 extended, deployed by 0x2a98 (0xd4a10292...). Delegated EOA 0x27fe (code 0xef0100+this address) forwards 0.00262 ETH to 0x2a98."
+ },
+ {
+  "chainId": 1,
+  "subject": "0x0727ca41efc85f75cef26ee48f825893b4836786",
+  "category": "MALICIOUS_DELEGATE",
+  "evidence": "0x1de0166059e3baa3d7be69eabc5ce76eb52a7e22878a442156f72d51520cede8",
+  "seenDate": "2026-06-17",
+  "campaign": "CrimeEnjoyor EIP-7702 sweepers",
+  "sources": [
+   "https://blag.nullteilerfrei.de/?p=6189"
+  ],
+  "note": "v1 clone verified as 'Forwarder', deployed by 0x810b (0x436586e4...). Delegated EOA 0xc77c (code 0xef0100+this address) forwards 0.00149 ETH to 0xbe7e."
+ },
+ {
+  "chainId": 1,
+  "subject": "0x88cf071b4bf5facab6712070a671f71282188d46",
+  "category": "MALICIOUS_DELEGATE",
+  "evidence": "0x9334f316a3e818878e8bffd22cccf72011e6ca8527bf87c6d851b4f3afd0891e",
+  "seenDate": "2026-03-20",
+  "campaign": "CrimeEnjoyor EIP-7702 sweepers",
+  "sources": [
+   "https://eth.blockscout.com/address/0x88CF071B4bF5facAB6712070a671F71282188d46",
+   "https://blag.nullteilerfrei.de/?p=6189"
+  ],
+  "note": "Sweeper verified under the fake name 'MetaMaskSwapRouter', deployed by 0x810b (0x13901f77...). Delegated EOA 0x84e0 (code 0xef0100+this address) forwards ~0.00105 ETH to 0xbe7e."
+ },
+ {
+  "chainId": 1,
+  "subject": "0xd9a1c3788d81257612e2581a6ea0ada244853a91",
+  "category": "PAID_LOOKALIKE",
+  "evidence": "0x3374abc5a9c766ba709651399b6e6162de97ca986abc23f423a9d893c8f5f570",
+  "seenDate": "2024-05-03",
+  "campaign": "May 2024 $68M WBTC poisoning",
+  "sources": [
+   "https://slowmist.medium.com/small-bait-big-fish-unveiling-the-1155-wbtc-phishing-incident-22bf53b6fe60",
+   "https://www.coindesk.com/business/2024/05/03/exploiter-steals-68m-worth-of-crypto-through-address-poisoning"
+  ],
+  "note": "Lookalike of 0xd9A1b0B1...3a91. Victim 0x1E227979 paid it 1,155.288 WBTC (~$68M) via WBTC.transfer; funds were later returned."
+ },
+ {
+  "chainId": 1,
+  "subject": "0xbaff2f13638c04b10f8119760b2d2ae86b08f8b5",
+  "category": "PAID_LOOKALIKE",
+  "evidence": "0xc0514a795f065fce8a3e1238a1ba480e8a792d45f6431ee4ba8d800bedd86a0f",
+  "seenDate": "2025-12-19",
+  "campaign": "Dec 2025 $50M USDT poisoning",
+  "sources": [
+   "https://bitquery.io/investigations/address-poisoning-ethereum"
+  ],
+  "note": "Lookalike of 0xbaf4b1af...f8b5. Victim 0xcb80784e paid it 49,999,950 USDT. It swapped to DAI and forwarded to 0xbcb94f76 (0x9129e55a)."
+ },
+ {
+  "chainId": 1,
+  "subject": "0x65f37c970730fcc2828fa746bf6e125ed233773c",
+  "category": "PAID_LOOKALIKE",
+  "evidence": "0xfda53b40c3b3ed13dbacc0df8f81141f6dde7c86164a013ae7ef24d883554a11",
+  "seenDate": "2025-12-18",
+  "campaign": "Dec 2025 $50M USDT crew (WBTC theft)",
+  "sources": [
+   "https://bitquery.io/investigations/address-poisoning-ethereum"
+  ],
+  "note": "Received 2.38 WBTC from victim 0xf57074ea. Same crew as the $50M case: proceeds flow to 0xadfda394 and on to 0xbcb94f76. Bitquery shows it truncated; full address confirmed on-chain."
+ },
+ {
+  "chainId": 1,
+  "subject": "0x6d9052b2df589de00324127fe2707eb34e592e48",
+  "category": "PAID_LOOKALIKE",
+  "evidence": "0x7facade9d4731a639c4f31e84f5dfef0ddce8d2dc4d8a4399b72cd66817a8ac7",
+  "seenDate": "2026-01-30",
+  "campaign": "Jan 2026 4,556 ETH poisoning",
+  "sources": [
+   "https://bitquery.io/investigations/address-poisoning-ethereum"
+  ],
+  "note": "Lookalike of 0x6d90cc8c...2e48. Victim 0xd6741220 paid it 4,556 ETH (~$12.25M) in a plain transfer. It also sent the ETH dust pings itself (0x2f5994, 0xb2e0b6)."
+ },
+ {
+  "chainId": 1,
+  "subject": "0x053dc459bade1baf76aed6e8630823f8392fda3a",
+  "category": "PAID_LOOKALIKE",
+  "evidence": "0x374076fa28ed745227c28f42c5054a0bcd024c51ad7a41c17d52e7c6c24980eb",
+  "seenDate": "2026-08-09",
+  "campaign": "Aug 2026 USDT poisoning",
+  "sources": [
+   "https://bitquery.io/investigations/address-poisoning-ethereum"
+  ],
+  "note": "Lookalike of 0x053dba72...da3a. Victim 0xb83f1c98 paid it 39,889.95 USDT."
+ },
+ {
+  "chainId": 1,
+  "subject": "0x517dc8e50b8bf03a1d69c84d27bf96dc5a911db2",
+  "category": "POISONING_OPERATOR",
+  "evidence": "0x9147d74ef5749b7f27eb2e2528e5a611060b3f609b435f7f50ac87f49e5b957c",
+  "seenDate": "2024-05-03",
+  "campaign": "May 2024 $68M WBTC poisoning",
+  "sources": [
+   "https://slowmist.medium.com/small-bait-big-fish-unveiling-the-1155-wbtc-phishing-incident-22bf53b6fe60",
+   "https://www.coindesk.com/business/2024/05/03/exploiter-steals-68m-worth-of-crypto-through-address-poisoning"
+  ],
+  "note": "tx.from of the batch call to 0xab3393c9 that planted a fake-ETH transfer victim -> 0xd9a1c378, hours before the $68M payment. Also deployed fake token 0x73935233 (0x981cf0c3) and the batch contract."
+ },
+ {
+  "chainId": 1,
+  "subject": "0x70f374f9a480fbcf03a91229b5a855c045a8cf68",
+  "category": "POISONING_OPERATOR",
+  "evidence": "0xfc1ea6df1228546a9634dd26cf1bf602f1f7fcb0540752c8c95def0743c091be",
+  "seenDate": "2025-12-19",
+  "campaign": "Dec 2025 $50M USDT poisoning",
+  "sources": [
+   "https://bitquery.io/investigations/address-poisoning-ethereum"
+  ],
+  "note": "tx.from of the batch call (via contract 0x6b5796e8) that produced the zero-value USDT transferFrom victim 0xcb80784e -> lookalike 0xbaff2f13, 113 blocks (~23 min) before the loss."
+ },
+ {
+  "chainId": 1,
+  "subject": "0x173763b0a652481ce99ceb7035a43e31b6d18be1",
+  "category": "POISONING_OPERATOR",
+  "evidence": "0x2733bf1d559657be6ef29de0456095a1c9a99d57fe351c55ad1cbe316d2b1405",
+  "seenDate": "2025-12-19",
+  "campaign": "Dec 2025 $50M USDT poisoning",
+  "sources": [
+   "https://eth.blockscout.com/address/0xe213ff2af6483df6654242602f9e15b4049773b3"
+  ],
+  "note": "tx.from of the fake-USDT (0xfa2c55c4) emission via batch contract 0xe213ff2a that forged a 50 USDT transfer victim 0xcb80784e -> 0xbaff2f13."
+ },
+ {
+  "chainId": 1,
+  "subject": "0x24da8a34deb6a915ccd261a938ef508397a7087c",
+  "category": "POISONING_OPERATOR",
+  "evidence": "0x0caea853acd5679a7fffb0dac7acb66d8a5d93f1203e1f17b646bb88edc9f51c",
+  "seenDate": "2025-12-19",
+  "campaign": "Dec 2025 poisoning wave",
+  "sources": [
+   "https://eth.blockscout.com/address/0xe213ff2af6483df6654242602f9e15b4049773b3"
+  ],
+  "note": "Second EOA driving batch poisoner 0xe213ff2a; this tx emits 41 forged transfers from fake USDT 0x77820cba. Low confidence on crew attribution."
+ },
+ {
+  "chainId": 1,
+  "subject": "0x2ef45c5a56892684a42cc1c5546d5dd533b2dc5b",
+  "category": "POISONING_OPERATOR",
+  "evidence": "0xd460826223059f49244c12505d79490f4f694b628583708b51d68b3e19c347b0",
+  "seenDate": "2025-02-25",
+  "campaign": "Jan 2026 4,556 ETH poisoning",
+  "sources": [
+   "https://bitquery.io/investigations/address-poisoning-ethereum"
+  ],
+  "note": "tx.from of a 420-log batch of zero-value USDC/USDT/DAI transferFroms via contract 0xac52ed1e, including USDC victim 0xd6741220 -> lookalike 0x6d9052b2: the first poisoning, 11 months before the loss."
+ },
+ {
+  "chainId": 1,
+  "subject": "0x1584a8ee67789d1fe161065388657ad2f2a3c7dd",
+  "category": "POISONING_OPERATOR",
+  "evidence": "0xf84dacfeb3a92ae3291120d954b86d89932fe31702103754cad4f8e8ac41a10d",
+  "seenDate": "2026-08-09",
+  "campaign": "Aug 2026 USDT poisoning",
+  "sources": [
+   "https://bitquery.io/investigations/address-poisoning-ethereum"
+  ],
+  "note": "tx.from of a 187-log batch via contract 0x77eb52e4, 12 s after the victim's test payment, incl. fake-USDT 0x647a139b transfer victim 0xb83f1c98 -> 0x053dc459. Also deployed fake tokens 0x5b40f9e4 (0x01932de2) and 0xe75ae445 (0xd5318c9a)."
+ },
+ {
+  "chainId": 1,
+  "subject": "0x16f09b37b20bfbb07130bba8226299926e39b488",
+  "category": "POISONING_OPERATOR",
+  "evidence": "0xab196f712586a4934c16f5099b376334d5e4d3b3b6b84595224279d8fb5eace1",
+  "seenDate": "2026-03-17",
+  "campaign": "2026 fake-USDT poisoning crew",
+  "sources": [
+   "https://eth.blockscout.com/token/0xe75ae445601fcb52fb8c167b6a4131d54d37e377"
+  ],
+  "note": "tx.from calling batch poisoner 0x77eb52e4 to emit 8 forged transfers from fake USDT 0xe75ae445."
+ },
+ {
+  "chainId": 1,
+  "subject": "0x1a30cdf8b43c98e5d48bd4810a44f139e15a1c55",
+  "category": "POISONING_FUNDER",
+  "evidence": "0x398e38db9a5b9f77f34b52fde0792e7278aba71f9c5e4a4c504b61375f4f48ee",
+  "seenDate": "2024-05-02",
+  "campaign": "May 2024 $68M WBTC poisoning",
+  "sources": [
+   "https://eth.blockscout.com/address/0x1a30cdf8b43c98e5d48bd4810a44f139e15a1c55",
+   "https://www.coindesk.com/business/2024/05/03/exploiter-steals-68m-worth-of-crypto-through-address-poisoning"
+  ],
+  "note": "Sent 1 ETH to operator 0x517dc8e5 a day before the poisoning; also 1 ETH to lookalike 0xdcddc928 (0x00adeaa4) and repeated 1-2 ETH fan-outs. Upstream 0xd50ddd08 not checked (could be an exchange). Low confidence."
+ },
+ {
+  "chainId": 1,
+  "subject": "0x9c57fef009c496e45378183169b7f3277c8b22cc",
+  "category": "POISONING_FUNDER",
+  "evidence": "0xdbaf900c6bef7c5b58081f5daf06f395b4fcf94a5a0886d9a10ab98607892764",
+  "seenDate": "2025-12-19",
+  "campaign": "Dec 2025 $50M USDT poisoning",
+  "sources": [
+   "https://eth.blockscout.com/address/0xbaff2f13638c04b10f8119760b2d2ae86b08f8b5"
+  ],
+  "note": "Contract that sent 0.005 USDT (plus 22 other dust USDC/USDT transfers) to lookalike 0xbaff2f13, which forwarded it to the victim as the half-cent ping (0x9780f38b). Called by EOA 0x5eb4c38a."
+ },
+ {
+  "chainId": 1,
+  "subject": "0x739352337c902c3874b95f14e81ebbcf1b7b262e",
+  "category": "MALICIOUS_TOKEN",
+  "evidence": "0x9147d74ef5749b7f27eb2e2528e5a611060b3f609b435f7f50ac87f49e5b957c",
+  "seenDate": "2024-05-03",
+  "campaign": "May 2024 $68M WBTC poisoning",
+  "sources": [
+   "https://slowmist.medium.com/small-bait-big-fish-unveiling-the-1155-wbtc-phishing-incident-22bf53b6fe60",
+   "https://www.coindesk.com/business/2024/05/03/exploiter-steals-68m-worth-of-crypto-through-address-poisoning"
+  ],
+  "note": "Fake 'Ether (ETH)' token deployed by operator 0x517dc8e5 (0x981cf0c3). Emitted a forged Transfer from victim 0x1e227979 to lookalike 0xd9a1c378 in the batch tx."
+ },
+ {
+  "chainId": 1,
+  "subject": "0xfa2c55c4f26ebc569ace8f86bd09221265c49124",
+  "category": "MALICIOUS_TOKEN",
+  "evidence": "0x2733bf1d559657be6ef29de0456095a1c9a99d57fe351c55ad1cbe316d2b1405",
+  "seenDate": "2025-12-19",
+  "campaign": "Dec 2025 $50M USDT poisoning",
+  "sources": [
+   "https://eth.blockscout.com/token/0xfa2c55c4f26ebc569ace8f86bd09221265c49124"
+  ],
+  "note": "Fake 'USDT' with zero-width characters in symbol and name; forged a 50 USDT transfer from the $50M victim to 0xbaff2f13. Symbol not re-checked by the verifier."
+ },
+ {
+  "chainId": 1,
+  "subject": "0x77820cbab0f1ddb836b257d4f1df0cad0f05a0a6",
+  "category": "MALICIOUS_TOKEN",
+  "evidence": "0x0caea853acd5679a7fffb0dac7acb66d8a5d93f1203e1f17b646bb88edc9f51c",
+  "seenDate": "2025-12-19",
+  "campaign": "Dec 2025 poisoning wave",
+  "sources": [
+   "https://eth.blockscout.com/token/0x77820cbab0f1ddb836b257d4f1df0cad0f05a0a6"
+  ],
+  "note": "Fake 'USDT' with zero-width characters; 41 forged transfers to many addresses via batch contract 0xe213ff2a."
+ },
+ {
+  "chainId": 1,
+  "subject": "0x647a139b234dcf9f91b1b749993604e715d3acb8",
+  "category": "MALICIOUS_TOKEN",
+  "evidence": "0xf84dacfeb3a92ae3291120d954b86d89932fe31702103754cad4f8e8ac41a10d",
+  "seenDate": "2026-08-09",
+  "campaign": "Aug 2026 USDT poisoning",
+  "sources": [
+   "https://bitquery.io/investigations/address-poisoning-ethereum"
+  ],
+  "note": "Busiest counterfeit USDT (homoglyph symbol '\u00da\u0405D\u0422', Blockscout reputation=scam); 100 forged transfers in the batch tx incl. victim 0xb83f1c98 -> 0x053dc459."
+ },
+ {
+  "chainId": 1,
+  "subject": "0x5b40f9e45655ebf058e253444c90019a61012437",
+  "category": "MALICIOUS_TOKEN",
+  "evidence": "0x658fef8ea8d599f465cd6f73e44098627771a9d952bfd82ff0b2578b45490115",
+  "seenDate": "2026-06-11",
+  "campaign": "2026 fake-USDT poisoning crew",
+  "sources": [
+   "https://bitquery.io/investigations/address-poisoning-ethereum"
+  ],
+  "note": "Counterfeit '\u00da\u0405D\u0422'; 458 forged transfers in one batch via 0x77eb52e4 sent by 0x1584a8ee. Deployed by 0x1584a8ee in 0x01932de2."
+ },
+ {
+  "chainId": 1,
+  "subject": "0xe75ae445601fcb52fb8c167b6a4131d54d37e377",
+  "category": "MALICIOUS_TOKEN",
+  "evidence": "0xab196f712586a4934c16f5099b376334d5e4d3b3b6b84595224279d8fb5eace1",
+  "seenDate": "2026-03-17",
+  "campaign": "2026 fake-USDT poisoning crew",
+  "sources": [
+   "https://bitquery.io/investigations/address-poisoning-ethereum"
+  ],
+  "note": "ASCII-clone counterfeit 'USDT'; 8 forged transfers via 0x77eb52e4 sent by 0x16f09b37. Deployed by 0x1584a8ee in 0xd5318c9a."
+ },
+ {
+  "chainId": 1,
+  "subject": "0x1aed8c8e8f5ac86800b1e914d797929f0f93f9c1",
+  "category": "MALICIOUS_TOKEN",
+  "evidence": "0xf84dacfeb3a92ae3291120d954b86d89932fe31702103754cad4f8e8ac41a10d",
+  "seenDate": "2026-08-09",
+  "campaign": "Aug 2026 USDT poisoning",
+  "sources": [
+   "https://eth.blockscout.com/token/0x1aed8c8e8f5ac86800b1e914d797929f0f93f9c1"
+  ],
+  "note": "Fake '\u0116T\u1e28' homoglyph ETH token (Blockscout reputation=scam); 34 forged transfers alongside fake USDT in the August batch tx."
+ },
+ {
+  "chainId": 1,
+  "subject": "0xbcb94f7609973e5ea7d2cbedaf0c5518b911e6cb",
+  "category": "THEFT_PROCEEDS",
+  "evidence": "0x9129e55ada6438d02777591abc469742e3fd723107285dd6df1868037da8f05f",
+  "seenDate": "2025-12-20",
+  "campaign": "Dec 2025 $50M USDT poisoning",
+  "sources": [
+   "https://bitquery.io/investigations/address-poisoning-ethereum"
+  ],
+  "note": "Crew 'selling wallet'; received ~49.53M DAI swapped from the stolen 49,999,950 USDT. Evidence is the lookalike's outflow (hop 2); the victim's outflow is 0xc0514a79."
+ },
+ {
+  "chainId": 1,
+  "subject": "0xadfda39439cd99285b5b2972aafaa7d90de98d1e",
+  "category": "THEFT_PROCEEDS",
+  "evidence": "0xde0efa6fe7abc71f78b095befd15fab2af7be385160e42b0448ed9da67f5b5c7",
+  "seenDate": "2025-12-18",
+  "campaign": "Dec 2025 $50M USDT crew (WBTC theft)",
+  "sources": [
+   "https://bitquery.io/investigations/address-poisoning-ethereum"
+  ],
+  "note": "Holding wallet; received ~200,797 DAI from the 2.38 WBTC theft via lookalike 0x65f37c97 and later paid ETH to 0xbcb94f76 (not re-checked). Hop-2 evidence; the victim's outflow is 0xfda53b40."
+ },
+ {
+  "chainId": 1,
+  "subject": "0x49a21fc945312c6fb4f8c6c4d224e74a5b96e9df",
+  "category": "THEFT_PROCEEDS",
+  "evidence": "0x253ca9ded3b39ca3484c3a605087c06ecdb8fd6bbd910b84a882e85c8d8b8716",
+  "seenDate": "2026-01-30",
+  "campaign": "Jan 2026 4,556 ETH poisoning",
+  "sources": [
+   "https://bitquery.io/investigations/address-poisoning-ethereum"
+  ],
+  "note": "Sweep wallet; received ~4,556 ETH from lookalike 0x6d9052b2 164 blocks after the theft, then deposited to Tornado Cash (not re-checked). Hop-2 evidence; the victim's outflow is 0x7facade9."
+ },
+ {
+  "chainId": 1,
+  "subject": "0x22408b5ba24368736ddbacd48a0c3b1a7c9a0930",
+  "category": "THEFT_PROCEEDS",
+  "evidence": "0xd330ff045ba48d8f1b783542083f64736fd90af08b82a99eef9019afd677f0df",
+  "seenDate": "2024-10-13",
+  "campaign": "Inferno Drainer (2024-25 reloaded)",
+  "sources": [
+   "https://research.checkpoint.com/2025/inferno-drainer-reloaded-deep-dive-into-the-return-of-the-most-sophisticated-crypto-drainer/"
+  ],
+  "note": "Inferno customer (affiliate) wallet; got the ~70% share (94.3B PEPE + APU) of a CPR-listed drain run through factory 0xed0e416e. Not named by CPR; role read from the split."
+ },
+ {
+  "chainId": 1,
+  "subject": "0x4bd61b63efc3fd135fab4e6f1ebe27500a69ba6f",
+  "category": "THEFT_PROCEEDS",
+  "evidence": "0x983c889cc9e39f5de2dc0325fbd50cd6520f739a1bff8b916449c64450bbcc86",
+  "seenDate": "2024-11-15",
+  "campaign": "Inferno Drainer (2024-25 reloaded)",
+  "sources": [
+   "https://research.checkpoint.com/2025/inferno-drainer-reloaded-deep-dive-into-the-return-of-the-most-sophisticated-crypto-drainer/"
+  ],
+  "note": "Inferno customer wallet; received 176,000 USDT (80%) of the 220k USDT drain. Not named by CPR; role read from the split."
+ },
+ {
+  "chainId": 1,
+  "subject": "0xfbcbc1dc95eec0ecec3051fb55a8921cf5157f28",
+  "category": "THEFT_PROCEEDS",
+  "evidence": "0xb60c32fb28aa6160df6f472f494f162b997aa49fb06776dce250aff80602a8a3",
+  "seenDate": "2023-12-12",
+  "campaign": "Angel Drainer",
+  "sources": [
+   "https://research.checkpoint.com/2023/the-rising-threat-of-phishing-attacks-with-crypto-drainers/"
+  ],
+  "note": "Received 9.51 stETH, the ~85% affiliate share of the Angel permit drain. Not labelled by CPR; role read from the split."
+ },
+ {
+  "chainId": 1,
+  "subject": "0x47666fab8bd0ac7003bce3f5c3585383f09486e2",
+  "category": "THEFT_PROCEEDS",
+  "evidence": "0xb61413c495fdad6114a7aa863a00b2e3c28945979a10885b12b30316ea9f072c",
+  "seenDate": "2025-02-21",
+  "campaign": "Bybit Feb 2025 (Lazarus)",
+  "sources": [
+   "https://github.com/SunWeb3Sec/DeFiHackLabs/blob/main/src/test/2025-02/Bybit_exp.sol",
+   "https://etherscan.io/address/0x47666fab8bd0ac7003bce3f5c3585383f09486e2"
+  ],
+  "note": "Bybit exploiter main wallet (Etherscan 'Bybit Exploiter'). The hijacked Bybit cold Safe 0x1db92e2e sent it 401,346.77 ETH by internal call in this tx; address also in the calldata."
+ },
+ {
+  "chainId": 1,
+  "subject": "0x0fa09c3a328792253f8dee7116848723b72a6d2e",
+  "category": "THEFT_PROCEEDS",
+  "evidence": "0xb61413c495fdad6114a7aa863a00b2e3c28945979a10885b12b30316ea9f072c",
+  "seenDate": "2025-02-21",
+  "campaign": "Bybit Feb 2025 (Lazarus)",
+  "sources": [
+   "https://github.com/SunWeb3Sec/DeFiHackLabs/blob/main/src/test/2025-02/Bybit_exp.sol"
+  ],
+  "note": "Bybit attacker EOA: tx.from of the 401,346 ETH drain from the Bybit Safe, after sending the masterCopy-swap tx 0x46deef0f 13 blocks earlier."
+ },
+ {
+  "chainId": 1,
+  "subject": "0x04b21735e93fa3f8df70e2da89e6922616891a88",
+  "category": "THEFT_PROCEEDS",
+  "evidence": "0xdc86737cb0d4d9e9196445160adc7495ecca11ebfe17bfaa15092d615bd246d0",
+  "seenDate": "2024-07-18",
+  "campaign": "WazirX Jul 2024 (Lazarus)",
+  "sources": [
+   "https://rekt.news/wazirx-rekt"
+  ],
+  "note": "WazirX drain address. First inflow is a GNO transfer out of the WazirX multisig 0x27fd43 (this tx), followed by SHIB, MATIC, PEPE and USDT. Medium confidence."
+ },
+ {
+  "chainId": 56,
+  "subject": "0x0629b1048298ae9deff0f4100a31967fb3f98962",
+  "category": "THEFT_PROCEEDS",
+  "evidence": "0xd97b93f633aee356d992b49193e60a571b8c466bf46aaf072368f975dc11841c",
+  "seenDate": "2024-10-16",
+  "campaign": "Radiant Capital Oct 2024 (DPRK)",
+  "sources": [
+   "https://rekt.news/radiant-capital-rekt2"
+  ],
+  "note": "Radiant key-compromise attacker. Upgraded the BSC lending pool to malicious implementation 0x57ba89 and drained it (7 Transfer logs to it)."
+ },
+ {
+  "chainId": 42161,
+  "subject": "0x0629b1048298ae9deff0f4100a31967fb3f98962",
+  "category": "THEFT_PROCEEDS",
+  "evidence": "0x7856552db409fe51e17339ab1e0e1ce9c85d68bf0f4de4c110fc4e372ea02fb1",
+  "seenDate": "2024-10-16",
+  "campaign": "Radiant Capital Oct 2024 (DPRK)",
+  "sources": [
+   "https://rekt.news/radiant-capital-rekt2"
+  ],
+  "note": "Same Radiant attacker on Arbitrum; sent the upgrade-and-drain tx to 0x57ba89 (12 Transfer logs to it)."
+ },
+ {
+  "chainId": 42161,
+  "subject": "0x826d5f4d8084980366f975e10db6c4cf1f9dde6d",
+  "category": "THEFT_PROCEEDS",
+  "evidence": "0x1ce7e9a9e3b6dd3293c9067221ac3260858ce119ecb7ca860eac28b2474c7c9b",
+  "seenDate": "2024-01-02",
+  "campaign": "Radiant Capital Jan 2024",
+  "sources": [
+   "https://github.com/SunWeb3Sec/DeFiHackLabs/blob/main/src/test/2024-01/RadiantCapital_exp.sol"
+  ],
+  "note": "Radiant Jan 2024 precision-loss exploiter (~$4.5M); tx.from calling the attack contract."
+ },
+ {
+  "chainId": 1,
+  "subject": "0x841ddf093f5188989fa1524e7b893de64b421f47",
+  "category": "THEFT_PROCEEDS",
+  "evidence": "0x242a0fb4fde9de0dc2fd42e8db743cbc197ffa2bf6a036ba0bba303df296408b",
+  "seenDate": "2024-06-10",
+  "campaign": "UwU Lend Jun 2024",
+  "sources": [
+   "https://github.com/SunWeb3Sec/DeFiHackLabs/blob/main/src/test/2024-06/UwuLend_First_exp.sol"
+  ],
+  "note": "UwU Lend exploiter (~$19.3M first wave, ~$3.7M second). Evidence is its exploit-contract creation tx."
+ },
+ {
+  "chainId": 1,
+  "subject": "0x7a2f4d625fb21f5e51562ce8dc2e722e12a61d1b",
+  "category": "THEFT_PROCEEDS",
+  "evidence": "0x42b2ec27c732100dd9037c76da415e10329ea41598de453bb0c0c9ea7ce0d8e5",
+  "seenDate": "2024-09-03",
+  "campaign": "Penpie Sep 2024",
+  "sources": [
+   "https://github.com/SunWeb3Sec/DeFiHackLabs/blob/main/src/test/2024-09/Penpiexyzio_exp.sol"
+  ],
+  "note": "Penpie reentrancy exploiter (~$27M); tx.from of both attack txs the PoC cites. The PoC does not name the EOA; it was read from the txs."
+ },
+ {
+  "chainId": 1,
+  "subject": "0x506d1f9efe24f0d47853adca907eb8d89ae03207",
+  "category": "THEFT_PROCEEDS",
+  "evidence": "0xd155207261712c35fa3d472ed1e51bfcd816e616dd4f517fa5959836f5b48569",
+  "seenDate": "2025-11-03",
+  "campaign": "Balancer V2 Nov 2025",
+  "sources": [
+   "https://github.com/SunWeb3Sec/DeFiHackLabs/blob/main/src/test/2025-11/BalancerV2_exp.sol"
+  ],
+  "note": "Balancer V2 precision-loss exploiter (~$120M). This is the withdrawal from its attack contract 0x54b535; the attack tx is 0x6ed07db1..."
+ },
+ {
+  "chainId": 1,
+  "subject": "0x1aaade3e9062d124b7deb0ed6ddc7055efa7354d",
+  "category": "THEFT_PROCEEDS",
+  "evidence": "0x842aae91c89a9e5043e64af34f53dc66daf0f033ad8afbf35ef0c93f99a9e5e6",
+  "seenDate": "2025-10-04",
+  "campaign": "Abracadabra Oct 2025",
+  "sources": [
+   "https://rekt.news/abracadabra-rekt3"
+  ],
+  "note": "Abracadabra cauldron exploiter (~$1.8M), laundered via Tornado. Evidence is its exploit-contract creation tx."
+ },
+ {
+  "chainId": 1,
+  "subject": "0x0c3d8fa7762ca5225260039ab2d3990c035b458d",
+  "category": "THEFT_PROCEEDS",
+  "evidence": "0x1c27c4d625429acfc0f97e466eda725fd09ebdc77550e529ba4cbdbc33beb97b",
+  "seenDate": "2025-09-02",
+  "campaign": "Bunni Sep 2025",
+  "sources": [
+   "https://rekt.news/bunni-rekt"
+  ],
+  "note": "Bunni exploiter (~$8.4M across Ethereum and Unichain); tx.from of the attack tx."
+ },
+ {
+  "chainId": 1,
+  "subject": "0xfb63aa935cf0a003335dce9cca03c4f9c0fa4779",
+  "category": "THEFT_PROCEEDS",
+  "evidence": "0x53fe7ef190c34d810c50fb66f0fc65a1ceedc10309cf4b4013d64042a0331156",
+  "seenDate": "2025-11-30",
+  "campaign": "Yearn yETH Nov 2025",
+  "sources": [
+   "https://rekt.news/yearn-rekt3"
+  ],
+  "note": "Yearn yETH exploiter (rekt's 'secondary attacker'); tx.from of the exploit-contract creation tx. Primary attacker 0xa80D3F20 not verified."
+ },
+ {
+  "chainId": 1,
+  "subject": "0xc49b5e5b9da66b9126c1a62e9761e6b2147de3e1",
+  "category": "THEFT_PROCEEDS",
+  "evidence": "0xacf84c5944f662a4fcf783806993d713a150994932008e72e4e47a58d6665f7f",
+  "seenDate": "2025-02-24",
+  "campaign": "Infini Feb 2025",
+  "sources": [
+   "https://rekt.news/infini-rekt",
+   "https://www.certik.com/ko/blog/0xinfini-incident-analysis"
+  ],
+  "note": "Infini privileged-role attacker (compromised admin). Called malicious contract 0x9a79f4 to pull 11.5M USDC out of the vault to 0x3ac96134."
+ },
+ {
+  "chainId": 1,
+  "subject": "0x3ac96134fb0e42a52d33045aee50b89790f05ed0",
+  "category": "THEFT_PROCEEDS",
+  "evidence": "0xacf84c5944f662a4fcf783806993d713a150994932008e72e4e47a58d6665f7f",
+  "seenDate": "2025-02-24",
+  "campaign": "Infini Feb 2025",
+  "sources": [
+   "https://rekt.news/infini-rekt",
+   "https://www.certik.com/ko/blog/0xinfini-incident-analysis"
+  ],
+  "note": "Tornado-funded Infini receiver. Got the 11.5M and 38M USDC drains, swapped to DAI, then sent ETH on to 0xfcC8Ad91."
+ },
+ {
+  "chainId": 1,
+  "subject": "0xded2b1a426e1b7d415a40bcad44e98f47181dda2",
+  "category": "THEFT_PROCEEDS",
+  "evidence": "0x2606d459a50ca4920722a111745c2eeced1d8a01ff25ee762e22d5d4b1595739",
+  "seenDate": "2024-04-19",
+  "campaign": "Hedgey Apr 2024",
+  "sources": [
+   "https://github.com/SunWeb3Sec/DeFiHackLabs/blob/main/src/test/2024-04/HedgeyFinance_exp.sol"
+  ],
+  "note": "Hedgey Finance exploiter (~$48M); tx.from and Transfer recipient."
+ },
+ {
+  "chainId": 1,
+  "subject": "0x7e39e3b3ff7adef2613d5cc49558eab74b9a4202",
+  "category": "THEFT_PROCEEDS",
+  "evidence": "0x00c503b595946bccaea3d58025b5f9b3726177bbdc9674e634244135282116c7",
+  "seenDate": "2024-03-28",
+  "campaign": "Prisma Mar 2024",
+  "sources": [
+   "https://github.com/SunWeb3Sec/DeFiHackLabs/blob/main/src/test/2024-03/Prisma_exp.sol"
+  ],
+  "note": "Prisma Finance MigrateTroveZap exploiter (~$11M); tx.from."
+ },
+ {
+  "chainId": 1,
+  "subject": "0x8b3cb6bf982798fba233bca56749e22eec42dcf3",
+  "category": "THEFT_PROCEEDS",
+  "evidence": "0xd82fe84e63b1aa52e1ce540582ee0895ba4a71ec5e7a632a3faa1aff3e763873",
+  "seenDate": "2024-07-16",
+  "campaign": "LI.FI Jul 2024",
+  "sources": [
+   "https://github.com/SunWeb3Sec/DeFiHackLabs/blob/main/src/test/2024-07/Lifiprotocol_exp.sol"
+  ],
+  "note": "LI.FI arbitrary-call exploiter (~$10M, drained user approvals); tx.from and Transfer recipient."
+ },
+ {
+  "chainId": 1,
+  "subject": "0x680910cf5fc9969a25fd57e7896a14ff1e55f36b",
+  "category": "THEFT_PROCEEDS",
+  "evidence": "0x46567c731c4f4f7e27c4ce591f0aebdeb2d9ae1038237a0134de7b13e63d8729",
+  "seenDate": "2024-09-26",
+  "campaign": "Onyx Sep 2024",
+  "sources": [
+   "https://github.com/SunWeb3Sec/DeFiHackLabs/blob/main/src/test/2024-09/OnyxDAO_exp.sol"
+  ],
+  "note": "Onyx DAO NFTLiquidation exploiter (>$3.8M); tx.from, 5 Transfer logs to it."
+ },
+ {
+  "chainId": 42161,
+  "subject": "0xb87881637b5c8e6885c51ab7d895e53fa7d7c567",
+  "category": "THEFT_PROCEEDS",
+  "evidence": "0x6a2f989b5493b52ffc078d0a59a3bf9727d134b403aa6e0bf309fd513a728f7f",
+  "seenDate": "2024-11-11",
+  "campaign": "DeltaPrime Nov 2024",
+  "sources": [
+   "https://github.com/SunWeb3Sec/DeFiHackLabs/blob/main/src/test/2024-11/DeltaPrime_exp.sol"
+  ],
+  "note": "DeltaPrime Nov 2024 exploiter (~$4.75M) on Arbitrum; tx.from."
+ },
+ {
+  "chainId": 10,
+  "subject": "0x5d0d99e9886581ff8fcb01f35804317f5ed80bbb",
+  "category": "THEFT_PROCEEDS",
+  "evidence": "0x45c0ccfd3ca1b4a937feebcb0f5a166c409c9e403070808835d41da40732db96",
+  "seenDate": "2024-05-14",
+  "campaign": "Sonne May 2024",
+  "sources": [
+   "https://github.com/SunWeb3Sec/DeFiHackLabs/blob/main/src/test/2024-05/Sonne_exp.sol"
+  ],
+  "note": "Sonne Finance donation-attack exploiter on Optimism (~$20M); tx.from."
+ },
+ {
+  "chainId": 59144,
+  "subject": "0x8cdc37ed79c5ef116b9dc2a53cb86acaca3716bf",
+  "category": "THEFT_PROCEEDS",
+  "evidence": "0xed11d5b013bf3296b1507da38b7bcb97845dd037d33d3d1b0c5e763889cdbed1",
+  "seenDate": "2024-06-02",
+  "campaign": "Velocore Jun 2024",
+  "sources": [
+   "https://github.com/SunWeb3Sec/DeFiHackLabs/blob/main/src/test/2024-06/Velocore_exp.sol"
+  ],
+  "note": "Velocore exploiter on Linea (~$6.88M); tx.from."
+ },
+ {
+  "chainId": 1,
+  "subject": "0x94641c01a4937f2c8ef930580cf396142a2942dc",
+  "category": "THEFT_PROCEEDS",
+  "evidence": "0x23fcf9d4517f7cc39815b09b0a80c023ab2c8196c826c93b4100f2e26b701286",
+  "seenDate": "2024-02-28",
+  "campaign": "Seneca Feb 2024",
+  "sources": [
+   "https://github.com/SunWeb3Sec/DeFiHackLabs/blob/main/src/test/2024-02/Seneca_exp.sol"
+  ],
+  "note": "Seneca Chamber approval-drain exploiter (~$6M; most later returned); tx.from and Transfer recipient. Medium confidence."
+ },
+ {
+  "chainId": 1,
+  "subject": "0xea6f30e360192bae715599e15e2f765b49e4da98",
+  "category": "THEFT_PROCEEDS",
+  "evidence": "0xfd89cdd0be468a564dd525b222b728386d7c6780cf7b2f90d2b54493be09f64d",
+  "seenDate": "2025-05-28",
+  "campaign": "Cork May 2025",
+  "sources": [
+   "https://github.com/SunWeb3Sec/DeFiHackLabs/blob/main/src/test/2025-05/Corkprotocol_exp.sol"
+  ],
+  "note": "Cork Protocol exploiter (~$12M wstETH); tx.from."
+ },
+ {
+  "chainId": 1,
+  "subject": "0x6d9f6e900ac2ce6770fd9f04f98b7b0fc355e2ea",
+  "category": "THEFT_PROCEEDS",
+  "evidence": "0xffbbd492e0605a8bb6d490c3cd879e87ff60862b0684160d08fd5711e7a872d3",
+  "seenDate": "2025-06-26",
+  "campaign": "Resupply Jun 2025",
+  "sources": [
+   "https://github.com/SunWeb3Sec/DeFiHackLabs/blob/main/src/test/2025-06/ResupplyFi_exp.sol"
+  ],
+  "note": "Resupply share-price manipulation exploiter (~$9.6M); tx.from of the exploit-contract creation, Transfer recipient."
+ },
+ {
+  "chainId": 1,
+  "subject": "0x5b9b4b4dafbcfceea7afba56958fcbb37d82d4a2",
+  "category": "THEFT_PROCEEDS",
+  "evidence": "0xd813751bfb98a51912b8394b5856ae4515be6a9c6e5583e06b41d9255ba6e3c1",
+  "seenDate": "2025-07-28",
+  "campaign": "SuperRare Jul 2025",
+  "sources": [
+   "https://github.com/SunWeb3Sec/DeFiHackLabs/blob/main/src/test/2025-07/SuperRare_exp.sol"
+  ],
+  "note": "SuperRare RARE staking exploiter (~$730K); tx.from."
+ },
+ {
+  "chainId": 8453,
+  "subject": "0x6997a8c804642ae2de16d7b8ff09565a5d5658ff",
+  "category": "THEFT_PROCEEDS",
+  "evidence": "0x190a491c0ef095d5447d6d813dc8e2ec11a5710e189771c24527393a2beb05ac",
+  "seenDate": "2025-11-04",
+  "campaign": "Moonwell Nov 2025",
+  "sources": [
+   "https://github.com/SunWeb3Sec/DeFiHackLabs/blob/main/src/test/2025-11/Moonwell_exp.sol"
+  ],
+  "note": "Moonwell oracle exploiter on Base (~$1M); tx.from calling attack contract 0x42ecd3."
+ },
+ {
+  "chainId": 1,
+  "subject": "0xa3a64255484ad65158af0f9d96b5577f79901a1d",
+  "category": "THEFT_PROCEEDS",
+  "evidence": "0x39328ea4377a8887d3f6ce91b2f4c6b19a851e2fc5163e2f83bbc2fc136d0c71",
+  "seenDate": "2024-09-20",
+  "campaign": "Shezmu Sep 2024",
+  "sources": [
+   "https://github.com/SunWeb3Sec/DeFiHackLabs/blob/main/src/test/2024-09/Shezmu_exp.sol"
+  ],
+  "note": "Shezmu vault exploiter (~$4.9M; later negotiated a return for a bounty); tx.from of the exploit-contract creation. Medium confidence."
+ },
+ {
+  "chainId": 1,
+  "subject": "0x6c8ec8f14be7c01672d31cfa5f2cefeab2562b50",
+  "category": "THEFT_PROCEEDS",
+  "evidence": "0xcd4755645595094a8ab984d0db7e3b4aabde72a5c87c4f176a030629c47fb014",
+  "seenDate": "2026-01",
+  "campaign": "Truebit Jan 2026",
+  "sources": [
+   "https://github.com/SunWeb3Sec/DeFiHackLabs/blob/main/src/test/2026-01/Truebit_exp.sol"
+  ],
+  "note": "Truebit exploiter (8,540 ETH); tx.from."
+ },
+ {
+  "chainId": 1,
+  "subject": "0x5abb91b9c01a5ed3ae762d32b236595b459d5777",
+  "category": "THEFT_PROCEEDS",
+  "evidence": "0x6990f01720f57fc515d0e976a0c4f8157e0a9529194c4c15d190e98d087eb321",
+  "seenDate": "2026-05-17",
+  "campaign": "VerusBridge May 2026",
+  "sources": [
+   "https://github.com/SunWeb3Sec/DeFiHackLabs/blob/main/src/test/2026-05/VerusBridge_exp.sol"
+  ],
+  "note": "Verus-Ethereum bridge exploiter (~$11.58M); attacker EOA, not the bridge."
+ },
+ {
+  "chainId": 56,
+  "subject": "0xc4574ddef299e7e563971e200433e592eeaafa69",
+  "category": "THEFT_PROCEEDS",
+  "evidence": "0xe211904a8a40f653acd64ffc33a42429ef571c1e2da16976d07ac0f9a0bcc9c1",
+  "seenDate": "2026-05-28",
+  "campaign": "DxSale May 2026",
+  "sources": [
+   "https://github.com/SunWeb3Sec/DeFiHackLabs/blob/main/src/test/2026-05/DxSale_exp.sol"
+  ],
+  "note": "DxSale locker ownership-override attacker on BSC (~$7.3M). Self-call tx (7702-style); current code empty."
+ },
+ {
+  "chainId": 1,
+  "subject": "0x7bf716167b48cf527725722c6d79494b45b3bdca",
+  "category": "THEFT_PROCEEDS",
+  "evidence": "0x0db528c44f23fc7fa4544684a2fab81096450a14aae8bc89f42cd0592d43da12",
+  "seenDate": "2026-07-06",
+  "campaign": "SummerFi Jul 2026",
+  "sources": [
+   "https://github.com/SunWeb3Sec/DeFiHackLabs/blob/main/src/test/2026-07/SummerFi_exp.sol"
+  ],
+  "note": "Summer.fi FleetCommander NAV-inflation exploiter (~6.02M DAI); tx.from, 3 Transfer logs to it."
+ },
+ {
+  "chainId": 1,
+  "subject": "0x7ec2afdf3ec5964899894f8d58afa95cbb8ffd63",
+  "category": "THEFT_PROCEEDS",
+  "evidence": "0x38c60844f1923d53fdce7d99e9bc2a2d8c73a08e793341dfbb479f8cc74d81d0",
+  "seenDate": "2026-10-24",
+  "campaign": "X100Senate Oct 2026",
+  "sources": [
+   "https://github.com/SunWeb3Sec/DeFiHackLabs/blob/main/src/test/2026-10/X100Senate_exp.sol"
+  ],
+  "note": "X100 Senate treasury governance-drain attacker (~4.75M USDT); tx.from of the contract-creation tx, Transfer recipient."
+ },
+ {
+  "chainId": 1,
+  "subject": "0xa911ff351b143634dbc5af3e204ea074583a83e3",
+  "category": "THEFT_PROCEEDS",
+  "evidence": "0x770bc9a1f7c32cb63a5002b9ceb5c7994cd3af0fc6b2309cb32d3c46f629daa0",
+  "seenDate": "2026-05-05",
+  "campaign": "Ekubo May 2026",
+  "sources": [
+   "https://github.com/SunWeb3Sec/DeFiHackLabs/blob/main/src/test/2026-05/Ekubo_exp.sol"
+  ],
+  "note": "Ekubo business-logic exploiter (~$1.4M); tx.from, 85 Transfer logs to it."
+ },
+ {
+  "chainId": 56,
+  "subject": "0x18d6c39ae9e537f948aa2212d44d8c23944fc188",
+  "category": "THEFT_PROCEEDS",
+  "evidence": "0x8dabb60a94e5124462e5f494a25c14bcd52f6f4d1f7c665a249496f4c6c24764",
+  "seenDate": "2026-06-20",
+  "campaign": "OLPC Jun 2026",
+  "sources": [
+   "https://github.com/SunWeb3Sec/DeFiHackLabs/blob/main/src/test/2026-06/OLPC_exp.sol"
+  ],
+  "note": "OLPC pair-reserve manipulation exploiter on BSC (~1.12M USDT). Self-call by an EIP-7702 delegated EOA (code 0xef0100...)."
+ },
+ {
+  "chainId": 42161,
+  "subject": "0xbf6ec059f519b668a309e1b6ecb9a8ea62832d95",
+  "category": "THEFT_PROCEEDS",
+  "evidence": "0xe1e6aa5332deaf0fa0a3584113c17bedc906148730cbbc73efae16306121687b",
+  "seenDate": "2026-01",
+  "campaign": "Futureswap Jan 2026",
+  "sources": [
+   "https://github.com/SunWeb3Sec/DeFiHackLabs/blob/main/src/test/2026-01/futureswap_exp.sol"
+  ],
+  "note": "Futureswap exploiter on Arbitrum (~395K USDC.e + 67.6 WETH); tx.from of the exploit-contract creation."
+ },
+ {
+  "chainId": 56,
+  "subject": "0x43c743e316f40d4511762eedf6f6d484f67b2f82",
+  "category": "THEFT_PROCEEDS",
+  "evidence": "0x4f477e941c12bbf32a58dc12db7bb0cb4d31d41ff25b2457e6af3c15d7f5663f",
+  "seenDate": "2026-03",
+  "campaign": "Venus THE Mar 2026",
+  "sources": [
+   "https://github.com/SunWeb3Sec/DeFiHackLabs/blob/main/src/test/2026-03/Venus_THE_exp.sol"
+  ],
+  "note": "Venus THE-market exploiter on BSC (borrowBehalf abuse); tx.from of the contract-creation tx."
+ }
+]
