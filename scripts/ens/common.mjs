@@ -111,5 +111,28 @@ export async function send(pub, wallet, what, req) {
   const r = await pub.waitForTransactionReceipt({ hash });
   console.log(r.status === 'success' ? `ok (block ${r.blockNumber})` : 'REVERTED');
   if (r.status !== 'success') throw new Error(`${what} reverted`);
+  await settle(pub, r.blockNumber);
   return r;
+}
+
+// Public RPCs are load balanced; a read right after a receipt can hit a node that has not seen the block yet.
+// Wait until three consecutive block-number reads are at or past the target.
+export async function settle(pub, blockNumber) {
+  let ok = 0;
+  for (let i = 0; i < 40 && ok < 3; i++) {
+    const n = await pub.getBlockNumber({ cacheTime: 0 }).catch(() => 0n);
+    if (n >= blockNumber) ok++; else ok = 0;
+    if (ok < 3) await new Promise((res) => setTimeout(res, 1500));
+  }
+}
+
+// Retry a read until `accept` is true or attempts run out; returns the last value either way.
+export async function readUntil(fn, accept, { tries = 8, delay = 2500 } = {}) {
+  let v;
+  for (let i = 0; i < tries; i++) {
+    v = await fn().catch(() => undefined);
+    if (v !== undefined && accept(v)) return v;
+    await new Promise((res) => setTimeout(res, delay));
+  }
+  return v;
 }

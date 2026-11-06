@@ -2,7 +2,7 @@
 // Run: node --env-file=scripts/.env scripts/ens/3-claim.mjs <label>
 // Deploys the claimer's own Permissioned Resolver through the Verifiable Factory if they do not have one yet,
 // claims the name through the MirrorRegistrar, and sets an addr record. Needs the registrar address from state.sepolia.json.
-import { ENSV2, abi, clients, namehash, send, keccak256, toHex, RESOLVER_ADMIN_ROLES } from './common.mjs';
+import { ENSV2, abi, clients, namehash, send, keccak256, toHex, RESOLVER_ADMIN_ROLES, readUntil } from './common.mjs';
 import { encodeFunctionData, decodeEventLog, parseAbi } from 'viem';
 import { readFileSync } from 'node:fs';
 
@@ -19,11 +19,11 @@ const registrarAbi = parseAbi([
 const { account, pub, wallet } = clients();
 console.log(`account ${account.address}`);
 
-const ethOwner = await pub.readContract({ address: ENSV2.ETHRegistry, abi: abi.registry, functionName: 'findOwner', args: [label] });
+const ethOwner = await readUntil(() => pub.readContract({ address: ENSV2.ETHRegistry, abi: abi.registry, functionName: 'findOwner', args: [label] }), (o) => o.toLowerCase() === account.address.toLowerCase());
 if (ethOwner.toLowerCase() !== account.address.toLowerCase()) throw new Error(`${label}.eth is owned by ${ethOwner}, not this account. Register it first at https://sepolia.app.ens.domains`);
 const hubOwner = await pub.readContract({ address: state.userRegistry, abi: abi.registry, functionName: 'findOwner', args: [label] });
 if (hubOwner.toLowerCase() === account.address.toLowerCase()) { console.log(`${label}.tocsin.eth is already yours`); process.exit(0); }
-if (!(await pub.readContract({ address: state.registrar, abi: registrarAbi, functionName: 'canClaim', args: [label, account.address] }))) throw new Error(`${label}.tocsin.eth is not claimable (taken and unexpired, owned by ${hubOwner})`);
+if (!(await readUntil(() => pub.readContract({ address: state.registrar, abi: registrarAbi, functionName: 'canClaim', args: [label, account.address] }), (v) => v === true))) throw new Error(`${label}.tocsin.eth is not claimable (taken and unexpired, owned by ${hubOwner})`);
 
 // the claimer's own resolver, one per account, deterministic salt so re-runs find it
 const salt = BigInt(keccak256(toHex('tocsin-resolver-v1')));

@@ -1,7 +1,7 @@
 // Registers tocsin.eth on ENSv2 Sepolia through the ETHRegistrar: mint test USDC, approve, commit, wait, register.
 // Run: node --env-file=scripts/.env scripts/ens/1-register-tocsin.mjs [label]
 // Idempotent: exits early if the label is already registered to this account. Needs Sepolia ETH for gas.
-import { ENSV2, abi, clients, labelhash, send } from './common.mjs';
+import { ENSV2, abi, clients, labelhash, send, readUntil } from './common.mjs';
 import { toHex } from 'viem';
 import { randomBytes } from 'node:crypto';
 
@@ -41,6 +41,6 @@ console.log(`waiting ${wait}s for the commitment to age…`);
 await new Promise((r) => setTimeout(r, wait * 1000));
 
 const receipt = await send(pub, wallet, `register ${label}.eth`, { address: ENSV2.ETHRegistrar, abi: abi.registrar, functionName: 'register', args: [label, account.address, secret, zero, zero, duration, ENSV2.MockUSDC, referrer] });
-const owner = await pub.readContract({ address: ENSV2.ETHRegistry, abi: abi.registry, functionName: 'findOwner', args: [label] });
+const owner = await readUntil(() => pub.readContract({ address: ENSV2.ETHRegistry, abi: abi.registry, functionName: 'findOwner', args: [label] }), (o) => o.toLowerCase() === account.address.toLowerCase());
 console.log(`${label}.eth owner is now ${owner}; tx ${receipt.transactionHash}`);
 console.log(`view: https://sepolia.app.ens.domains/${label}.eth`);
