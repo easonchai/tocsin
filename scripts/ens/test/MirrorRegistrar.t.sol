@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: CC0-1.0
 pragma solidity 0.8.28;
 
-// Fork test against the live ENSv2 Sepolia contracts. Run:
+// Fork test against the live ENSv2 Sepolia contracts (the 1 October 2026 set the Universal Resolver reads). Run:
 //   forge test --root scripts/ens --fork-url $SEPOLIA_RPC -vv
 // It takes tocsin.eth's real owner, deploys a fresh UserRegistry through the Verifiable Factory, wires the registrar,
 // emancipates, then exercises claim / sync / rejection using tocsin.eth itself as the claimant's .eth name.
@@ -20,7 +20,9 @@ interface Vm {
 
 interface IFactory { function deployProxy(address implementation, uint256 salt, bytes calldata data) external returns (address); }
 interface IRegistryAdmin {
-    function initialize(address rootAccount, uint256 roleBitmap) external;
+    struct Grant { address account; uint256 roleBitmap; }
+    function initialize(Grant[] calldata grants) external;
+    function isEmancipated() external view returns (bool);
     function grantRootRoles(uint256 roleBitmap, address account) external returns (bool);
     function revokeRootRoles(uint256 roleBitmap, address account) external returns (bool);
     function hasAssignees(uint256 anyId, uint256 roleBitmap) external view returns (bool);
@@ -35,9 +37,9 @@ interface IRegistryAdmin {
 
 contract MirrorRegistrarTest {
     Vm constant vm = Vm(address(uint160(uint256(keccak256("hevm cheat code")))));
-    address constant ETH_REGISTRY = 0x67b728a792e789a8978b30cF1b3b641f19354b43;
-    address constant FACTORY = 0x118Bc31A50d559F7015a8Da26d54B3b030CdB70F;
-    address constant USER_REGISTRY_IMPL = 0x840Fa461059862Ea466A711E8C98c8dE732061C0;
+    address constant ETH_REGISTRY = 0xD4eBcbBdF463C9c45784603Db0dDD499BC44A8B4;
+    address constant FACTORY = 0xDa70306C98E97eCe36F997a21368e53298572991;
+    address constant USER_REGISTRY_IMPL = 0x9BD8a88719068D09ecee662f36C0E3856708366a;
 
     // roles
     uint256 constant ROLE_REGISTRAR = 1 << 0;
@@ -60,7 +62,9 @@ contract MirrorRegistrarTest {
         require(owner != address(0), "tocsin.eth not registered on this fork");
         vm.startPrank(owner);
         uint256 rootRoles = withAdmin(ROLE_REGISTRAR) | withAdmin(ROLE_REGISTER_RESERVED) | withAdmin(ROLE_SET_PARENT) | withAdmin(ROLE_RENEW) | withAdmin(ROLE_SET_SUBREGISTRY) | withAdmin(ROLE_SET_RESOLVER) | withAdmin(ROLE_UPGRADE);
-        hub = IFactory(FACTORY).deployProxy(USER_REGISTRY_IMPL, uint256(keccak256("test-hub")), abi.encodeCall(IRegistryAdmin.initialize, (owner, rootRoles)));
+        IRegistryAdmin.Grant[] memory grants = new IRegistryAdmin.Grant[](1);
+        grants[0] = IRegistryAdmin.Grant(owner, rootRoles);
+        hub = IFactory(FACTORY).deployProxy(USER_REGISTRY_IMPL, uint256(keccak256("test-hub")), abi.encodeCall(IRegistryAdmin.initialize, (grants)));
         IRegistryAdmin(ETH_REGISTRY).setSubregistry(uint256(keccak256("tocsin")), hub);
         IRegistryAdmin(hub).setParent(ETH_REGISTRY, "tocsin");
         reg = new MirrorRegistrar(IPermissionedRegistry(ETH_REGISTRY), IPermissionedRegistry(hub));
@@ -75,6 +79,7 @@ contract MirrorRegistrarTest {
     function test_emancipated() public view {
         uint256 dangerous = withAdmin(ROLE_SET_RESOLVER) | withAdmin(ROLE_SET_SUBREGISTRY) | withAdmin(ROLE_UNREGISTER) | ROLE_CAN_TRANSFER_ADMIN | withAdmin(ROLE_UPGRADE);
         require(!IRegistryAdmin(hub).hasAssignees(0, dangerous), "dangerous root role still held");
+        require(IRegistryAdmin(hub).isEmancipated(), "isEmancipated() disagrees");
         require(IRegistryAdmin(hub).hasRootRoles(ROLE_REGISTRAR | ROLE_RENEW, address(reg)), "registrar lost its roles");
         require(!IRegistryAdmin(hub).hasRootRoles(ROLE_REGISTRAR, owner), "owner can still mint directly");
     }

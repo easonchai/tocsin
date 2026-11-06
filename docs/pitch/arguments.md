@@ -28,7 +28,7 @@ The honest residue: an endpoint can still withhold. Then the wallet says "unveri
 
 - Every wallet asks a company whether an address is safe. We built the first one that asks Ethereum instead, and catches the company lying.
 - The contract is deliberately dumb. The reader is where the work is.
-- One bite, everyone immune. The first wallet bitten immunizes every wallet that syncs.
+- Flag it once, every wallet that syncs sees it. The first wallet to meet the attacker warns all the others.
 - Nothing is ever removed. Corrections are new leaves. A reader that wants a flag gone drops the writer, not the record.
 
 ## "Can't someone fake a list and a head? Hashing is cheap."

@@ -15,7 +15,7 @@ The name: a tocsin is the bell a town rings when something is coming. One strike
 - We are building it at Devcon 8 and ETHGlobal Mumbai, 5 to 7 November 2026. Submissions close 8 November, 09:00 IST.
 - It is written up as an Ethereum standard, an ERC called "Append-Only Threat Flag Log", so any wallet can implement the same reader. The draft is in `erc/`.
 - The audience is Ethereum developers, wallet teams, and hackathon judges. The pitch in one line: your wallet checked Ethereum itself and caught the lie.
-- The second idea, which the brand carries in motion rather than in words: the first wallet bitten immunizes every wallet that syncs. Herd immunity.
+- The second idea, which the brand carries in motion rather than in words: one flag reaches every wallet that syncs. The bell, not the list.
 
 ## The one memory
 
@@ -28,8 +28,8 @@ Read `DIRECTION.md` for the full rules. The short version:
 - Dark greyscale with one warm amber. Amber is the strike and appears once per screen. Red appears only on a "Blocked" verdict. No green: clean is the absence of red.
 - Still until touched. Nothing bounces, nothing loops except the background field and the three schematics.
 - The mark is a bell drawn as its sound: three nested bell curves on one lip, with a strike dot. Eason chose it from the explorations in `explorations/marks-a.html` (option A2). The curve profile is a cast bell, not a Gaussian; the construction is recorded in `HANDOFF.md` at the repo root.
-- The wordmark is "tocsin", lowercase, Bricolage Grotesque 700, tracking -0.03em. Lowercase because a bell is a common thing.
-- Fonts: Bricolage Grotesque for display, Schibsted Grotesk for body, JetBrains Mono for anything that is data. All bundled under `site/fonts/`, all OFL.
+- The wordmark is "tocsin", lowercase, Inter 700, tracking -0.03em. Lowercase because a bell is a common thing.
+- Fonts: Inter for display and body, JetBrains Mono for anything that is data. Both bundled under `site/fonts/` as variable fonts, both OFL. Changed from Bricolage Grotesque and Schibsted Grotesk on 6 Nov 2026 for legibility on a projector.
 - The background is a still dot field. A strike sends three rings outward; dots the ring passed stay faintly brighter, so the field remembers where it was struck. The cursor carries a soft lens. Copy is always masked so text wins.
 - The product screens follow the Devcon schematic language: hairline connectors, mono pills on dark panels, one solid paper hero node.
 

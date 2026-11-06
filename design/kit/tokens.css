@@ -19,8 +19,8 @@
   --alert: #e5484d;
   --alert-40: rgba(229, 72, 77, .4);
 
-  --display: 'Bricolage Grotesque', 'Helvetica Neue', Arial, sans-serif;
-  --body: 'Schibsted Grotesk', 'Helvetica Neue', Arial, sans-serif;
+  --display: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+  --body: 'Inter', 'Helvetica Neue', Arial, sans-serif;
   --mono: 'JetBrains Mono', ui-monospace, Menlo, monospace;
 
   --r: 3px;
