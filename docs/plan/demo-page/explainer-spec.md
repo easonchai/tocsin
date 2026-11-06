@@ -1,6 +1,8 @@
 # Demo page v2: pick a scenario, watch the explainer, then the wallet
 
-Status: ready-for-agent. Written 6 Nov 2026 on main. Builds on `docs/plan/demo-page/spec.md` (feat/demo), which stays the source for the scenario table, the RPC boxes, the swap decoder, the pool and the seeding. This spec changes what the page looks like and adds one job: before the wallet speaks, the page shows why it is about to say what it says.
+Status: ready-for-agent. Written 6 Nov 2026 on main, revised the same evening after an adversarial pass. Builds on `docs/plan/demo-page/spec.md` (feat/demo), which stays the source for the scenario table, the swap decoder, the pool and the seeding. This spec changes what the page looks like and adds one job: before the wallet speaks, the page shows why it is about to say what it says.
+
+Mock: `design/kit/demo-page.html`, served from the repo root (`python3 -m http.server 8732`, then `/design/kit/demo-page.html`). Stills in `design/screens/demo-page-final.png`, `demo-page-warn.png`, `demo-page-poison.png`. The mock is the layout and the motion; its data is hand-typed and the real page takes it from the constants.
 
 ## Problem
 
@@ -8,128 +10,133 @@ The board on feat/demo works but it is a table of buttons with DaisyUI badges. O
 
 ## Solution
 
-One screen, three regions. A scenario rail on the left. A stage in the middle that plays a short animated explainer for the selected scenario: the subject, the lists the wallet follows, every writer that flagged it and what it said, how the rule counts them, the verdict. A prediction card at the bottom right that says what the wallet should show, with the one amber Send button. The top right of the viewport stays empty, because that is where the MetaMask popup lands; the explainer ends by pointing there.
+One stage. No tabs, no side rail, no prediction card. A strip of scenario chips across the top, grouped by what the transaction does. Below it the explainer fills the width: the lists the wallet follows on the left, each with its writers; the subject in the middle; the right third empty on purpose, because that is where the MetaMask popup lands. When a chip is pressed the stage plays, under five seconds: the subject lands, the lists rise, every writer that flagged it draws a line to the subject and says what it flagged, a counter collapses writers that share an operator, the rule sentence explains the outcome, the verdict word lands, one ripple, and the Send button appears inside the stage. The presenter clicks Send, the wallet opens over the empty third and says the same thing.
+
+Why not tabs or a rail. The audience never needs the menu, so it should not take width from the story. A prediction card that prints "Blocked" before the explainer has run spoils the beat. Three columns at 1440 leave the stage too narrow for projector-size type. One stage, chips on top, was the right call.
 
 The page still checks nothing. Every fact on the stage comes from the scenario constants, which the existing test pins to the demo address table. The stage is the presenter's prediction, drawn. The wallet is the proof.
 
+## The lists on stage
+
+The wallet follows our own names, so the stage shows them:
+
+| Name | Role line on stage | Writers | Weight |
+| --- | --- | --- | --- |
+| `core.tocsin.eth` | us: the core writer and the detector agent, one operator | core, detector | 255, 1 |
+| `blockaid.tocsin.eth` | a security vendor, claimed by the owner of blockaid.eth | blockaid | 255 |
+| `scamsniffer.tocsin.eth` | phishing researchers, claimed by the owner of scamsniffer.eth | scamsniffer | 1 |
+
+The role line exists because nobody in the room knows who these names are, and "two or more people saying this" only lands if they read as people. `detector.tocsin.eth` is not a list on stage; it is the detector writer inside the core list.
+
+Data dependency, the one thing not on chain yet: the blockaid and scamsniffer keys hold names but have no leaves in the log and no `tocsin.list` record on their names. Ticket 10 seeds them. Until then the stage can only draw core.tocsin.eth flags, which is enough for the clean, warn-only, retracted and single-writer block scenes but not for "two or more people".
+
 ## What the audience sees, in order
 
-1. Presenter clicks "Send ETH to the drainer receiver" in the rail. The stage clears in one cross-fade.
-2. The subject pill lands in the centre: label `drainer-receiver-1`, address in mono, category `DRAINER_RECEIVER`.
-3. The three lists the wallet follows rise on the left, staggered: `tocsin.eth`, `harborwatch.eth`, `lanterndao.eth`. Under each, its writers as small mono pills. `tocsin.eth` shows two: manual and detector.
-4. For each writer that flagged the subject, a hairline draws from the writer to the subject. A caption types next to it: "harborwatch.eth flagged it: DRAINER_RECEIVER, weight 255, evidence 0x3725…9dce". One caption after another, 0.4 s apart.
-5. The counter. A short line under the subject: "independent writers: 1 … 2 … 3". Writers that share an operator collapse into one with a small note ("two tocsin.eth writers, one operator, counts once").
-6. The rule, in one sentence that changes with the case: "one writer at weight 255 blocks on its own", or "two independent writers block", or "one writer at weight 1 warns", or "category 8 warns and never blocks", or "retracted: tombstoned, counts as nothing".
-7. The verdict word lands: Clean in paper, Warn in paper with an amber underline, Blocked in alert red. Red appears nowhere else on the page.
-8. The strike: one ripple runs outward through the background dot field from the verdict, the only moment the background moves on this page.
-9. Handoff: the caption "now the wallet" with a thin arrow easing toward the top-right corner, and the Send button in the prediction card turns amber. Presenter clicks Send. MetaMask opens top right, over an empty region of the page, and says the same thing.
+1. Presenter clicks "Drainer receiver" in the chip strip. The stage clears in one cross-fade.
+2. The subject pill lands in the centre: the context label above it (`recipient of your send`, `spender of your allowance`, `the token contract you are calling`), the label `drainer-receiver-1`, the address in mono, the category.
+3. The three lists rise on the left, staggered 120 ms, each with its role line and its writer pills with weights.
+4. For each writer that flagged the subject, a hairline draws from the list's edge to the subject, 400 ms. A weight-255 writer's line is heavier. Next to the writer pill a line of text appears: "blockaid.tocsin.eth flagged it: DRAINER_RECEIVER, weight 255. evidence 0x3725…9dce", the evidence a link to the transaction. One writer every 480 ms.
+5. The counter under the subject: "independent writers: 3 · lists that flag it: 3 of 3". When the core writer and the detector both flagged, the counter says they share one operator and count once.
+6. The rule sentence, one of a fixed set (below).
+7. The verdict word: Clean in paper, Warn in paper with an amber underline, Blocked in alert red, Unverifiable in amber. One ripple runs out from the word. Red appears nowhere else on the page.
+8. The handoff: the caption "the wallet should say this. The stage is drawn from the seed table; the wallet checks the chain itself", the Send button, and the empty right third gets a dashed outline labelled "wallet opens here, nothing you need to read is under it" with a thin arrow pointing into it.
+9. Presenter clicks Send. The wallet opens top right, over the outline, and agrees.
 
-The whole explainer runs under eight seconds. A replay control restarts it. Selecting another scenario interrupts it cleanly.
+Whole explainer under five seconds. Click anywhere on the stage to jump to the final frame. `R` replays. Left and right arrows move through the chips in order, which is the run of show. `Enter` skips to the end, then sends.
+
+## Rule sentences
+
+Fixed strings, chosen by `explain()`, in this order of precedence:
+
+- lying RPC: "The RPC left out the writer's first entry. The replayed fold does not reach the head Ethereum proves. Nothing it says can be trusted, so the wallet refuses to call this clean."
+- retracted: "The writer retracted its own flag with a tombstone. The log keeps both entries; the wallet counts neither."
+- nothing flagged: "No list you follow has a flag on this address."
+- warn-only category: "A weight-255 writer would block, but this category warns and never blocks a send: the money is already stolen, the wallet only tells you where it is going."
+- block by weight: "<lists> carry this writer at weight 255. One such writer blocks on its own."
+- block by count: "Two independent writers on one list reach the threshold. That blocks."
+- warn, several lists: "Each list has one writer at weight 1. One writer warns. Two lists do not add up to a block."
+- warn, one list: "One writer at weight 1 warns." The scamsniffer-only row appends "Set the Snap policy to 1 writer and this blocks."
 
 ## Scenes
 
-Every scenario maps to one of these scene shapes. The shape is derived from the constants, not hand-picked per row.
-
 | Shape | Trigger | What is different on stage |
 | --- | --- | --- |
-| clean | no lists flag the subject | lists rise, no lines draw, caption "no list you follow has a flag on this", verdict Clean, no ripple |
-| block by weight | at least one flagging writer has weight 255 in a blocking list | that writer's line is heavier (2px), rule sentence names the weight |
-| block by count | two or more independent weight-1 writers on one list | counter is the hero, collapsing shared operators is shown |
-| warn | flags exist but no list reaches block | rule sentence says why not, the line stays hairline |
-| warn-only category | category 8 (THEFT_PROCEEDS) or any category in the policy's warn-only set | verdict would be Block, a cap drops it to Warn with caption "category warns and never blocks a send" |
-| retracted | the flag has a TOMBSTONE | line draws, then a strike runs through it and it fades, verdict Clean, caption "retracted by the writer, the log keeps both entries" |
-| token context | the subject is the token contract (fakeUSDC) | subject pill shows the token symbol and "the contract itself", context label `token` |
-| spender context | approve rows | context label `spender`, caption "an approval is a recipient of your allowance" |
-| swap recipient | swap rows | a second pill, the router, with the caption "the decoder reads through the swap to the recipient" |
-| unverifiable | the poison RPC toggle is on and the row is drainer-receiver-1 | before any list draws, a sequence strip `1 2 3 4 …` appears under `tocsin.eth`; the fold replays, sequence 1 is missing, the strip breaks, caption "chain mismatch at sequence 1: unverifiable, never clean", verdict Unverifiable in amber, no flags are drawn because the wallet refuses to trust the data |
+| clean | no flags | lists rise, no lines, no ripple, Send button in paper |
+| block by weight | a flagging writer at 255 in a blocking list | heavier line |
+| block by count | two independent weight-1 writers on one list | the counter is the beat |
+| warn | flags but no list reaches block | rule says why not |
+| warn-only category | THEFT_PROCEEDS | the cap is said out loud |
+| retracted | a TOMBSTONE on the flag | line draws, then dashes out, the caption is struck through and gains "then retracted it", verdict Clean |
+| token context | subject is the token contract (fakeUSDC) | context label `token`, subject reads "fakeUSDC, the contract itself", `snap only` tag on the chip |
+| spender context | approve rows | context label `spender` |
+| swap recipient | swap rows | a second, dark pill for the router above the subject, with "the decoder reads through the swap to its recipient" |
+| unverifiable | the lying-RPC scenario | before any flag draws, a sequence strip `? 2 3 4 5 6 7 8` appears under core.tocsin.eth with `1` missing in red; the core writer's line says sequence 1 is missing and the replayed head does not match; verdict Unverifiable; no flags are drawn because the wallet refuses the data; the final frame carries the poison RPC with a copy button and "paste into the Snap RPC setting first" |
 
-The poison RPC toggle on the stage is a preview, not a switch. It changes the explainer and the prediction. A line under it says "the wallet only uses the poison RPC if you pasted it into the Snap or Kohaku setting", with the two copy boxes from the current spec next to it.
+The lying RPC is its own chip ("Drainer receiver, lying RPC", tagged beat 2), not a toggle. A toggle would change the stage while the wallet keeps using whatever RPC is pasted, which is a lie on stage. The chip's final frame holds the copy box so the presenter pastes before pressing Send.
 
-## Policy preview
-
-Two chips above the prediction card: threshold `2 writers` / `1 writer`, and `warn-only categories on / off`. They re-run the explainer with that policy and change the predicted verdict. They do not change the wallet. The caption under them says so: "set it in the Snap policy to make the wallet agree". This is how the lanterndao-only row goes from Warn to Blocked on stage before the presenter flips the Snap.
+There are no policy preview chips, for the same reason. The scamsniffer-only explainer says what threshold 1 would do; the presenter flips the Snap.
 
 ## Layout
 
-Desktop only, 1440 and 1920 wide, since the demo runs on a laptop projected. Below 1200 the rail collapses into a dropdown and the stage stacks above the card; it only has to not break.
+Desktop, 1440 and 1920 wide. Below 1200 the chips wrap further and the stage stacks the lists above the subject; it only has to not break.
 
-```
-+--------------------------------------------------------------------------------+
-| tocsin  Demo · Sepolia                                         [connect] [snap] |
-+---------------+-------------------------------------------+--------------------+
-| SEND ETH      |                                           |                    |
-|  clean        |                                           |   (kept empty:     |
-|  poisoning op |                 STAGE                     |    MetaMask lands  |
-|> drainer recv |                                           |    here)           |
-|  ...          |     lists        subject       verdict    |                    |
-| SEND TOKEN    |                                           +--------------------+
-|  ...          |                                           | PREDICTION         |
-| APPROVE       |                                           | wallet should say  |
-|  ...          |                                           | Blocked            |
-| SWAP          |  [poison rpc preview]  [threshold] [warn] | [ Send ]  [replay] |
-+---------------+-------------------------------------------+--------------------+
-```
+- Header: wordmark, `demo · sepolia` label, the connect button showing account and host ("MetaMask + Tocsin Snap" or "Kohaku"), Install Snap. Debug Contracts and Block Explorer go into an overflow menu.
+- Chip strip: groups as mono labels (Send ETH, Send token, Approve, Swap), chips wrap, the selected chip is paper on ink. A chip carries a small mono tag when it needs one: `beat 2`, `snap only`.
+- Stage: `ink-800` panel, hairline border, three columns 30 / 1fr / 27 with a 56px gap so the wires have room. Lists left, subject and verdict middle, landing zone right.
+- Landing zone: dashed `ink-600` outline, label centred, visible only on the final frame. Keep it at least 420 wide by 520 tall so the MetaMask popup sits over it and over nothing else.
+- Send button is the only amber element on the page, and only when the verdict is Warn or Blocked. Clean takes paper. Unverifiable takes paper too, because the verdict word already took the amber.
+- Rows Kohaku cannot catch carry the `snap only` tag; when the connected host is Kohaku their Send is disabled with the reason under it.
+- Presenter mode on `P`: hides the header, scales stage type 1.25.
 
-Rail: 280px, groups as mono labels, rows as plain text, the selected row has a 2px paper left bar. Rows Kohaku cannot catch yet carry a small `snap only` mono tag; when the connected wallet is Kohaku their Send is disabled with the reason beside it.
+## Visual rules (from `design/DIRECTION.md`)
 
-Stage: `ink-800` panel with the hairline border, the dot field visible in the gutters around it. Schematic language from `design/kit/scenes.css`: 1.5px `ink-600` connectors, mono pills on `ink-800`, one solid `paper-100` hero node (the subject).
-
-Prediction card: 360px wide, bottom right, at least 420px of clear space above it. The Send button is the only amber element on the page. When the scenario is clean the button is paper, not amber, so amber keeps meaning "the strike".
-
-Header: wordmark, "Demo · Sepolia", the existing RainbowKit connect button restyled with the kit, and Install Snap. Debug Contracts and Block Explorer move into a small overflow menu; they are not part of the show.
-
-Presenter mode: `P` hides the header and the rail labels' secondary text, enlarges stage type by 1.25, and keeps the rail. `Esc` leaves it. Arrow keys move the selection, `Enter` sends, `R` replays.
-
-## Visual rules (from `design/DIRECTION.md`, applied here)
-
-- Palette is the token set in `design/kit/tokens.css`. No DaisyUI classes remain in the body. Badges become mono pills.
-- Type is Inter for everything written, JetBrains Mono for addresses, labels, sequence numbers and the caption that reads like a log line.
-- Amber once per screen: the Send button when the verdict is not clean, otherwise the Unverifiable word. Red only on the verdict word Blocked and the broken sequence strip.
-- Entrances 240ms ease-out with a 12px rise, at most three elements staggered 80ms apart. Scene steps 400ms apart. Verdict 650ms after the rule sentence. Cross-fades 700ms.
-- Lines draw with `stroke-dashoffset`, 400ms each. Nothing bounces, nothing scales from zero, nothing loops except the dot field.
-- `prefers-reduced-motion`: the stage renders the final frame with every caption visible, no ripple.
-- The dot field (`design/kit/ringfield.js`) sits behind the page, masked under text. It strikes exactly once per explainer, at the verdict. Idle ambient strikes stay off on this page so they never compete with the wallet popup.
+- Tokens from `design/kit/tokens.css`. Inter for text, JetBrains Mono for names, addresses, weights, evidence, the sequence strip and the handoff caption. No DaisyUI classes remain in the body.
+- Entrances 240 ms ease-out with a 12 px rise. Lists stagger 120 ms. Lines draw with `stroke-dashoffset` over 400 ms. Writers 480 ms apart. Rule 650 ms before the verdict. Cross-fade 700 ms.
+- Nothing bounces, nothing scales from zero. The only loop on the page is the background dot field, which does not strike ambiently here; it strikes once, at the verdict.
+- `prefers-reduced-motion`: final frame with every caption visible, no ripple.
+- Red is `alert` and appears on the verdict word and the missing sequence only. Clean is paper, never green.
 
 ## Data
 
-The scenario table in `dapp/packages/nextjs/utils/demo/scenarios.ts` stays the source. Two additions, both constants, both covered by the existing tsv test:
+The scenario table in `dapp/packages/nextjs/utils/demo/scenarios.ts` stays the source. Additions, all constants, all covered by the tsv test:
 
 ```ts
-export type Flag = { list: TrustList; writer: "manual" | "detector" | "harborwatch" | "lanterndao"; weight: 1 | 255; category: string; evidence: Hex; tombstoned?: boolean };
+export type Writer = { id: string; label: string; weight: 1 | 255 };
+export type List = { name: `${string}.tocsin.eth`; role: string; blocking: boolean; writers: Writer[] };
+export type Flag = { writer: Writer["id"]; evidence: Hex; tombstoned?: boolean };
 // per scenario
-flags: Flag[];               // every FLAG leaf on the subject that a followed list can see
 context: "recipient" | "spender" | "token";
+flags: Flag[];
+poison?: true;
+via?: { label: string; address: Address };   // swap rows: the router
 ```
 
-A `LISTS` constant describes the three lists as the wallet follows them: name, writers with weights and operator, blocking flag. Writers and weights come from the two list documents already in the repo (`docs/plan/demo/seed/*.list.json` and the infra curators manifest); evidence hashes come from the curators manifest.
+`LISTS` is built from the two list documents in `docs/plan/demo/seed/` plus the two to come from ticket 10, and evidence hashes from the curators manifest.
 
-`explain(scenario, policy, poison): Scene` is a pure function in `utils/demo/explain.ts` that returns the scene shape, the ordered steps, the rule sentence and the predicted verdict. It mirrors the reader's rules (independent writers, operator collapse, weight 255, warn-only cap, tombstone, OR across lists) but it is presentation code and must say so in a comment. The one test that matters: for every scenario, `explain(...).verdict === scenario.expected` under the default policy. That ties the drawing to the table, and the table to the chain.
+`explain(scenario, policy): Scene` in `utils/demo/explain.ts` is a pure function returning the per-list outcome, the independent-writer count, the rule sentence and the verdict. It mirrors the reader's rules (independent writers, operator collapse, weight 255, warn-only cap, tombstone, OR across lists) and says in a comment that it is presentation code. The test that matters: for every scenario, `explain(s).verdict === s.expected` under the default policy. That ties the drawing to the table, and the table to the chain.
 
 ## Wallet handoff
 
-The Send path is unchanged: `buildTx` then wagmi `sendTransaction` to the connected wallet. Two additions. The card reads the connector name and says "MetaMask with the Tocsin Snap" or "Kohaku" so the presenter knows which host will answer. When the request is rejected (4001) the card says "you rejected it in the wallet", when it fails for any other reason the plain error sits under the button, as the current page already does.
+Unchanged path: `buildTx` then wagmi `sendTransaction`. The stage's Send button is that call. Rejection (4001) and other errors print in plain words under the button, as the current page does. The header reads the connector name so the presenter knows which host will answer.
 
 ## Tickets
 
-Each one is a day or less for one agent, in order.
-
-- 06 Kit port. `tokens.css` and `fonts.css` into the Next.js package, the dot field mounted behind the page, DaisyUI removed from the body, header and rail laid out as above with the existing scenarios rendering as plain rows. Prediction card with the current verdict text and the Send button. Nothing animates yet. Acceptance: screenshot at 1440 matches the layout block; no `badge-*` classes; connect, Install Snap and Send still work on Sepolia.
-- 07 Stage engine and the four base shapes. `explain.ts` with the test above. The stage plays clean, block by weight, block by count and warn with steps 1 to 9 from "What the audience sees". Replay and interruption. Reduced motion. Acceptance: every Send ETH row plays under eight seconds; the explain test passes.
-- 08 Variants. Warn-only category, retracted, token context, spender context, swap recipient, and the poison RPC preview with the sequence strip. Policy preview chips. Acceptance: each variant has a scenario that reaches it, the predicted verdict flips as described for lanterndao-only and poisoning-funder rows.
-- 09 Handoff and presenter mode. Host name on the card, Kohaku disabling of snap-only rows, keyboard controls, presenter mode, the strike at the verdict and the arrow to the top right. Acceptance: rehearsal from the runbook's three beats with no mouse except the Send clicks.
+- 06 Kit port and the stage skeleton. Tokens and fonts into the Next.js package, DaisyUI out of the body, header, chip strip from the scenario table, stage with the three columns, the lists rendered from `LISTS`, the subject from the scenario, the landing zone, the Send button wired to `buildTx`. No motion yet: the final frame renders at once. Acceptance: a 1440 screenshot matches `design/screens/demo-page-final.png` in structure; connect, Install Snap and Send work on Sepolia.
+- 07 The explainer. `explain.ts` with its test. The timed sequence from "What the audience sees" for clean, warn, block by weight and block by count, with the wires, the writer captions, the counter, the ripple, skip on click, replay, arrow keys, reduced motion. Acceptance: every Send ETH row plays under five seconds and ends on the same frame ticket 06 renders.
+- 08 The variants. Warn-only, retracted, token, spender, swap recipient, and the lying-RPC scene with the sequence strip and the copy box. Acceptance: each has a chip and plays; the explain test covers all of them.
+- 09 Handoff polish. Host-aware Send (Kohaku disables snap-only rows), presenter mode, the strike into the background field at the verdict, the arrow into the landing zone. Acceptance: the runbook's three beats run from the keyboard with the mouse used only for Send and the wallet.
+- 10 Seed the two claimed names. Append flags from the blockaid and scamsniffer keys for the subjects the scenario table expects of them (drainer-receiver-1 at least from both, the scamsniffer-only operator, the shared poisoning operator), publish `tocsin.list` on `blockaid.tocsin.eth` and `scamsniffer.tocsin.eth` signed by their own keys through `setup-all.mjs`'s `publishList`, and point the reader's followed lists at the three `.tocsin.eth` names. Acceptance: the tsv test passes against the new leaves; the Snap blocks drainer-receiver-1 with three lists named.
 
 ## Out of scope
 
-- Any live read of the log, the lists or ENS on the page. The stage draws the constants.
+- Any live read of the log, the lists or ENS on the page.
 - Changing the reader's policy or the Snap from the page.
 - Mobile layout beyond not breaking.
-- New scenarios or seeding. Those belong to tickets 02 and 05 on feat/demo.
-- Sound. The bell is a visual.
-- Explaining the light client or the fold beyond the one unverifiable scene. The landing page and the deck carry that.
+- Sound.
+- Explaining the light client beyond the one unverifiable scene. The landing page and the deck carry that.
 
 ## Notes for whoever builds it
 
-- `design/kit/scenes.js` already draws writers appending, a wallet replaying a head, and a lying RPC caught. Lift its pill, connector and typewriter helpers rather than writing new ones; the unverifiable scene is its third loop cut down.
-- The teammate's evaluate code in `dapp/packages/reader/src/evaluate.ts` is the reference for the rule sentences. Read `CONTEXT_CATEGORIES`, `trusts`, and the threshold handling before writing `explain.ts`, and keep the two in step by hand; they are not shared code on purpose, because the page must never be the thing that decides.
-- Red is the alert token `#e5484d`. Do not introduce a green for Clean. Clean is paper.
-- Keep the top-right 420 by 640 region free of anything the audience needs to read after Send is clicked.
+- Lift the pill, connector and stagger patterns from `design/kit/scenes.js` and `scenes.css`; the mock in `demo-page.html` already has a working `wire()` that anchors at the list card's right edge and curves to the subject's centre.
+- `dapp/packages/reader/src/evaluate.ts` is the reference for the rule sentences. Keep `explain.ts` in step with it by hand; they are not shared code on purpose, because the page must never be the thing that decides.
+- Keep the top-right 420 by 520 region free of anything the audience needs to read after Send is clicked.
