@@ -6,206 +6,237 @@
 <title>Tocsin demo page: mock</title>
 <link rel="stylesheet" href="tokens.css">
 <style>
-/* One stage. A strip of scenario chips on top, the explainer below, the wallet lands in the empty right third.
-   Mock of docs/plan/demo-page/explainer-spec.md. Static data; nothing here talks to a chain. */
-body { min-height: 100vh; background:
+/* Mock of docs/plan/demo-page/explainer-spec.md. Cards, then one card lifts to the top and the stage plays under it.
+   Static data; nothing here talks to a chain. */
+:root { --c-core: #ece7dc; --c-blockaid: #6bb3e0; --c-sniffer: #5fb8b0; }
+body { min-height: 100vh; overflow-x: hidden; background:
   radial-gradient(circle at 1px 1px, var(--ink-700) 1px, transparent 1.5px) 0 0 / var(--grid) var(--grid), var(--ink-900); }
 .top { display: flex; align-items: center; justify-content: space-between; padding: 20px 32px; }
-.top .brand { display: flex; align-items: baseline; gap: 14px; }
+.top .brand { display: flex; align-items: center; gap: 10px; }
+.top .bell { font-size: 20px; line-height: 1; }
 .top .wordmark { font-size: 22px; }
-.top .label { margin-left: 4px; }
+.top .label { margin-left: 8px; }
 .top .acts { display: flex; gap: 10px; }
+
+/* pills shared by cards and stage */
+.p { display: inline-flex; align-items: center; gap: 6px; font: 500 11px/1 var(--mono); letter-spacing: .04em; text-transform: uppercase; color: var(--paper-200); border: var(--hair-strong); border-radius: 999px; padding: 6px 9px 6px 7px; white-space: nowrap; }
+.p i { font-style: normal; font-size: 12px; line-height: 1; width: 14px; text-align: center; }
+.p.act { background: var(--ink-900); color: var(--paper-100); }
+.p.list::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--c); box-shadow: 0 0 0 2px color-mix(in srgb, var(--c) 25%, transparent); }
+.p.cat { border-style: dashed; color: var(--ink-400); }
+.p.cat.hot { border-color: var(--alert); color: var(--alert); border-style: solid; }
+.p.tomb { text-decoration: line-through; color: var(--ink-400); }
+.p.none { color: var(--ink-400); border-style: dashed; }
+.pills { display: flex; flex-wrap: wrap; gap: 6px; }
+
+/* grid */
 .tabs { display: flex; gap: 28px; padding: 10px 32px 0; }
 .tab { font: 500 12px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-400); background: none; border: 0; border-bottom: 1px solid var(--ink-600); padding: 0 0 8px; cursor: pointer; }
-.tab:hover { color: var(--paper-200); }
 .tab.on { color: var(--paper-100); border-bottom: 2px solid var(--paper-100); }
 .cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; padding: 18px 32px 24px; }
-.card { text-align: left; background: var(--ink-800); border: var(--hair); border-radius: var(--r); padding: 16px 18px; cursor: pointer; display: flex; flex-direction: column; gap: 8px; min-height: 132px; transition: border-color 150ms, transform var(--enter) var(--ease-out); color: var(--paper-100); font-family: var(--body); }
+.card { text-align: left; background: var(--ink-800); border: var(--hair); border-radius: var(--r); padding: 16px 18px; cursor: pointer; display: flex; flex-direction: column; gap: 10px; min-height: 150px; color: var(--paper-100); font-family: var(--body); transition: border-color 150ms; }
 .card:hover { border-color: var(--ink-600); }
-.card.on { border-color: var(--paper-100); }
-.card .t { font-size: 16px; font-weight: 600; line-height: 1.25; display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
-.card .tag { font: 500 10px/1 var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--ink-400); white-space: nowrap; }
+.card .t { font-size: 17px; font-weight: 600; line-height: 1.25; display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
+.card .tag { font: 500 10px/1 var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--signal); white-space: nowrap; }
 .card .d { font-size: 14px; line-height: 1.45; color: var(--paper-200); }
-.card .m { margin-top: auto; font: 400 12px/1.4 var(--mono); color: var(--ink-400); }
-.card .m b { color: var(--paper-200); font-weight: 500; }
-.stage.empty > * { display: none; }
-.stage.empty::after { content: 'pick a scenario above'; position: absolute; inset: 0; display: grid; place-items: center; font: 500 12px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-400); }
+.card .pills { margin-top: auto; }
+#grid.off { display: none; }
 
-.stage { position: relative; margin: 0 32px 32px; min-height: 620px; background: var(--ink-800); border: var(--hair); border-radius: var(--r);
-  display: grid; grid-template-columns: 30% 1fr 27%; padding: 36px 40px; gap: 56px; overflow: hidden; }
+/* focus: the chosen card lifts to the top, the rest go */
+#focus { display: none; padding: 0 32px 16px; }
+#focus.on { display: grid; grid-template-columns: 1fr minmax(420px, 640px) 1fr; align-items: start; gap: 24px; }
+#focus .card { cursor: default; min-height: 0; }
+#focus .card:hover { border-color: var(--ink-700); }
+#focus .back { justify-self: start; }
+#focus .nav { justify-self: end; display: flex; gap: 8px; }
+.card.flying { position: fixed; z-index: 5; margin: 0; transition: transform 420ms var(--ease-out), width 420ms var(--ease-out), height 420ms var(--ease-out); }
+
+/* stage */
+.stage { position: relative; margin: 0 32px 32px; min-height: 560px; background: var(--ink-800); border: var(--hair); border-radius: var(--r); display: grid; grid-template-columns: 28% 1fr 26%; padding: 32px 40px; gap: 56px; overflow: hidden; }
+.stage.empty { display: none; }
 .stage svg.wires { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2; }
-.stage .wire { fill: none; stroke: var(--ink-600); stroke-width: 1.5; stroke-dasharray: 900; stroke-dashoffset: 900; transition: stroke-dashoffset 400ms var(--ease-out); }
-.stage .wire.heavy { stroke: var(--paper-200); stroke-width: 2.5; }
-.stage .wire.drawn { stroke-dashoffset: 0; }
-.stage .wire.struck { stroke: var(--ink-700); stroke-dasharray: 6 6; }
-.col { position: relative; display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+.wire { fill: none; stroke: var(--ink-600); stroke-width: 1.5; stroke-dasharray: 900; stroke-dashoffset: 900; transition: stroke-dashoffset 400ms var(--ease-out); }
+.wire.heavy { stroke: var(--paper-200); stroke-width: 2.5; }
+.wire.drawn { stroke-dashoffset: 0; }
+.wire.struck { stroke: var(--ink-700); stroke-dasharray: 6 6; }
+.mote { fill: var(--paper-200); } .mote.bad { fill: var(--alert); }
+.col { position: relative; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
 .in { opacity: 0; transform: translateY(var(--enter-rise)); transition: opacity var(--enter) var(--ease-out), transform var(--enter) var(--ease-out); }
 .in.on { opacity: 1; transform: none; }
+.ctx { font: 500 11px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-400); }
 
-/* the lists the wallet follows */
-.list { border: var(--hair); border-radius: var(--r); padding: 12px 14px; background: var(--ink-900); }
-.list .name { font: 500 14px/1.2 var(--mono); color: var(--paper-100); }
-.list .role { font-size: 13px; color: var(--ink-400); margin-top: 3px; }
+.lcard { border: var(--hair); border-left: 3px solid var(--c); border-radius: var(--r); padding: 12px 14px; background: var(--ink-900); }
+.lcard .name { font: 500 14px/1.2 var(--mono); color: var(--paper-100); display: flex; justify-content: space-between; gap: 8px; }
+.lcard .name small { font-family: var(--body); font-weight: 400; color: var(--ink-400); font-size: 12px; }
 .writers { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
-.writer { display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: start; }
+.writer { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .pill { font: 500 12px/1 var(--mono); color: var(--paper-200); border: var(--hair-strong); border-radius: var(--r); padding: 7px 9px; white-space: nowrap; background: var(--ink-800); }
 .pill .w { color: var(--ink-400); margin-left: 6px; }
-.says { font-size: 14px; line-height: 1.4; color: var(--paper-200); opacity: 0; transition: opacity var(--enter) var(--ease-out); padding-top: 4px; }
+.says { opacity: 0; transition: opacity var(--enter) var(--ease-out); }
 .says.on { opacity: 1; }
-.says b { color: var(--paper-100); font-weight: 500; }
-.says .mono { font-family: var(--mono); font-size: 12px; color: var(--ink-400); }
-.says.struck { text-decoration: line-through; color: var(--ink-400); }
-.seq { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
-.seq span { font: 500 12px/1 var(--mono); color: var(--paper-200); border: var(--hair-strong); border-radius: var(--r); padding: 6px 8px; }
+.seq { display: flex; gap: 5px; margin-top: 10px; flex-wrap: wrap; }
+.seq span { font: 500 12px/1 var(--mono); color: var(--paper-200); border: var(--hair-strong); border-radius: var(--r); padding: 6px 7px; }
 .seq span.gap { color: var(--alert); border-color: var(--alert); }
 
-/* the subject and the verdict */
-.mid { justify-content: flex-start; align-items: flex-start; padding-top: 6px; }
-.ctx { font: 500 11px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-400); }
-.subject { background: var(--paper-100); color: var(--ink-900); border-radius: var(--r); padding: 16px 18px; width: 100%; box-sizing: border-box; }
+.mid { gap: 16px; }
+.subject { background: var(--paper-100); color: var(--ink-900); border-radius: var(--r); padding: 16px 18px; width: 100%; box-sizing: border-box; transition: box-shadow var(--state); }
 .subject .lab { font: 700 22px/1.1 var(--display); letter-spacing: -0.02em; }
 .subject .addr { font: 400 12px/1.4 var(--mono); color: var(--ink-600); margin-top: 6px; word-break: break-all; }
-.subject .cat { display: inline-block; margin-top: 10px; font: 500 11px/1 var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--paper-100); background: var(--ink-900); padding: 6px 8px; border-radius: var(--r); }
+.subject .pills { margin-top: 10px; }
+.subject .p { border-color: var(--ink-600); color: var(--ink-900); }
 .subject.second { background: var(--ink-900); color: var(--paper-100); border: var(--hair-strong); }
-.subject.second .lab { font-size: 16px; } .subject.second .addr { color: var(--ink-400); }
-.count { font: 400 15px/1.4 var(--body); color: var(--paper-200); }
-.count b { font-family: var(--mono); color: var(--paper-100); font-weight: 500; }
-.rule { font-size: 18px; line-height: 1.4; color: var(--paper-100); }
-.verdict { position: relative; font: 700 64px/1 var(--display); letter-spacing: -0.03em; color: var(--paper-100); margin-top: 6px; }
+.subject.second .lab { font-size: 15px; } .subject.second .addr { color: var(--ink-400); }
+.subject.bad { box-shadow: 0 0 0 2px var(--alert); }
+.count { display: flex; gap: 10px; align-items: center; font: 500 13px/1 var(--mono); color: var(--paper-200); }
+.count b { font-size: 28px; color: var(--paper-100); font-weight: 700; font-family: var(--display); letter-spacing: -0.02em; }
+.count .sep { color: var(--ink-600); }
+.rule { font-size: 17px; line-height: 1.4; color: var(--paper-100); }
+.verdict { position: relative; font: 700 64px/1 var(--display); letter-spacing: -0.03em; color: var(--paper-100); }
 .verdict.warn { text-decoration: underline; text-decoration-color: var(--signal); text-decoration-thickness: 4px; text-underline-offset: 8px; }
 .verdict.block { color: var(--alert); }
-.verdict.unverifiable { color: var(--signal); font-size: 52px; }
+.verdict.unverifiable { color: var(--signal); font-size: 50px; }
 .ring { position: absolute; left: 0; top: 50%; width: 10px; height: 10px; border-radius: 50%; border: 1.5px solid var(--paper-200); transform: translate(-50%, -50%); opacity: 0; pointer-events: none; }
 .ring.go { animation: ring 1.6s var(--ease-out) forwards; }
-.verdict.block .ring { border-color: var(--alert); }
-.verdict.unverifiable .ring { border-color: var(--signal); }
+.verdict.block .ring { border-color: var(--alert); } .verdict.unverifiable .ring { border-color: var(--signal); }
 @keyframes ring { 0% { opacity: .9; width: 10px; height: 10px; } 100% { opacity: 0; width: 900px; height: 900px; } }
-.foot { font: 400 12px/1.5 var(--mono); color: var(--ink-400); margin-top: 4px; }
-.foot a { color: var(--paper-200); border-bottom: 1px solid var(--ink-600); }
-.actions { display: flex; gap: 10px; align-items: center; margin-top: 8px; flex-wrap: wrap; }
+.foot { font: 400 11px/1.5 var(--mono); color: var(--ink-400); }
+.actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 .copy { display: flex; gap: 8px; align-items: center; font: 400 12px/1 var(--mono); color: var(--paper-200); border: var(--hair); border-radius: var(--r); padding: 8px 10px; }
 .copy small { color: var(--ink-400); font-family: var(--body); }
 
-/* the right third: the proof, drawn as a flow */
-.proof { display: flex; flex-direction: column; gap: 0; padding-top: 6px; }
-.proof .ctx { margin-bottom: 12px; }
-.node { border: var(--hair-strong); border-radius: var(--r); padding: 10px 12px; background: var(--ink-900); }
-.node .k { font: 500 11px/1 var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--ink-400); }
-.node .v { font: 500 13px/1.4 var(--mono); color: var(--paper-100); margin-top: 4px; word-break: break-all; }
-.node .s { font-size: 12px; color: var(--paper-200); margin-top: 3px; }
-.node.hero { background: var(--paper-100); border-color: var(--paper-100); }
-.node.hero .k { color: var(--ink-600); } .node.hero .v { color: var(--ink-900); } .node.hero .s { color: var(--ink-600); }
+/* the proof flow */
+.proof .ctx { margin-bottom: 4px; }
+.node { border: var(--hair-strong); border-radius: var(--r); padding: 10px 12px; background: var(--ink-900); display: flex; gap: 10px; align-items: center; }
+.node .ic { font-size: 16px; width: 20px; text-align: center; }
+.node .k { font: 500 10px/1 var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--ink-400); }
+.node .v { font: 500 13px/1.3 var(--mono); color: var(--paper-100); margin-top: 4px; word-break: break-all; }
+.node.hero { background: var(--paper-100); border-color: var(--paper-100); } .node.hero .k { color: var(--ink-600); } .node.hero .v { color: var(--ink-900); }
 .node.bad { border-color: var(--alert); } .node.bad .v { color: var(--alert); }
-.link { position: relative; height: 34px; margin-left: 22px; width: 1.5px; background: var(--ink-600); }
+.link { position: relative; height: 26px; margin-left: 22px; width: 1.5px; background: var(--ink-600); }
 .link .dot { position: absolute; left: -3px; top: -4px; width: 7.5px; height: 7.5px; border-radius: 50%; background: var(--paper-200); opacity: 0; }
 .link.on .dot { animation: drop 1.4s linear infinite; }
 .link.bad { background: var(--alert); } .link.bad .dot { background: var(--alert); }
 .link.stop .dot { animation: drop-stop 1.4s var(--ease-out) infinite; }
-@keyframes drop { 0% { transform: translateY(0); opacity: 0; } 15% { opacity: 1; } 85% { opacity: 1; } 100% { transform: translateY(30px); opacity: 0; } }
-@keyframes drop-stop { 0% { transform: translateY(0); opacity: 0; } 20% { opacity: 1; } 60% { transform: translateY(16px); opacity: 1; } 100% { transform: translateY(16px); opacity: 0; } }
-.compare { display: flex; align-items: center; gap: 10px; margin-top: 12px; font: 500 13px/1.3 var(--mono); color: var(--paper-100); }
-.compare .mark { width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid var(--paper-200); display: grid; place-items: center; font-size: 12px; }
+@keyframes drop { 0% { transform: translateY(0); opacity: 0; } 15% { opacity: 1; } 85% { opacity: 1; } 100% { transform: translateY(22px); opacity: 0; } }
+@keyframes drop-stop { 0% { transform: translateY(0); opacity: 0; } 20% { opacity: 1; } 60% { transform: translateY(12px); opacity: 1; } 100% { transform: translateY(12px); opacity: 0; } }
+.compare { display: flex; align-items: center; gap: 10px; margin-top: 10px; font: 500 13px/1.3 var(--mono); color: var(--paper-100); }
+.compare .mark { width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid var(--paper-200); display: grid; place-items: center; font-size: 12px; flex: none; }
 .compare.bad { color: var(--alert); } .compare.bad .mark { border-color: var(--alert); }
-/* dots on the wires */
-.stage .mote { fill: var(--paper-200); }
-.stage .mote.bad { fill: var(--alert); }
-.subject.bad { box-shadow: 0 0 0 2px var(--alert); }
-.hint { position: absolute; right: 40px; bottom: 14px; font: 400 11px/1 var(--mono); color: var(--ink-400); letter-spacing: .04em; }
-@media (prefers-reduced-motion: reduce) { .in, .says, .wire, .land { transition: none; } .ring.go { animation: none; } }
+.hint { position: absolute; right: 40px; bottom: 12px; font: 400 11px/1 var(--mono); color: var(--ink-400); letter-spacing: .04em; }
+@media (prefers-reduced-motion: reduce) { .in, .says, .wire, .card.flying { transition: none; } .ring.go, .link .dot { animation: none; } }
 </style>
 </head>
 <body>
 <header class="top">
-  <div class="brand"><span class="wordmark">tocsin</span><span class="label">demo · sepolia</span></div>
-  <div class="acts"><button class="btn" id="host">0xE0DF…3cca · MetaMask + Tocsin Snap</button><button class="btn">Install Snap</button></div>
+  <div class="brand"><span class="bell" role="img" aria-label="bell">🔔</span><span class="wordmark">tocsin</span><span class="label">demo · sepolia</span></div>
+  <div class="acts"><button class="btn">0xE0DF…3cca · MetaMask + Tocsin Snap</button><button class="btn">Install Snap</button></div>
 </header>
-<nav class="tabs" id="tabs" aria-label="categories"></nav>
-<section class="cards" id="cards" aria-label="scenarios"></section>
+<div id="grid">
+  <nav class="tabs" id="tabs" aria-label="categories"></nav>
+  <section class="cards" id="cards" aria-label="scenarios"></section>
+</div>
+<section id="focus">
+  <button class="btn back" id="back">← all scenarios</button>
+  <div id="slot"></div>
+  <div class="nav"><button class="btn" id="prev">↑ prev</button><button class="btn" id="next">next ↓</button></div>
+</section>
 <main class="stage empty" id="stage" aria-live="polite">
   <svg class="wires" id="wires"></svg>
   <section class="col" id="lists"></section>
   <section class="col mid" id="mid"></section>
   <section class="col proof" id="proof"></section>
-  <span class="hint">← → scenario · R replay · click stage to skip</span>
+  <span class="hint">↑ ↓ scenario · R replay · click stage to skip · Esc back</span>
 </main>
 <script>
-// ---- data: in the real page this is utils/demo/scenarios.ts plus a LISTS constant, pinned to the tsv by a test
+// ---- data: in the real page this is utils/demo/scenarios.ts plus LISTS, pinned to the tsv by a test
 const LISTS = [
-  { name: 'core.tocsin.eth', role: 'us: the core writer and the detector agent, one operator', blocking: true, writers: [
-    { id: 'manual', label: 'core', w: 255 }, { id: 'detector', label: 'detector', w: 1 } ] },
-  { name: 'blockaid.tocsin.eth', role: 'a security vendor, claimed by the owner of blockaid.eth', blocking: true, writers: [ { id: 'harbor', label: 'blockaid', w: 255 } ] },
-  { name: 'scamsniffer.tocsin.eth', role: 'phishing researchers, claimed by the owner of scamsniffer.eth', blocking: true, writers: [ { id: 'lantern', label: 'scamsniffer', w: 1 } ] },
+  { name: 'core.tocsin.eth', short: 'core', role: 'us', c: 'var(--c-core)', writers: [ { id: 'manual', label: 'core', w: 255 }, { id: 'detector', label: 'detector', w: 1 } ] },
+  { name: 'blockaid.tocsin.eth', short: 'blockaid', role: 'security vendor', c: 'var(--c-blockaid)', writers: [ { id: 'harbor', label: 'blockaid', w: 255 } ] },
+  { name: 'scamsniffer.tocsin.eth', short: 'scamsniffer', role: 'phishing researchers', c: 'var(--c-sniffer)', writers: [ { id: 'lantern', label: 'scamsniffer', w: 1 } ] },
 ];
+const ACT = { 'Send ETH': ['→', 'send eth'], 'Send token': ['◇', 'send token'], 'Approve': ['✓', 'approve'], 'Swap': ['⇄', 'swap'] };
+const CATI = { DRAINER_RECEIVER: '⤓', DRAINER_SPENDER: '⤓', POISONING_OPERATOR: '≈', THEFT_PROCEEDS: '$', PAID_LOOKALIKE: '≠', FAKE_TOKEN: '◇' };
 const WARN_ONLY = new Set(['THEFT_PROCEEDS']);
 const S = [
-  { id: 'clean', desc: "A normal transfer to an address nobody has flagged. The wallet lets it through.", group: 'Send ETH', title: 'Clean send', ctx: 'recipient', subject: { label: 'demo account', addr: '0xE0DFbd2B761929D02b30f2173C3386f0ec4B3cca' }, cat: null, flags: [] },
-  { id: 'op', desc: "Sends dust from a lookalike address so you copy it later. Two lists each have one writer on it.", group: 'Send ETH', title: 'Poisoning operator', ctx: 'recipient', subject: { label: 'poisoning-operator-1', addr: '0x5126633bCFdb9E4A2FE7AB445394AE0a217f9120' }, cat: 'POISONING_OPERATOR',
-    flags: [ { writer: 'detector', ev: '0x3725c75c…5af9dce' }, { writer: 'lantern', ev: '0xa84cc88a…0becb16' } ] },
-  { id: 'drainer', desc: "The address a drainer kit sweeps victims’ funds into. Three lists name it, two at full weight.", group: 'Send ETH', title: 'Drainer receiver', ctx: 'recipient', subject: { label: 'drainer-receiver-1', addr: '0x79fDaE13B1A677E5b8Ac9f5411F6664788A17537' }, cat: 'DRAINER_RECEIVER',
-    flags: [ { writer: 'manual', ev: '0x0b1c…a91f' }, { writer: 'harbor', ev: '0x3725c75c…5af9dce' }, { writer: 'lantern', ev: '0xa84cc88a…0becb16' } ] },
-  { id: 'poison', desc: "Same send, but the Snap reads through an RPC that hides a flag. Watch the fold not add up.", group: 'Send ETH', title: 'Drainer receiver, lying RPC', tag: 'beat 2', ctx: 'recipient', poison: true, subject: { label: 'drainer-receiver-1', addr: '0x79fDaE13B1A677E5b8Ac9f5411F6664788A17537' }, cat: 'DRAINER_RECEIVER',
-    flags: [ { writer: 'manual', ev: '0x0b1c…a91f' }, { writer: 'harbor', ev: '0x3725c75c…5af9dce' }, { writer: 'lantern', ev: '0xa84cc88a…0becb16' } ] },
-  { id: 'lantern', desc: "Flagged by one list at weight 1. Warns by default; blocks when the policy is one writer.", group: 'Send ETH', title: 'Scamsniffer-only operator', ctx: 'recipient', subject: { label: 'sniffer-poisoning-operator-1', addr: '0xd59557f9a8f3574f58FDc8ea63E4f9B1F7486B22' }, cat: 'POISONING_OPERATOR',
-    flags: [ { writer: 'lantern', ev: '0xa84cc88a…0becb16' } ], after: 'Set the Snap policy to 1 writer and this blocks.' },
-  { id: 'theft', desc: "Where stolen funds went. Flagged at full weight, but the category warns and never blocks a send.", group: 'Send ETH', title: 'Theft proceeds', ctx: 'recipient', subject: { label: 'theft-proceeds-1', addr: '0x8e1a…c0de' }, cat: 'THEFT_PROCEEDS', flags: [ { writer: 'manual', ev: '0x0b1c…a91f' } ] },
-  { id: 'retracted', desc: "A lookalike the core writer flagged, then retracted with a tombstone. Both entries stay in the log.", group: 'Send ETH', title: 'Retracted lookalike', ctx: 'recipient', subject: { label: 'paid-lookalike-retracted', addr: '0x44aa…9e2b' }, cat: 'PAID_LOOKALIKE', flags: [ { writer: 'manual', ev: '0x0b1c…a91f', tomb: true } ] },
-  { id: 'token', desc: "The token contract itself is flagged, not the recipient. Only the Snap checks the token target today.", group: 'Send token', title: 'fakeUSDC to a clean address', tag: 'snap only', ctx: 'token', subject: { label: 'fakeUSDC, the contract itself', addr: '0x2Ba2B2F4bd18D04C3bA92DB9F73a49d19c87b4B8' }, cat: 'FAKE_TOKEN', flags: [ { writer: 'manual', ev: '0x0b1c…a91f' } ] },
-  { id: 'approve', desc: "An approval to a spender the drainer uses. The spender is the subject, not the token.", group: 'Approve', title: 'realUSDC to a drainer spender', ctx: 'spender', subject: { label: 'drainer-spender-1', addr: '0x7d77cf49d8c1851781C3cEfCdD9Bd9871366782e' }, cat: 'DRAINER_SPENDER', flags: [ { writer: 'manual', ev: '0x0b1c…a91f' }, { writer: 'harbor', ev: '0x3725c75c…5af9dce' } ] },
-  { id: 'swap', desc: "exactInputSingle on SwapRouter02 with a flagged recipient. The decoder reads through the swap.", group: 'Swap', title: 'Swap, recipient drainer', ctx: 'recipient', via: { label: 'SwapRouter02', addr: '0x3bFA4769FB09eefC5a80d6E87c3B9C650f7Ae48E' }, subject: { label: 'drainer-receiver-1', addr: '0x79fDaE13B1A677E5b8Ac9f5411F6664788A17537' }, cat: 'DRAINER_RECEIVER',
-    flags: [ { writer: 'manual', ev: '0x0b1c…a91f' }, { writer: 'harbor', ev: '0x3725c75c…5af9dce' }, { writer: 'lantern', ev: '0xa84cc88a…0becb16' } ] },
+  { id: 'clean', group: 'Send ETH', title: 'Clean send', desc: 'A normal transfer to an address nobody has flagged.', ctx: 'recipient', subject: { label: 'demo account', addr: '0xE0DFbd2B761929D02b30f2173C3386f0ec4B3cca' }, cat: null, flags: [] },
+  { id: 'op', group: 'Send ETH', title: 'Poisoning operator', desc: 'Sends dust from a lookalike address so you copy it later.', ctx: 'recipient', subject: { label: 'poisoning-operator-1', addr: '0x5126633bCFdb9E4A2FE7AB445394AE0a217f9120' }, cat: 'POISONING_OPERATOR', flags: [ { writer: 'detector', ev: '0x3725…9dce' }, { writer: 'lantern', ev: '0xa84c…cb16' } ] },
+  { id: 'drainer', group: 'Send ETH', title: 'Drainer receiver', desc: 'The address a drainer kit sweeps victims’ funds into.', ctx: 'recipient', subject: { label: 'drainer-receiver-1', addr: '0x79fDaE13B1A677E5b8Ac9f5411F6664788A17537' }, cat: 'DRAINER_RECEIVER', flags: [ { writer: 'manual', ev: '0x0b1c…a91f' }, { writer: 'harbor', ev: '0x3725…9dce' }, { writer: 'lantern', ev: '0xa84c…cb16' } ] },
+  { id: 'poison', group: 'Send ETH', title: 'Drainer receiver, lying RPC', tag: 'beat 2', desc: 'Same send, but the RPC hides a flag. Watch the fold not add up.', ctx: 'recipient', poison: true, subject: { label: 'drainer-receiver-1', addr: '0x79fDaE13B1A677E5b8Ac9f5411F6664788A17537' }, cat: 'DRAINER_RECEIVER', flags: [ { writer: 'manual', ev: '0x0b1c…a91f' }, { writer: 'harbor', ev: '0x3725…9dce' }, { writer: 'lantern', ev: '0xa84c…cb16' } ] },
+  { id: 'lantern', group: 'Send ETH', title: 'One list, weight 1', desc: 'Warns by default. Blocks when the policy is one writer.', ctx: 'recipient', subject: { label: 'sniffer-poisoning-operator-1', addr: '0xd59557f9a8f3574f58FDc8ea63E4f9B1F7486B22' }, cat: 'POISONING_OPERATOR', flags: [ { writer: 'lantern', ev: '0xa84c…cb16' } ], after: 'At policy 1 writer this blocks.' },
+  { id: 'theft', group: 'Send ETH', title: 'Theft proceeds', desc: 'Where stolen funds went. This category warns, never blocks.', ctx: 'recipient', subject: { label: 'theft-proceeds-1', addr: '0x8e1a…c0de' }, cat: 'THEFT_PROCEEDS', flags: [ { writer: 'manual', ev: '0x0b1c…a91f' } ] },
+  { id: 'retracted', group: 'Send ETH', title: 'Retracted lookalike', desc: 'Flagged, then retracted with a tombstone. Both entries stay.', ctx: 'recipient', subject: { label: 'paid-lookalike-retracted', addr: '0x44aa…9e2b' }, cat: 'PAID_LOOKALIKE', flags: [ { writer: 'manual', ev: '0x0b1c…a91f', tomb: true } ] },
+  { id: 'token', group: 'Send token', title: 'fakeUSDC to a clean address', tag: 'snap only', desc: 'The token contract itself is the flagged thing.', ctx: 'token', subject: { label: 'fakeUSDC, the contract', addr: '0x2Ba2B2F4bd18D04C3bA92DB9F73a49d19c87b4B8' }, cat: 'FAKE_TOKEN', flags: [ { writer: 'manual', ev: '0x0b1c…a91f' } ] },
+  { id: 'approve', group: 'Approve', title: 'Approve a drainer spender', desc: 'The spender of your allowance is the subject, not the token.', ctx: 'spender', subject: { label: 'drainer-spender-1', addr: '0x7d77cf49d8c1851781C3cEfCdD9Bd9871366782e' }, cat: 'DRAINER_SPENDER', flags: [ { writer: 'manual', ev: '0x0b1c…a91f' }, { writer: 'harbor', ev: '0x3725…9dce' } ] },
+  { id: 'swap', group: 'Swap', title: 'Swap, recipient drainer', desc: 'The decoder reads through SwapRouter02 to the recipient.', ctx: 'recipient', via: { label: 'SwapRouter02', addr: '0x3bFA4769FB09eefC5a80d6E87c3B9C650f7Ae48E' }, subject: { label: 'drainer-receiver-1', addr: '0x79fDaE13B1A677E5b8Ac9f5411F6664788A17537' }, cat: 'DRAINER_RECEIVER', flags: [ { writer: 'manual', ev: '0x0b1c…a91f' }, { writer: 'harbor', ev: '0x3725…9dce' }, { writer: 'lantern', ev: '0xa84c…cb16' } ] },
 ];
-const CTX = { recipient: 'recipient of your send', spender: 'spender of your allowance', token: 'the token contract you are calling' };
+const CTX = { recipient: 'recipient of your send', spender: 'spender of your allowance', token: 'the token contract you call' };
+const listOf = id => LISTS.find(L => L.writers.some(w => w.id === id));
 
-// ---- explain(): presentation copy of the reader's rules. Must agree with the scenario table (tested in the real page).
+// ---- explain(): presentation copy of the reader's rules
 function explain(sc, threshold = 2) {
   const perList = LISTS.map(L => {
     const live = sc.flags.filter(f => !f.tomb && L.writers.some(w => w.id === f.writer));
     const weights = live.map(f => L.writers.find(w => w.id === f.writer).w);
-    const independent = live.length ? 1 : 0; // one list = one operator in this demo
+    const independent = live.length ? 1 : 0;
     let v = 'clean';
     if (weights.includes(255)) v = 'block'; else if (independent >= threshold) v = 'block'; else if (live.length) v = 'warn';
     return { L, live, weights, independent, v };
   });
   const rank = { clean: 0, warn: 1, block: 2 };
   let verdict = perList.reduce((a, p) => rank[p.v] > rank[a] ? p.v : a, 'clean');
+  const flagged = perList.filter(p => p.live.length), heavy = flagged.filter(p => p.weights.includes(255));
   let rule;
-  const flagged = perList.filter(p => p.live.length);
-  if (sc.poison) rule = 'The RPC left out the writer’s first entry. The replayed fold does not reach the head Ethereum proves. Nothing it says can be trusted, so the wallet refuses to call this clean.';
-  else if (!flagged.length && sc.flags.some(f => f.tomb)) rule = 'The writer retracted its own flag with a tombstone. The log keeps both entries; the wallet counts neither.';
-  else if (!flagged.length) rule = 'No list you follow has a flag on this address.';
-  else if (verdict === 'block' && flagged.some(p => p.weights.includes(255))) rule = `${flagged.filter(p => p.weights.includes(255)).map(p => p.L.name).join(' and ')} ${flagged.filter(p => p.weights.includes(255)).length > 1 ? 'carry' : 'carries'} this writer at weight 255. One such writer blocks on its own.`;
-  else if (verdict === 'block') rule = 'Two independent writers on one list reach the threshold. That blocks.';
-  else rule = flagged.length > 1 ? 'Each list has one writer at weight 1. One writer warns. Two lists do not add up to a block.' : `One writer at weight 1 warns. ${sc.after ?? ''}`;
-  if (verdict === 'block' && WARN_ONLY.has(sc.cat)) { verdict = 'warn'; rule = 'A weight-255 writer would block, but this category warns and never blocks a send: the money is already stolen, the wallet only tells you where it is going.'; }
+  if (sc.poison) rule = 'The RPC withheld the writer’s first entry. The replayed head does not match the proven one. Never clean.';
+  else if (!flagged.length && sc.flags.some(f => f.tomb)) rule = 'Retracted by its writer. The log keeps both entries; the wallet counts neither.';
+  else if (!flagged.length) rule = 'No list you follow flags this address.';
+  else if (verdict === 'block' && heavy.length) rule = `${heavy.map(p => p.L.short).join(' and ')} at weight 255. One such writer blocks alone.`;
+  else if (verdict === 'block') rule = 'Two independent writers on one list. That blocks.';
+  else rule = flagged.length > 1 ? 'One writer at weight 1 on each list. Lists do not add up.' : `One writer at weight 1 warns. ${sc.after ?? ''}`;
+  if (verdict === 'block' && WARN_ONLY.has(sc.cat)) { verdict = 'warn'; rule = 'Weight 255, but this category only ever warns: the money is already stolen.'; }
   if (sc.poison) verdict = 'unverifiable';
   return { perList, verdict, rule };
 }
 
-// ---- stage
+// ---- grid, focus, stage
 const $ = id => document.getElementById(id);
-let cur = 0, timers = [], final = false;
+let cur = -1, timers = [], final = false, tab = 'All';
 const sched = (fn, t) => timers.push(setTimeout(fn, t));
 const stop = () => { timers.forEach(clearTimeout); timers = []; };
 function el(tag, cls, html) { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
-
-let tab = 'All';
-function whoFlags(sc) {
-  const names = [...new Set(sc.flags.filter(f => !f.tomb).map(f => LISTS.find(L => L.writers.some(w => w.id === f.writer)).name.split('.')[0]))];
-  if (sc.flags.length && !names.length) return 'flagged, then <b>retracted</b>';
-  return names.length ? `flagged by <b>${names.join(' · ')}</b>` : 'no flags';
+const pillAct = g => `<span class="p act"><i>${ACT[g][0]}</i>${ACT[g][1]}</span>`;
+const pillList = L => `<span class="p list" style="--c:${L.c}">${L.short}</span>`;
+const pillCat = (cat, hot) => cat ? `<span class="p cat${hot ? ' hot' : ''}"><i>${CATI[cat]}</i>${cat.toLowerCase().replace('_', ' ')}</span>` : '';
+function cardPills(sc) {
+  const lists = [...new Set(sc.flags.filter(f => !f.tomb).map(f => listOf(f.writer)))];
+  const tomb = sc.flags.length && !lists.length;
+  return `<div class="pills">${pillAct(sc.group)}${lists.map(pillList).join('')}${tomb ? '<span class="p tomb">retracted</span>' : ''}${!sc.flags.length ? '<span class="p none">no flags</span>' : ''}${pillCat(sc.cat)}</div>`;
+}
+function cardEl(sc) {
+  return el('button', 'card', `<div class="t"><span>${sc.title}</span>${sc.tag ? `<span class="tag">${sc.tag}</span>` : ''}</div><div class="d">${sc.desc}</div>${cardPills(sc)}`);
 }
 function cards() {
   $('tabs').innerHTML = ''; $('cards').innerHTML = '';
   for (const g of ['All', ...new Set(S.map(s => s.group))]) { const t = el('button', 'tab' + (g === tab ? ' on' : ''), g); t.onclick = () => { tab = g; cards(); }; $('tabs').append(t); }
-  S.forEach((sc, i) => {
-    if (tab !== 'All' && sc.group !== tab) return;
-    const c = el('button', 'card' + (i === cur && !$('stage').classList.contains('empty') ? ' on' : ''),
-      `<div class="t"><span>${sc.title}</span>${sc.tag ? `<span class="tag">${sc.tag}</span>` : ''}</div><div class="d">${sc.desc}</div><div class="m">${sc.group.toLowerCase()} · ${whoFlags(sc)}${sc.cat ? ' · ' + sc.cat : ''}</div>`);
-    c.dataset.i = i; c.onclick = () => play(i); $('cards').append(c);
-  });
+  S.forEach((sc, i) => { if (tab !== 'All' && sc.group !== tab) return; const c = cardEl(sc); c.dataset.i = i; c.onclick = () => open(i, c); $('cards').append(c); });
 }
+// the chosen card flies to the slot (FLIP), the grid goes, the stage plays under it
+function open(i, fromCard) {
+  const first = fromCard?.getBoundingClientRect();
+  $('grid').classList.add('off'); $('focus').classList.add('on'); $('stage').classList.remove('empty');
+  $('slot').innerHTML = ''; const hero = cardEl(S[i]); $('slot').append(hero);
+  if (first) {
+    const last = hero.getBoundingClientRect(), ghost = cardEl(S[i]); ghost.classList.add('flying');
+    Object.assign(ghost.style, { left: last.left + 'px', top: last.top + 'px', width: last.width + 'px', height: last.height + 'px', transform: `translate(${first.left - last.left}px, ${first.top - last.top}px)` });
+    document.body.append(ghost); hero.style.visibility = 'hidden';
+    requestAnimationFrame(() => requestAnimationFrame(() => { ghost.style.transform = 'none'; }));
+    setTimeout(() => { ghost.remove(); hero.style.visibility = ''; }, 440);
+  }
+  window.scrollTo({ top: 0 }); play(i);
+}
+function back() { stop(); final = false; cur = -1; $('focus').classList.remove('on'); $('grid').classList.remove('off'); $('stage').classList.add('empty'); }
+
 function wire(fromEl, toEl, cls) {
-  const st = $('stage').getBoundingClientRect(), a = fromEl.getBoundingClientRect(), b = toEl.getBoundingClientRect(), card = fromEl.closest('.list').getBoundingClientRect();
+  const st = $('stage').getBoundingClientRect(), a = fromEl.getBoundingClientRect(), b = toEl.getBoundingClientRect(), card = fromEl.closest('.lcard').getBoundingClientRect();
   const x1 = card.right - st.left, y1 = a.top + a.height / 2 - st.top, x2 = b.left - st.left, y2 = b.top + b.height / 2 - st.top, c = Math.max(28, (x2 - x1) / 2);
   const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
   p.setAttribute('d', `M${x1},${y1} C${x1 + c},${y1} ${x2 - c},${y2} ${x2},${y2}`); p.setAttribute('class', 'wire ' + (cls || ''));
@@ -218,91 +249,90 @@ function wire(fromEl, toEl, cls) {
 
 function play(i) {
   stop(); final = false; cur = i; const sc = S[i], ex = explain(sc);
-  $('stage').classList.remove('empty');
-  document.querySelectorAll('.card').forEach(c => c.classList.toggle('on', +c.dataset.i === i));
-  $('stage').scrollIntoView({ behavior: 'smooth', block: 'start' });
   $('wires').innerHTML = ''; $('lists').innerHTML = ''; $('mid').innerHTML = ''; $('proof').innerHTML = '';
   let t = 0;
   // 1. the subject
-  const ctx = el('div', 'ctx in', CTX[sc.ctx]); $('mid').append(ctx);
-  if (sc.via) { const v = el('div', 'subject second in', `<div class="lab">${sc.via.label}</div><div class="addr">${sc.via.addr}</div><div class="foot">the decoder reads through the swap to its recipient</div>`); $('mid').append(v); }
-  const sub = el('div', 'subject in', `<div class="lab">${sc.subject.label}</div><div class="addr">${sc.subject.addr}</div>${sc.cat ? `<span class="cat">${sc.cat}</span>` : ''}`); $('mid').append(sub);
+  $('mid').append(el('div', 'ctx in', CTX[sc.ctx]));
+  if (sc.via) $('mid').append(el('div', 'subject second in', `<div class="lab">${sc.via.label}</div><div class="addr">${sc.via.addr}</div>`));
+  const sub = el('div', 'subject in', `<div class="lab">${sc.subject.label}</div><div class="addr">${sc.subject.addr}</div>${sc.cat ? `<div class="pills">${pillCat(sc.cat)}</div>` : ''}`); $('mid').append(sub);
   sched(() => $('mid').querySelectorAll('.in').forEach(e => e.classList.add('on')), t += 60);
   // 2. the lists the wallet follows
   const nodes = {};
   LISTS.forEach((L, k) => {
-    const card = el('div', 'list in', `<div class="name">${L.name}</div><div class="role">${L.role}</div>`); const ws = el('div', 'writers');
-    L.writers.forEach(w => { const row = el('div', 'writer'); const pill = el('span', 'pill', `${w.label}<span class="w">w${w.w}</span>`); const says = el('div', 'says'); row.append(pill, says); ws.append(row); nodes[w.id] = { pill, says }; });
+    const card = el('div', 'lcard in', `<div class="name"><span>${L.name}</span><small>${L.role}</small></div>`); card.style.setProperty('--c', L.c); const ws = el('div', 'writers');
+    L.writers.forEach(w => { const row = el('div', 'writer'); const pill = el('span', 'pill', `${w.label}<span class="w">w${w.w}</span>`); const says = el('span', 'says pills'); row.append(pill, says); ws.append(row); nodes[w.id] = { pill, says }; });
     card.append(ws); $('lists').append(card); sched(() => card.classList.add('on'), t + 380 + k * 120);
   });
-  // 2b. the proof: the wallet proves the head from a block header, then folds the events it was given
+  // 2b. the proof flow
   const head = '0x8f3a…c41e', bad = '0x17d2…90b3';
   const P = [
     el('div', 'ctx in', 'how the wallet knows'),
-    el('div', 'node hero in', `<div class="k">Ethereum block header</div><div class="v">12,077,4xx · finalized</div><div class="s">verified by the light client, not by any RPC</div>`),
+    el('div', 'node hero in', `<span class="ic">⛓</span><div><div class="k">block header · finalized</div><div class="v">light client, not an RPC</div></div>`),
     el('div', 'link', '<span class="dot"></span>'),
-    el('div', 'node in', `<div class="k">proven head for core.tocsin.eth</div><div class="v">${head}</div><div class="s">32 bytes read from the log’s storage, with a Merkle proof</div>`),
+    el('div', 'node in', `<span class="ic">#</span><div><div class="k">proven head, core.tocsin.eth</div><div class="v">${head}</div></div>`),
     el('div', 'link', '<span class="dot"></span>'),
-    el('div', 'node in', `<div class="k">events from the RPC</div><div class="v">${sc.poison ? '? 2 3 4 5 6 7 8' : '1 2 3 4 5 6 7 8'}</div><div class="s">${sc.poison ? 'one entry withheld' : 'downloaded from anyone, trusted by nobody'}</div>`),
+    el('div', 'node in', `<span class="ic">↓</span><div><div class="k">events from the RPC</div><div class="v">${sc.poison ? '? 2 3 4 5 6 7 8' : '1 2 3 4 5 6 7 8'}</div></div>`),
     el('div', 'link', '<span class="dot"></span>'),
-    el('div', 'node in' + (sc.poison ? ' bad' : ''), `<div class="k">replayed head</div><div class="v">${sc.poison ? bad : head}</div><div class="s">head = keccak(head, hash(flag)), folded on the device</div>`),
-    el('div', 'compare in' + (sc.poison ? ' bad' : ''), `<span class="mark">${sc.poison ? '✕' : '='}</span><span>${sc.poison ? 'mismatch: the RPC lied, or lost data' : 'match: every flag is real, none is missing'}</span>`),
+    el('div', 'node in' + (sc.poison ? ' bad' : ''), `<span class="ic">⟳</span><div><div class="k">replayed head · keccak(head, flag)</div><div class="v">${sc.poison ? bad : head}</div></div>`),
+    el('div', 'compare in' + (sc.poison ? ' bad' : ''), `<span class="mark">${sc.poison ? '✕' : '='}</span><span>${sc.poison ? 'mismatch' : 'match'}</span>`),
   ];
   P.forEach(n => $('proof').append(n));
   P.forEach((n, k) => sched(() => { n.classList.add('on'); if (n.classList.contains('link') && sc.poison && k === 6) n.classList.add('stop', 'bad'); }, t + 300 + k * 110));
   t += 900;
-  // 3a. the lying RPC: the fold breaks before any flag is read
+  // 3. who flagged it
   if (sc.poison) {
     const seq = el('div', 'seq'); for (let n = 1; n <= 8; n++) seq.append(el('span', '', n === 1 ? '?' : String(n)));
-    sched(() => { $('lists').firstChild.append(seq); }, t);
-    sched(() => { seq.children[0].classList.add('gap'); nodes.manual.says.innerHTML = `<b>sequence 1 is missing</b> from what this RPC returned. Replaying the fold gives a head that does not match the one proven from the block header.`; nodes.manual.says.classList.add('on'); }, t += 900);
-    t += 700;
+    sched(() => $('lists').firstChild.append(seq), t);
+    sched(() => { seq.children[0].classList.add('gap'); nodes.manual.says.innerHTML = `<span class="p cat hot"><i>?</i>entry 1 missing</span>`; nodes.manual.says.classList.add('on'); }, t += 800);
+    t += 600;
   } else {
-    // 3b. who flagged it, and what they said
     sc.flags.forEach(f => {
-      const L = LISTS.find(l => l.writers.some(w => w.id === f.writer)), w = L.writers.find(w => w.id === f.writer);
+      const L = listOf(f.writer), w = L.writers.find(w => w.id === f.writer);
       sched(() => {
         const p = wire(nodes[f.writer].pill, sub, w.w === 255 ? 'heavy' : '');
-        nodes[f.writer].says.innerHTML = `<b>${L.name}</b> flagged it: ${sc.cat}, weight ${w.w}. <span class="mono">evidence <a>${f.ev}</a></span>`; nodes[f.writer].says.classList.add('on');
-        if (f.tomb) sched(() => { p.classList.add('struck'); nodes[f.writer].says.classList.add('struck'); nodes[f.writer].says.insertAdjacentHTML('beforeend', ' <b style="text-decoration:none;display:inline-block">then retracted it</b>'); }, 700);
+        nodes[f.writer].says.innerHTML = `${pillCat(sc.cat)}<a class="p" title="evidence transaction"><i>↗</i>${f.ev}</a>`; nodes[f.writer].says.classList.add('on');
+        if (f.tomb) sched(() => { p.classList.add('struck'); nodes[f.writer].says.innerHTML = `<span class="p tomb"><i>${CATI[sc.cat]}</i>${sc.cat.toLowerCase().replace('_', ' ')}</span><span class="p"><i>⌫</i>retracted</span>`; }, 700);
       }, t); t += 480;
     });
-    if (f => sc.flags.length) t += sc.flags.some(f => f.tomb) ? 600 : 0;
+    if (sc.flags.some(f => f.tomb)) t += 600;
   }
-  // 4. the count and the rule
+  // 4. count and rule
   const flagged = ex.perList.filter(p => p.live.length);
   if (flagged.length && !sc.poison) {
-    const c = el('div', 'count in', `independent writers: <b>${flagged.length}</b>${flagged.some(p => p.live.length > 1) ? ' <span style="color:var(--ink-400)">(the core writer and the detector share one operator and count once)</span>' : ''} · lists that flag it: <b>${flagged.length}</b> of ${LISTS.length}`);
+    const c = el('div', 'count in', `<b>${flagged.length}</b> independent writer${flagged.length > 1 ? 's' : ''} <span class="sep">·</span> <b>${flagged.length}</b>/${LISTS.length} lists${flagged.some(p => p.live.length > 1) ? ' <span class="sep">·</span> core + detector count once' : ''}`);
     sched(() => { $('mid').append(c); requestAnimationFrame(() => c.classList.add('on')); }, t); t += 500;
   }
   const rule = el('div', 'rule in', ex.rule); sched(() => { $('mid').append(rule); requestAnimationFrame(() => rule.classList.add('on')); }, t); t += 650;
-  // 5. the verdict, one ripple
+  // 5. verdict, one ripple, red only now
   const word = { clean: 'Clean', warn: 'Warn', block: 'Blocked', unverifiable: 'Unverifiable' }[ex.verdict];
-  const v = el('div', `verdict in ${ex.verdict}`, `${word}<span class="ring"></span>`); sched(() => { $('mid').append(v); requestAnimationFrame(() => { v.classList.add('on'); if (ex.verdict !== 'clean') v.querySelector('.ring').classList.add('go'); if (ex.verdict === 'block') { sub.classList.add('bad'); document.querySelectorAll('.mote').forEach(m => m.classList.add('bad')); } }); }, t); t += 500;
-  // 6. handoff
+  const v = el('div', `verdict in ${ex.verdict}`, `${word}<span class="ring"></span>`);
+  sched(() => { $('mid').append(v); requestAnimationFrame(() => { v.classList.add('on'); if (ex.verdict !== 'clean') v.querySelector('.ring').classList.add('go'); if (ex.verdict === 'block') paintRed(); }); }, t); t += 500;
   sched(() => finish(sc, ex), t);
 }
+function paintRed() { document.querySelector('#mid .subject:last-of-type')?.classList.add('bad'); document.querySelectorAll('.mote').forEach(m => m.classList.add('bad')); document.querySelectorAll('#mid .subject .p.cat').forEach(p => p.classList.add('hot')); }
 function finish(sc, ex) {
-  final = true;
-  const mid = $('mid');
-  if (!mid.querySelector('.actions')) {
-    const foot = el('div', 'foot in', `the wallet should say this. The stage is drawn from the seed table; the wallet checks the chain itself.`);
-    const acts = el('div', 'actions in'); // amber once per screen: the verdict word already took it in the unverifiable case
-    const send = el('button', `btn ${ex.verdict === 'warn' || ex.verdict === 'block' ? 'signal' : 'primary'}`, 'Send it to the wallet'); send.onclick = sendIt; acts.append(send);
-    if (sc.poison) acts.append(el('span', 'copy', `http://127.0.0.1:8550 <button class="btn" style="padding:4px 8px;font-size:11px">copy</button><small>paste into the Snap RPC setting first</small>`));
-    if (sc.tag === 'snap only') acts.append(el('span', 'copy', `<small>Snap only until Kohaku lands token checks</small>`));
-    mid.append(foot, acts); requestAnimationFrame(() => { foot.classList.add('on'); acts.classList.add('on'); });
-  }
+  final = true; const mid = $('mid');
+  if (mid.querySelector('.actions')) return;
+  const acts = el('div', 'actions in');
+  const send = el('button', `btn ${ex.verdict === 'warn' || ex.verdict === 'block' ? 'signal' : 'primary'}`, 'Send it to the wallet');
+  send.onclick = () => { send.textContent = 'sent: the wallet is answering'; send.disabled = true; }; acts.append(send);
+  if (sc.poison) acts.append(el('span', 'copy', `http://127.0.0.1:8550 <button class="btn" style="padding:4px 8px;font-size:11px">copy</button><small>paste into the Snap RPC setting first</small>`));
+  if (sc.tag === 'snap only') acts.append(el('span', 'copy', `<small>Snap only until Kohaku lands token checks</small>`));
+  const foot = el('div', 'foot in', 'the wallet should say this. Drawn from the seed table; the wallet checks the chain itself.');
+  mid.append(acts, foot); requestAnimationFrame(() => { acts.classList.add('on'); foot.classList.add('on'); });
 }
-function sendIt() { const b = document.querySelector('.actions .btn'); b.textContent = 'sent: the wallet is answering'; b.disabled = true; }
-function skip() { if (final) return; stop(); document.querySelectorAll('#stage .in, #stage .says').forEach(e => e.classList.add('on')); document.querySelectorAll('.wire').forEach(w => w.classList.add('drawn')); document.querySelectorAll('.link').forEach(l => l.classList.add('on')); const sc = S[cur], ex = explain(sc); if (ex.verdict === 'block') { document.querySelector('#mid .subject:last-of-type')?.classList.add('bad'); document.querySelectorAll('.mote').forEach(m => m.classList.add('bad')); } finish(sc, ex); }
+function skip() { if (final || cur < 0) return; stop(); document.querySelectorAll('#stage .in, #stage .says').forEach(e => e.classList.add('on')); document.querySelectorAll('.wire').forEach(w => w.classList.add('drawn')); document.querySelectorAll('.link').forEach(l => l.classList.add('on')); const sc = S[cur], ex = explain(sc); if (ex.verdict === 'block') paintRed(); finish(sc, ex); }
 $('stage').addEventListener('click', e => { if (e.target.closest('button, a')) return; skip(); });
+$('back').onclick = back;
+$('prev').onclick = () => open(Math.max(0, cur - 1));
+$('next').onclick = () => open(Math.min(S.length - 1, cur + 1));
 document.addEventListener('keydown', e => {
-  if (e.key === 'ArrowRight') play(Math.min(S.length - 1, cur + 1));
-  if (e.key === 'ArrowLeft') play(Math.max(0, cur - 1));
+  if (cur < 0) return;
+  if (e.key === 'ArrowDown' || e.key === 'ArrowRight') open(Math.min(S.length - 1, cur + 1));
+  if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') open(Math.max(0, cur - 1));
   if (e.key.toLowerCase() === 'r') play(cur);
-  if (e.key === 'Enter') { if (!final) skip(); }
-  if (e.key.toLowerCase() === 'p') document.body.classList.toggle('present');
+  if (e.key === 'Enter') skip();
+  if (e.key === 'Escape') back();
 });
 cards();
 </script>
