@@ -36,6 +36,30 @@ Each package documents its names in a committed `.env.example`. Copy it to the i
 
 The Snap and extension builds read their own `TOCSIN_*` settings from the shell, listed in their steps. Whatever they read is bundled into `dist/`, so give them keyless RPC URLs only.
 
+## Servers on the demo laptop
+
+Nothing here is a backend of ours. Each server either hosts static files the reader verifies, or is a dev tool. Start only the rows the thing you're showing needs.
+
+| Server | Command, from `dapp/` | Listens on | Needed for | Why |
+| --- | --- | --- | --- | --- |
+| Static site with CORS | the `python3` command below | `127.0.0.1:8000` | Snap, extension, Kohaku, `eval --source mirror` | All three ENS list records point their `listURI` at `http://localhost:8000/lists/*.json`, and the lists point `snapshotURI` at `/mirror/*.json` there. A host syncing a list fetches its document from here. If it's down, a fresh install can't accept any list, and an installed Snap keeps its pins and shows "Last check: stale" |
+| Snap dev server | `yarn workspace @tocsin/snap start` with the build settings from step 7 | `localhost:8080` | Installing or reinstalling the Snap | Flask installs `local:http://localhost:8080` from here. `start` rebuilds and serves on every save, but Flask doesn't hot reload: reinstall to pick up a change. `serve` serves `dist/` without rebuilding. Once installed, the Snap runs without it |
+| Lying proxy | `yarn workspace @tocsin/infra lying-proxy` | `127.0.0.1:8550` | Beat 2, in the Snap and at the command line | Forwards to `RPC_URL` but drops the drainer flag, so the reader shows "chain mismatch at sequence 1" |
+| Next.js | `yarn start` | `localhost:3000` | The `/harness` page and the dapp | Boots Helios and the Anon-RPC worker in the page. The Snap and the CLI don't use it |
+| Tor gateway | `tor-js-gateway` | UDP `12298` | Tor in the harness and the extension | Browsers can't open raw TCP to Tor relays. See "Local Tor gateway" in step 9. Nym and the Snap don't use it |
+| Detector | `yarn workspace @tocsin/infra detect` | none | Live lookalike flags, step 5 | Watches Sepolia and appends flags. The beats work without it |
+
+The static site, from `dapp/`. `python3 -m http.server` won't do, because it sends no `access-control-allow-origin` header and the Snap fetches cross-origin:
+
+```sh
+python3 -c 'import http.server as h, functools as f
+class H(h.SimpleHTTPRequestHandler):
+    def end_headers(s): s.send_header("Access-Control-Allow-Origin", "*"); super().end_headers()
+h.ThreadingHTTPServer(("127.0.0.1", 8000), f.partial(H, directory="../site")).serve_forever()'
+```
+
+For the Snap test in Flask, run the static site and the Snap dev server, plus the lying proxy for beat 2.
+
 ## 1. Deploy the log
 
 Follow "Test and deploy the log" in the README. In short, from the repo root:
