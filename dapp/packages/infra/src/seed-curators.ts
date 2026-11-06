@@ -6,11 +6,10 @@
 import { writeFile } from "node:fs/promises";
 import { stdin, stdout } from "node:process";
 import { createInterface } from "node:readline/promises";
-import { fileURLToPath } from "node:url";
 import { type Account, type Address, type Hex, getAddress, keccak256, slice, toHex, zeroHash } from "viem";
 import { OP, threatFlagLogAbi } from "./abi.js";
 import { type Leaf, signBatch } from "./batch.js";
-import { type Target, accountFrom, connect, senderFor } from "./env.js";
+import { type Target, accountFrom, connect, manifestPath, senderFor } from "./env.js";
 import { relay } from "./relayer.js";
 
 // Same derivation as seed.ts, so a shared label is the same subject address.
@@ -77,7 +76,7 @@ async function main() {
     if (seq !== BigInt(leaves.length)) throw new Error(`${c.name} writerSeq ${seq}, expected ${leaves.length}`);
     out[c.name] = { writer: c.account.address, tx: r.hash, subjects: Object.fromEntries(c.flags.map(([l]) => [l, syntheticSubject(l)])) };
   }
-  const path = fileURLToPath(new URL(`../curators-manifest.${target.chainId}.json`, import.meta.url));
+  const path = manifestPath(`curators-manifest.${target.chainId}.json`);
   await writeFile(path, `${JSON.stringify({ chainId: target.chainId, log: target.log, seenBlock: head.number.toString(), curators: out }, null, 2)}\n`);
   console.log(`manifest written to ${path}`);
 }

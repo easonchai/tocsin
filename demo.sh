@@ -41,6 +41,9 @@ EOF
 fi
 
 # --- Defaults, shared by Kohaku (setup.sh) and the Snap build ----------------------------------------------
+# Your own lists, if ./bootstrap.sh made some, win over the committed deployment's.
+DEMO_ENV="$ROOT/.tocsin-demo/demo.env"
+[[ -f "$DEMO_ENV" ]] && { echo "Using your lists from $DEMO_ENV"; source "$DEMO_ENV"; }
 hex() { tr -d '[:space:]' < "$DAPP/$1"; }
 export TOCSIN_RPC_URL="${TOCSIN_RPC_URL:-https://0xrpc.io/sep}"
 export TOCSIN_LIST_NAME="${TOCSIN_LIST_NAME:-tocsin.eth,harborwatch.eth,lanterndao.eth}"
@@ -48,10 +51,12 @@ export TOCSIN_LIST_RECORD="${TOCSIN_LIST_RECORD-$(hex list-record.hex)}"
 export TOCSIN_LIST_RECORDS="${TOCSIN_LIST_RECORDS-harborwatch.eth=$(hex list-record.harborwatch.hex),lanterndao.eth=$(hex list-record.lanterndao.hex)}"
 export TOCSIN_LOG_FROM_BLOCK="${TOCSIN_LOG_FROM_BLOCK:-12074077}"
 # The certhash comes from this machine's gateway key, so the build must carry this machine's value.
-# `init` prints it without rotating an existing key.
+# `init` prints it without rotating an existing key, but refuses if its config file exists, so drop the throwaway one.
 if [[ "$TOCSIN_TRANSPORT" == tor && -z "${TOCSIN_TOR_GATEWAYS:-}" ]]; then
-  certhash="$(tor-js-gateway -c "$LOG_DIR/gateway-init.json5" init 2>&1 | sed -n 's/^Certhash: *//p')"
-  [[ -n "$certhash" ]] || { echo "tor-js-gateway init printed no certhash" >&2; exit 1; }
+  rm -f "$LOG_DIR/gateway-init.json5"
+  init_out="$(tor-js-gateway -c "$LOG_DIR/gateway-init.json5" init 2>&1 || true)"
+  certhash="$(sed -n 's/^Certhash: *//p' <<<"$init_out")"
+  [[ -n "$certhash" ]] || { echo "tor-js-gateway init printed no certhash:" >&2; echo "$init_out" >&2; exit 1; }
   export TOCSIN_TOR_GATEWAYS="127.0.0.1:12298:$certhash"
 fi
 
@@ -61,18 +66,23 @@ kohaku_yarn() { (cd "$DIR" && YARN_IGNORE_PATH=1 npx --yes yarn@1.22.22 "$@"); }
 
 # --- Build what is missing ---------------------------------------------------------------------------------
 [[ -f "$DIR/.env" ]] || { echo "Setting up Kohaku in $DIR (about 4 minutes)"; "$KOHAKU/setup.sh" "$DIR"; }
-if [[ "$TOCSIN_TRANSPORT" == tor ]] && ! grep -q "^TOCSIN_TOR_GATEWAYS=\"$TOCSIN_TOR_GATEWAYS\"" "$DIR/.env"; then
-  echo "Kohaku's .env names another gateway; pointing it at this machine's and rebuilding"
-  perl -pi -e "s|^TOCSIN_TOR_GATEWAYS=.*|TOCSIN_TOR_GATEWAYS=\"$TOCSIN_TOR_GATEWAYS\"|" "$DIR/.env"
+# The build bakes these in, so a value that differs from .env (this machine's certhash, your own lists) means a rebuild.
+for var in TOCSIN_TOR_GATEWAYS TOCSIN_LIST_RECORD TOCSIN_LIST_RECORDS TOCSIN_LOG_FROM_BLOCK; do
+  [[ "$var" == TOCSIN_TOR_GATEWAYS && "$TOCSIN_TRANSPORT" != tor ]] && continue
+  grep -qF "$var=\"${!var}\"" "$DIR/.env" && continue
+  echo "Kohaku's .env has another $var; updating it and rebuilding"
+  VAR="$var" VAL="${!var}" perl -pi -e 's/^\Q$ENV{VAR}\E=.*/$ENV{VAR}="$ENV{VAL}"/' "$DIR/.env"
   rm -r "$BUILD" 2>/dev/null || true
-fi
+done
 [[ -d "$BUILD" ]] || { echo "Building Kohaku production bundle (a few minutes)"; kohaku_yarn build:web:webkit; }
 [[ -d "$DAPP/node_modules" ]] || { echo "Installing dapp workspace"; dapp_yarn install; }
-[[ -d "$SNAP_DIST" ]] || { echo "Building the Snap"; dapp_yarn workspace @tocsin/snap build; }
+if [[ ! -d "$SNAP_DIST" || "$DEMO_ENV" -nt "$SNAP_DIST" ]]; then echo "Building the Snap"; dapp_yarn workspace @tocsin/snap build; fi
 
 # --- Servers -----------------------------------------------------------------------------------------------
 pids=()
-cleanup() { trap - EXIT INT TERM; echo; echo "Stopping."; kill "${pids[@]}" 2>/dev/null || true; }
+# Each pid is a yarn/npx wrapper; the node server is a grandchild that ignores Ctrl-C, so kill the whole tree.
+kill_tree() { local c; for c in $(pgrep -P "$1"); do kill_tree "$c"; done; kill "$1" 2>/dev/null || true; }
+cleanup() { trap - EXIT INT TERM; echo; echo "Stopping."; for p in "${pids[@]}"; do kill_tree "$p"; done; }
 trap cleanup EXIT INT TERM
 
 wait_for() { # wait_for <label> <seconds> <command...>
@@ -108,7 +118,7 @@ h.ThreadingHTTPServer(("127.0.0.1", 8000), f.partial(H, directory=sys.argv[1])).
   wait_for "static site" 10 curl -sfI http://127.0.0.1:8000/
 fi
 
-# 3. Lying proxy for beat 2. Forwards to RPC_URL and drops the drainer flag.
+# 3. Lying proxy for beat 2. Forwards to RPC_URL and drops the drainer flag (PROXY_DROP_WRITER from demo.env, else the committed manual writer).
 if proxy_up >/dev/null 2>&1; then
   echo "  reusing: lying proxy already on 127.0.0.1:8550"
 else

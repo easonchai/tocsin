@@ -13,6 +13,7 @@
     "eval": "tsx src/evaluate-cli.ts",
     "mirror": "tsx src/mirror.ts",
     "lying-proxy": "tsx src/lying-proxy.ts",
+    "wallet": "tsx src/wallet-cli.ts",
     "ens-setup": "tsx src/ens-setup.ts setup",
     "ens-publish": "tsx src/ens-setup.ts publish",
     "test": "vitest run"

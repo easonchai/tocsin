@@ -1,3 +1,4 @@
+import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { config } from "dotenv";
 import {
@@ -44,6 +45,12 @@ export function required(name: string): string {
   return value;
 }
 
+/** Where the seed scripts write their manifests: MANIFEST_DIR, or this package, where the committed ones live. */
+export function manifestPath(name: string): string {
+  const dir = process.env.MANIFEST_DIR?.trim();
+  return dir ? resolve(dir, name) : fileURLToPath(new URL(`../${name}`, import.meta.url));
+}
+
 /** Reads a key by variable name. The error names the variable, never the value. */
 export function accountFrom(name: KeyVar): Account {
   const key = required(name);
@@ -84,6 +91,6 @@ export async function connectChain(): Promise<Omit<Target, "log">> {
   return { chainId: actual, chain, public: client };
 }
 
-export function senderFor(target: Target, account: Account): Sender {
+export function senderFor(target: Pick<Target, "chain">, account: Account): Sender {
   return createWalletClient({ account, chain: target.chain, transport: http(target.chain.rpcUrls.default.http[0], { timeout: 30_000 }) });
 }

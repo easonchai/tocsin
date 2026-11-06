@@ -220,6 +220,7 @@ The resolver uses the same system and is not emancipated, on purpose. The mainta
 | `docs/pitch/arguments.md` | Pitch copy: the supply-chain argument, fake heads, why not ENS, one-liners |
 | `docs/plan/demo/` | Demo spec, Snap UI spec, seed list, build tickets 01 to 15 |
 | `RUNBOOK.md` | Run the demo on a fresh clone: `./demo.sh`, then the beats in Kohaku and the Snap |
+| `bootstrap.sh`, `docs/agents/bootstrap.md` | Your own writers and lists on the shared log, no deploy: generates the keys, asks for one Sepolia ETH transfer, seeds, signs, and feeds `demo.sh` |
 | `docs/plan/demo/runbook.md` | Operator side: commands and env var names to seed, relay, detect, mirror, lie, publish lists, and build the extension, plus where each judge check is shown |
 | `docs/plan/log-contract/` | Contract spec and tickets |
 | `docs/wallet-integrations.md` | The three hosts: Kohaku, Snap, extension |
@@ -285,7 +286,7 @@ For a local chain, SE-2's usual `yarn chain` and `yarn deploy` in `dapp/` deploy
 
 ## Run things
 
-The demo, on a fresh clone: `./demo.sh`, then follow `RUNBOOK.md`. It needs Node 22, Chrome, and `tor-js-gateway` (or `TOCSIN_TRANSPORT=direct`); nothing else and no keys.
+The demo, on a fresh clone: `./demo.sh`, then follow `RUNBOOK.md`. It needs Node 22, Chrome, and `tor-js-gateway` (or `TOCSIN_TRANSPORT=direct`); nothing else and no keys. For writers and lists of your own on the same log, `./bootstrap.sh` first (`docs/agents/bootstrap.md`).
 
 Preview the site from the repo root:
 

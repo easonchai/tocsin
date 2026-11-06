@@ -15,3 +15,5 @@ scripts/ens/cache/
 .cursor/
 .opencode/
 .mcp.json
+.tocsin-demo/
+site/local/

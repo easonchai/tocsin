@@ -1,17 +1,20 @@
 // Usage: yarn workspace @tocsin/infra mirror [writer ...]
 // Demo beat 3. Writes one snapshot per writer to site/mirror/<writer-lowercase>.json, the static host
 // that serves site/lists/, in the reader's mirror format (see snapshotLeafSource in @tocsin/reader).
-// Writers default to the manual writer and the detector in seed-manifest.<CHAIN_ID>.json.
+// Writers default to the manual writer and the detector in seed-manifest.<CHAIN_ID>.json (MANIFEST_DIR).
 //   LOG_FROM_BLOCK    first block to scan, the log's deployment block; default 0
 //   LOG_BLOCK_RANGE   blocks per eth_getLogs call; default 10000
+//   MIRROR_DIR        where the snapshots go; default site/mirror
 import { mkdir, readFile, writeFile } from "node:fs/promises";
-import { fileURLToPath } from "node:url";
+import { resolve } from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { type Address, getAddress, http, isAddress } from "viem";
 import { getAppendedLogs } from "@tocsin/reader";
 import { threatFlagLogAbi } from "./abi.js";
-import { connect, required } from "./env.js";
+import { connect, manifestPath, required } from "./env.js";
 
-const MIRROR_DIR = new URL("../../../../site/mirror/", import.meta.url);
+const mirrorDir = process.env.MIRROR_DIR?.trim();
+const MIRROR_DIR = mirrorDir ? pathToFileURL(`${resolve(mirrorDir)}/`) : new URL("../../../../site/mirror/", import.meta.url);
 
 async function writersFromArgs(chainId: number): Promise<Address[]> {
   const args = process.argv.slice(2);
@@ -19,7 +22,7 @@ async function writersFromArgs(chainId: number): Promise<Address[]> {
     for (const a of args) if (!isAddress(a, { strict: false })) throw new Error(`not an address: ${a}`);
     return args.map((a) => getAddress(a));
   }
-  const path = fileURLToPath(new URL(`../seed-manifest.${chainId}.json`, import.meta.url));
+  const path = manifestPath(`seed-manifest.${chainId}.json`);
   const manifest = JSON.parse(await readFile(path, "utf8")) as { writers?: Record<string, unknown> };
   const writers = Object.values(manifest.writers ?? {}).filter((w): w is string => typeof w === "string" && isAddress(w));
   if (!writers.length) throw new Error(`${path} names no writers; pass writer addresses as arguments`);

@@ -2,14 +2,15 @@
 // Deploys two MockToken contracts, fakeUSDC and realUSDC, both with symbol USDC, mints 1,000 of each to
 // TEST_WALLET, and has the manual writer (tocsin.eth, weight 255) flag fakeUSDC as MALICIOUS_TOKEN with the
 // deployment transaction as evidence. realUSDC stays unflagged as the control.
-// Writes tokens-manifest.<chainId>.json.
+// With FAKE_USDC=0x… set, only the flag is sent, on that already deployed token (bootstrap.sh); no forge, no TEST_WALLET.
+// Writes tokens-manifest.<chainId>.json (MANIFEST_DIR).
 import { readFile, writeFile } from "node:fs/promises";
 import { stdin, stdout } from "node:process";
 import { createInterface } from "node:readline/promises";
 import { fileURLToPath } from "node:url";
-import { type Abi, type Address, type Hash, type Hex, getAddress, isAddress, parseAbi, zeroHash } from "viem";
+import { type Abi, type Address, type Hash, type Hex, getAddress, isAddress, keccak256, parseAbi, toHex, zeroHash } from "viem";
 import { OP, threatFlagLogAbi } from "./abi.js";
-import { type Sender, type Target, accountFrom, connect, required, senderFor } from "./env.js";
+import { type Sender, type Target, accountFrom, connect, manifestPath, required, senderFor } from "./env.js";
 
 const MALICIOUS_TOKEN = 5;
 const MINT = 1_000_000_000n; // 1,000 tokens at 6 decimals
@@ -40,22 +41,25 @@ async function deploy(target: Target, deployer: Sender, code: Hex, name: string)
   return { address, tx };
 }
 
-async function main() {
+async function confirm(question: string) {
+  const rl = createInterface({ input: stdin, output: stdout });
+  const answer = await rl.question(`${question} Type SEED to continue: `);
+  rl.close();
+  if (answer.trim() !== "SEED") throw new Error("aborted");
+}
+
+type Deployed = { address: Address; tx: Hash };
+
+/** Deploys both tokens and mints to TEST_WALLET; returns the pair. */
+async function deployPair(target: Target, manual: Address): Promise<{ fake: Deployed; real: Deployed; to: Address }> {
   const wallet = required("TEST_WALLET");
   if (!isAddress(wallet, { strict: false })) throw new Error("TEST_WALLET is not an address");
   const to = getAddress(wallet);
-  const target = await connect();
   const code = await bytecode();
   const deployerAcct = accountFrom("RELAYER_PRIVATE_KEY");
-  const manualAcct = accountFrom("MANUAL_WRITER_PRIVATE_KEY");
-
-  const rl = createInterface({ input: stdin, output: stdout });
-  const answer = await rl.question(
-    `Deployer ${deployerAcct.address} deploys fakeUSDC and realUSDC and mints 1,000 of each to ${to}; manual writer ${manualAcct.address} flags fakeUSDC. 5 transactions on chain ${target.chainId}. Type SEED to continue: `,
+  await confirm(
+    `Deployer ${deployerAcct.address} deploys fakeUSDC and realUSDC and mints 1,000 of each to ${to}; manual writer ${manual} flags fakeUSDC. 5 transactions on chain ${target.chainId}.`,
   );
-  rl.close();
-  if (answer.trim() !== "SEED") throw new Error("aborted");
-
   const deployer = senderFor(target, deployerAcct);
   const fake = await deploy(target, deployer, code, "fakeUSDC");
   const real = await deploy(target, deployer, code, "realUSDC");
@@ -64,6 +68,24 @@ async function main() {
     await confirmed(target, hash, `mint on ${t.address}`);
   }
   console.log(`minted 1,000 of each to ${to}`);
+  return { fake, real, to };
+}
+
+async function main() {
+  const target = await connect();
+  const manualAcct = accountFrom("MANUAL_WRITER_PRIVATE_KEY");
+  const existing = process.env.FAKE_USDC?.trim();
+  let pair: { fake: Deployed; real?: Deployed; to?: Address };
+  if (existing) {
+    if (!isAddress(existing, { strict: false })) throw new Error("FAKE_USDC is not an address");
+    const address = getAddress(existing);
+    // Not our deployment, so the evidence is a label hash like the seed's synthetic flags.
+    pair = { fake: { address, tx: keccak256(toHex(`tocsin-demo/evidence/token/${address}`)) } };
+    await confirm(`Manual writer ${manualAcct.address} flags ${address} as MALICIOUS_TOKEN. 1 transaction on chain ${target.chainId}.`);
+  } else {
+    pair = await deployPair(target, manualAcct.address);
+  }
+  const { fake, real, to } = pair;
 
   const head = await target.public.getBlockNumber();
   const leaf = {
@@ -81,7 +103,7 @@ async function main() {
   await confirmed(target, flagTx, "append");
   console.log(`flagged fakeUSDC as MALICIOUS_TOKEN: tx ${flagTx}`);
 
-  const path = fileURLToPath(new URL(`../tokens-manifest.${target.chainId}.json`, import.meta.url));
+  const path = manifestPath(`tokens-manifest.${target.chainId}.json`);
   const manifest = { chainId: target.chainId, wallet: to, fakeUSDC: fake, realUSDC: real, flagTx };
   await writeFile(path, `${JSON.stringify(manifest, null, 2)}\n`);
   console.log(`manifest written to ${path}`);

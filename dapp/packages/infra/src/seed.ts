@@ -4,11 +4,10 @@
 import { writeFile } from "node:fs/promises";
 import { stdin, stdout } from "node:process";
 import { createInterface } from "node:readline/promises";
-import { fileURLToPath } from "node:url";
 import { type Address, type Hash, type Hex, formatEther, getAddress, isAddressEqual, keccak256, parseEventLogs, slice, toHex, zeroHash } from "viem";
 import { MAX_BATCH, OP, threatFlagLogAbi } from "./abi.js";
 import { type Leaf, signBatch } from "./batch.js";
-import { type Sender, type Target, accountFrom, connect, senderFor } from "./env.js";
+import { type Sender, type Target, accountFrom, connect, manifestPath, senderFor } from "./env.js";
 import { relay } from "./relayer.js";
 
 /** A synthetic address nobody holds a key for: the low 20 bytes of keccak("tocsin-demo/<label>"). */
@@ -171,7 +170,7 @@ async function main() {
     seenBlock: seenBlock.toString(),
     txs,
   };
-  const path = fileURLToPath(new URL(`../seed-manifest.${target.chainId}.json`, import.meta.url));
+  const path = manifestPath(`seed-manifest.${target.chainId}.json`);
   await writeFile(path, `${JSON.stringify(manifest, null, 2)}\n`);
   console.log(`manifest written to ${path}`);
   if (!ok) throw new Error("writer sequences do not match the leaf counts sent");

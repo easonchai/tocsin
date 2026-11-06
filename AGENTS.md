@@ -1,3 +1,12 @@
+## Set up and run
+
+Two paths. Take the first unless the user asks for lists or writers of their own.
+
+- **The demo as committed.** `./demo.sh`, then the beats in `RUNBOOK.md`. Nothing to fund, deploy or configure: the log is live on Sepolia and the three signed lists are in the repo.
+- **Own writers and lists on the shared log.** `./bootstrap.sh`, then `./demo.sh`. Read `docs/agents/bootstrap.md` first: the script stops once for one Sepolia ETH transfer only the human can make, and the doc says how to hand that off and how to verify the result before the browser step.
+
+Loading Kohaku or the Snap in Chrome is the human's step on both paths. Hand it off with the paths `demo.sh` prints and the beats in `RUNBOOK.md`.
+
 ## Ethskills
 
 Before you start a task, load every ethskill whose row matches it. A task that touches several rows, such as contract code plus its tests, loads all of them. You're done with this step when every matching ethskill is in context.
