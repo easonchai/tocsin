@@ -140,6 +140,37 @@ owner of james.tocsin.eth        –       –     own name      own name       
 
 The maintainer can still repoint `tocsin.eth`'s subregistry in the ETHRegistry, which replaces the whole directory in one visible transaction. It cannot touch a name inside it.
 
+### The access control, and what setup does with it
+
+Enhanced Access Control is the permission system every ENSv2 contract shares. A resource is the thing being protected: in a registry, each name, keyed by its labelhash, plus `ROOT_RESOURCE` for the whole contract. A role is one permission, one bit in a 256-bit bitmap, always held on a resource. Set-resolver on `core` reaches only core. Set-resolver on the root reaches every name. Every role has an admin role at `role << 128`, and only an admin holder can grant or revoke that role. A permission check looks at the name and at the root, and allows the action if the role is in either.
+
+The setup script spends the maintainer's roles in this order:
+
+```
+1. initialize(maintainer, root roles)      registrar, register-reserved, set-parent, renew, set-subregistry,
+                                            set-resolver, upgrade, each with its admin. Only the factory's
+                                            initialize can set admin roles on the root freely.
+2. setParent(ETHRegistry, "tocsin")         uses set-parent
+3. grantRootRoles(REGISTRAR | RENEW, registrar)   uses the two admin roles
+4. register("core", maintainer, 0, resolver, owner roles, expiry)   uses registrar; the owner-role bitmap
+                                            is what core's owner gets on core only: set-resolver, set-subregistry,
+                                            their admins, and transfer-admin
+5. revokeRootRoles(everything, maintainer)  emancipation, one way: re-granting needs an admin role, and none is held
+```
+
+After step 5:
+
+```
+ROOT_RESOURCE   MirrorRegistrar  REGISTRAR, RENEW        operational roles; cannot change or delete any name
+                maintainer       nothing
+"core"          maintainer       SET_RESOLVER, SET_SUBREGISTRY, their admins, CAN_TRANSFER_ADMIN
+"james"         james            the same, on his own name, once he claims
+```
+
+A bug in the registrar cannot damage a claimed name, because it holds no role that can change or delete one. Each claimant controls only their own name and can delegate it with their admin roles or lock it by revoking them. The hub has no master key: `hasAssignees(0, dangerousRoles)` returns false, which is what the ENS docs mean by emancipated.
+
+The resolver uses the same system and is not emancipated, on purpose. The maintainer keeps every record role on it so `core.tocsin.eth` can be updated. The deployed resolver also has `authorizeTextRoles(name, key, account, grant)`, which hands one account the right to set one text key. That is how a hot publishing key would get `erc-threat-flag-log.list` without owning the name. The publish script does not use it yet; the maintainer key sets the record directly.
+
 ## Repo map
 
 | Path | What it is |
