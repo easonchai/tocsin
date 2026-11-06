@@ -14,6 +14,29 @@ Nothing team-side is needed. The log is deployed and seeded on Sepolia, the thre
 
 No yarn: the script uses `npx yarn`. No keys: every value is public and lives in the script's defaults.
 
+## For agents
+
+Run `./demo.sh` in the background and watch its log; it is done when it prints "All up". Do not guess a value the script reads from the environment. If you are not sure what the human wants, ask before starting, because the Kohaku and Snap builds bake the values in and a change means a rebuild.
+
+| Env | Default | Ask the human when |
+| --- | --- | --- |
+| `TOCSIN_TRANSPORT` | `tor` | `tor-js-gateway` is not on PATH. Ask whether to build it (Rust, about 6 minutes) or run `direct`, which the wallet reports as "not anonymised" |
+| `TOCSIN_RPC_URL` | `https://0xrpc.io/sep` | the wallet's first sync fails against the default, or the human has a Sepolia RPC of their own |
+| `TOCSIN_LIST_NAME` | `core.tocsin.eth,blockaid.tocsin.eth,scamsniffer.tocsin.eth` | the human wants to follow different lists |
+| `TOCSIN_LIST_RECORD`, `TOCSIN_LIST_RECORDS` | empty, read from ENS | never set by hand; `./bootstrap.sh` writes them for lists without an ENS record |
+| `TOCSIN_LOG_FROM_BLOCK` | `12074077` | never for the committed log; a redeployed log needs its deploy block |
+| `TOCSIN_TOR_GATEWAYS` | this machine's gateway certhash | never; the script derives it |
+| `LOG_DIR` | `/tmp/tocsin-demo` | the human wants the logs elsewhere |
+
+The script's first argument is the Kohaku clone directory, default `dapp/packages/kohaku/kohaku-extension`. Ask if the human already has a clone they want reused.
+
+Steps only the human can do, in order:
+
+1. Install `tor-js-gateway` or pick `direct`, if the check above fails.
+2. Load the Kohaku build unpacked in Chrome, onboard, import the demo account. Hand off with the path `demo.sh` prints and the Kohaku section below.
+3. Install MetaMask Flask and the Snap, if they want the Snap half.
+4. On the `./bootstrap.sh` path, send 0.12 Sepolia ETH to the address the script prints. `docs/agents/bootstrap.md` has that handoff.
+
 ## Start
 
 ```sh

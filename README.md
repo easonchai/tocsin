@@ -4,6 +4,18 @@ An append-only log of scam infrastructure on Ethereum that any light-client wall
 
 Built at Devcon 8 and ETHGlobal Mumbai, 5 to 7 November 2026. Scam prevention infrastructure on Ethereum: an append-only log, a light-client reader and signed trust lists on ENS. The spec is `docs/spec/threat-flag-log.md`. Demo: https://tocsin-eth.vercel.app. Site: https://tocsin.eth.limo (once the content hash is set). Repo: https://github.com/easonchai/tocsin.
 
+## How to run
+
+One command on a fresh clone. Nothing to fund, deploy or configure: the log is live on Sepolia and the three trust lists are published on their ENS names.
+
+```sh
+./demo.sh
+```
+
+It needs Node 22.12 or a later 22.x, Chrome, and `tor-js-gateway` on PATH (or `TOCSIN_TRANSPORT=direct ./demo.sh` to skip Tor). The first run clones and builds Kohaku and the Snap, about ten minutes. Then load the Kohaku build in Chrome and walk the three beats in `RUNBOOK.md`: honest RPC blocks the drainer receiver, a lying RPC can only say "unverifiable", switching back restores the block.
+
+For writers and lists of your own on the same log, run `./bootstrap.sh` first. It stops once for a Sepolia ETH transfer only a human can make; `docs/agents/bootstrap.md` has the handoff. Agents: `AGENTS.md` and the "For agents" section of `RUNBOOK.md` say what to ask the human for.
+
 ## The problem
 
 Every wallet decides whether an address is dangerous by asking a company. Explorer labels, phishing databases, and simulation vendors each keep a private list, serve it from an API, and see every address a user asks about. The user cannot verify the answer, and the company learns who is about to pay whom.
@@ -43,30 +55,6 @@ That is what a wallet needs. It proves the head from a block header, fetches the
 5. It evaluates addresses locally. No per-address query ever leaves the device.
 
 The spec covers the contract interface, the leaf encoding, the trust-list encoding, the light-client read procedure, and a recommended reader policy. It does not say who is right.
-
-## Status, 6 November 2026
-
-Built:
-
-- The spec, `docs/spec/threat-flag-log.md`, with a reference implementation that passed nine Foundry tests on the normative cases.
-- The landing page, `site/`, on the brand kit under `design/`. The kit has the mark, tokens, the dot-field background, three animated how-it-works scenes, wallet mocks, and a designer handoff.
-- The MetaMask Snap UI, specified screen by screen in `docs/plan/demo/snap-ui.md` and mocked in `design/kit/snap.html`.
-- The seed list, `docs/plan/demo/seed/`: 92 attacker addresses across eight categories, each with an evidence transaction that was replayed and checked on-chain. Drainer kits, address-poisoning crews, EIP-7702 sweepers, and exploit proceeds.
-- ENSv2 on Sepolia, on the October 2026 contract set the Universal Resolver reads: `tocsin.eth` owned by the maintainer key, its subregistry and resolver deployed, `core.tocsin.eth` registered, the subregistry emancipated. Four names in the hub. Two signed lists published under `tocsin.list`: `core.tocsin.eth` naming both writers, `detector.tocsin.eth` naming the detector.
-- The MirrorRegistrar, `scripts/ens/contracts/MirrorRegistrar.sol`: whoever owns `<label>.eth` can claim `<label>.tocsin.eth`. Seven fork tests pass against the live Sepolia ENSv2 contracts.
-- The claim page, `site/claim.html`: connect a Sepolia wallet, register a `.eth` name if needed, claim the subname, and read the registry's guarantees live. Two names claimed through it from separate keys so far.
-- The detector agent, `scripts/agent/detector.mjs`: a template for an automated writer with its own name, `detector.tocsin.eth`. Flags a sample of verified poisoning operators by default; its live mode, a zero-value-transfer heuristic, found two real sprayers in a 40-block scan. Replace the detection, keep the rest.
-- The log deployed on Sepolia and seeded: 92 leaves under the core writer key, 25 under the detector's.
-- Build tickets under `docs/plan/`, one per piece of the demo. The demo page itself is specified in `docs/plan/demo-page/explainer-spec.md`: pick a scenario, watch an animated explainer of who flagged it and how the rule counts them, then the wallet answers.
-
-On the `feat/demo` branch (PR #3, not merged into main yet): the reader, the Snap, the provider-proxy extension, the lying-RPC proxy, the seeders and the first demo board.
-
-Next on main, in the order the handoff sets:
-
-1. The reader: prove heads through Helios, replay, evaluate.
-2. The three hosts: Kohaku module (full claim), MetaMask Snap (privacy half, RPC header), provider-proxy extension.
-3. The three demo beats: honest RPC blocks the drainer receiver; a lying RPC produces "unverifiable, chain mismatch"; a mirror restores the block.
-4. The backtest.
 
 ## Addresses
 
@@ -318,7 +306,7 @@ For a local chain, SE-2's usual `yarn chain` and `yarn deploy` in `dapp/` deploy
 
 ## Run things
 
-The demo, on a fresh clone: `./demo.sh`, then follow `RUNBOOK.md`. It needs Node 22, Chrome, and `tor-js-gateway` (or `TOCSIN_TRANSPORT=direct`); nothing else and no keys. For writers and lists of your own on the same log, `./bootstrap.sh` first (`docs/agents/bootstrap.md`).
+The demo itself is under "How to run" at the top. The rest here is for operators.
 
 Preview the site from the repo root:
 
