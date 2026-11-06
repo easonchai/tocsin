@@ -3,7 +3,7 @@
    staggered. Each scene is under 10s and loops. They double as loading illustrations.
    Usage: Tocsin.scene(el, 'append' | 'prove' | 'lie'). Needs scenes.css. */
 (function () {
-  var W = 720, H = 330, MONO = 'JetBrains Mono, monospace', BODY = 'Schibsted Grotesk, sans-serif', LOOP = 10500;
+  var W = 720, H = 330, MONO = 'JetBrains Mono, monospace', BODY = 'Schibsted Grotesk, sans-serif', LOOP = 13000; // END + ~2.8s hold on the finished scene before it rebuilds
   var BEATS = [.3, 2.8, 5.3, 7.8], END = 10.2;
   var reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
