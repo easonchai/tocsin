@@ -33,9 +33,11 @@ else
   git -C "$DIR/src/ambire-common" apply "$HERE/patches/kohaku-commons.patch"
   touch "$(patched_marker)"
 fi
-# The reader is copied, not patched, so Kohaku always gets this repo's current reader.
-mkdir -p "$DIR/src/ambire-common/src/libs/tocsin/reader"
+# The reader and the Helios plus Anon-RPC helper are copied, not patched, so Kohaku always gets this repo's current ones.
+mkdir -p "$DIR/src/ambire-common/src/libs/tocsin/reader" "$DIR/src/web/extension-services/tocsin-offscreen/harness"
 cp -R "$DAPP/packages/reader/src/." "$DIR/src/ambire-common/src/libs/tocsin/reader/"
+cp "$DAPP/packages/nextjs/utils/harness/anonHelios.ts" "$DAPP/packages/nextjs/utils/harness/"bootstrap-*.json \
+  "$DIR/src/web/extension-services/tocsin-offscreen/harness/"
 
 # Kohaku pins yarn 1 (packageManager); a global yarn 4 would rewrite its lockfile.
 # YARN_IGNORE_PATH: inside dapp/, yarn 1 would otherwise hand off to dapp/.yarnrc.yml's yarn 4.
@@ -56,10 +58,15 @@ TOCSIN_RPC_URL="${TOCSIN_RPC_URL:-https://0xrpc.io/sep}" \
 TOCSIN_LIST_NAME="${TOCSIN_LIST_NAME:-tocsin.eth}" \
 TOCSIN_LIST_RECORD="${TOCSIN_LIST_RECORD-$(tr -d '[:space:]' < "$DAPP/list-record.hex")}" \
 TOCSIN_LOG_FROM_BLOCK="${TOCSIN_LOG_FROM_BLOCK:-12074077}" \
+TOCSIN_TRANSPORT="${TOCSIN_TRANSPORT:-tor}" \
+TOCSIN_TOR_GATEWAYS="${TOCSIN_TOR_GATEWAYS:-127.0.0.1:12298:uEiDmYGjwNwrPIT33fsdOLp4inBsIhgiqQAEWvspt4G2uPQ}" \
+TOCSIN_MAINNET_CONSENSUS_RPC="${TOCSIN_MAINNET_CONSENSUS_RPC:-https://ethereum-beacon-api.publicnode.com}" \
+TOCSIN_MAINNET_EXECUTION_RPC="${TOCSIN_MAINNET_EXECUTION_RPC:-https://0xrpc.io/eth}" \
 node -e '
 const fs = require("fs");
 const keys = ["SEPOLIA_RPC_URL", "BROWSER_EXTENSION_PUBLIC_KEY", "REACT_APP_PIMLICO_API_KEY",
-  "TOCSIN_RPC_URL", "TOCSIN_LIST_NAME", "TOCSIN_LIST_RECORD", "TOCSIN_LOG_FROM_BLOCK"];
+  "TOCSIN_RPC_URL", "TOCSIN_LIST_NAME", "TOCSIN_LIST_RECORD", "TOCSIN_LOG_FROM_BLOCK",
+  "TOCSIN_TRANSPORT", "TOCSIN_TOR_GATEWAYS", "TOCSIN_MAINNET_CONSENSUS_RPC", "TOCSIN_MAINNET_EXECUTION_RPC"];
 let env = fs.readFileSync(process.env.DIR + "/.env-sample", "utf8");
 for (const k of keys) {
   const line = new RegExp("^" + k + "=.*$", "m");

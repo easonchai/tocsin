@@ -1,8 +1,8 @@
 diff --git a/.env-sample b/.env-sample
-index bde94fd8d..87ba08d5f 100644
+index bde94fd8d..a4a3ad10c 100644
 --- a/.env-sample
 +++ b/.env-sample
-@@ -77,6 +77,16 @@ COLIBRI_PROVER_URLS="https://sepolia.colibri-proof.tech/"
+@@ -77,6 +77,23 @@ COLIBRI_PROVER_URLS="https://sepolia.colibri-proof.tech/"
  COLIBRI_TRUSTED_CHECKPOINT=""
  # Enable Colibri debug logs.
  COLIBRI_DEBUG="false"
@@ -16,9 +16,28 @@ index bde94fd8d..87ba08d5f 100644
 +TOCSIN_LIST_RECORD=""
 +# The ThreatFlagLog deploy block, where the first log scan starts. Defaults to 0.
 +TOCSIN_LOG_FROM_BLOCK=""
++# How Tocsin's RPC reads leave the browser: tor, nym or direct. Defaults to tor. Localhost RPCs always go direct.
++TOCSIN_TRANSPORT=""
++# Comma-separated tor-js gateways, host:port:peerId, for the tor transport (a local tor-js-gateway prints its own).
++TOCSIN_TOR_GATEWAYS=""
++# Mainnet beacon API and execution RPC for the Helios light client that verifies the Anon-RPC worker hash.
++TOCSIN_MAINNET_CONSENSUS_RPC=""
++TOCSIN_MAINNET_EXECUTION_RPC=""
  # Auto-Fill Keystore Password during development
  DEFAULT_KEYSTORE_PASSWORD_DEV=""
  
+diff --git a/package.json b/package.json
+index 501ece21a..a2dd9067b 100644
+--- a/package.json
++++ b/package.json
+@@ -58,6 +58,7 @@
+     "@0xbow/privacy-pools-core-sdk": "0.1.22",
+     "@a16z/helios": "0.11.1",
+     "@ambire/signature-validator": "^1.0.3",
++    "@anon-rpc/browser-harness": "0.4.0",
+     "@babel/plugin-proposal-decorators": "~7.22.7",
+     "@babel/plugin-proposal-private-methods": "~7.18.6",
+     "@babel/plugin-transform-typescript": "^7.23.3",
 diff --git a/src/common/components/AddressInput/AddressInput.tsx b/src/common/components/AddressInput/AddressInput.tsx
 index 0bfebadc6..310e2d4cb 100644
 --- a/src/common/components/AddressInput/AddressInput.tsx
@@ -352,7 +371,7 @@ index 0a4a2e879..8f198ad0b 100644
    | OpenExtensionPopupAction
    | SignAccountOpUpdateAction
 diff --git a/src/web/extension-services/background/background.ts b/src/web/extension-services/background/background.ts
-index cad1274dc..b6a47f2bc 100644
+index cad1274dc..cf4ab80ab 100644
 --- a/src/web/extension-services/background/background.ts
 +++ b/src/web/extension-services/background/background.ts
 @@ -21,6 +21,7 @@ import {
@@ -363,7 +382,19 @@ index cad1274dc..b6a47f2bc 100644
  import { Fetch } from '@ambire-common/interfaces/fetch'
  import { SwapAndBridgeActiveRoute } from '@ambire-common/interfaces/swapAndBridge'
  import { WindowManager } from '@ambire-common/interfaces/window'
-@@ -224,7 +225,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp:
+@@ -50,6 +51,11 @@ import {
+ import * as Sentry from '@sentry/browser'
+ import { ensureInitialized as ensureRailgunInitialized } from '@kohaku-eth/railgun'
+ import { browser, platform } from '@web/constants/browserapi'
++import {
++  ensureTocsinOffscreen,
++  tocsinFetch,
++  waitForTocsinWorker
++} from '@web/extension-services/background/tocsinAnonRpc'
+ import { Action } from '@web/extension-services/background/actions'
+ import AutoLockController from '@web/extension-services/background/controllers/auto-lock'
+ import { BadgesController } from '@web/extension-services/background/controllers/badges'
+@@ -224,7 +230,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp:
  }
  
  // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -372,19 +403,40 @@ index cad1274dc..b6a47f2bc 100644
    // Init sentry
    if (CONFIG.SENTRY_DSN_BROWSER_EXTENSION) {
      Sentry.init({
-@@ -490,6 +491,11 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp:
+@@ -373,10 +379,19 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp:
+     console.error('[BG] Railgun WASM init failed', err)
+   }
+ 
++  // Opens the offscreen page now so the Anon-RPC worker is booting while the controllers load.
++  const tocsinWorkerReady = ensureTocsinOffscreen()
++    .then(waitForTocsinWorker)
++    .catch((err) => {
++      // eslint-disable-next-line no-console
++      console.error('[BG] Tocsin Anon-RPC worker', err)
++    })
++
+   mainCtrl = new MainController({
+     platform,
+     storageAPI: storage,
+     fetch: fetchWithAnalytics,
++    tocsinFetch,
+     relayerUrl: RELAYER_URL,
+     velcroUrl: VELCRO_URL,
+     privacyPoolsAspUrl: PRIVACY_POOLS_ASP_URL,
+@@ -490,6 +505,12 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp:
  
    scheduleNetworkSync()
  
-+  // Tocsin: sync on service-worker start-up, then at the Snap's cron interval. syncNow never throws.
++  // Tocsin: sync once the Anon-RPC worker is up (or has failed, so the error shows), then at the
++  // Snap's cron interval. syncNow never throws.
 +  // eslint-disable-next-line @typescript-eslint/no-floating-promises
-+  mainCtrl.tocsin.syncNow()
++  tocsinWorkerReady.then(() => mainCtrl.tocsin.syncNow())
 +  setInterval(() => mainCtrl.tocsin.syncNow(), TOCSIN_SYNC_INTERVAL_MS)
 +
    async function initPortfolioContinuousUpdate() {
      if (backgroundState.updatePortfolioInterval)
        clearTimeout(backgroundState.updatePortfolioInterval)
-@@ -1191,4 +1197,4 @@ browser.runtime.onInstalled.addListener(({ reason }: any) => {
+@@ -1191,4 +1212,4 @@ browser.runtime.onInstalled.addListener(({ reason }: any) => {
  // TODO: Found the root cause of this! Event handler of 'disconnect' event must be added on the initial
  // evaluation of worker script. More info: https://developer.chrome.com/docs/extensions/mv3/service_workers/events/
  // Would be tricky to replace this workaround with different logic, but it's doable.
@@ -462,6 +514,127 @@ index b7c34ee30..0ff67470d 100644
      case 'EXTENSION_UPDATE_CONTROLLER_APPLY_UPDATE': {
        extensionUpdateCtrl.applyUpdate()
        break
+diff --git a/src/web/extension-services/background/tocsinAnonRpc.ts b/src/web/extension-services/background/tocsinAnonRpc.ts
+new file mode 100644
+index 000000000..c35265a44
+--- /dev/null
++++ b/src/web/extension-services/background/tocsinAnonRpc.ts
+@@ -0,0 +1,115 @@
++// Tocsin's fetch for the service worker: every read leaves through the Anon-RPC worker in the
++// offscreen page, except localhost (the user's own lying proxy or list server, nothing to hide
++// from) and the `direct` transport. Only the request itself crosses; nothing is stored or logged.
++import {
++  type OffscreenAsk,
++  type OffscreenReply,
++  type OffscreenRequest,
++  PORT_NAME
++} from '../tocsin-offscreen/protocol'
++
++const TRANSPORT = process.env.TOCSIN_TRANSPORT || 'tor'
++const OFFSCREEN_URL = 'tocsin-offscreen.html'
++const BOOT_WAIT_MS = 120_000
++
++// @types/chrome here predates the offscreen API.
++type OffscreenApi = {
++  hasDocument(): Promise<boolean>
++  createDocument(o: { url: string; reasons: string[]; justification: string }): Promise<void>
++}
++const offscreen = () => (chrome as unknown as { offscreen: OffscreenApi }).offscreen
++
++let creating: Promise<void> | undefined
++/** Opens the offscreen page once; the worker boots on open, so call it at start-up, not on the first send. */
++export async function ensureTocsinOffscreen(): Promise<void> {
++  if (TRANSPORT === 'direct' || (await offscreen().hasDocument())) return
++  creating ??= offscreen()
++    .createDocument({
++      url: OFFSCREEN_URL,
++      reasons: ['WORKERS', 'IFRAME_SCRIPTING', 'WEB_RTC'],
++      justification:
++        'Runs the Anon-RPC worker that fetches Tocsin threat flags without revealing this device.'
++    })
++    .finally(() => {
++      creating = undefined
++    })
++  await creating
++}
++
++let port: chrome.runtime.Port | undefined
++let nextId = 1
++const pending = new Map<number, { resolve: (r: OffscreenReply) => void; reject: (e: Error) => void }>()
++
++function connect(): chrome.runtime.Port {
++  if (port) return port
++  const p = chrome.runtime.connect({ name: PORT_NAME })
++  p.onMessage.addListener((reply: OffscreenReply) => {
++    pending.get(reply.id)?.resolve(reply)
++    pending.delete(reply.id)
++  })
++  p.onDisconnect.addListener(() => {
++    if (port === p) port = undefined
++    for (const [id, { reject }] of pending) {
++      reject(new Error('the Tocsin Anon-RPC page went away'))
++      pending.delete(id)
++    }
++  })
++  port = p
++  return p
++}
++
++async function ask(req: OffscreenAsk, signal?: AbortSignal): Promise<OffscreenReply> {
++  await ensureTocsinOffscreen()
++  const id = nextId++
++  return new Promise<OffscreenReply>((resolve, reject) => {
++    pending.set(id, { resolve, reject })
++    // The controller's timeout aborts the signal; the relay cannot cancel the worker, so it stops waiting instead.
++    signal?.addEventListener(
++      'abort',
++      () => {
++        pending.delete(id)
++        reject(signal.reason instanceof Error ? signal.reason : new Error('aborted'))
++      },
++      { once: true }
++    )
++    connect().postMessage({ ...req, id } satisfies OffscreenRequest)
++  })
++}
++
++/** Resolves once the worker is ready, or with the boot error; gives up after BOOT_WAIT_MS. */
++export async function waitForTocsinWorker(): Promise<void> {
++  if (TRANSPORT === 'direct') return
++  const until = Date.now() + BOOT_WAIT_MS
++  while (Date.now() < until) {
++    const r = await ask({ kind: 'status' })
++    if ('error' in r) throw new Error(r.error)
++    if ('ready' in r) {
++      if (r.ready) return
++      if (r.stage.startsWith('Anon-RPC')) throw new Error(r.stage)
++    }
++    await new Promise((res) => setTimeout(res, 2000))
++  }
++  throw new Error('the Anon-RPC worker took over two minutes to start')
++}
++
++const isLocal = (url: string) => /^(localhost|127\.0\.0\.1|\[::1\])$/.test(new URL(url).hostname)
++
++export const tocsinFetch: typeof globalThis.fetch = async (input, init) => {
++  const req = new Request(input, init)
++  if (TRANSPORT === 'direct' || isLocal(req.url)) return fetch(req)
++  const r = await ask(
++    {
++      kind: 'fetch',
++      url: req.url,
++      init: {
++        method: req.method,
++        headers: Object.fromEntries(req.headers),
++        body: (await req.text()) || undefined
++      }
++    },
++    req.signal
++  )
++  if ('error' in r) throw new Error(r.error)
++  if (!('status' in r)) throw new Error('the Tocsin Anon-RPC page sent the wrong reply')
++  return new Response(r.body, { status: r.status, statusText: r.statusText, headers: r.headers })
++}
 diff --git a/src/web/extension-services/background/types.ts b/src/web/extension-services/background/types.ts
 index d13ed7cd0..7619bb3a4 100644
 --- a/src/web/extension-services/background/types.ts
@@ -482,6 +655,123 @@ index d13ed7cd0..7619bb3a4 100644
    dapps: DappsController,
    requests: RequestsController,
    addressBook: AddressBookController,
+diff --git a/src/web/extension-services/tocsin-offscreen/offscreen.ts b/src/web/extension-services/tocsin-offscreen/offscreen.ts
+new file mode 100644
+index 000000000..0ee0fbff6
+--- /dev/null
++++ b/src/web/extension-services/tocsin-offscreen/offscreen.ts
+@@ -0,0 +1,81 @@
++// The offscreen document that owns Tocsin's Anon-RPC worker. It lives here, not in the service
++// worker, because the harness needs a DOM (a sandboxed iframe that spawns a Worker) and service
++// workers have neither. The service worker relays Tocsin's fetches here over a named port
++// (tocsinAnonRpc.ts) and gets serialised responses back. Nothing is persisted here.
++import type { AnonRpcWorker } from '@anon-rpc/browser-harness'
++
++import { bootstrapAnonRpc, startHelios, type Transport } from './harness/anonHelios'
++import { type OffscreenReply, type OffscreenRequest, PORT_NAME } from './protocol'
++
++const TRANSPORT = (process.env.TOCSIN_TRANSPORT || 'tor') as Transport
++const GATEWAYS = (process.env.TOCSIN_TOR_GATEWAYS || '')
++  .split(',')
++  .map((s) => s.trim())
++  .filter(Boolean)
++const MAINNET = {
++  consensusRpc: process.env.TOCSIN_MAINNET_CONSENSUS_RPC || '',
++  executionRpc: process.env.TOCSIN_MAINNET_EXECUTION_RPC || ''
++}
++
++let stage = 'starting'
++let ready = false
++const errorText = (e: unknown): string =>
++  e instanceof Error
++    ? e.cause instanceof Error
++      ? `${e.message}: ${e.cause.message}`
++      : e.message
++    : String(e)
++
++async function boot(): Promise<AnonRpcWorker> {
++  if (!MAINNET.consensusRpc || !MAINNET.executionRpc)
++    throw new Error('built without TOCSIN_MAINNET_CONSENSUS_RPC and TOCSIN_MAINNET_EXECUTION_RPC')
++  stage = 'syncing the mainnet light client that verifies the Anon-RPC worker'
++  const mainnet = await startHelios('mainnet', MAINNET)
++  stage = `booting the ${TRANSPORT} Anon-RPC worker`
++  try {
++    const { worker } = await bootstrapAnonRpc({
++      transport: TRANSPORT,
++      mainnetHelios: mainnet,
++      torGateways: GATEWAYS,
++      // The harness builds its iframe from an inline srcdoc by default, which the extension CSP blocks;
++      // anon-boot.html is a manifest sandbox page that loads the same boot script.
++      iframeUrl: chrome.runtime.getURL('anon-boot.html')
++    })
++    stage = 'ready'
++    ready = true
++    return worker
++  } finally {
++    void mainnet.shutdown()
++  }
++}
++
++// boot never retries, so the error says how to.
++const booted = boot().catch((e: unknown) => {
++  stage = `Anon-RPC ${TRANSPORT} worker failed to start while ${stage}: ${errorText(
++    e
++  )}. Reload Kohaku on chrome://extensions to retry.`
++  throw new Error(stage)
++})
++booted.catch(() => {})
++
++async function handle(req: OffscreenRequest): Promise<OffscreenReply> {
++  if (req.kind === 'status') return { id: req.id, stage, ready }
++  const res = await (await booted).fetch(req.url, req.init)
++  return {
++    id: req.id,
++    status: res.status,
++    statusText: res.statusText,
++    headers: Object.fromEntries(res.headers),
++    body: await res.text()
++  }
++}
++
++chrome.runtime.onConnect.addListener((port) => {
++  if (port.name !== PORT_NAME) return
++  port.onMessage.addListener((req: OffscreenRequest) => {
++    handle(req).then(
++      (reply) => port.postMessage(reply),
++      (e: unknown) => port.postMessage({ id: req.id, error: errorText(e) } satisfies OffscreenReply)
++    )
++  })
++})
+diff --git a/src/web/extension-services/tocsin-offscreen/protocol.ts b/src/web/extension-services/tocsin-offscreen/protocol.ts
+new file mode 100644
+index 000000000..19390ef88
+--- /dev/null
++++ b/src/web/extension-services/tocsin-offscreen/protocol.ts
+@@ -0,0 +1,24 @@
++// The port between the service worker (tocsinAnonRpc.ts) and the offscreen page (offscreen.ts).
++// A named port, not runtime.sendMessage: Kohaku's own pages answer broadcast messages first.
++export const PORT_NAME = 'tocsin-offscreen'
++
++export type OffscreenAsk =
++  | {
++      kind: 'fetch'
++      url: string
++      init: { method: string; headers: Record<string, string>; body?: string }
++    }
++  | { kind: 'status' }
++
++export type OffscreenRequest = OffscreenAsk & { id: number }
++
++export type OffscreenReply =
++  | {
++      id: number
++      status: number
++      statusText: string
++      headers: Record<string, string>
++      body: string
++    }
++  | { id: number; stage: string; ready: boolean }
++  | { id: number; error: string }
 diff --git a/src/web/hooks/useTocsinControllerState/index.ts b/src/web/hooks/useTocsinControllerState/index.ts
 new file mode 100644
 index 000000000..435e9591e
@@ -557,10 +847,10 @@ index ba3d44418..5455b2542 100644
      Icon: React.memo(TransactionHistoryIcon),
 diff --git a/src/web/modules/settings/screens/TocsinSettingsScreen/TocsinSettingsScreen.tsx b/src/web/modules/settings/screens/TocsinSettingsScreen/TocsinSettingsScreen.tsx
 new file mode 100644
-index 000000000..bc5628c77
+index 000000000..7f41c9df5
 --- /dev/null
 +++ b/src/web/modules/settings/screens/TocsinSettingsScreen/TocsinSettingsScreen.tsx
-@@ -0,0 +1,387 @@
+@@ -0,0 +1,396 @@
 +// Tocsin settings: the Snap's home page (snap-ui.md section 5, dapp/packages/snap/src/ui.tsx HomePage)
 +// in Kohaku's settings components. Every control dispatches a TOCSIN_CONTROLLER_* action; the results
 +// come back through useTocsinControllerState().
@@ -580,6 +870,8 @@ index 000000000..bc5628c77
 +  short,
 +  SOURCE_URL,
 +  STANDARD_URL,
++  TRANSPORT,
++  transportLine,
 +  whyUnavailable,
 +  writerLabel
 +} from '@ambire-common/libs/tocsin/display'
@@ -599,9 +891,11 @@ index 000000000..bc5628c77
 +import SettingsPageHeader from '@web/modules/settings/components/SettingsPageHeader'
 +import { SettingsRoutesContext } from '@web/modules/settings/contexts/SettingsRoutesContext'
 +
-+// The Snap's line points at Kohaku for full verification. This build is that Kohaku, and it does not.
++// The Snap's line points at Kohaku for full verification. This build is that Kohaku: Anon-RPC yes, light client not yet.
 +const NETWORK_LINE =
-+  'This build reads the header and proofs from the RPC you pick, best effort. It is not a light client and does not use Anon-RPC. The RPC can see which flags you download, never which address you check.'
++  TRANSPORT === 'direct'
++    ? 'This build reads the header and proofs from the RPC you pick, best effort. It is not a light client and does not use Anon-RPC. The RPC can see which flags you download, never which address you check.'
++    : `This build reads the header and proofs from the RPC you pick through the ${TRANSPORT} Anon-RPC worker, best effort. It is not a light client. The RPC sees which flags are downloaded, never who asked or which address you check. Localhost RPCs go direct.`
 +
 +const Row = ({
 +  label,
@@ -805,7 +1099,12 @@ index 000000000..bc5628c77
 +        />
 +        <Row label="proven head" value={proven(state)} />
 +        <Row label="last sync" value={syncedAt ? ago(syncedAt) : 'never'} />
-+        <Row label="source" value={`${host(settings.rpcUrl)} · best effort, not a light client`} />
++        <Row
++          label="source"
++          value={`${host(settings.rpcUrl)} · ${transportLine(
++            settings.rpcUrl
++          )} · best effort, not a light client`}
++        />
 +        {failing.map((w) => (
 +          <Row
 +            key={w.writer}
@@ -1599,3 +1898,93 @@ index 7937178bd..4a6f652a1 100644
                isSmartAccount={isSmartAccount}
                hasGasTank={hasGasTank}
                amountErrorMessage={validationFormMsgs.amount.message || ''}
+diff --git a/src/web/public/anon-boot.html b/src/web/public/anon-boot.html
+new file mode 100644
+index 000000000..a9dc11e1f
+--- /dev/null
++++ b/src/web/public/anon-boot.html
+@@ -0,0 +1,5 @@
++<!doctype html>
++<meta charset="utf-8" />
++<title>Anon-RPC isolation frame</title>
++<!-- The harness's own boot script, copied from @anon-rpc/browser-harness by webpack.config.js. -->
++<script src="iframe-boot.js"></script>
+diff --git a/src/web/public/manifest.json b/src/web/public/manifest.json
+index 0706fdae7..178a920c9 100644
+--- a/src/web/public/manifest.json
++++ b/src/web/public/manifest.json
+@@ -4,10 +4,14 @@
+   "author": "https://ethereum.foundation/",
+   "version": "SYNCED_WITH_THE_APP_VERSION_VIA_THE_WEBPACK_CONFIG",
+   "manifest_version": 3,
+-  "permissions": ["storage", "tabs", "unlimitedStorage", "activeTab", "notifications"],
++  "permissions": ["storage", "tabs", "unlimitedStorage", "activeTab", "notifications", "offscreen"],
+   "background": {
+     "service_worker": "background.js"
+   },
++  "sandbox": { "pages": ["anon-boot.html"] },
++  "content_security_policy": {
++    "sandbox": "sandbox allow-scripts; script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' blob:; worker-src blob:; child-src blob:; object-src 'none'"
++  },
+   "icons": {
+     "16": "assets/images/xicon_kohaku@16.png",
+     "48": "assets/images/xicon_kohaku@48.png",
+diff --git a/src/web/public/tocsin-offscreen.html b/src/web/public/tocsin-offscreen.html
+new file mode 100644
+index 000000000..a870d9e29
+--- /dev/null
++++ b/src/web/public/tocsin-offscreen.html
+@@ -0,0 +1,8 @@
++<!DOCTYPE html>
++<html>
++  <head>
++    <meta charset="utf-8" />
++    <title>Tocsin Anon-RPC</title>
++  </head>
++  <body></body>
++</html>
+diff --git a/webpack.config.js b/webpack.config.js
+index 8464389dd..bd55cb302 100644
+--- a/webpack.config.js
++++ b/webpack.config.js
+@@ -115,7 +115,8 @@ module.exports = async function (env, argv) {
+       manifest.permissions = manifest.permissions.filter((p) => p !== 'notifications')
+     }
+ 
+-    manifest.content_security_policy = { extension_pages: csp }
++    // Keeps the sandbox CSP for Tocsin's Anon-RPC isolation frame (anon-boot.html).
++    manifest.content_security_policy = { ...manifest.content_security_policy, extension_pages: csp }
+ 
+     // This value can be used to control the unique ID of an extension,
+     // when it is loaded during development. In prod, the ID is generated
+@@ -351,6 +352,7 @@ module.exports = async function (env, argv) {
+           './src/web/extension-services/content-script/content-script-messenger-bridge.ts',
+         'ambire-inpage': './src/web/extension-services/inpage/ambire-inpage.ts',
+         'ethereum-inpage': './src/web/extension-services/inpage/ethereum-inpage.ts',
++        'tocsin-offscreen': './src/web/extension-services/tocsin-offscreen/offscreen.ts',
+         ...(isGecko && {
+           'content-script-ambire-injection':
+             './src/web/extension-services/content-script/content-script-ambire-injection.ts',
+@@ -396,6 +398,9 @@ module.exports = async function (env, argv) {
+         from: './node_modules/webextension-polyfill/dist/browser-polyfill.min.js',
+         to: 'browser-polyfill.min.js'
+       },
++      // Tocsin's Anon-RPC isolation frame: the sandbox page and the harness's own boot script.
++      { from: './src/web/public/anon-boot.html', to: 'anon-boot.html' },
++      { from: require.resolve('@anon-rpc/browser-harness/iframe-boot.js'), to: 'iframe-boot.js' },
+       {
+         from: require.resolve('@trezor/connect-webextension/build/content-script.js'),
+         to: 'vendor/trezor/trezor-content-script.js'
+@@ -471,6 +476,12 @@ module.exports = async function (env, argv) {
+         inject: 'body', // to auto inject the main.js bundle in the body
+         chunks: ['main'] // include only chunks from the main entry
+       }),
++      new HtmlWebpackPlugin({
++        template: './src/web/public/tocsin-offscreen.html',
++        filename: 'tocsin-offscreen.html',
++        inject: 'body',
++        chunks: ['tocsin-offscreen']
++      }),
+       new CopyPlugin({ patterns: extensionCopyPatterns })
+     ]
+ 

@@ -21,6 +21,6 @@ export_patch() {
 }
 
 export_patch "$DIR" "$EXTENSION_COMMIT" "$HERE/patches/kohaku-extension.patch" \
-  ':!yarn.lock' ':!.yarnrc.yml' ':!key.pem' ':!src/ambire-common'
+  ':!yarn.lock' ':!.yarnrc.yml' ':!key.pem' ':!src/ambire-common' ':!src/web/extension-services/tocsin-offscreen/harness'
 export_patch "$DIR/src/ambire-common" "$COMMONS_COMMIT" "$HERE/patches/kohaku-commons.patch" \
   ':!package-lock.json' ':!src/libs/tocsin/reader'

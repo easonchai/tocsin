@@ -1,4 +1,4 @@
-# Tocsin, working state as of 5 November 2026
+# Tocsin, working state as of 6 November 2026
 
 Read this first if you are picking the project up. Everything that matters is in this repo; nothing depends on a chat log.
 
@@ -20,6 +20,7 @@ Read this first if you are picking the project up. Everything that matters is in
 - Blob mode removed to a later ERC. A Bloom-filter mode for very large writers and a state-storage fallback for data availability were discussed and not written.
 - No Chainlink CRE. The automated writer is a plain detector script with its own key, listed at warn weight.
 - Deploy with CREATE2 through `0x4e59b44847b379578588920cA78FbF26c0B4956C`, salt zero, on Sepolia and mainnet so the address matches. Append two or three real mainnet flags before judging.
+- Anon-RPC host (6 Nov): upstream Kohaku does not route reads through Anon-RPC, so our patch adds it for Tocsin's reads only (`dapp/packages/kohaku`, an offscreen document with the tor-js worker, hash verified through mainnet Helios). The Kohaku module is the Anon-RPC prize entry; the provider-proxy extension is the fallback, since it meets the same rule. Kohaku's own balance, gas and simulation reads still go direct.
 
 ## Brand (in progress, 6 Nov)
 
@@ -45,6 +46,18 @@ Critic loop on the landing page: four rounds, 7/10 each time, hero rated 8.5 to 
 ## Wallet integrations
 
 Three hosts for one reader: a Kohaku module (EF privacy wallet, Ambire fork with Helios built in, so Ambire itself is never touched), a MetaMask Snap, and a provider-proxy browser extension in the Wallet Guard and Pocket Universe mould. Full spec, trust level of each, scope, and acceptance in `docs/wallet-integrations.md`. Kohaku first with a decision at hour three, Snap second, extension third.
+
+### Kohaku state, 6 November
+
+Done and verified on 6 November in a CLI-driven Chrome: all three beats, the service worker makes no direct RPC request during a sync, the gateway log shows the worker's WebRTC session and Tor tunnels, jest 30 of 30, and a fresh `setup.sh` clone applies both patches.
+
+- Code lives in two patches under `dapp/packages/kohaku/patches/`; `setup.sh` clones upstream at the pinned commits, applies them, copies the reader and the Helios plus Anon-RPC helper in. Edit inside the clone, then `update-patches.sh`. The README has the full map.
+- Tocsin's reads go through an offscreen document (`src/web/extension-services/tocsin-offscreen/`) that syncs a mainnet Helios, verifies the tor-js worker hash against the on-chain specifier, and boots `@anon-rpc/browser-harness`. The service worker relays fetches over a named port (`background/tocsinAnonRpc.ts`). `runtime.sendMessage` does not work here, Kohaku's own tab page answers first. The harness's isolation frame is `anon-boot.html`, a manifest sandbox page, because the extension CSP blocks the default inline frame.
+- Localhost RPCs (lying proxy, list server) go direct. `TOCSIN_TRANSPORT=direct` in `.env` turns the worker off. Build settings are baked in; edit `.env` and rebuild.
+- Demo on `build/webkit-prod` (`build:web:webkit`), never the watching dev build: its live-reload client reloads every page with Kohaku's content script, the demo dApp included.
+- Start `tor-js-gateway` before loading the extension and wait for "TorClient bootstrapped". Debug in this order: the gateway log ("peer connection state changed: connected" on worker boot, "CONNECT: tunnel to" on every read); `chrome://extensions`, Kohaku, Inspect views `tocsin-offscreen.html` (boot stages and failures); the service worker console (`[BG] Tocsin Anon-RPC worker` on a boot failure). No status row in settings yet.
+- Known flake: the first Tor sync after a boot sometimes fails with "request to 0xrpc.io failed". Press Sync now again. Publicnode's `eth_getProof` returns "block not found" about one time in six through the lying proxy; retry.
+- Not done: Nym transport (the switch exists, untested in Kohaku), worker hash and boot stage in the settings page, the Snap's Policy section, the token-contract check, the curator lists, and whether Unverifiable should block Send (it does not today). Ticket 16 has the test record and ticket 17 the research.
 
 ## Build order, 48 hours, riskiest first
 

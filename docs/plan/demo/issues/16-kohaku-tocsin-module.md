@@ -367,3 +367,26 @@ Done as proposed, in `dapp/packages/kohaku/`. `update-patches.sh` exported 25 ex
 Checked from a fresh clone in the session scratchpad. The script ran clean in about four minutes. The resulting tree matches `../kohaku-tocsin` except `reader/evaluate.ts` and `reader/index.ts`, which are now the current reader with policy and the token context, plus `.env` comments. The 5 tocsin jest suites pass (29 tests) against that reader, given `SEPOLIA_RPC_URL` in the env. `yarn web:webkit` printed "web compiled successfully", and `background.js` contains the tocsin code. I did not load that build in a browser or rerun the beats on it. The dapp's yarn 4 workspace list ignores the folder, because it has no `package.json`.
 
 `../kohaku-tocsin` is now just a working clone. A clone made by `setup.sh` works the same way, with branch `tocsin` checked out in both repos.
+
+### 2026-11-06: Anon-RPC in Kohaku
+
+Tocsin's reads in Kohaku now leave through the Anon-RPC worker, the same `@anon-rpc/browser-harness@0.4.0` and tor-js specifier as the harness page and the provider-proxy extension. Kohaku's own reads are untouched. Ticket 17's research had said the wallet could not do this; what it found was that upstream does not, which is a different thing.
+
+The wiring, all in the extension patch plus one seam in the commons patch:
+
+- `src/web/extension-services/tocsin-offscreen/offscreen.ts`, a new webpack entry and offscreen document. It starts a mainnet Helios from the pinned checkpoint, boots the worker with `bootstrapAnonRpc` so the hash it checks the bundle against is light-client verified, and answers fetches over a named port. The harness's isolation frame is `anon-boot.html`, a manifest sandbox page, because the extension CSP blocks the default inline frame.
+- `src/web/extension-services/background/tocsinAnonRpc.ts`, the service-worker side: opens the offscreen page at start-up, relays each fetch over `chrome.runtime.connect({ name: 'tocsin-offscreen' })`, honours the controller's abort signal, and sends localhost URLs direct (the lying proxy and the list server, which a Tor exit cannot reach anyway). `waitForTocsinWorker` polls a status message so the first sync starts when the worker is ready instead of timing out at 20 seconds.
+- `MainController` takes an optional `tocsinFetch`, the one-line seam in kohaku-commons. The controller is unchanged.
+- `manifest.json` gains the `offscreen` permission, the sandbox page and its CSP; `webpack.config.js` keeps that CSP in `processManifest`, adds the entry, the HTML page, and copies `iframe-boot.js` from the package.
+- `setup.sh` copies `dapp/packages/nextjs/utils/harness` (the Helios and worker helper and the pinned bootstraps) into the clone like the reader, and writes four new `.env` keys: `TOCSIN_TRANSPORT`, `TOCSIN_TOR_GATEWAYS`, `TOCSIN_MAINNET_CONSENSUS_RPC`, `TOCSIN_MAINNET_EXECUTION_RPC`. `bootstrapAnonRpc` in the shared helper got an optional `iframeUrl`.
+- The source line on the verdict panel and the settings page reads "RPC traffic through the tor Anon-RPC worker", or "direct to the RPC, not anonymised" for a localhost URL or a `direct` build.
+
+Two things cost time. First, `chrome.runtime.sendMessage` from the service worker is answered by Kohaku's own tab page before the offscreen document, with an empty reply, so the first version of the relay saw "the Tocsin Anon-RPC page did not answer". A named port fixed it. Second, the first sync used to fire before the worker had booted and hit the controller's 20-second timeout; now it waits.
+
+Run on 2026-11-06 in a Chrome driven by the chrome-devtools CLI, with the local `tor-js-gateway`, the static site on 8000 and the lying proxy on 8550. The service worker made no request to `0xrpc.io`; the gateway log showed the worker's WebRTC connection and Tor tunnels within two seconds of the first sync. The three beats passed on the view-only account `0x1D3B…1583`:
+
+1. Honest RPC over Tor: Blocked, Send disabled, source "0xrpc.io · RPC traffic through the tor Anon-RPC worker".
+2. Lying proxy: settings show "manual.tocsin.eth · chain mismatch at sequence 1"; Send shows Unverifiable with the replay text and source "127.0.0.1:8550 · direct to the RPC, not anonymised".
+3. Back to 0xrpc.io: the first Sync now failed with "request to 0xrpc.io failed" while a circuit was built, the second synced 49 flags at block 12,076,628, and Send shows Blocked again.
+
+Not done: Nym was not tried in Kohaku (the build switch exists). The settings page does not show the worker hash or the boot stage; a boot failure only shows as the first sync's error. The proof read through the lying proxy still hits publicnode's "block not found" about one time in six, the same as the Snap, because the proxy forwards to `RPC_URL` in `packages/infra/.env`.

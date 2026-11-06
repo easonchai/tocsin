@@ -187,7 +187,7 @@ packages/kohaku/setup.sh
 cd packages/kohaku/kohaku-extension && YARN_IGNORE_PATH=1 npx yarn@1.22.22 web:webkit
 ```
 
-Load `packages/kohaku/kohaku-extension/build/webkit-dev` unpacked. It needs the static site and, for beat 2, the lying proxy. `packages/kohaku/README.md` has the settings, the beats and how to update the patches.
+Load `packages/kohaku/kohaku-extension/build/webkit-dev` unpacked. It needs the static site, the local Tor gateway from step 9 (start it first; Tocsin's reads go through the tor-js Anon-RPC worker and the first sync waits for it, about 30 seconds), and, for beat 2, the lying proxy. `packages/kohaku/README.md` has the settings, the beats and how to update the patches. A sync over Tor can fail once with "request to 0xrpc.io failed" while a circuit is built; press Sync now again.
 
 ## 9. The harness page
 

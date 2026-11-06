@@ -83,10 +83,13 @@ export async function bootstrapAnonRpc({
   transport,
   mainnetHelios,
   torGateways,
+  iframeUrl,
 }: {
   transport: Transport;
   mainnetHelios: { request(args: { method: string; params: unknown[] }): Promise<unknown> };
   torGateways: string[];
+  /** A same-origin page serving the harness's iframe-boot.js, for extension pages whose CSP blocks the default srcdoc frame. */
+  iframeUrl?: string;
 }): Promise<{ worker: AnonRpcWorker; workerHash: Hex; specifier: Address }> {
   const specifier = SPECIFIERS[transport];
   if (!specifier) throw new Error(`unknown transport ${transport}`);
@@ -97,11 +100,14 @@ export async function bootstrapAnonRpc({
     request: ({ method, params = [] }: { method: string; params?: unknown[] }) =>
       mainnetHelios.request({ method, params: params.map(p => (p === "latest" ? "finalized" : p)) }),
   };
+  type Init = ConstructorParameters<typeof AnonRpcWorker>[0];
   const worker = new AnonRpcWorker({
     address: specifier,
     config: transport === "tor" ? { gateways: torGateways } : undefined,
     preExisting: { rpcProvider },
-  });
+    // SAFETY: iframeUrl is read by the 0.4.0 host (dist/host.js #boot) but missing from its types.
+    ...(iframeUrl && { iframeUrl }),
+  } as Init);
   // The same verified read the harness makes internally, repeated so the page can show the hash.
   const workerHash = (await rpcProvider.request({
     method: "eth_call",
