@@ -2,6 +2,8 @@
 
 What the Tocsin Snap shows, where, in which order, and in which words. Written against the MetaMask Snaps SDK as documented on 6 Nov 2026. The mock in `design/kit/mocks.html` (middle panel) is the look we want; this document says which parts of it a Snap can actually do and what to do instead where it cannot.
 
+Visual mock of every state below, drawn in MetaMask's theme: `design/kit/snap.html` (serve the repo root and open it), still at `design/screens/snap-screens.png`.
+
 Companion: `docs/plan/demo/issues/12-metamask-snap.md` (the build ticket) and `docs/wallet-integrations.md` section 2 (scope and trust level).
 
 ## 1. What a Snap can and cannot do
