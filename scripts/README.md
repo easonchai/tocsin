@@ -10,7 +10,7 @@ node --env-file=scripts/.env scripts/ens/2-setup-core.mjs           # resolver +
 node --env-file=scripts/.env scripts/ens/3-claim.mjs <label>        # anyone who owns <label>.eth: claim <label>.tocsin.eth
 node --env-file=scripts/.env scripts/ens/4-register-and-claim.mjs <label>   # demo: register <label>.eth with CLAIMER_PRIVATE_KEY, then claim the subname
 node --env-file=scripts/.env scripts/ens/5-delegate-publisher.mjs <addr>  # let one hot key set only the list text record on your resolver (--revoke to undo)
-node --env-file=scripts/.env scripts/agent/detector.mjs --dry              # the detector agent: scan mainnet for poisoning dust, flag operators, append under its own key
+node --env-file=scripts/.env scripts/agent/detector.mjs --dry              # the detector agent template: flag sample operators (or --source live) under its own key
 node --env-file=scripts/.env scripts/seed/seed-core.mjs --dry       # resolve evidence blocks, show the batches
 node --env-file=scripts/.env scripts/seed/seed-core.mjs             # append 92 leaves to the log (one batch of 100 max per tx)
 node --env-file=scripts/.env scripts/seed/publish-list.mjs          # sign core's trust list, set the tocsin.list record, write core.list.json
@@ -45,7 +45,7 @@ Rebuild the committed artifact after editing the contract: `forge build --root s
 
 ## The detector agent
 
-`scripts/agent/detector.mjs` is a writer with its own identity: `detector.tocsin.eth`, owned by `DETECTOR_PRIVATE_KEY`. It scans the last N mainnet blocks for zero-value USDT and USDC transfers, groups them by the transaction sender (the account that authorized the dust, never a bundler, per the ERC's category 1 rule), and flags senders that sprayed at least `--min-recipients` addresses as `POISONING_OPERATOR` with the dust transaction as evidence. Candidates go to `docs/plan/demo/seed/detector.json`; with `LOG_ADDRESS` set they are appended under the detector's namespace. A 40-block dry run on 6 Nov 2026 found two live operators, each hitting more than a hundred recipients. Public RPCs refuse unfiltered log scans, so it watches the two stablecoins, which is where poisoning dust lives.
+`scripts/agent/detector.mjs` is a template for an automated writer, not a product: an agent with its own identity, `detector.tocsin.eth`, owned by `DETECTOR_PRIVATE_KEY`, that finds candidates, attaches on-chain evidence, appends them under its own key, and publishes its own list. Replace `findCandidates()` with your detection and keep the rest. By default it uses `--source sample`, five poisoning operators from the verified seed, so the demo is deterministic. `--source live` is the example detection: senders that sprayed zero-value USDT or USDC transfers to at least `--min-recipients` addresses in the last `--blocks` mainnet blocks, flagged as `POISONING_OPERATOR` with the dust transaction as evidence. A 40-block run on 6 Nov 2026 found two real sprayers, and it would also flag a legitimate batch sender, which is why it is not the default and why the detector sits at warn weight in core's list. Output goes to `docs/plan/demo/seed/detector.json`.
 
 To give it its name: register `detector.eth` and claim `detector.tocsin.eth` with `4-register-and-claim.mjs detector` using the detector key as `CLAIMER_PRIVATE_KEY`. Keep that key in a secret store such as 1Claw and load it into `DETECTOR_PRIVATE_KEY` at run time; the script never writes it anywhere.
 
@@ -61,7 +61,7 @@ The detector gets its own name and publishes a self-list; then `core` republishe
 # 1. the detector's name. CLAIMER_PRIVATE_KEY = the detector key for this step
 node --env-file=scripts/.env scripts/ens/4-register-and-claim.mjs detector
 # 2. the detector scans mainnet and appends a few flags under its own key
-node --env-file=scripts/.env scripts/agent/detector.mjs --blocks 60 --limit 5
+node --env-file=scripts/.env scripts/agent/detector.mjs --limit 5
 # 3. the detector publishes its self-list on detector.tocsin.eth
 node --env-file=scripts/.env scripts/seed/publish-list.mjs --name detector --key-env DETECTOR_PRIVATE_KEY
 # 4. core seeds its 92 leaves and publishes a list naming both writers

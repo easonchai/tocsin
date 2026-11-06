@@ -41,7 +41,7 @@ Built:
 - ENSv2 on Sepolia: `tocsin.eth` registered, plus scripts that set up the name's own subregistry and resolver, register `core.tocsin.eth`, and emancipate the registry.
 - The MirrorRegistrar, `scripts/ens/contracts/MirrorRegistrar.sol`: whoever owns `<label>.eth` can claim `<label>.tocsin.eth`. Seven fork tests pass against the live Sepolia ENSv2 contracts.
 - The claim page, `site/claim.html`: connect a Sepolia wallet, register a `.eth` name if needed, claim the subname, and read the registry's guarantees live. Two names claimed from stranger keys so far.
-- The detector agent, `scripts/agent/detector.mjs`: scans mainnet for poisoning dust and flags operators under its own name, `detector.tocsin.eth`. A 40-block dry run found two live operators.
+- The detector agent, `scripts/agent/detector.mjs`: a template for an automated writer with its own name, `detector.tocsin.eth`. Flags a sample of verified poisoning operators by default; its live mode, a zero-value-transfer heuristic, found two real sprayers in a 40-block scan. Replace the detection, keep the rest.
 - Publish-role delegation, `scripts/ens/5-delegate-publisher.mjs`: one hot key may set only the list text record on a resolver, through ENSv2's `authorizeTextRoles`.
 - Scripts to seed the log and publish the signed `core` list, waiting on the contract address.
 - Build tickets under `docs/plan/`, one per piece of the demo.
