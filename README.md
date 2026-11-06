@@ -61,7 +61,7 @@ All Sepolia. Nothing is on mainnet yet.
 | tocsin.eth subregistry (UserRegistry proxy, emancipated) | `0x61F6B44C598d7171947eE059e1d486eDd6950b88` |
 | MirrorRegistrar | `0x081d9c8ea86b6022c3e2f0a61f5c26cf9a7cb436` |
 | Maintainer's PermissionedResolver proxy | `0x1cBF0A41B77416381C6eEC40b703BBe4722519E6` |
-| `core.tocsin.eth` node | `0x0551573d8cba9f9ca27a75d85f7ca91d68a7c6b956c2c582c15d5ca027e18abc` |
+| `core.tocsin.eth` namehash (32-byte record key, not an address) | `0x0551573d8cba9f9ca27a75d85f7ca91d68a7c6b956c2c582c15d5ca027e18abc` |
 | ThreatFlagLog | not deployed yet; goes into `scripts/.env` as `LOG_ADDRESS` |
 
 Names claimed through the MirrorRegistrar so far, each from its own key:
@@ -89,6 +89,8 @@ ENSv2 Sepolia contracts the scripts call, from the `contracts-v2` deployment of 
 
 Re-check any address with `cast code` before it touches real funds.
 
+The namehash is how ENS turns a name into a fixed 32-byte key, by hashing the labels from the right: `node("core.tocsin.eth") = keccak(node("tocsin.eth") ‖ keccak("core"))`, down to 32 zero bytes for the root. Resolvers store records under that key, so the list record is written with `setText(0x0551…8abc, "erc-threat-flag-log.list", value)` and read back the same way. A labelhash is different: `keccak("core")` alone, which registries use because each registry already knows its parent.
+
 ## Names and lists
 
 Two ways to publish a list, and both work with the same reader:
@@ -102,55 +104,46 @@ Two ways to publish a list, and both work with the same reader:
 
 ENSv2 is a tree of registries, not one flat mapping. Each name's entry in its parent registry carries a `subregistry` pointer, and the names under it live in that child contract. A registrar is any contract that holds `ROLE_REGISTRAR` on a registry's root resource. The ETH Registrar is one for the `.eth` registry; the MirrorRegistrar is one for the `tocsin.eth` registry.
 
-```
-                   RootRegistry  (ENS governance)
-                        │ subregistry("eth")
-                        ▼
-                   ETHRegistry  ──── ETHRegistrar holds ROLE_REGISTRAR + ROLE_RENEW
-                   entry "tocsin":    (anyone registers a .eth name here)
-                     owner       = the maintainer key
-                     resolver    = our PermissionedResolver proxy
-                     subregistry ──────────────────────────────┐
-                                                               ▼
-                                              tocsin.eth UserRegistry (our proxy)
-                                              ROOT_RESOURCE roles after setup:
-                                                MirrorRegistrar: ROLE_REGISTRAR | ROLE_RENEW
-                                                maintainer:      none   (emancipated)
-                                              entries:
-                                                "core"   owner = maintainer, resolver = ours
-                                                "james"  owner = whoever owns james.eth
-                                                            │ subregistry (optional)
-                                                            ▼
-                                                 james.tocsin.eth UserRegistry, if james wants sub-subnames
-
-  MirrorRegistrar.claim("james", resolver)
-      ├─ ETHRegistry.findOwner("james") == msg.sender ?        the only rule
-      ├─ hub.getStatus(labelhash("james")) == AVAILABLE ?
-      └─ hub.register("james", msg.sender, 0, resolver, CLAIM_ROLES, ETHRegistry.findExpiry("james"))
+```mermaid
+flowchart TB
+  root["RootRegistry<br/>ENS governance"]
+  eth["ETHRegistry<br/>entry <b>tocsin</b>: owner = maintainer, resolver = ours"]
+  ethreg["ETHRegistrar<br/>ROLE_REGISTRAR + ROLE_RENEW on ETHRegistry root"]
+  hub["tocsin.eth UserRegistry (our proxy, <b>emancipated</b>)<br/>root roles: MirrorRegistrar = REGISTRAR + RENEW, maintainer = none"]
+  mirror["MirrorRegistrar<br/>claim(label) only if ETHRegistry.findOwner(label) == caller"]
+  core["<b>core</b><br/>owner = maintainer<br/>resolver = ours"]
+  james["<b>james</b><br/>owner = whoever owns james.eth<br/>resolver = his"]
+  sub["james.tocsin.eth UserRegistry<br/>optional, for sub-subnames"]
+  root -- "subregistry(eth)" --> eth
+  ethreg -. "register / renew" .-> eth
+  eth -- "subregistry(tocsin)" --> hub
+  mirror -. "register / renew" .-> hub
+  hub --> core
+  hub --> james
+  james -- "subregistry (optional)" --> sub
 ```
 
 Attaching the registrar is three transactions, all in `scripts/ens/2-setup-core.mjs`: deploy the UserRegistry through the Verifiable Factory, `setSubregistry` on the ETHRegistry so `tocsin.eth` points at it, `grantRootRoles(ROLE_REGISTRAR | ROLE_RENEW, registrar)` on the new registry. Then every other root role is revoked.
 
 Resolving `core.tocsin.eth` is a walk down the tree, and every step is a storage read:
 
-```
-UniversalResolverV2
-  → RootRegistry.getSubregistry("eth")        = ETHRegistry
-  → ETHRegistry.getSubregistry("tocsin")      = our UserRegistry
-  → UserRegistry.getResolver("core")          = our PermissionedResolver
-  → resolver.text(namehash("core.tocsin.eth"), "erc-threat-flag-log.list")
+```mermaid
+flowchart LR
+  ur["UniversalResolverV2"] --> a["RootRegistry<br/>getSubregistry(eth)"]
+  a --> b["ETHRegistry<br/>getSubregistry(tocsin)"]
+  b --> c["our UserRegistry<br/>getResolver(core)"]
+  c --> d["our PermissionedResolver<br/>text(namehash, erc-threat-flag-log.list)"]
 ```
 
 The Tocsin reader does the same walk through `eth_getProof` against the light client's state root, so the list record is verified the same way the log head is. That is why the ERC treats a record resolved through an unverifiable gateway as unverified.
 
 Who can do what once setup has run:
 
-```
-                             register  renew  setResolver  setSubregistry  unregister  transfer  upgrade
-MirrorRegistrar                 yes     yes       no            no             no         no       no
-maintainer (owns tocsin.eth)    no      no        no            no             no         no       no
-owner of james.tocsin.eth        –       –     own name      own name          no      own name    no
-```
+| | register | renew | set resolver | set subregistry | unregister | transfer | upgrade |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| MirrorRegistrar | yes | yes | no | no | no | no | no |
+| maintainer (owns tocsin.eth) | no | no | no | no | no | no | no |
+| owner of james.tocsin.eth | | | own name | own name | no | own name | no |
 
 The maintainer can still repoint `tocsin.eth`'s subregistry in the ETHRegistry, which replaces the whole directory in one visible transaction. It cannot touch a name inside it.
 
@@ -260,9 +253,9 @@ A reader downloads only the writers it pins. Fifty thousand flags a year is abou
 
 ## CROPS
 
-The Ethereum Foundation's test for the properties Ethereum must keep: censorship resistant, open source, private, secure.
+The Ethereum Foundation's test for the properties Ethereum must keep: censorship resistance, open source, privacy, security.
 
-**C.** Nothing we run sits between the user and the data. The log has no owner and `append` is open to anyone. Entries are verified by replay against a proven head, so any RPC, mirror, or snapshot host is interchangeable, and a lying one produces "unverifiable," not a false "clean." Lists are signed by their maintainer and pinned on first use, so losing our name or domain cannot swap a reader's list. The hub registry is emancipated. A block is always overridable on the device.
+**CR.** Nothing we run sits between the user and the data. The log has no owner and `append` is open to anyone. Entries are verified by replay against a proven head, so any RPC, mirror, or snapshot host is interchangeable, and a lying one produces "unverifiable," not a false "clean." Lists are signed by their maintainer and pinned on first use, so losing our name or domain cannot swap a reader's list. The hub registry is emancipated. A block is always overridable on the device.
 
 **O.** MIT for this repository, CC0 for the ERC. It builds from the repo alone. No backend, indexer, or API of ours.
 
