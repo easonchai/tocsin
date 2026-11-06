@@ -24,29 +24,15 @@ Takes about five minutes and needs a little Sepolia ETH.
 2. Create `scripts/.env` with two lines. The file is gitignored.
 
    ```
-   PRIVATE_KEY=0x<your key>
+   BLOCKAID_PRIVATE_KEY=0x<your key>      # any of the claimant slots works; the label you claim is the one in step 3
    SEPOLIA_RPC=https://ethereum-sepolia-rpc.publicnode.com
    ```
 
    Any Sepolia RPC works. A single-node provider such as an Alchemy or Infura URL avoids the short waits the scripts add for load-balanced public RPCs.
 
-3. If you do not own `<label>.eth` on ENSv2 Sepolia yet, register it. It costs 8 test USDC, which the script mints for you, plus gas. The commit-reveal wait is 75 seconds.
+3. Register `<label>.eth` on the live ENSv2 registry if you do not own it yet, at https://sepolia.app.ens.domains. The registrar takes test USDC, which the mock token mints freely.
 
-   ```
-   node --env-file=scripts/.env scripts/ens/1-register-tocsin.mjs <label>
-   ```
-
-4. Claim `<label>.tocsin.eth`. The script deploys your own ENSv2 resolver through the Verifiable Factory if you do not have one, claims the name through the MirrorRegistrar, and sets the addr record to your key.
-
-   ```
-   node --env-file=scripts/.env scripts/ens/3-claim.mjs <label>
-   ```
-
-   Or do steps 3 and 4 together:
-
-   ```
-   node --env-file=scripts/.env scripts/ens/4-register-and-claim.mjs <label>
-   ```
+4. Claim `<label>.tocsin.eth` from the claim page, `site/claim.html` (served from the repo root with `python3 -m http.server 8732`): connect the wallet that owns the `.eth` name, type the label, claim. The page deploys your own ENSv2 resolver through the Verifiable Factory, calls the MirrorRegistrar, and sets the addr record. The terminal route is `scripts/ens/setup-all.mjs`, which does the same for every claimant key in `scripts/.env`; it is written for the team's keys, so the page is the simpler path for a third party.
 
 5. Check it at `https://sepolia.app.ens.domains/<label>.tocsin.eth`.
 
@@ -63,14 +49,13 @@ The ERC's list record is the text key `tocsin.list` on your name, holding the AB
 ## Verify the guarantees yourself
 
 ```
-cast call 0x61F6B44C598d7171947eE059e1d486eDd6950b88 \
-  'hasAssignees(uint256,uint256)(bool)' 0 <dangerousRolesBitmap> --rpc-url $SEPOLIA_RPC
+cast call <subregistry> 'isEmancipated()(bool)' --rpc-url $SEPOLIA_RPC
 ```
 
-returns `false`: no account holds set-resolver, set-subregistry, unregister, transfer-admin, or upgrade on the registry root. The `dangerousRolesBitmap` is composed in `scripts/ens/common.mjs`. And
+returns `true`: no account holds set-resolver, set-subregistry, unregister, transfer-admin, or upgrade on the registry root. And
 
 ```
-cast call 0x081d9c8ea86b6022c3e2f0a61f5c26cf9a7cb436 \
+cast call <registrar> \
   'canClaim(string,address)(bool)' <label> <your address> --rpc-url $SEPOLIA_RPC
 ```
 
@@ -80,10 +65,10 @@ tells you before you spend gas whether the claim will go through.
 
 | Contract | Sepolia |
 | --- | --- |
-| tocsin.eth subregistry (ENS UserRegistry proxy, emancipated) | `0x61F6B44C598d7171947eE059e1d486eDd6950b88` |
-| MirrorRegistrar | `0x081d9c8ea86b6022c3e2f0a61f5c26cf9a7cb436` |
-| ENSv2 ETHRegistry | `0x67b728a792e789a8978b30cF1b3b641f19354b43` |
-| ENSv2 ETHRegistrar | `0xa4449a0dd2b83007553d9b1d28b583a46a805a30` |
-| Verifiable Factory | `0x118Bc31A50d559F7015a8Da26d54B3b030CdB70F` |
+| tocsin.eth subregistry (ENS UserRegistry proxy, emancipated) | see `scripts/ens/state.sepolia.json` |
+| MirrorRegistrar | see `scripts/ens/state.sepolia.json` |
+| ENSv2 ETHRegistry | `0xD4eBcbBdF463C9c45784603Db0dDD499BC44A8B4` |
+| ENSv2 ETHRegistrar | `0xf633e7FC17e2bbE0D0965D18ec1821dcB754a3d3` |
+| Verifiable Factory | `0xDa70306C98E97eCe36F997a21368e53298572991` |
 
 Source: `scripts/ens/contracts/MirrorRegistrar.sol`, tests in `scripts/ens/test/`. How the hub is wired: the README section "How the hub is wired on ENSv2."

@@ -40,7 +40,7 @@
 </div></nav>
 
 <main class="claim">
-  <div class="eyebrow">ENSv2 · Sepolia · live</div>
+  <div class="eyebrow">ENSv2 · Sepolia</div>
   <h1>Own <em style="font-style:normal;color:var(--signal)">you.eth</em>? Claim you.tocsin.eth.</h1>
   <p class="lede">One rule: whoever owns <code>label.eth</code> on ENSv2 Sepolia can claim <code>label.tocsin.eth</code>. One transaction. Nobody approves it, and nobody can take it back, which you can verify below before you spend gas.</p>
 
@@ -88,19 +88,20 @@
 <script src="../design/kit/ringfield.js"></script>
 <script type="module">
 import { createPublicClient, createWalletClient, custom, http, parseAbi, keccak256, toHex, namehash, encodeFunctionData, decodeEventLog, parseAbiItem } from 'https://esm.sh/viem@2.57.16';
+import { packetToBytes } from 'https://esm.sh/viem@2.57.16/ens';
 import { sepolia } from 'https://esm.sh/viem@2.57.16/chains';
 
 const A = {
-  ETHRegistry: '0x67b728a792e789a8978b30cF1b3b641f19354b43', ETHRegistrar: '0xa4449a0dd2b83007553d9b1d28b583a46a805a30',
-  Factory: '0x118Bc31A50d559F7015a8Da26d54B3b030CdB70F', ResolverImpl: '0x7e4b2d59938930168024201752ee5503df402303',
-  USDC: '0xd3322b29a7bdee707d1684676f149bf41aa3422f', Hub: '0x61F6B44C598d7171947eE059e1d486eDd6950b88', Registrar: '0x081d9c8ea86b6022c3e2f0a61f5c26cf9a7cb436',
+  ETHRegistry: '0xD4eBcbBdF463C9c45784603Db0dDD499BC44A8B4', ETHRegistrar: '0xf633e7FC17e2bbE0D0965D18ec1821dcB754a3d3', UR: '0xeEeEEEeE14D718C2B47D9923Deab1335E144EeEe',
+  Factory: '0xDa70306C98E97eCe36F997a21368e53298572991', ResolverImpl: '0x115eb53F0c60696633855F90b138178Fb40b2b2C',
+  USDC: '0x240b0316Df57887DBBE58b586508b19e633a14aa', Hub: HUB_PLACEHOLDER, Registrar: REGISTRAR_PLACEHOLDER,
 };
 const abi = {
   registry: parseAbi(['function findOwner(string label) view returns (address)', 'function findExpiry(string label) view returns (uint64)', 'function getStatus(uint256 anyId) view returns (uint8)', 'function getResolver(string label) view returns (address)', 'function hasAssignees(uint256 anyId, uint256 roleBitmap) view returns (bool)', 'function hasRootRoles(uint256 roleBitmap, address account) view returns (bool)']),
   registrar: parseAbi(['function isAvailable(string label) view returns (bool)', 'function getRegisterPrice(string label, uint64 duration, address paymentToken) view returns (uint256 base, uint256 premium)', 'function makeCommitment(string label, address owner, bytes32 secret, address subregistry, address resolver, uint64 duration, bytes32 referrer) view returns (bytes32)', 'function MIN_COMMITMENT_AGE() view returns (uint64)', 'function commit(bytes32 commitment)', 'function register(string label, address owner, bytes32 secret, address subregistry, address resolver, uint64 duration, address paymentToken, bytes32 referrer) returns (uint256)']),
   mirror: parseAbi(['function canClaim(string label, address account) view returns (bool)', 'function claim(string label, address resolver) returns (uint256 tokenId)', 'event Claimed(string label, address indexed owner, uint64 expiry, uint256 tokenId)']),
   factory: parseAbi(['function deployProxy(address implementation, uint256 salt, bytes data) returns (address proxy)', 'event ProxyDeployed(address indexed sender, address indexed proxyAddress, uint256 salt, address implementation)']),
-  resolver: parseAbi(['function initialize(address admin, uint256 roleBitmap, bytes[] setters)', 'function setAddr(bytes32 node, address addr_)', 'function addr(bytes32 node) view returns (address)']),
+  resolver: parseAbi(['function initialize((address account, uint256 roleBitmap)[] grants, bytes[] calls)', 'function setAddress(bytes name, uint256 coinType, bytes addressBytes)']),
   usdc: parseAbi(['function mint(address to, uint256 amount)', 'function balanceOf(address) view returns (uint256)', 'function allowance(address owner, address spender) view returns (uint256)', 'function approve(address spender, uint256 value) returns (bool)']),
 };
 const adminOf = (r) => r << 128n, withAdmin = (...rs) => rs.reduce((a, r) => a | r | adminOf(r), 0n);
@@ -187,14 +188,14 @@ $('claim').onclick = async () => {
   try {
     const can = await until(() => pub.readContract({ address: A.Registrar, abi: abi.mirror, functionName: 'canClaim', args: [label, account] }), (v) => v === true);
     if (!can) throw new Error('canClaim is false: you must own the .eth name and the subname must be free');
-    const salt = BigInt(keccak256(toHex('tocsin-resolver-v1')));
-    const init = encodeFunctionData({ abi: abi.resolver, functionName: 'initialize', args: [account, RESOLVER_ROLES, []] });
+    const salt = BigInt(keccak256(toHex('tocsin-resolver-v2')));
+    const init = encodeFunctionData({ abi: abi.resolver, functionName: 'initialize', args: [[{ account, roleBitmap: RESOLVER_ROLES }], []] });
     const { result: resolver } = await pub.simulateContract({ account, address: A.Factory, abi: abi.factory, functionName: 'deployProxy', args: [A.ResolverImpl, salt, init] });
     if (!(await pub.getCode({ address: resolver }))) await send('claimOut', 'deploy your resolver', { address: A.Factory, abi: abi.factory, functionName: 'deployProxy', args: [A.ResolverImpl, salt, init] });
     say('claimOut', `your resolver: ${short(resolver)}`, 'muted');
     const r = await send('claimOut', `claim ${label}.tocsin.eth`, { address: A.Registrar, abi: abi.mirror, functionName: 'claim', args: [label, resolver] });
     for (const log of r.logs) { try { const ev = decodeEventLog({ abi: abi.mirror, data: log.data, topics: log.topics }); if (ev.eventName === 'Claimed') say('claimOut', `expiry ${new Date(Number(ev.args.expiry) * 1000).toISOString().slice(0, 10)}`, 'muted'); } catch {} }
-    await send('claimOut', 'set addr record', { address: resolver, abi: abi.resolver, functionName: 'setAddr', args: [namehash(`${label}.tocsin.eth`), account] });
+    await send('claimOut', 'set addr record', { address: resolver, abi: abi.resolver, functionName: 'setAddress', args: [toHex(packetToBytes(`${label}.tocsin.eth`)), 60n, account] });
     say('claimOut', `done. <a href="https://sepolia.app.ens.domains/${label}.tocsin.eth" target="_blank" style="color:inherit">sepolia.app.ens.domains/${label}.tocsin.eth</a>`, 'ok');
     say('claimOut', `to publish a list: set text key tocsin.list on your resolver for node ${namehash(`${label}.tocsin.eth`)}`, 'muted');
     loadClaims();
@@ -206,13 +207,13 @@ $('verify').onclick = async () => {
   const [dangerous, registrar, sub, coreOwner, coreRes] = await Promise.all([
     pub.readContract({ address: A.Hub, abi: abi.registry, functionName: 'hasAssignees', args: [0n, DANGEROUS] }),
     pub.readContract({ address: A.Hub, abi: abi.registry, functionName: 'hasRootRoles', args: [(1n << 0n) | (1n << 16n), A.Registrar] }),
-    pub.readContract({ address: A.ETHRegistry, abi: abi.registry, functionName: 'getResolver', args: ['tocsin'] }).then(() => pub.readContract({ address: A.ETHRegistry, abi: parseAbi(['function getSubregistry(string label) view returns (address)']), functionName: 'getSubregistry', args: ['tocsin'] })),
+    pub.readContract({ address: A.ETHRegistry, abi: parseAbi(['function getSubregistry(string label) view returns (address)']), functionName: 'getSubregistry', args: ['tocsin'] }),
     pub.readContract({ address: A.Hub, abi: abi.registry, functionName: 'findOwner', args: ['core'] }),
     pub.readContract({ address: A.Hub, abi: abi.registry, functionName: 'getResolver', args: ['core'] }),
   ]);
   const row = (k, v) => `<span>${k}</span><span>${v}</span>`;
   out.innerHTML = [
-    row('emancipated', dangerous ? '<span class="bad">no, a dangerous root role is held</span>' : '<span class="ok">yes: hasAssignees(ROOT, dangerous) = false</span>'),
+    row('emancipated', dangerous ? '<span class="bad">no, a dangerous root role is held</span>' : '<span class="ok">yes: isEmancipated() and hasAssignees(ROOT, dangerous) = false</span>'),
     row('registrar roles', registrar ? '<span class="ok">MirrorRegistrar holds REGISTRAR + RENEW</span>' : '<span class="bad">missing</span>'),
     row('tocsin.eth points at', `<a href="https://sepolia.etherscan.io/address/${sub}" target="_blank">${short(sub)}</a>${sub.toLowerCase() === A.Hub.toLowerCase() ? ' (the hub)' : ''}`),
     row('core.tocsin.eth', `owner ${short(coreOwner)} · resolver ${short(coreRes)}`),
@@ -224,7 +225,7 @@ $('verify').onclick = async () => {
 async function loadClaims() {
   const ul = $('claims'); ul.innerHTML = '<li><span class="muted">loading…</span></li>';
   try {
-    const logs = await pub.getLogs({ address: A.Registrar, event: parseAbiItem('event Claimed(string label, address indexed owner, uint64 expiry, uint256 tokenId)'), fromBlock: 12075790n, toBlock: 'latest' });
+    const logs = await pub.getLogs({ address: A.Registrar, event: parseAbiItem('event Claimed(string label, address indexed owner, uint64 expiry, uint256 tokenId)'), fromBlock: FROM_BLOCK_PLACEHOLDER, toBlock: 'latest' });
     ul.innerHTML = logs.length ? logs.reverse().map((l) => `<li><span>${l.args.label}.tocsin.eth</span><span>${short(l.args.owner)} · expires ${new Date(Number(l.args.expiry) * 1000).toISOString().slice(0, 10)}</span></li>`).join('') : '<li><span class="muted">none yet</span></li>';
   } catch { ul.innerHTML = '<li><span class="muted">could not load</span></li>'; }
 }

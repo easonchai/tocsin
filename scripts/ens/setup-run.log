@@ -1,0 +1,16 @@
+maintainer 0x8E2Cc65A08154a357136C8060DE5232FDdEe3e31; core writer 0x36a279136adDde960599fcA356369C04A96D387E; claimants blockaid=0x6f1524F5A1152d6b08ef8833E42E4311151e904F, etherscan=0x3a05D06949b9890aEAD4700AA5ECEbf4D1BA0Ba0, detector=0xe2605fA3c6CED0E1Dc05D19A0F1FdF51Dc5e7301
+tocsin.eth is owned by the maintainer key
+resolver 0xedB3Ac2276803E249be532E6Bab168Af4b9549A6 already controlled by the maintainer key
+subregistry 0x45cb8bE82D927d8d310cd6B357708b0367B4435B already controlled by the maintainer key
+record the parent pointer: 0xd3760511be6e4ce9c712f6b03d8c01ab85a3294e5a882f3b845c77f4a49b48e0 … ok (block 12077303)
+deploy MirrorRegistrar: 0x62b66b348559d534049b11da1f74ea86fd1126f4d913c7809de4ca7b4cc49bd4 … ok at 0x9319461337a2c5fb1992fd467708cc46d716a427
+grant registrar + renew to the MirrorRegistrar: 0xf93fd6a1b35aa0bac08f2c89709fa39c8067b3f3a99a0ec7b0fcde6f6378c265 … ok (block 12077307)
+register core.tocsin.eth: 0xbaf22135f51cf6b64b87762bfb5980030852fb081f9b54adc23f1d11a50fa8ec … ok (block 12077309)
+set addr for tocsin.eth: 0xcb9e3df39548cc81f20e701a866620fd7f8446fca306a27628713ee8f08926cd … ok (block 12077311)
+set addr for core.tocsin.eth: 0xcba531527d85362d770ff0aee78c3ad9de7a6d397da0493da76d59c8e85db825 … ok (block 12077313)
+== blockaid
+blockaid.eth costs 8.000021 test USDC for a year
+mint test USDC: 0xa026d25d0a4046ebdc8b3269b6eb41d290d12db903f06a2629baeeb2ebd9c85a … ok (block 12077315)
+approve registrar: 0x4f70c62b736b6755af3fe2b9a7695313bd009aa1dbe3520690e22514605274f7 … ok (block 12077318)
+commit blockaid.eth: 0xb43ee2340501f713126654c21bb183c96e502cc15429de2db3f764d0130a8798 … ok (block 12077320)
+waiting 75s for the commitment to age…
