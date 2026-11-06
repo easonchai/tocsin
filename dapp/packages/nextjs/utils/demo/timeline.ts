@@ -1,5 +1,5 @@
 // The stage's timed sequence: when each piece of a scene appears, in ms from the start. Presentation only.
-// Timings from docs/plan/demo-page/explainer-spec.md: lists stagger 120 ms, writers 480 ms apart,
+// Timings: lists stagger 120 ms, writers 480 ms apart,
 // rule 650 ms before the verdict, the whole sequence under five seconds.
 import type { Scene } from "./explain.ts";
 import { type Flag, LISTS, type Scenario } from "./scenarios.ts";

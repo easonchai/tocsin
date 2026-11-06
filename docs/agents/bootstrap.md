@@ -25,5 +25,5 @@ The script skips every step whose output exists: the keys file, the start block,
 
 ## What it does not cover
 
-- The detector as a running process. The seed writes the detector's batch, so the beats work without it. To run it: `yarn workspace @tocsin/infra detect` with `.tocsin-demo/keys.env` sourced; the operator runbook in `docs/plan/demo/runbook.md` has the tuning.
+- The detector as a running process. The seed writes the detector's batch, so the beats work without it. To run it: `yarn workspace @tocsin/infra detect` with `.tocsin-demo/keys.env` sourced; the operator runbook in `docs/operator.md` has the tuning.
 - Deploying the log, ENS names and reverse records, own demo tokens. The operator runbook covers each.

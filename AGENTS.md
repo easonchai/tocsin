@@ -32,18 +32,23 @@ In Claude Code, load `ethskills:<name>` (`why` is `ethskills:why-ethereum`). Oth
 | QA on the frontend before the demo | `qa` |
 | Auditing the contracts | `audit` |
 
-The settled decisions in `HANDOFF.md` take precedence over ethskill advice. If they conflict, follow `HANDOFF.md` and point out the conflict.
+The settled decisions below take precedence over ethskill advice. If they conflict, follow the decision and point out the conflict.
 
-## Agent skills
+## Settled decisions
 
-### Issue tracker
+- Trust first, privacy second, security is the outcome. Say "verifiable", not "trustless". Never say "composable" (no contract can query the log). Never say "decentralised ScamSniffer" (we replace distribution and trust, not detection).
+- ERC-8004 gets one sentence in Related work and nothing in the pitch.
+- Read path: prove per-writer heads at storage slots 2 and 3, sync only the pinned writers' entries from any source, verify the suffix from an anchor, never replay from a writer's first entry. The global head at slot 0 is for mirrors.
+- Trust lists are EIP-712 signed by a maintainer. ENS locates a list; the signature authenticates it. Readers pin maintainer and version on first use. ENSv2 roles govern who may publish the record, not who may write the log.
+- The log has no access control. Writer is `msg.sender` or the EIP-712 or ERC-1271 signer. Anyone writes into their own namespace.
+- Gas: about 10,000 gas per flag batched, event-dominated. Say "about half a cent a flag". Glamsterdam calldata repricing is noted in the spec's Rationale, not acted on.
+- `chainId = 0` only for categories 1, 2, 6. Category 1 is the authorizer (4337 sender), never the bundler. Category 4's subject is the address after the `0xef0100` designator.
+- Blob mode is left to a later revision of the spec.
+- No Chainlink CRE. The automated writer is a plain detector script with its own key, listed at warn weight.
+- Deploy with CREATE2 through `0x4e59b44847b379578588920cA78FbF26c0B4956C`, salt zero, so the address matches on every chain.
+- Upstream Kohaku does not route reads through Anon-RPC, so our patch adds it for Tocsin's reads only. Kohaku's own balance, gas and simulation reads still go direct.
+- `docs/plan/demo/seed/*.list.json` stays at that path: the live `tocsin.list` ENS records point at their raw GitHub URLs. Moving them means republishing the records with the maintainer key.
 
-Issues live as tracked markdown files under `docs/plan/<feature>/`. See `docs/agents/issue-tracker.md`.
+## Vocabulary
 
-### Triage labels
-
-The five default roles (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`), recorded as a `Status:` line in each issue file. See `docs/agents/triage-labels.md`.
-
-### Domain docs
-
-Single-context: one `GLOSSARY.md` and `docs/adr/` at the repo root. See `docs/agents/domain.md`.
+Use the terms in `GLOSSARY.md` in code, tests and docs.

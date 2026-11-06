@@ -81,7 +81,14 @@ fill() {
 fill default.template.json default.json "$MAINTAINER_ADDRESS" "$MANUAL_WRITER_ADDRESS" "$DETECTOR_ADDRESS" tocsin.eth
 fill curator.template.json harborwatch.json "$HARBOR_MAINTAINER_ADDRESS" "$HARBOR_WRITER_ADDRESS" "$HARBOR_WRITER_ADDRESS" harborwatch.eth
 fill curator.template.json lanterndao.json "$LANTERN_MAINTAINER_ADDRESS" "$LANTERN_WRITER_ADDRESS" "$LANTERN_WRITER_ADDRESS" lanterndao.eth
-LOG_FROM_BLOCK="$FROM_BLOCK" MIRROR_DIR="$LOCAL/mirror" infra mirror "$MANUAL_WRITER_ADDRESS" "$DETECTOR_ADDRESS" "$HARBOR_WRITER_ADDRESS" "$LANTERN_WRITER_ADDRESS"
+# A load-balanced public RPC can report a head that the node serving eth_getLogs has not reached yet. Retry that one error.
+for try in 1 2 3; do
+  if out="$(LOG_FROM_BLOCK="$FROM_BLOCK" MIRROR_DIR="$LOCAL/mirror" infra mirror "$MANUAL_WRITER_ADDRESS" "$DETECTOR_ADDRESS" "$HARBOR_WRITER_ADDRESS" "$LANTERN_WRITER_ADDRESS" 2>&1)"; then
+    echo "$out"; break
+  fi
+  [[ "$out" == *"beyond current head"* && $try -lt 3 ]] || { echo "$out" >&2; exit 1; }
+  echo "RPC node is behind the head it reported; retrying the mirror in 5 s"; sleep 5
+done
 sign() { MAINTAINER_PRIVATE_KEY="$2" reader publish-list sign "$LOCAL/lists/$1" "$SITE/lists/$1"; }
 record="$(sign default.json "$MAINTAINER_PRIVATE_KEY")"
 harbor="$(sign harborwatch.json "$HARBOR_MAINTAINER_PRIVATE_KEY")"

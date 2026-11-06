@@ -45,7 +45,7 @@ test("off-table subjects are unflagged and the fixed addresses match their sourc
   }
   assert.equal(REAL_USDC, table.get("realUSDC")?.address);
   assert.equal(FAKE_USDC, table.get("fakeUSDC")?.address);
-  const runbook = readFileSync(new URL("runbook.md", docs), "utf8");
+  const runbook = readFileSync(new URL("../../operator.md", docs), "utf8");
   assert.match(runbook, new RegExp(`\\| Demo account \\| \`${DEMO_ACCOUNT}\``));
   assert.equal(SCENARIOS.find(s => s.id === "send-clean")?.subject, DEMO_ACCOUNT);
 });

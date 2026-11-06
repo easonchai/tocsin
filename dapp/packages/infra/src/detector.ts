@@ -166,7 +166,7 @@ export function scan(transfers: readonly Transfer[], memory: Counterparties, cfg
 }
 
 /**
- * Category 1 FLAG leaf. `chainId = 0` (every EVM chain, allowed for category 1 by HANDOFF and the ERC) only when the
+ * Category 1 FLAG leaf. `chainId = 0` (every EVM chain, allowed for category 1 by the ERC) only when the
  * subject signed the transaction, which makes it an EOA. A UserOperation sender is a contract account whose address
  * can belong to someone else on another chain, so it gets this chain's id.
  */

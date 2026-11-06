@@ -80,7 +80,7 @@ Names in the hub:
 | `blockaid.tocsin.eth` | `0x6f1524F5A1152d6b08ef8833E42E4311151e904F` | `0x2a0F1707376b54058A8ecD6d88Ae05810a0Ab084` | claimed through the MirrorRegistrar, tx `0xf1cb08bf…59d7699f` |
 | `scamsniffer.tocsin.eth` | `0x3a05D06949b9890aEAD4700AA5ECEbf4D1BA0Ba0` | `0xB28A4cd2eD1f11e5dbB1a3f2ABf6A83EE63b219f` | claimed through the MirrorRegistrar, tx `0xdb08b8b0…b39496f46` |
 
-The two claims come from separate keys, each of which first registered its own `.eth` name (`blockaid.eth` in `0x5ada2ed4…c81431770`, `scamsniffer.eth` in `0x89b3173d…ca307009`) and deployed its own resolver. They are demo claims by keys we control, named after the organisations as placeholders. The real ones belong to whoever owns `blockaid.eth` and `scamsniffer.eth` on mainnet when the hub goes there. `etherscan.eth` is on the Sepolia registrar's reserved list, so that role is now `scamsniffer`. To claim your own: `docs/claim-a-name.md`.
+The two claims come from separate keys, each of which first registered its own `.eth` name (`blockaid.eth` in `0x5ada2ed4…c81431770`, `scamsniffer.eth` in `0x89b3173d…ca307009`) and deployed its own resolver. The rest of the scamsniffer run, blocks 12077414 to 12077439: mint test USDC `0xa26de66c…dd9fa0ece`, approve the registrar `0xb008b134…e1a7f3b`, commit `scamsniffer.eth` `0xf905f313…ba0d49a`, deploy its resolver `0xee56328e…6bb79cd`, set the addr of `scamsniffer.tocsin.eth` `0xd3735418…c154834e5`, and `tocsin.list` version 3 on `core.tocsin.eth` `0xe88b75c1…f9178047d`. They are demo claims by keys we control, named after the organisations as placeholders. The real ones belong to whoever owns `blockaid.eth` and `scamsniffer.eth` on mainnet when the hub goes there. `etherscan.eth` is on the Sepolia registrar's reserved list, so that role is now `scamsniffer`. To claim your own: `docs/claim-a-name.md`.
 
 Published lists. core and detector are signed by the maintainer key `0x8E2C…3e31`, each claimant's by its own key. The demo wallet follows core, blockaid and scamsniffer:
 
@@ -207,17 +207,14 @@ The resolver uses the same system and is not emancipated, on purpose. The mainta
 | `design/` | Brand kit, scenes, mocks, Snap screens, explorations, designer handoff (`design/README.md`) |
 | `docs/claim-a-name.md` | How anyone claims `<label>.tocsin.eth` on Sepolia and publishes under it |
 | `docs/pitch/arguments.md` | Pitch copy: the supply-chain argument, fake heads, why not ENS, one-liners |
-| `docs/plan/demo/` | Demo spec, Snap UI spec, seed list, build tickets 01 to 15 |
+| `docs/plan/demo/` | Seed lists and flags, the signed list documents the ENS records point at, test addresses |
 | `RUNBOOK.md` | Run the demo on a fresh clone: `./demo.sh`, then the beats in Kohaku and the Snap |
 | `bootstrap.sh`, `docs/agents/bootstrap.md` | Your own writers and lists on the shared log, no deploy: generates the keys, asks for one Sepolia ETH transfer, seeds, signs, and feeds `demo.sh` |
-| `docs/plan/demo/runbook.md` | Operator side: commands and env var names to seed, relay, detect, mirror, lie, publish lists, and build the extension, plus where each judge check is shown |
-| `docs/plan/log-contract/` | Contract spec and tickets |
+| `docs/operator.md` | Operator side: commands and env var names to seed, relay, detect, mirror, lie, publish lists, and build the extension, plus where each judge check is shown |
 | `docs/wallet-integrations.md` | The three hosts: Kohaku, Snap, extension |
-| `docs/ideas/` | Parked ideas, such as the open-silicon signer |
 | `scripts/ens/` | ENSv2 Sepolia: `setup-all.mjs` registers, sets up the hub, claims, publishes the lists, and emancipates; `common.mjs` holds the addresses; the MirrorRegistrar and its fork tests |
 | `scripts/seed/` | Seed the log from `core.json` |
 | `scripts/agent/` | The detector: an agent writer with its own name |
-| `HANDOFF.md` | Settled decisions, build order, open items |
 | `dapp/packages/reader` | The reader library every host shares: sync, verify, evaluate, trust lists, ENS |
 | `dapp/packages/infra` | Demo scripts: seed, relayer, detector, lying proxy, mirror, three-beat CLI, ENS setup |
 | `dapp/packages/snap` | The MetaMask Snap, the primary host |
@@ -355,7 +352,7 @@ A reader downloads only the writers it pins. Fifty thousand flags a year is abou
 
 ## CROPS
 
-Censorship resistance, open source, privacy, security: the Ethereum Foundation's test for what Ethereum must keep. This section describes the code as it ships on this branch. The log is deployed and verified on Sepolia at `0xB639d15A0E7aE24E4C32E851Fbe0E57585565b14`. `docs/plan/demo/runbook.md` maps each judge check to a file, command, or demo beat.
+Censorship resistance, open source, privacy, security: the Ethereum Foundation's test for what Ethereum must keep. This section describes the code as it ships on this branch. The log is deployed and verified on Sepolia at `0xB639d15A0E7aE24E4C32E851Fbe0E57585565b14`. `docs/operator.md` maps each judge check to a file, command, or demo beat.
 
 - **C.** We run the `tocsin.eth` name, the static host for list documents and mirror files, and the demo RPC. None of them sits in the read path after first sync: the log has no owner, pause, or delete, and every host keeps its pinned list and checkpoints on the device and replays leaves from any Sepolia RPC. If all three vanish or refuse a user, an installed host still blocks, which `dapp/packages/snap/test/bundle.test.ts` tests by deleting them. A fresh install has nothing to pin until someone serves a list record, and a writer whose relayer refuses sends `append` itself.
 - **O.** MIT for the repo, CC0 for the spec and the reference implementation. A clone builds and runs every piece with public RPCs and no account, key, or service of ours. `forge test`, the Snap and extension builds, and `dapp/packages/kohaku/setup.sh` are in this file and the runbook.
