@@ -4,3 +4,10 @@
 node_modules/
 out/
 cache/
+
+# agent/editor tooling (kept locally)
+.agents/
+.claude/
+.cursor/
+.opencode/
+.mcp.json
