@@ -94,14 +94,16 @@ Names in the hub:
 
 The two claims come from separate keys, each of which first registered its own `.eth` name (`blockaid.eth` in `0x5ada2ed4…c81431770`, `scamsniffer.eth` in `0x89b3173d…ca307009`) and deployed its own resolver. They are demo claims by keys we control, named after the organisations as placeholders. The real ones belong to whoever owns `blockaid.eth` and `scamsniffer.eth` on mainnet when the hub goes there. `etherscan.eth` is on the Sepolia registrar's reserved list, so that role is now `scamsniffer`. To claim your own: `docs/claim-a-name.md`.
 
-Published lists, both signed by the maintainer key `0x8E2C…3e31`:
+Published lists. core and detector are signed by the maintainer key `0x8E2C…3e31`, each claimant's by its own key. The demo wallet follows core, blockaid and scamsniffer:
 
 | Name | Record | Writers |
 | --- | --- | --- |
-| `core.tocsin.eth` | `tocsin.list` version 3, root `0x62ea0207…`, tx `0xe88b75c1…9178047d` | core writer `0x36a2…387E` at weight 255 (92 leaves), detector writer `0xe3a9…A999` at weight 1, warn (25 leaves) |
+| `core.tocsin.eth` | `tocsin.list` version 5, root `0x756fe5e6…`, tx `0xd0680d38…10d99b99` | core writer `0x36a2…387E` at weight 255 (92 seed leaves plus 26 Sepolia demo leaves), detector writer `0xe3a9…A999` at weight 1, warn (25 leaves) |
 | `detector.tocsin.eth` | `tocsin.list` version 2, root `0x30cf0073…`, tx `0xe2b7a7d9…a995887c` | detector writer `0xe3a9…A999` at weight 255 (25 leaves) |
+| `blockaid.tocsin.eth` | `tocsin.list` version 1, tx `0xaf1148cf…ae68bc1` | blockaid's key `0x6f15…904F` at weight 255 (7 demo leaves) |
+| `scamsniffer.tocsin.eth` | `tocsin.list` version 1, tx `0x5f2aeacf…6b3f696` | scamsniffer's key `0x3a05…0Ba0` at weight 1, warn (7 demo leaves) |
 
-The documents the records point at are `docs/plan/demo/seed/core.list.json` and `detector.list.json`.
+The documents the records point at are `docs/plan/demo/seed/<label>.list.json`. The demo's flags per subject, with the tx that wrote each, are in `docs/plan/demo/seed/demo-flags.sepolia.json`.
 
 Hub setup on 6 November 2026: MirrorRegistrar deployed in `0x62b66b34…7cc49bd4` (around block 12077305), granted registrar and renew in `0xf93fd6a1…6378c265` (block 12077307), subregistry emancipated in `0x50be9f1f…f9a36c1` (block 12077441). Checked afterwards: `isEmancipated()` is true, `hasAssignees(ROOT, dangerousRoles)` is false, every name resolves through the Universal Resolver proxy. Current state: `scripts/ens/state.sepolia.json` and `scripts/ens/claims.sepolia.json`; full hashes in ticket 15.
 
