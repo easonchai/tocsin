@@ -56,3 +56,9 @@ Spec: `docs/plan/demo/spec.md`, Implementation decisions, Trust lists, publicati
   5. `yarn workspace @tocsin/reader publish-list sign <site/lists/default.json> <listURI> > record.hex`, then `yarn workspace @tocsin/infra ens-publish list record.hex`. Paste the hash.
   6. Check the record at sepolia.app.ens.domains/<name>. Once `src/index.ts` exports `./ens`, check it through the reader too, with `resolveListRecord` over the host's Helios `eth_call`.
   7. The detector's reverse name needs one transaction from the detector key. Without it, the detector shows as a shortened address. Funding the detector for that one transaction is the team's call.
+
+- 2026-11-06, Sepolia registration of `tocsin.eth` (step 2), through the ENSv2 ETHRegistrar from the owner `0x8E2Cc65A08154a357136C8060DE5232FDdEe3e31`, one year, 8.000021 MockUSDC. The ETHRegistry minted the token to the owner in the register tx.
+  - MockUSDC mint `0x03131fecee1f28ed2858daaaf6694a97a64967f702db1cd4afb15fe74117e6c5` (block 12074292)
+  - approve `0x0ff292046481e2c5a1f4d4700fe9caa615338c436f66a9d5fe897ee8aa0e2cba` (12074293)
+  - commit `0x5a1e3c470afd275c0227c6a857642869da8454fef58d2687423f9309192f3fd8` (12074294)
+  - register `0x9e8c300d5907a7b7312f95fbf103e4daaabe9a9812b3a9b953ea87dd74340e06` (12074301)

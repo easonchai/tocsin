@@ -141,7 +141,7 @@ yarn workspace @tocsin/snap test
 yarn workspace @tocsin/snap serve
 ```
 
-Optional build settings: `TOCSIN_RPC_URL`, a keyless https Sepolia RPC, defaulting to publicnode; `TOCSIN_PROXY_URL`, defaulting to `http://127.0.0.1:8550`; `TOCSIN_LIST_RECORD`, which replaces the ENS lookup for a rehearsal before the name exists. `serve` listens on http://localhost:8080. Ticket 12's Comments give the install call and the acceptance steps. In Flask: Menu, Snaps, Tocsin, Settings holds the leaf source switch for the three beats. If Chrome blocks the Snap from reaching `127.0.0.1`, put the lying proxy behind an https tunnel and use that as the custom URL.
+Optional build settings: `TOCSIN_RPC_URL`, a keyless https Sepolia RPC, defaulting to publicnode. Set it to `https://0xrpc.io/sep`: publicnode's backends lag each other by about a block, so a proof at "latest" fails with "block not found" about 1 time in 6, and the Snap shows "proof request for 2 writers failed". 0xrpc.io passed 10 of 10 and serves the log scan and CORS (2026-11-06). `TOCSIN_PROXY_URL`, defaulting to `http://127.0.0.1:8550`; `TOCSIN_LIST_RECORD`, which replaces the ENS lookup for a rehearsal before the name exists. `serve` listens on http://localhost:8080. Ticket 12's Comments give the install call and the acceptance steps. In Flask: Menu, Snaps, Tocsin, Settings holds the leaf source switch for the three beats. If Chrome blocks the Snap from reaching `127.0.0.1`, put the lying proxy behind an https tunnel and use that as the custom URL.
 
 ## 8. The extension
 
@@ -150,7 +150,7 @@ TOCSIN_LIST_NAME=<team name> TOCSIN_LOG_FROM_BLOCK=<deploy block> yarn workspace
 yarn workspace @tocsin/extension test
 ```
 
-`TOCSIN_TRANSPORT` is `tor` by default. Set it to `nym`, or to `direct` if the venue network blocks both. `direct` is not anonymised and the overlay says so. `TOCSIN_LIST_RECORD` works as in the Snap. The RPC and consensus endpoints come from `packages/nextjs/.env.local`. Load `packages/extension/dist` unpacked at `chrome://extensions`. Ticket 13's Comments give the acceptance steps.
+`TOCSIN_TRANSPORT` is `tor` by default. Set it to `nym`, or to `direct` if the venue network blocks both. `direct` is not anonymised and the overlay says so. `TOCSIN_LIST_RECORD` works as in the Snap. The RPC and consensus endpoints come from `packages/nextjs/.env.local`. The Sepolia execution RPC depends on the transport, as in step 9. Rebuild after changing it, because the build bakes it in. Tor needs the local gateway running. Load `packages/extension/dist` unpacked at `chrome://extensions`. Ticket 13's Comments give the acceptance steps.
 
 ## 9. The harness page
 
@@ -158,7 +158,45 @@ yarn workspace @tocsin/extension test
 yarn start
 ```
 
-Open http://localhost:3000/harness. It boots Helios, bootstraps the Anon-RPC worker through it, and proves `writerHead` and `writerSeq` for the writers in `NEXT_PUBLIC_HARNESS_WRITERS`. The public Tor demo gateway failed most cold starts in ticket 01. For the stage, run our own `tor-js-gateway` and point `NEXT_PUBLIC_HARNESS_TOR_GATEWAYS` at it, warm the Tor directory cache beforehand, and keep Nym as the live switch.
+Open http://localhost:3000/harness. It boots Helios, bootstraps the Anon-RPC worker through it, and proves `writerHead` and `writerSeq` for the writers in `NEXT_PUBLIC_HARNESS_WRITERS`. Tor needs the local gateway below. Keep Nym as the live switch.
+
+Set the Sepolia execution RPC by transport (`NEXT_PUBLIC_HARNESS_SEPOLIA_EXECUTION_RPC`, or the field on the page):
+
+| Transport | Sepolia execution RPC | Why |
+| --- | --- | --- |
+| Tor | `https://0xrpc.io/sep` | Tenderly answers Tor exits with 403 |
+| Nym | `https://sepolia.gateway.tenderly.co` | the Nym worker drops request headers, and 0xrpc.io answers 415 without a content-type |
+| direct | `https://0xrpc.io/sep` | serves finalized proofs |
+
+### Local Tor gateway
+
+Browsers cannot open the raw TCP that Tor uses, so tor-js dials a gateway over KPS (WebRTC on UDP 12298). The gateway forwards encrypted bytes to Tor relays and cannot read them. The public demo gateway `152.236.3.22:12298` was down on 2026-11-06, so we run our own on the demo laptop.
+
+Already done once on this Mac: the binary is at `~/.cargo/bin/tor-js-gateway`, and the config and identity key are in `~/Library/Application Support/tor-js-gateway/`. `.env.local` points at it. To restart:
+
+```sh
+tor-js-gateway          # own terminal; ready at "TorClient bootstrapped", about 10 s
+```
+
+Then set this in `packages/nextjs/.env.local` and restart `yarn start`:
+
+```
+NEXT_PUBLIC_HARNESS_TOR_GATEWAYS=127.0.0.1:12298:uEiDmYGjwNwrPIT33fsdOLp4inBsIhgiqQAEWvspt4G2uPQ
+```
+
+The certhash comes from `kps.key`, so it stays the same until that key file is deleted. A machine's LAN IP works too, but it changes with the network, and `127.0.0.1` doesn't. Start the gateway before the harness or the extension starts Tor.
+
+On a fresh machine, which needs Rust 1.91+, OpenSSL and SQLite:
+
+```sh
+git clone --depth 1 https://github.com/ethereum/tor-js && cd tor-js
+cargo build --release -p tor-js-gateway          # about 6 min
+cp target/release/tor-js-gateway ~/.cargo/bin/
+tor-js-gateway init                              # prints the certhash
+tor-js-gateway
+```
+
+Check it with the tor-js live demo at https://ethereum.github.io/tor-js/demo.html. Paste the address, then Connect, then Send request. It should return a Tor exit IP.
 
 ## 10. Live walkaway test
 

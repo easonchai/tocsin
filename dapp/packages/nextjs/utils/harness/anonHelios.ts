@@ -128,14 +128,14 @@ export function installFetchShim(targetUrl: string, anonFetch: typeof fetch, onR
     const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
     if (!new URL(url, location.href).href.startsWith(target)) return original(input, init);
     onRouted?.(url);
-    // Helios passes a Request with a stream body; the Nym worker then sent no content-type (HTTP 415
-    // from a Fastify RPC), so hand the worker a buffered body and plain headers instead.
+    // Helios passes a Request with a stream body; hand the worker a string body and object headers, as
+    // anon-rpc's reference demo does. The Nym worker still drops content-type, so its RPC must accept that.
     const req = new Request(input, init);
-    const sent = req.arrayBuffer().then(body =>
+    const sent = req.text().then(body =>
       anonFetch(req.url, {
         method: req.method,
-        headers: [...req.headers],
-        body: body.byteLength ? body : undefined,
+        headers: Object.fromEntries(req.headers),
+        body: body || undefined,
         signal: req.signal,
       }),
     );
