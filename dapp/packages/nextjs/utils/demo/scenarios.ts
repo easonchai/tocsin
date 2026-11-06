@@ -8,7 +8,7 @@ import { type Address, type Hex, encodeFunctionData, parseAbi, parseEther } from
 // package, named as in snap.manifest.json. NEXT_PUBLIC_SNAP_ID overrides either, e.g. a local build pointed at :8080.
 export const SNAP_ID =
   process.env.NEXT_PUBLIC_SNAP_ID ||
-  (process.env.NODE_ENV === "production" ? "npm:@tocsin/snap" : "local:http://localhost:8080");
+  (process.env.NODE_ENV === "production" ? "npm:@mengo6988/tocsin-snap" : "local:http://localhost:8080");
 export const SNAP_IS_LOCAL = SNAP_ID.startsWith("local:");
 export const POISON_RPC = "http://127.0.0.1:8550";
 export const HONEST_RPC = "https://0xrpc.io/sep";

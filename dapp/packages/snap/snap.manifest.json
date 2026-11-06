@@ -8,12 +8,12 @@
     "directory": "dapp/packages/snap"
   },
   "source": {
-    "shasum": "sI4HzqdODIwJofKaNZCXVt+XhrT4/IxBTmqNqvh2y/I=",
+    "shasum": "XOg/xl8u+NlAJSTmpQR7Eh0tyDv/OOaZzYizi5/ACiI=",
     "location": {
       "npm": {
         "filePath": "dist/bundle.js",
         "iconPath": "images/icon.svg",
-        "packageName": "@tocsin/snap",
+        "packageName": "@mengo6988/tocsin-snap",
         "registry": "https://registry.npmjs.org/"
       }
     }

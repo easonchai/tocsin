@@ -87,7 +87,7 @@ done
 # The Snap bakes these in too; dist/.tocsin-env records what the current build carries.
 snap_env="$(printf '%s\n' "$TOCSIN_RPC_URL" "$TOCSIN_LIST_NAME" "$TOCSIN_LIST_RECORD" "$TOCSIN_LIST_RECORDS" "$TOCSIN_LOG_FROM_BLOCK")"
 if [[ ! -d "$SNAP_DIST" || "$(cat "$SNAP_DIST/.tocsin-env" 2>/dev/null)" != "$snap_env" ]]; then
-  echo "Building the Snap"; dapp_yarn workspace @tocsin/snap build; printf '%s\n' "$snap_env" >"$SNAP_DIST/.tocsin-env"
+  echo "Building the Snap"; dapp_yarn workspace @mengo6988/tocsin-snap build; printf '%s\n' "$snap_env" >"$SNAP_DIST/.tocsin-env"
 fi
 
 # --- Servers -----------------------------------------------------------------------------------------------
@@ -145,7 +145,7 @@ if curl -sf http://localhost:8080/snap.manifest.json >/dev/null 2>&1; then
   echo "  reusing: snap server already on localhost:8080"
 else
   echo "Starting snap server on localhost:8080"
-  dapp_yarn workspace @tocsin/snap serve >"$LOG_DIR/snap.log" 2>&1 & pids+=($!)
+  dapp_yarn workspace @mengo6988/tocsin-snap serve >"$LOG_DIR/snap.log" 2>&1 & pids+=($!)
   wait_for "snap server" 60 curl -sf http://localhost:8080/snap.manifest.json
 fi
 

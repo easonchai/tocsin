@@ -163,9 +163,9 @@ TOCSIN_RPC_URL=https://0xrpc.io/sep TOCSIN_LIST_NAME=tocsin.eth TOCSIN_LOG_FROM_
 Use a fresh Chrome profile.
 
 ```sh
-TOCSIN_RPC_URL=https://0xrpc.io/sep TOCSIN_LIST_NAME=tocsin.eth TOCSIN_LOG_FROM_BLOCK=12074077 yarn workspace @tocsin/snap build
-yarn workspace @tocsin/snap test
-yarn workspace @tocsin/snap serve
+TOCSIN_RPC_URL=https://0xrpc.io/sep TOCSIN_LIST_NAME=tocsin.eth TOCSIN_LOG_FROM_BLOCK=12074077 yarn workspace @mengo6988/tocsin-snap build
+yarn workspace @mengo6988/tocsin-snap test
+yarn workspace @mengo6988/tocsin-snap serve
 ```
 
 - [ ] Install from any page's console: `await ethereum.request({ method: "wallet_requestSnaps", params: { "local:http://localhost:8080": {} } })`. The "Tocsin is on" alert appears after the first sync. In Menu, Snaps, Tocsin the Status section shows the flag count and a last sync in under 30 s. Time recorded.
