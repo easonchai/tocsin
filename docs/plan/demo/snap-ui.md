@@ -68,8 +68,8 @@ Component tree, top to bottom. Words in quotes are the literal copy.
    - `Row` label "address", value `Address` component with the flagged address (jazzicon makes it recognisable against the Details tab).
    - `Row` label "role", value `Text` "recipient" (or "spender", "operator", "delegate", matching where the address was found).
    - `Row` label "category", value `Text` "DRAINER_RECEIVER", with a `Tooltip` on the row giving the plain-language definition from the ERC's category table.
-   - `Row` label "flagged by", value: one `Text` per writer, the writer's ENS name, with `Text` color `muted` after it naming the list that carries it. Example lines: "seal.tocsin.eth · via seal list", "scamsniffer.tocsin.eth · via scamsniffer list". If two writers are on the same list, both still appear.
-   - `Row` label "evidence", value `Link` to the evidence transaction on the chain's explorer, text being the truncated hash, followed by `Copyable` with the full hash. One per writer if they differ.
+   - `Row` label "flagged by", value: a `Box` with one `Text` per writer, the writer's ENS name. One label, stacked values. The banner names the lists.
+   - `Row` label "evidence", value: a `Box` with one `Link` per distinct hash to the evidence transaction on the chain's explorer, text being the truncated hash. One label, stacked values.
    - `Row` label "seen", value `Text` "block 23,410,118 · 14 days ago" from the leaf's `seenBlock`.
 4. `Divider`.
 5. Sync state, three `Row`s with `Text` color `muted`:

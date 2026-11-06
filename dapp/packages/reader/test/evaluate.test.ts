@@ -24,7 +24,7 @@ const OTHER_CHAIN = 1n;
 const TOMBSTONE = 1;
 const COUNTER = 2;
 const DISPUTE = 3;
-const CONTEXTS: Context[] = ["recipient", "spender", "delegate", "incomingSender"];
+const CONTEXTS: Context[] = ["recipient", "spender", "delegate", "incomingSender", "token"];
 
 const addr = (n: number): Address => getAddress(pad(toHex(n), { size: 20 }));
 const [A, B, C] = [addr(0xa1), addr(0xb1), addr(0xc1)];
@@ -150,6 +150,18 @@ describe("policy, one test per rule", () => {
     log.append(B, { subject: X, category: 7 });
     const ev = await setup(log.leaves, [{ entries: [{ writer: A }, { writer: B }] }]);
     expect(ev(X).verdict).toBe("block");
+  });
+
+  it("host policy: threshold 1 blocks on one writer; a warn-only category never blocks, weight 255 included", async () => {
+    const log = new FakeLog();
+    log.append(A, { subject: X, category: 2 });
+    log.append(B, { subject: X, category: 2 });
+    log.append(A, { subject: Y, category: 3 });
+    const ev = await setup(log.leaves, [{ entries: [{ writer: A }, { writer: B }] }]);
+    expect(ev(Y).verdict).toBe("warn");
+    expect(ev(Y, "recipient", { policy: { threshold: 1 } }).verdict).toBe("block");
+    expect(ev(X, "recipient", { policy: { warnOnly: [2] } }).verdict).toBe("warn");
+    expect((await setup(log.leaves, [heavy(A)]))(X, "recipient", { policy: { threshold: 1, warnOnly: [2] } }).verdict).toBe("warn");
   });
 
   it("two writers sharing a non-zero upstream give warn", async () => {
@@ -297,9 +309,9 @@ describe("context", () => {
     log.append(A, { subject: Z, category: 7 }); // drainer spender
     const ev = await setup(log.leaves, [heavy(A)]);
     const row = (s: Address) => CONTEXTS.map(c => ev(s, c).verdict);
-    expect(row(X)).toEqual(["clean", "clean", "block", "clean"]);
-    expect(row(Y)).toEqual(["clean", "clean", "clean", "block"]);
-    expect(row(Z)).toEqual(["block", "block", "clean", "clean"]);
+    expect(row(X)).toEqual(["clean", "clean", "block", "clean", "clean"]);
+    expect(row(Y)).toEqual(["clean", "clean", "clean", "block", "block"]);
+    expect(row(Z)).toEqual(["block", "block", "clean", "clean", "clean"]);
   });
 });
 

@@ -2,8 +2,8 @@
 // Pure: imports only viem, so `node --test` runs it without a bundler.
 import { type Address, type Hex, decodeFunctionData, getAddress, isAddress, isHex, parseAbi } from "viem";
 
-/** Mirrors the reader's `Context` for the two the Snap's hooks can see. */
-export type Target = { address: Address; context: "recipient" | "spender"; why: string };
+/** Mirrors the reader's `Context` for the ones the Snap's hooks can see. */
+export type Target = { address: Address; context: "recipient" | "spender" | "token"; why: string };
 
 const callsAbi = parseAbi([
   "function transfer(address to, uint256 amount)",
@@ -26,7 +26,7 @@ const unique = (targets: Target[]): Target[] =>
 /** `to` as recipient, plus the spender, recipient, or operator decoded from known calldata. Unknown calldata adds nothing. */
 export function transactionTargets(tx: { to?: string | null; data?: string | null }): Target[] {
   const out: Target[] = [];
-  if (tx.to && isAddress(tx.to, { strict: false })) out.push({ address: getAddress(tx.to), context: "recipient", why: "transaction to" });
+  if (tx.to && isAddress(tx.to, { strict: false })) out.push({ address: getAddress(tx.to), context: "recipient", why: "recipient" });
   if (!tx.data || !isHex(tx.data) || tx.data.length < 10) return out;
   let call;
   try {
@@ -49,6 +49,9 @@ export function transactionTargets(tx: { to?: string | null; data?: string | nul
         ? { address: getAddress(args[1]), context: "spender", why: "EIP-2612 permit spender" }
         : { address: getAddress(args[1].spender), context: "spender", why: "Permit2 permit spender" },
     );
+  // A send or approve of an ERC-20 (not Permit2, whose `to` is Permit2): the contract may be a flagged token.
+  const erc20 = functionName === "transfer" || (functionName === "approve" && args.length === 2) || (functionName === "permit" && args.length === 7);
+  if (erc20 && tx.to && isAddress(tx.to, { strict: false })) out.push({ address: getAddress(tx.to), context: "token", why: "token contract" });
   return unique(out);
 }
 

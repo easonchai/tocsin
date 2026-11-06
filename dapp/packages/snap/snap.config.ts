@@ -13,7 +13,7 @@ const config: SnapConfig = {
     TOCSIN_RPC_URL: process.env.TOCSIN_RPC_URL ?? "",
     TOCSIN_LIST_NAME: process.env.TOCSIN_LIST_NAME ?? "",
     TOCSIN_LIST_RECORD: process.env.TOCSIN_LIST_RECORD ?? "",
-    TOCSIN_PROXY_URL: process.env.TOCSIN_PROXY_URL ?? "",
+    TOCSIN_LIST_RECORDS: process.env.TOCSIN_LIST_RECORDS ?? "",
     TOCSIN_LOG_FROM_BLOCK: process.env.TOCSIN_LOG_FROM_BLOCK ?? "",
   },
 };

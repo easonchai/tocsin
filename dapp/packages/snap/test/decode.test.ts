@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { encodeFunctionData, getAddress, maxUint256, parseAbi, zeroAddress } from "viem";
 import { signatureTargets, transactionTargets } from "../src/decode.ts";
-import { parseSettings } from "../src/settings.ts";
+import { parseListName, parseRpcUrl } from "../src/settings.ts";
 
 const TOKEN = getAddress("0x1111111111111111111111111111111111111111");
 const BAD = getAddress("0xbad0000000000000000000000000000000000bad");
@@ -38,6 +38,7 @@ test("ERC-20 transfer adds the decoded recipient", () => {
   assert.deepEqual(pick(transactionTargets({ to: TOKEN, data })), [
     [TOKEN, "recipient"],
     [BAD, "recipient"],
+    [TOKEN, "token"],
   ]);
 });
 
@@ -47,6 +48,7 @@ test("ERC-20 approve adds the spender", () => {
   assert.deepEqual(pick(ts), [
     [TOKEN, "recipient"],
     [BAD, "spender"],
+    [TOKEN, "token"],
   ]);
   assert.equal(ts[1]?.why, "ERC-20 approve spender");
 });
@@ -140,17 +142,13 @@ test("other typed data and garbage yield no target", () => {
   assert.deepEqual(signatureTargets(null).targets, []);
 });
 
-const form = { rpcUrl: "https://rpc.example/", listName: "Tocsin.eth", leafSource: "custom", customUrl: "http://192.168.1.5:8550", fromBlock: "123" };
-
-test("settings form parses valid input and normalises the name", () => {
-  assert.deepEqual(parseSettings(form), {
-    settings: { rpcUrl: "https://rpc.example/", listName: "tocsin.eth", leafSource: "custom", customUrl: "http://192.168.1.5:8550/", fromBlock: 123n },
-  });
+test("RPC URL: https anywhere, http only for localhost", () => {
+  assert.deepEqual(parseRpcUrl(" https://rpc.example "), { url: "https://rpc.example/" });
+  assert.deepEqual(parseRpcUrl("http://127.0.0.1:8550"), { url: "http://127.0.0.1:8550/" });
+  for (const bad of ["http://rpc.example", "ftp://x", "", 7]) assert.ok("error" in parseRpcUrl(bad), String(bad));
 });
 
-test("settings form rejects a plain-http remote RPC, a bad name, and a bad block, per field", () => {
-  const r = parseSettings({ ...form, rpcUrl: "http://rpc.example", listName: "nodot", fromBlock: "12a" });
-  assert.ok("errors" in r);
-  assert.deepEqual(Object.keys(r.errors).sort(), ["fromBlock", "listName", "rpcUrl"]);
-  assert.ok("settings" in parseSettings({ ...form, rpcUrl: "http://127.0.0.1:8545" }));
+test("list name: normalised ENS name with a dot", () => {
+  assert.deepEqual(parseListName(" Seal.Tocsin.eth "), { name: "seal.tocsin.eth" });
+  for (const bad of ["nodot", "", undefined, "a b.eth"]) assert.ok("error" in parseListName(bad), String(bad));
 });

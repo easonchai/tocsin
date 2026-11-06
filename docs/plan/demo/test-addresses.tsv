@@ -1,0 +1,55 @@
+address	type	lists	label	expected (follow all 3, default policy)
+0x79fDaE13B1A677E5b8Ac9f5411F6664788A17537	DRAINER_RECEIVER	tocsin.eth, harborwatch.eth, lanterndao.eth	drainer-receiver-1	block
+0x5126633bCFdb9E4A2FE7AB445394AE0a217f9120	POISONING_OPERATOR	tocsin.eth, lanterndao.eth	poisoning-operator-1	warn
+0x141142085f71d9a466014ddA50C26A48Cc4bCfFC	POISONING_OPERATOR	tocsin.eth, lanterndao.eth	poisoning-operator-2	warn
+0x9b8d5317e56272468B5e86c2984E65e7e62ec42e	DRAINER_RECEIVER	tocsin.eth, harborwatch.eth	drainer-receiver-2	block
+0x28042e65FbA1b9bD9165F4C02052a191802337E2	DRAINER_RECEIVER	tocsin.eth, harborwatch.eth	drainer-receiver-3	block
+0x8B075F39Bb2bFd0125e6599d879B994b813530b1	PAID_LOOKALIKE	tocsin.eth, lanterndao.eth	paid-lookalike-1	block
+0x7d77cf49d8c1851781C3cEfCdD9Bd9871366782e	DRAINER_SPENDER	tocsin.eth, harborwatch.eth	drainer-spender-1	block · test as approve spender
+0x837F03f70B94d9215B2782514312A978309D46eE	POISONING_OPERATOR	tocsin.eth	poisoning-operator-m1	block
+0xd09354Cce681E370239E1fb37744C80Ca863C5f8	POISONING_OPERATOR	tocsin.eth	poisoning-operator-m2	block
+0x9C4779a81289aB963f0F1662b23156312b6981F5	POISONING_OPERATOR	tocsin.eth	poisoning-operator-m3	block
+0x216CD9D7256140FE47A3E975C2F4aC8c1094b585	POISONING_OPERATOR	tocsin.eth	poisoning-operator-m4	block
+0xbc9DA53a829DF115B44a4723c919C41f3C7E6430	POISONING_OPERATOR	tocsin.eth	poisoning-operator-m5	block
+0xcC03101031C91e925d1db66a52320c6d5d5EB461	POISONING_OPERATOR	tocsin.eth	poisoning-operator-m6	block
+0x90A8dD274779cECCb8271f4139dbb354f36a1506	POISONING_OPERATOR	tocsin.eth	poisoning-operator-3	warn
+0x730a98ec184ec0854aab17a167bcED0c078e66d4	POISONING_OPERATOR	tocsin.eth	poisoning-operator-4	warn
+0x02f7e952d7e86a3E3cd6BabF7bEF66455138354b	POISONING_OPERATOR	tocsin.eth	poisoning-operator-5	warn
+0xbCb6FEC430722715bcD5084Fb94c17846ef96983	POISONING_OPERATOR	tocsin.eth	poisoning-operator-6	warn
+0xa354E07319Cd83bECE1ea286D1B9845ed91cAe13	POISONING_OPERATOR	tocsin.eth	poisoning-operator-7	warn
+0xF2bCa8e2c43427677C7e62386ceA12ACcb94D9D9	POISONING_OPERATOR	tocsin.eth	poisoning-operator-8	warn
+0x03c4e6A26E4502DB2401e8Cb0D2e8210adedfc1d	POISONING_OPERATOR	tocsin.eth	poisoning-operator-9	warn
+0xDC568F5D697D5793b42851741E328DBe6A001A29	POISONING_OPERATOR	tocsin.eth	poisoning-operator-10	warn
+0x3C06626bE49Ec6e8fC8CF229ede521F28d05679a	POISONING_OPERATOR	tocsin.eth	poisoning-operator-11	warn
+0x1B32f2b8A6807917Ce7777DB58F076E8D76cF15a	POISONING_OPERATOR	tocsin.eth	poisoning-operator-12	warn
+0x383f55d38BC72C2588Df7de848d33283FA5AD27a	POISONING_OPERATOR	tocsin.eth	poisoning-operator-13	warn
+0x1D23c457050f7D3b979Bd42C6A8eB69aFc477399	POISONING_OPERATOR	tocsin.eth	poisoning-operator-14	warn
+0xcb1ddaA4f08A95919835c0d58288D4be0786593a	POISONING_OPERATOR	tocsin.eth	poisoning-operator-15	warn
+0x2b6521F8cE74dE663813A1070A3dcdb16AeEe72F	POISONING_OPERATOR	tocsin.eth	poisoning-operator-16	warn
+0x29377C9aB5aa93814eA28c648cDaad7021895d7E	POISONING_OPERATOR	tocsin.eth	poisoning-operator-17	warn
+0x6628c9B7a1a23C8917ABE2cB39090962b8c05d4e	POISONING_OPERATOR	tocsin.eth	poisoning-operator-18	warn
+0x1504f551a756e7CfcAB164573dbcE88d35C9714c	POISONING_OPERATOR	tocsin.eth	poisoning-operator-19	warn
+0x9B513B74936bBA852C95184bC85DE92d43D655e8	POISONING_OPERATOR	tocsin.eth	poisoning-operator-countered	warn (countered, same operator so still counts)
+0x1D3B86A924ffb140bdD74Ee6a7533921ed141583	POISONING_OPERATOR	tocsin.eth	manual writer (tocsin.eth), disputed	warn
+0xd59557f9a8f3574f58FDc8ea63E4f9B1F7486B22	POISONING_OPERATOR	lanterndao.eth	lantern-poisoning-operator-1	warn
+0x2e98c029dC7ab1d53829AaB49fE0Dfe78e598581	POISONING_OPERATOR	lanterndao.eth	lantern-poisoning-operator-2	warn
+0xe25d04e7a7B357179eBf53b16f4C5304c6818fb9	DRAINER_RECEIVER	tocsin.eth	drainer-receiver-4	block
+0x9CC6d47d216e93A4d6fc5eebB0CE76fD136077F9	DRAINER_RECEIVER	tocsin.eth	drainer-receiver-5	block
+0x43F13e6b61E179FD0227749499E87e28fC1e46F7	DRAINER_RECEIVER	harborwatch.eth	harbor-drainer-receiver-1	block
+0xE17A976744A6168b7e2150047eEc17460cCf9BFE	DRAINER_RECEIVER	harborwatch.eth	harbor-drainer-receiver-2	block
+0x0CCC1E5Fc88A58529e9e4104d7f0856c7f737c51	PAID_LOOKALIKE	tocsin.eth	paid-lookalike-2	block
+0xe7Df501EfF3806f81a253AB06Db8a8E0f5b65847	PAID_LOOKALIKE	tocsin.eth	paid-lookalike-3	block
+0x0461270428B72b4dD322E89f8abB2ebA8f561c76	PAID_LOOKALIKE	tocsin.eth	paid-lookalike-4	block
+0x9dF85792C46Ff0D052090AB6d911C9651F44CF34	PAID_LOOKALIKE	(none)	paid-lookalike-retracted	clean (tombstoned)
+0x179d846C5cD28b5c8349E5E9015Cb40c7d387d1f	DRAINER_SPENDER	tocsin.eth	drainer-spender-2	block · test as approve spender
+0x8B718c1308600e67d1D4D712D981D11dB8274739	DRAINER_SPENDER	tocsin.eth	drainer-spender-3	block · test as approve spender
+0x297d1D4cC22e4eDf76DBb5577525A7f2d3ef5435	DRAINER_SPENDER	tocsin.eth	drainer-spender-4	block · test as approve spender
+0xC52ca0e1e7105bedA46b45b95611D5567e5CB679	DRAINER_SPENDER	tocsin.eth	drainer-spender-5	block · test as approve spender
+0x7D55A2380dA4ac015BFff9cDa5C9719Fbd75CFf6	DRAINER_SPENDER	harborwatch.eth	harbor-drainer-spender-1	block · test as approve spender
+0xCd2698C9c9b2b69625DD2a56252190647F34913d	THEFT_PROCEEDS	tocsin.eth	theft-proceeds-1	warn (THEFT_PROCEEDS on a send)
+0x689DfE90D7AE1156a9bb27dda86cEEf02628ef72	PAID_LOOKALIKE	(none)	paid-lookalike-d1	clean (writer's list entry does not trust this category)
+0x2D30db80F36526015C1920f95368aD215FD09728	PAID_LOOKALIKE	(none)	paid-lookalike-d2	clean (writer's list entry does not trust this category)
+0x360A85162F4141bb10448229985DB10BAdc2A4b4	PAID_LOOKALIKE	(none)	paid-lookalike-d3	clean (writer's list entry does not trust this category)
+0x32bb0D26f4472B58aDC74F2Adfa3DEA836f6a0E3	PAID_LOOKALIKE	(none)	paid-lookalike-d4	clean (writer's list entry does not trust this category)
+0x2Ba2B2F4bd18D04C3bA92DB9F73a49d19c87b4B8	MALICIOUS_TOKEN	tocsin.eth	fakeUSDC (symbol USDC, 1,000 minted to test wallet)	block when you send or approve it (token context)
+0xf53749FD5e85d4169E95E18FeD40b9A5219FC039	(not flagged)	(none)	realUSDC (symbol USDC, 1,000 minted to test wallet)	clean (control)

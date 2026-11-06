@@ -1,12 +1,10 @@
-// The reader wired to the Snap: one fetch-based RPC for header, proofs and ENS, a switchable leaf
-// source, and Snap state for pins and checkpoints. Mirrors dapp/packages/infra/src/evaluate-cli.ts.
+// The reader wired to the Snap: one fetch-based RPC for header, proofs, ENS and leaves, and Snap
+// state for pins and checkpoints. Mirrors dapp/packages/infra/src/evaluate-cli.ts.
 import {
   type EthCall,
   type Evaluation,
-  type LeafSource,
-  type ListEntry,
-  type ListOutcome,
   type RpcRequest,
+  type SyncResult,
   type VerifiedList,
   acceptList,
   decodeListRecord,
@@ -15,12 +13,11 @@ import {
   reverseName,
   rpcLeafSource,
   rpcProofSource,
-  snapshotLeafSource,
   sync,
 } from "@tocsin/reader";
-import { type Address, type Hex, getAddress, isHex } from "viem";
+import { type Hex, getAddress, isHex } from "viem";
 import type { Target } from "./decode";
-import { LOG, LOG_CHAIN_ID, RECORD_OVERRIDE, type State } from "./state";
+import { FROM_BLOCK, LOG, LOG_CHAIN_ID, type ListState, RECORD_OVERRIDES, type State } from "./state";
 
 const TIMEOUT_MS = 20_000;
 
@@ -59,34 +56,9 @@ const ethCall = (request: RpcRequest): EthCall => async ({ to, data }) => {
   return out;
 };
 
-/** One snapshot per writer from its entry's snapshotURI. A failed fetch makes that writer's source throw, so sync says why. */
-async function mirrorSource(entries: readonly ListEntry[]): Promise<LeafSource> {
-  const byWriter = new Map<Address, LeafSource>();
-  for (const { writer, snapshotURI } of entries) {
-    const fail = (cause: unknown) => async (): Promise<never> => {
-      throw new Error(`snapshot for ${writer} unavailable`, { cause });
-    };
-    try {
-      if (!snapshotURI) throw new Error("entry has no snapshotURI");
-      byWriter.set(getAddress(writer), snapshotLeafSource(await (await fetchWithTimeout(snapshotURI)).text()));
-    } catch (error) {
-      byWriter.set(getAddress(writer), { getLeaves: fail(error), getAnchorHead: fail(error) });
-    }
-  }
-  const of = (w: Address): LeafSource => {
-    const s = byWriter.get(getAddress(w));
-    if (!s) throw new Error(`no snapshot for writer ${w}`);
-    return s;
-  };
-  return {
-    getLeaves: (w, fromSeq, toBlock) => of(w).getLeaves(w, fromSeq, toBlock),
-    getAnchorHead: (w, seq) => of(w).getAnchorHead(w, seq),
-  };
-}
-
-/** The current record and document for the team's name, or undefined when either cannot be fetched (acceptList then reports stale). */
-async function fetchList(state: State, call: EthCall): Promise<{ record: Hex; document: unknown } | undefined> {
-  const record = RECORD_OVERRIDE || (state.settings.listName ? await resolveListRecord(call, state.settings.listName) : undefined);
+/** The current record and document for a list name, or undefined when either cannot be fetched (acceptList then reports stale). */
+async function fetchList(name: string, call: EthCall): Promise<{ record: Hex; document: unknown } | undefined> {
+  const record = RECORD_OVERRIDES[name] ?? (await resolveListRecord(call, name));
   if (!record) return undefined;
   try {
     const { listURI } = decodeListRecord(record);
@@ -96,66 +68,72 @@ async function fetchList(state: State, call: EthCall): Promise<{ record: Hex; do
   }
 }
 
-/** Asks before replacing the pinned maintainer. Never applied without a yes. */
-export type ConfirmMaintainer = (current: VerifiedList, candidate: VerifiedList) => Promise<boolean>;
+
+type Usable = { next: ListState; list?: VerifiedList };
 
 /**
- * Resolves and pins the list, proves every listed writer's head through the RPC, syncs leaves from
- * the selected source, and returns the next state. Never throws: failures land in `status.error`.
+ * Applies acceptList's pinning to one list name. A list signed by a new maintainer is held in
+ * `pending` and the list is excluded until the user accepts it on the home page; no dialog here,
+ * so a cron tick never interrupts the user.
  */
-export async function runSync(state: State, confirm: ConfirmMaintainer): Promise<State> {
-  const { settings } = state;
-  const request = rpcRequest(settings.rpcUrl);
+async function syncList(name: string, prev: ListState, call: EthCall): Promise<Usable> {
+  const outcome = await acceptList({
+    kind: "list",
+    log: LOG,
+    chainId: LOG_CHAIN_ID,
+    fetched: await fetchList(name, call),
+    ...(prev.pinned && { pinned: prev.pinned }),
+  });
+  if (outcome.status === "conflict") return { next: { ...prev, pending: outcome.candidate.signed, status: "maintainer changed" } };
+  const { pending: _, ...rest } = prev;
+  const next: ListState = {
+    ...rest,
+    status: outcome.status === "rejected" ? `rejected (${outcome.reason})` : outcome.status,
+    ...(outcome.status === "accepted" && { pinned: outcome.list.signed }),
+  };
+  return { next, ...(outcome.list && "entries" in outcome.list.list && { list: outcome.list }) };
+}
+
+/** Live and dead FLAG leaves across synced writers: what "N flags" means on screen. */
+export const flagCount = (sync: SyncResult): number =>
+  Object.values(sync.writers).reduce((n, w) => n + (w.status === "synced" ? w.leaves.filter((l) => l.leaf.op === 0).length : 0), 0);
+
+export const errorText = (error: unknown): string =>
+  error instanceof Error ? (error.cause instanceof Error ? `${error.message}: ${error.cause.message}` : error.message) : String(error);
+
+/**
+ * Resolves and pins every followed list, proves every listed writer's head through the RPC in one
+ * call, syncs leaves from the same RPC, and returns the next state. Never throws: failures land in
+ * `status.error`.
+ */
+export async function runSync(state: State): Promise<State> {
+  const { rpcUrl } = state.settings;
+  const request = rpcRequest(rpcUrl);
   const call = ethCall(request);
   const at = Date.now();
-  if (!settings.listName && !RECORD_OVERRIDE) return { ...state, status: { ...state.status, at, error: "set the list's ENS name in settings" } };
+  const followed = Object.keys(state.lists).filter((n) => state.lists[n]!.followed);
+  if (followed.length === 0) return { ...state, status: { at, error: "follow at least one list" } };
   try {
     const chainId = await request({ method: "eth_chainId" });
-    if (!isHex(chainId) || BigInt(chainId) !== LOG_CHAIN_ID) throw new Error(`the RPC at ${new URL(settings.rpcUrl).host} is not Sepolia (chain ${String(chainId)})`);
-    const outcome: ListOutcome = await acceptList({
-      kind: "list",
-      log: LOG,
-      chainId: LOG_CHAIN_ID,
-      fetched: await fetchList(state, call),
-      ...(state.pinned && { pinned: state.pinned }),
-    });
-    let pinned = state.pinned;
-    let list = outcome.list;
-    let declinedRoot = state.status?.declinedRoot;
-    let listStatus = outcome.status === "rejected" ? `rejected (${outcome.reason})` : outcome.status;
-    if (outcome.status === "accepted") pinned = outcome.list.signed;
-    if (outcome.status === "conflict") {
-      if (outcome.candidate.root !== declinedRoot && (await confirm(outcome.list, outcome.candidate))) {
-        pinned = outcome.candidate.signed;
-        list = outcome.candidate;
-        declinedRoot = undefined;
-        listStatus = "accepted, new maintainer confirmed";
-      } else {
-        declinedRoot = outcome.candidate.root;
-        listStatus = "conflict, new maintainer declined";
-      }
+    if (!isHex(chainId) || BigInt(chainId) !== LOG_CHAIN_ID) throw new Error(`the RPC at ${new URL(rpcUrl).host} is not Sepolia (chain ${String(chainId)})`);
+    const lists = { ...state.lists };
+    const verified: VerifiedList[] = [];
+    for (const name of followed) {
+      const { next, list } = await syncList(name, lists[name]!, call);
+      lists[name] = next;
+      if (list) verified.push(list);
     }
-    const base = { ...state, ...(pinned && { pinned }) };
-    const status = { at, list: listStatus, ...(declinedRoot && { declinedRoot }) };
-    if (!list || !("entries" in list.list)) {
-      return { ...base, status: { ...status, error: "no verified list for this name yet" } };
-    }
+    const base = { ...state, lists };
+    if (verified.length === 0) return { ...base, status: { at, error: "no usable list for the followed names yet" } };
 
-    const entries = list.list.entries;
-    const leaves =
-      settings.leafSource === "snapshot"
-        ? await mirrorSource(entries)
-        : rpcLeafSource({
-            request: settings.leafSource === "custom" ? rpcRequest(settings.customUrl) : request,
-            log: LOG,
-            fromBlock: settings.fromBlock,
-          });
+    // A writer on two lists is proved and synced once.
+    const writers = [...new Set(verified.flatMap((l) => ("entries" in l.list ? l.list.entries.map((e) => getAddress(e.writer)) : [])))];
     const checkpoints = { ...state.checkpoints };
     const result = await sync({
       log: LOG,
-      writers: entries.map((e) => ({ writer: e.writer })),
+      writers: writers.map((writer) => ({ writer })),
       proofs: rpcProofSource({ request }),
-      leaves,
+      leaves: rpcLeafSource({ request, log: LOG, fromBlock: FROM_BLOCK }),
       checkpoints: {
         get: async (k) => checkpoints[k],
         set: async (k, v) => {
@@ -171,40 +149,71 @@ export async function runSync(state: State, confirm: ConfirmMaintainer): Promise
         else delete names[getAddress(w)];
       }),
     );
-    return { ...base, checkpoints, sync: result, names, status };
+    const all = Object.values(result.writers);
+    const lastGood = all.every((w) => w.status === "synced")
+      ? { flags: flagCount(result), writers: all.length, block: result.block.number, at }
+      : state.lastGood;
+    return { ...base, checkpoints, sync: result, syncedAt: at, names, status: { at }, ...(lastGood && { lastGood }) };
   } catch (error) {
-    const msg = error instanceof Error ? (error.cause instanceof Error ? `${error.message}: ${error.cause.message}` : error.message) : String(error);
-    return { ...state, status: { ...state.status, at, error: msg } };
+    return { ...state, status: { at, error: errorText(error) } };
   }
 }
 
-/** A source switch drops checkpoints so the next sync replays the new source from genesis instead of trusting the old one's tail. */
+/** A changed RPC drops checkpoints so the next sync replays the new source from genesis instead of trusting the old one's tail. */
 export const clearCheckpoints = (state: State): State => ({ ...state, checkpoints: {} });
 
-export type Assessment = { target: Target; evaluation: Evaluation };
-
-/** The pinned list re-verified from state. Undefined before the first accepted list. */
-export async function pinnedList(state: State): Promise<VerifiedList | undefined> {
-  if (!state.pinned) return undefined;
-  return (await acceptList({ kind: "list", log: LOG, chainId: LOG_CHAIN_ID, pinned: state.pinned })).list;
+/** A list a user is about to add: fetched and verified, not pinned yet. */
+export async function fetchCandidate(state: State, name: string): Promise<VerifiedList | string> {
+  try {
+    const outcome = await acceptList({ kind: "list", log: LOG, chainId: LOG_CHAIN_ID, fetched: await fetchList(name, ethCall(rpcRequest(state.settings.rpcUrl))) });
+    if (outcome.status === "accepted" && "entries" in outcome.list.list) return outcome.list;
+    return outcome.status === "rejected" ? `The list at ${name} failed verification (${outcome.reason}).` : `No Tocsin list found at ${name}.`;
+  } catch (error) {
+    return `Could not read ${name}: ${errorText(error)}.`;
+  }
 }
 
-/** Evaluates each target against the last sync. Undefined when there is nothing to evaluate against yet. */
+/** Every finding's list name, in `evaluation.findings` order. */
+export type Assessment = { target: Target; evaluation: Evaluation; listOf: string[] };
+
+export type NamedList = { name: string; list: VerifiedList };
+
+/** Followed lists with an accepted pin and no pending maintainer change, re-verified from state. */
+export async function pinnedLists(state: State): Promise<NamedList[]> {
+  const out: NamedList[] = [];
+  for (const [name, l] of Object.entries(state.lists)) {
+    if (!l.followed || !l.pinned || l.pending) continue;
+    const { list } = await acceptList({ kind: "list", log: LOG, chainId: LOG_CHAIN_ID, pinned: l.pinned });
+    if (list && "entries" in list.list) out.push({ name, list });
+  }
+  return out;
+}
+
+/** The verified list a pin holds, for showing its maintainer and writers. */
+export async function verifiedPin(pinned: ListState["pinned"]): Promise<VerifiedList | undefined> {
+  if (!pinned) return undefined;
+  return (await acceptList({ kind: "list", log: LOG, chainId: LOG_CHAIN_ID, pinned }).catch(() => undefined))?.list;
+}
+
+/** Evaluates each target against the last sync under the user's policy. Undefined when there is nothing to evaluate against yet. */
 export async function assess(state: State, targets: readonly Target[], chainId: bigint): Promise<Assessment[] | undefined> {
-  const list = await pinnedList(state);
-  if (!list || !state.sync) return undefined;
+  const lists = await pinnedLists(state);
+  if (lists.length === 0 || !state.sync) return undefined;
   const sync = state.sync;
-  return targets.map((target) => ({
-    target,
-    evaluation: evaluate({
+  const { threshold, warnOnly, checkApprovals } = state.policy;
+  return targets.filter((t) => checkApprovals || t.context !== "spender").map((target) => {
+    const evaluation = evaluate({
       subject: target.address,
       context: target.context,
       sync,
-      // One default list, marked blocking (spec, Trust lists).
-      lists: [{ list, blocking: true }],
+      // Every followed list is marked blocking (spec, Trust lists); escalation is OR across them.
+      lists: lists.map(({ list }) => ({ list, blocking: true })),
       safelists: [],
       logChainId: LOG_CHAIN_ID,
       chainId,
-    }),
-  }));
+      policy: { threshold, warnOnly },
+    });
+    const listOf = evaluation.findings.map((f) => lists.find((l) => l.list === f.list)?.name ?? "");
+    return { target, evaluation, listOf };
+  });
 }

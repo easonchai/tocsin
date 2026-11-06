@@ -2,7 +2,7 @@ import { type Address, type Hex, getAddress, isAddressEqual, size, zeroHash } fr
 import type { ListEntry, VerifiedList } from "./lists";
 import type { Leaf, SyncResult, VerifiedLeaf } from "./types";
 
-export type Context = "recipient" | "spender" | "delegate" | "incomingSender";
+export type Context = "recipient" | "spender" | "delegate" | "incomingSender" | "token";
 export type Verdict = "clean" | "warn" | "block" | "unavailable";
 
 /** A trust list the host applies, and whether the host marked it as blocking (ERC, Reader policy, rule 2). */
@@ -23,6 +23,16 @@ export type EvaluateInput = {
   logChainId: bigint;
   /** The chain the subject is used on. Defaults to `logChainId`. */
   chainId?: bigint;
+  /** The host's deviations from the recommended policy. Omitted, the reader applies the ERC's. */
+  policy?: Policy;
+};
+
+/** A host-chosen policy (ERC, Reader policy: "A reader MAY implement any policy"). */
+export type Policy = {
+  /** Independent writers that block. Default 2. */
+  threshold?: 1 | 2;
+  /** Categories that warn and never block, weight 255 included. */
+  warnOnly?: readonly number[];
 };
 
 /** One live `FLAG` leaf that applied to the subject under one list entry. */
@@ -77,6 +87,8 @@ const CONTEXT_CATEGORIES: Record<Context, ReadonlySet<number>> = {
   delegate: new Set([4]),
   // Activity list: the incoming `tx.from` and the token contract.
   incomingSender: new Set([1, 3, 5, 6, 8]),
+  // The token contract of an outgoing ERC-20 call (a send or approve of the token itself).
+  token: new Set([5]),
 };
 
 const RANK: Record<Verdict, number> = { clean: 0, unavailable: 1, warn: 2, block: 3 };
@@ -157,7 +169,8 @@ function groups(entries: readonly ListEntry[]): number[] {
 /**
  * Evaluates one subject in one context against the synced leaves and the applied lists.
  *
- * Policy: the ERC's recommended Reader policy, rules 1 to 9, with no extensions. Where the ERC
+ * Policy: the ERC's recommended Reader policy, rules 1 to 9, unless `policy` lowers the threshold
+ * to one writer or makes categories warn-only. Where the ERC
  * leaves a choice open, this reader:
  * - counts a weight-0 entry toward warnings only, never toward a block ("counts toward nothing");
  * - applies rule 7: a flagging writer whose every live flag on the subject has a `COUNTER` from an
@@ -223,13 +236,13 @@ export function evaluate(input: EvaluateInput): Evaluation {
           entries.some((ce, j) => ce.weight > 0 && group[j] !== group[i] && isAddressEqual(ce.writer, c.writer) && windows[j]?.(c) && live(c, j)),
         );
         here.push({ writer: w, category: l.leaf.category, evidence: l.leaf.evidence, leaf: l, list, weight: e.weight, counters });
-        if (context === "recipient" && l.leaf.category === 8) continue;
+        if ((context === "recipient" && l.leaf.category === 8) || input.policy?.warnOnly?.includes(l.leaf.category)) continue;
         if (e.weight === 255 && blocking) heavy = true;
         if (e.weight > 0 && counters.length === 0) counted.add(group[i]!);
       }
     });
     findings.push(...here);
-    lists.push({ list, verdict: heavy || counted.size >= 2 ? "block" : here.length ? "warn" : "clean" });
+    lists.push({ list, verdict: heavy || counted.size >= (input.policy?.threshold ?? 2) ? "block" : here.length ? "warn" : "clean" });
   }
 
   const safelistedBy = input.safelists.filter(s => "subjects" in s.list && s.list.subjects.some(a => isAddressEqual(a, subject)));

@@ -1,56 +1,81 @@
-// Snap state: settings, the pinned list, checkpoints, and the last sync. snap_manageState holds JSON
-// only, so bigints are stored as {"$n":"<decimal>"} and Errors as their message.
+// Snap state: the RPC, the lists, checkpoints, and the last sync. snap_manageState holds JSON only,
+// so bigints are stored as {"$n":"<decimal>"} and Errors as their message. Nothing about an
+// evaluated address is ever stored (snap-ui spec, section 7).
 import type { Json } from "@metamask/snaps-sdk";
 import type { SignedList, SyncResult, WriterCheckpoint } from "@tocsin/reader";
 import type { Address, Hex } from "viem";
 
-export type LeafSourceKind = "rpc" | "custom" | "snapshot";
-
 export type Settings = {
-  /** Proofs, the header, ENS, and (for `rpc`) leaves. */
+  /** Header, proofs, ENS and leaves all come from this one RPC. */
   rpcUrl: string;
-  /** Team ENS name holding `erc-threat-flag-log.list`. */
-  listName: string;
-  leafSource: LeafSourceKind;
-  /** Leaf RPC for `custom`, for example the lying proxy. */
-  customUrl: string;
-  /** The log's deployment block, where eth_getLogs scans start. */
-  fromBlock: bigint;
 };
+
+/** The home page's Policy section (snap-ui spec 5.3). */
+export type SnapPolicy = {
+  threshold: 1 | 2;
+  /** Categories that warn and never block. */
+  warnOnly: number[];
+  /** Evaluate approve, permit and setApprovalForAll spenders. */
+  checkApprovals: boolean;
+};
+
+/** POISONING_FUNDER and THEFT_PROCEEDS warn, everything else blocks on two independent writers. */
+export const DEFAULT_POLICY: SnapPolicy = { threshold: 2, warnOnly: [2, 8], checkApprovals: true };
 
 export type SyncStatus = {
   at: number;
-  /** Why the last sync could not run (no list, proof RPC down). */
+  /** Why the last sync could not run (no list, RPC down). */
   error?: string;
-  /** acceptList's status for the list name, plus the reject reason. */
-  list?: string;
-  /** Root of a maintainer change the user declined; not prompted again. */
-  declinedRoot?: Hex;
 };
+
+/** One list name. Kept while unfollowed, so following it again keeps the first-use pin. */
+export type ListState = {
+  followed: boolean;
+  pinned?: SignedList;
+  /** A list signed by a new maintainer. The list is excluded until the user accepts it on the home page. */
+  pending?: SignedList;
+  /** acceptList's status at the last sync, plus the reject reason. */
+  status?: string;
+};
+
+/** The last sync where every writer synced. Shown when the current one is unverifiable. */
+export type LastGood = { flags: number; writers: number; block: bigint; at: number };
 
 export type State = {
   settings: Settings;
-  pinned?: SignedList;
+  policy: SnapPolicy;
+  lists: Record<string, ListState>;
   checkpoints: Record<string, WriterCheckpoint>;
   sync?: SyncResult;
+  /** When `sync` was taken. */
+  syncedAt?: number;
+  lastGood?: LastGood;
   /** Forward-checked ENS names of writers. */
   names: Record<Address, string>;
   status?: SyncStatus;
+  /** Start of the running sync. Panels show "updating…" while it is recent. */
+  syncingSince?: number;
 };
 
 export const LOG: Address = "0xB639d15A0E7aE24E4C32E851Fbe0E57585565b14";
 export const LOG_CHAIN_ID = 11155111n;
+/** The log's deployment block, where eth_getLogs scans start. Build-time only. */
+export const FROM_BLOCK = BigInt(process.env.TOCSIN_LOG_FROM_BLOCK || "0");
 
-// Build-time defaults from snap.config.ts.
+const csv = (s: string | undefined) => (s ?? "").split(",").map((x) => x.trim()).filter(Boolean);
+const DEFAULT_LISTS = csv(process.env.TOCSIN_LIST_NAME);
+
 export const DEFAULT_SETTINGS: Settings = {
   rpcUrl: process.env.TOCSIN_RPC_URL || "https://ethereum-sepolia-rpc.publicnode.com",
-  listName: process.env.TOCSIN_LIST_NAME || "",
-  leafSource: "rpc",
-  customUrl: process.env.TOCSIN_PROXY_URL || "http://127.0.0.1:8550",
-  fromBlock: BigInt(process.env.TOCSIN_LOG_FROM_BLOCK || "0"),
 };
-/** Optional record hex that replaces the ENS lookup, for a rehearsal before the name exists. */
-export const RECORD_OVERRIDE = (process.env.TOCSIN_LIST_RECORD || "") as Hex | "";
+/**
+ * Record hex per name that replaces the ENS lookup, for a rehearsal before the name exists:
+ * `TOCSIN_LIST_RECORDS=a.eth=0x…,b.eth=0x…`, and `TOCSIN_LIST_RECORD` for the first default name.
+ */
+export const RECORD_OVERRIDES: Record<string, Hex> = Object.fromEntries([
+  ...(DEFAULT_LISTS[0] && process.env.TOCSIN_LIST_RECORD ? [[DEFAULT_LISTS[0], process.env.TOCSIN_LIST_RECORD]] : []),
+  ...csv(process.env.TOCSIN_LIST_RECORDS).map((pair) => pair.split("=").map((x) => x.trim())),
+]);
 
 export function toJson(value: unknown): Json {
   return JSON.parse(
@@ -70,10 +95,19 @@ export function fromJson<T>(json: Json): T {
 
 export async function loadState(): Promise<State> {
   const raw = await snap.request({ method: "snap_manageState", params: { operation: "get" } });
-  if (!raw) return { settings: DEFAULT_SETTINGS, checkpoints: {}, names: {} };
-  // SAFETY: only this module writes the state, always through toJson(State).
+  const fresh: State = {
+    settings: DEFAULT_SETTINGS,
+    policy: DEFAULT_POLICY,
+    lists: Object.fromEntries(DEFAULT_LISTS.map((n) => [n, { followed: true }])),
+    checkpoints: {},
+    names: {},
+  };
+  if (!raw) return fresh;
+  // SAFETY: only this module writes the state, always through toJson(State). Earlier builds had no
+  // `followed` flag; their lists were all applied.
   const s = fromJson<State>(raw);
-  return { ...s, settings: { ...DEFAULT_SETTINGS, ...s.settings } };
+  const lists = Object.fromEntries(Object.entries(s.lists ?? fresh.lists).map(([n, l]) => [n, { ...l, followed: l.followed ?? true }]));
+  return { ...fresh, ...s, policy: { ...DEFAULT_POLICY, ...s.policy }, settings: { ...DEFAULT_SETTINGS, rpcUrl: s.settings?.rpcUrl ?? DEFAULT_SETTINGS.rpcUrl }, lists };
 }
 
 export async function saveState(state: State): Promise<void> {

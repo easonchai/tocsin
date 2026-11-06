@@ -1,4 +1,4 @@
-// Usage: yarn workspace @tocsin/infra eval <address> --source rpc|proxy|mirror [--context recipient|spender|delegate|incomingSender]
+// Usage: yarn workspace @tocsin/infra eval <address> --source rpc|proxy|mirror [--context recipient|spender|delegate|incomingSender|token]
 // The three demo beats at the command line. Loads the signed default list, proves every listed
 // writer's head and sequence through RPC_URL, syncs their leaves through the chosen source, and
 // evaluates the address on this machine.
@@ -29,7 +29,7 @@ import { connect, required } from "./env.js";
 
 const SOURCES = ["rpc", "proxy", "mirror"] as const;
 type Source = (typeof SOURCES)[number];
-const CONTEXTS: readonly Context[] = ["recipient", "spender", "delegate", "incomingSender"];
+const CONTEXTS: readonly Context[] = ["recipient", "spender", "delegate", "incomingSender", "token"];
 
 const CATEGORY: Record<number, string> = {
   1: "POISONING_OPERATOR",
@@ -43,7 +43,7 @@ const CATEGORY: Record<number, string> = {
 };
 
 function parseArgs(argv: string[]): { subject: Address; source: Source; context: Context } {
-  const usage = "usage: eval <address> --source rpc|proxy|mirror [--context recipient|spender|delegate|incomingSender]";
+  const usage = "usage: eval <address> --source rpc|proxy|mirror [--context recipient|spender|delegate|incomingSender|token]";
   let subject: string | undefined;
   let source: string | undefined;
   let context = "recipient";

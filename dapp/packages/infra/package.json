@@ -6,6 +6,8 @@
   "scripts": {
     "check-types": "tsc --noEmit",
     "seed": "tsx src/seed.ts",
+    "seed-curators": "tsx src/seed-curators.ts",
+    "seed-tokens": "tsx src/seed-tokens.ts",
     "relay": "tsx src/relay-cli.ts",
     "detect": "tsx src/detect-cli.ts",
     "eval": "tsx src/evaluate-cli.ts",
