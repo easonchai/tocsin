@@ -1,8 +1,8 @@
 diff --git a/.env-sample b/.env-sample
-index bde94fd8d..a4a3ad10c 100644
+index bde94fd8d..b7a738f8c 100644
 --- a/.env-sample
 +++ b/.env-sample
-@@ -77,6 +77,23 @@ COLIBRI_PROVER_URLS="https://sepolia.colibri-proof.tech/"
+@@ -77,6 +77,25 @@ COLIBRI_PROVER_URLS="https://sepolia.colibri-proof.tech/"
  COLIBRI_TRUSTED_CHECKPOINT=""
  # Enable Colibri debug logs.
  COLIBRI_DEBUG="false"
@@ -14,6 +14,8 @@ index bde94fd8d..a4a3ad10c 100644
 +TOCSIN_LIST_NAME=""
 +# Record hex that replaces the ENS lookup of the first TOCSIN_LIST_NAME (rehearsal before the name exists).
 +TOCSIN_LIST_RECORD=""
++# Record hex for more names, name=0x… pairs separated by commas: harborwatch.eth=0x…,lanterndao.eth=0x…
++TOCSIN_LIST_RECORDS=""
 +# The ThreatFlagLog deploy block, where the first log scan starts. Defaults to 0.
 +TOCSIN_LOG_FROM_BLOCK=""
 +# How Tocsin's RPC reads leave the browser: tor, nym or direct. Defaults to tor. Localhost RPCs always go direct.
@@ -308,18 +310,19 @@ index 000000000..006506cf7
 +
 +export { TocsinControllerStateProvider, TocsinControllerStateContext }
 diff --git a/src/web/extension-services/background/actions.ts b/src/web/extension-services/background/actions.ts
-index 0a4a2e879..8f198ad0b 100644
+index 0a4a2e879..5df33b2ab 100644
 --- a/src/web/extension-services/background/actions.ts
 +++ b/src/web/extension-services/background/actions.ts
-@@ -37,6 +37,7 @@ import { FullEstimation } from '@ambire-common/libs/estimate/interfaces'
+@@ -37,6 +37,8 @@ import { FullEstimation } from '@ambire-common/libs/estimate/interfaces'
  import { GasRecommendation } from '@ambire-common/libs/gasPrice/gasPrice'
  import { TokenResult } from '@ambire-common/libs/portfolio'
  import { CustomToken, TokenPreference } from '@ambire-common/libs/portfolio/customToken'
 +import { Target } from '@ambire-common/libs/tocsin/decode'
++import { TocsinPolicy } from '@ambire-common/libs/tocsin/state'
  import { THEME_TYPES } from '@common/styles/themeConfig'
  import { LOG_LEVELS } from '@web/utils/logger'
  
-@@ -756,6 +757,34 @@ type PhishingControllerGetIsBlacklistedAndSendToUiAction = {
+@@ -756,6 +758,38 @@ type PhishingControllerGetIsBlacklistedAndSendToUiAction = {
    params: { url: string }
  }
  
@@ -331,6 +334,10 @@ index 0a4a2e879..8f198ad0b 100644
 +type TocsinControllerUpdateSettingsAction = {
 +  type: 'TOCSIN_CONTROLLER_UPDATE_SETTINGS'
 +  params: { rpcUrl: string }
++}
++type TocsinControllerSetPolicyAction = {
++  type: 'TOCSIN_CONTROLLER_SET_POLICY'
++  params: { policy: TocsinPolicy }
 +}
 +type TocsinControllerSetFollowedAction = {
 +  type: 'TOCSIN_CONTROLLER_SET_FOLLOWED'
@@ -354,13 +361,14 @@ index 0a4a2e879..8f198ad0b 100644
  type ExtensionUpdateControllerApplyUpdate = {
    type: 'EXTENSION_UPDATE_CONTROLLER_APPLY_UPDATE'
  }
-@@ -1201,6 +1230,15 @@ export type Action =
+@@ -1201,6 +1235,16 @@ export type Action =
    | MainControllerActivityHideBanner
    | KeystoreControllerDeleteSeedAction
    | PhishingControllerGetIsBlacklistedAndSendToUiAction
 +  | TocsinControllerSyncAction
 +  | TocsinControllerAssessAction
 +  | TocsinControllerUpdateSettingsAction
++  | TocsinControllerSetPolicyAction
 +  | TocsinControllerSetFollowedAction
 +  | TocsinControllerAddListAction
 +  | TocsinControllerConfirmAddListAction
@@ -443,7 +451,7 @@ index cad1274dc..cf4ab80ab 100644
 -if ('hid' in navigator) navigator.hid.addEventListener('disconnect', () => { })
 +if ('hid' in navigator) navigator.hid.addEventListener('disconnect', () => {})
 diff --git a/src/web/extension-services/background/handlers/handleActions.ts b/src/web/extension-services/background/handlers/handleActions.ts
-index b7c34ee30..0ff67470d 100644
+index b7c34ee30..68b21e121 100644
 --- a/src/web/extension-services/background/handlers/handleActions.ts
 +++ b/src/web/extension-services/background/handlers/handleActions.ts
 @@ -76,16 +76,13 @@ export const handleActions = async (
@@ -489,7 +497,7 @@ index b7c34ee30..0ff67470d 100644
        return mainCtrl.railgun.setRailgunAccountCache(params.zkAddress, params.chainId, params.cache)
      case 'ACTIONS_CONTROLLER_REMOVE_FROM_ACTIONS_QUEUE':
        return mainCtrl.requests.actions.removeActions([params.id], params.shouldOpenNextAction)
-@@ -823,6 +820,24 @@ export const handleActions = async (
+@@ -823,6 +820,26 @@ export const handleActions = async (
      case 'PHISHING_CONTROLLER_GET_IS_BLACKLISTED_AND_SEND_TO_UI': {
        return mainCtrl.phishing.sendIsBlacklistedToUi(params.url)
      }
@@ -499,6 +507,8 @@ index b7c34ee30..0ff67470d 100644
 +      return mainCtrl.tocsin.assess(params.targets, params.chainId)
 +    case 'TOCSIN_CONTROLLER_UPDATE_SETTINGS':
 +      return mainCtrl.tocsin.updateSettings(params)
++    case 'TOCSIN_CONTROLLER_SET_POLICY':
++      return mainCtrl.tocsin.setPolicy(params.policy)
 +    case 'TOCSIN_CONTROLLER_SET_FOLLOWED':
 +      return mainCtrl.tocsin.setFollowed(params.name, params.followed)
 +    case 'TOCSIN_CONTROLLER_ADD_LIST':
@@ -800,6 +810,33 @@ index 000000000..774c09ac7
 +
 +  return context
 +}
+diff --git a/src/web/modules/action-requests/screens/DappConnectScreen/components/DAppAccountSelector.tsx b/src/web/modules/action-requests/screens/DappConnectScreen/components/DAppAccountSelector.tsx
+index d1f6f9279..0f34e4fb2 100644
+--- a/src/web/modules/action-requests/screens/DappConnectScreen/components/DAppAccountSelector.tsx
++++ b/src/web/modules/action-requests/screens/DappConnectScreen/components/DAppAccountSelector.tsx
+@@ -83,16 +83,15 @@ const AccountSelector: FC<{
+     accounts.forEach((acc) => {
+       const associatedKeys = acc.associatedKeys
+       const key = keys.find((k) => associatedKeys.includes(k.addr))
+-      if (!key) return
+ 
+-      let label
++      // Every account is listed; the key and seed only decide the group label.
++      let label = 'Other accounts'
+       let seedId
+-      if (key.type === 'internal') {
++      if (key?.type === 'internal') {
+         const seed = seeds.find((s) => s.id === key.meta.fromSeedId)
+-        if (!seed) return
+-        label = seed.label
+-        seedId = seed.id
+-      } else {
++        label = seed ? seed.label : 'Imported keys'
++        seedId = seed?.id
++      } else if (key) {
+         label = `${key.type}-${key.meta.deviceId}`
+       }
+ 
 diff --git a/src/web/modules/router/components/MainRoutes/MainRoutes.tsx b/src/web/modules/router/components/MainRoutes/MainRoutes.tsx
 index 906dee26d..ab898d4d1 100644
 --- a/src/web/modules/router/components/MainRoutes/MainRoutes.tsx
@@ -847,10 +884,10 @@ index ba3d44418..5455b2542 100644
      Icon: React.memo(TransactionHistoryIcon),
 diff --git a/src/web/modules/settings/screens/TocsinSettingsScreen/TocsinSettingsScreen.tsx b/src/web/modules/settings/screens/TocsinSettingsScreen/TocsinSettingsScreen.tsx
 new file mode 100644
-index 000000000..7f41c9df5
+index 000000000..780d70a64
 --- /dev/null
 +++ b/src/web/modules/settings/screens/TocsinSettingsScreen/TocsinSettingsScreen.tsx
-@@ -0,0 +1,396 @@
+@@ -0,0 +1,442 @@
 +// Tocsin settings: the Snap's home page (snap-ui.md section 5, dapp/packages/snap/src/ui.tsx HomePage)
 +// in Kohaku's settings components. Every control dispatches a TOCSIN_CONTROLLER_* action; the results
 +// come back through useTocsinControllerState().
@@ -860,25 +897,29 @@ index 000000000..7f41c9df5
 +import {
 +  ABOUT_LINE,
 +  ago,
++  category,
 +  host,
 +  type ListSummary,
 +  type ListView,
 +  num,
 +  plural,
-+  POLICY_LINES,
++  POLICY_FOOTNOTE,
 +  proven,
 +  short,
 +  SOURCE_URL,
 +  STANDARD_URL,
 +  TRANSPORT,
 +  transportLine,
++  WARN_ONLY_CHOICES,
 +  whyUnavailable,
 +  writerLabel
 +} from '@ambire-common/libs/tocsin/display'
++import type { TocsinPolicy } from '@ambire-common/libs/tocsin/state'
 +import Alert from '@common/components/Alert'
 +import Button from '@common/components/Button'
 +import FatToggle from '@common/components/FatToggle'
 +import Input from '@common/components/Input'
++import Select from '@common/components/Select'
 +import Spinner from '@common/components/Spinner'
 +import Text, { TextAppearance } from '@common/components/Text'
 +import useTheme from '@common/hooks/useTheme'
@@ -896,6 +937,11 @@ index 000000000..7f41c9df5
 +  TRANSPORT === 'direct'
 +    ? 'This build reads the header and proofs from the RPC you pick, best effort. It is not a light client and does not use Anon-RPC. The RPC can see which flags you download, never which address you check.'
 +    : `This build reads the header and proofs from the RPC you pick through the ${TRANSPORT} Anon-RPC worker, best effort. It is not a light client. The RPC sees which flags are downloaded, never who asked or which address you check. Localhost RPCs go direct.`
++
++const THRESHOLD_OPTIONS = [
++  { value: 1, label: '1 writer' },
++  { value: 2, label: '2 independent writers' }
++]
 +
 +const Row = ({
 +  label,
@@ -1036,6 +1082,7 @@ index 000000000..7f41c9df5
 +  const state = useTocsinControllerState()
 +  const {
 +    settings,
++    policy,
 +    lists,
 +    sync,
 +    syncedAt,
@@ -1057,7 +1104,7 @@ index 000000000..7f41c9df5
 +  }, [settings?.rpcUrl])
 +
 +  // The context is empty until the background sends the first state.
-+  if (!settings || !lists) return <Spinner style={{ alignSelf: 'center' }} />
++  if (!settings || !policy || !lists) return <Spinner style={{ alignSelf: 'center' }} />
 +
 +  const failing = Object.values(sync?.writers ?? {}).filter((w) => w.status !== 'synced')
 +  const addList = () => {
@@ -1065,6 +1112,9 @@ index 000000000..7f41c9df5
 +      dispatch({ type: 'TOCSIN_CONTROLLER_ADD_LIST', params: { name: listName } })
 +  }
 +  const saveRpc = () => dispatch({ type: 'TOCSIN_CONTROLLER_UPDATE_SETTINGS', params: { rpcUrl } })
++  // Applies to the next evaluation; no resync (the synced flags are unchanged).
++  const setPolicy = (change: Partial<TocsinPolicy>) =>
++    dispatch({ type: 'TOCSIN_CONTROLLER_SET_POLICY', params: { policy: { ...policy, ...change } } })
 +
 +  return (
 +    <>
@@ -1183,11 +1233,44 @@ index 000000000..7f41c9df5
 +      <View style={spacings.mtLg}>
 +        <SettingsPageHeader title="Policy" />
 +      </View>
-+      {POLICY_LINES.map((line) => (
-+        <Text key={line} fontSize={14} style={spacings.mbSm}>
-+          {line}
-+        </Text>
-+      ))}
++      <Select
++        id="tocsin-threshold"
++        label="Block when flagged by"
++        withSearch={false}
++        options={THRESHOLD_OPTIONS}
++        value={THRESHOLD_OPTIONS.find((o) => o.value === policy.threshold) ?? null}
++        setValue={(o) => setPolicy({ threshold: o.value === 1 ? 1 : 2 })}
++        containerStyle={spacings.mbSm}
++      />
++      {WARN_ONLY_CHOICES.map((c) => {
++        const isOn = policy.warnOnly.includes(c)
++        return (
++          <FatToggle
++            key={c}
++            id={`tocsin-warn-only-${c}`}
++            label={`${category(c).name} · warn only`}
++            labelProps={{ style: [spacings.mlTy, { fontSize: 14 }] }}
++            isOn={isOn}
++            onToggle={() =>
++              setPolicy({
++                warnOnly: isOn ? policy.warnOnly.filter((x) => x !== c) : [...policy.warnOnly, c]
++              })
++            }
++            style={spacings.mbSm}
++          />
++        )
++      })}
++      <FatToggle
++        id="tocsin-check-approvals"
++        label="Check approvals, permits and 7702 delegates"
++        labelProps={{ style: [spacings.mlTy, { fontSize: 14 }] }}
++        isOn={policy.checkApprovals}
++        onToggle={() => setPolicy({ checkApprovals: !policy.checkApprovals })}
++        style={spacings.mbSm}
++      />
++      <Text fontSize={14} appearance="secondaryText" style={spacings.mbSm}>
++        {POLICY_FOOTNOTE}
++      </Text>
 +
 +      <View style={spacings.mtLg}>
 +        <SettingsPageHeader title="Network" />
@@ -1381,7 +1464,7 @@ index 8586d228c..38e9a15bc 100644
              <NoKeysToSignAlert style={{ width: '100%' }} isTransaction={false} />
 diff --git a/src/web/modules/tocsin/components/VerdictPanel/VerdictPanel.tsx b/src/web/modules/tocsin/components/VerdictPanel/VerdictPanel.tsx
 new file mode 100644
-index 000000000..c56d9a50c
+index 000000000..1da3e14c1
 --- /dev/null
 +++ b/src/web/modules/tocsin/components/VerdictPanel/VerdictPanel.tsx
 @@ -0,0 +1,425 @@
@@ -1545,7 +1628,7 @@ index 000000000..c56d9a50c
 +/** One flagged address: why, who flagged it, and the evidence (spec 3.2 steps 2 and 3). */
 +const Flag = ({ view, a }: { view: TocsinView; a: TocsinAssessment }) => {
 +  const { theme } = useTheme()
-+  const banner = flagBanner(a)
++  const banner = flagBanner(a, view.policy)
 +  const cats = [...new Set(a.findings.map((f) => f.category))].map(category)
 +  const evidence = [...new Set(a.findings.map((f) => f.evidence))]
 +  const tooltipId = `tocsin-category-${a.target.context}-${a.target.address}`
@@ -1820,7 +1903,7 @@ index 000000000..6a7d96f7d
 +
 +export default VerdictPanel
 diff --git a/src/web/modules/transfer/components/SendForm/SendForm.tsx b/src/web/modules/transfer/components/SendForm/SendForm.tsx
-index f449adcd6..a8df16871 100644
+index f449adcd6..4cb61db47 100644
 --- a/src/web/modules/transfer/components/SendForm/SendForm.tsx
 +++ b/src/web/modules/transfer/components/SendForm/SendForm.tsx
 @@ -23,6 +23,7 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
@@ -1831,17 +1914,35 @@ index f449adcd6..a8df16871 100644
  import { getTokenId } from '@web/utils/token'
  
  import styles from './styles'
-@@ -72,7 +73,8 @@ const SendForm = ({
+@@ -72,7 +73,9 @@ const SendForm = ({
      isRecipientAddressUnknownAgreed,
      isTopUp,
      addressState,
 -    amount: controllerAmount
 +    amount: controllerAmount,
-+    tocsinRecipient
++    tocsinRecipient,
++    tocsinToken
    } = state
    const { t } = useTranslation()
    const { networks } = useNetworksControllerState()
-@@ -320,6 +322,15 @@ const SendForm = ({
+@@ -298,6 +301,16 @@ const SendForm = ({
+           maxAmountDisabled={!isMaxAmountEnabled}
+         />
+       )}
++      {/* Only a flagged token gets a panel; its sync state already shows under the recipient. */}
++      {!isTopUp && (tocsinToken?.verdict === 'block' || tocsinToken?.verdict === 'warn') && (
++        <VerdictPanel
++          verdict={tocsinToken.verdict}
++          assessments={tocsinToken.assessment ? [tocsinToken.assessment] : []}
++          chainId={tocsinToken.chainId}
++          action="send"
++          style={spacings.mbSm}
++        />
++      )}
+       <View>
+         {!isTopUp && (
+           <Recipient
+@@ -320,6 +333,15 @@ const SendForm = ({
              recipientMenuClosedAutomaticallyRef={recipientMenuClosedAutomaticallyRef}
            />
          )}

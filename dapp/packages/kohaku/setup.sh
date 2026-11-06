@@ -55,8 +55,9 @@ SEPOLIA_RPC_URL="${SEPOLIA_RPC_URL:-https://ethereum-sepolia-rpc.publicnode.com}
 BROWSER_EXTENSION_PUBLIC_KEY="$EXTENSION_PUBLIC_KEY" \
 REACT_APP_PIMLICO_API_KEY="${REACT_APP_PIMLICO_API_KEY:-dummy}" \
 TOCSIN_RPC_URL="${TOCSIN_RPC_URL:-https://0xrpc.io/sep}" \
-TOCSIN_LIST_NAME="${TOCSIN_LIST_NAME:-tocsin.eth}" \
+TOCSIN_LIST_NAME="${TOCSIN_LIST_NAME:-tocsin.eth,harborwatch.eth,lanterndao.eth}" \
 TOCSIN_LIST_RECORD="${TOCSIN_LIST_RECORD-$(tr -d '[:space:]' < "$DAPP/list-record.hex")}" \
+TOCSIN_LIST_RECORDS="${TOCSIN_LIST_RECORDS-harborwatch.eth=$(tr -d '[:space:]' < "$DAPP/list-record.harborwatch.hex"),lanterndao.eth=$(tr -d '[:space:]' < "$DAPP/list-record.lanterndao.hex")}" \
 TOCSIN_LOG_FROM_BLOCK="${TOCSIN_LOG_FROM_BLOCK:-12074077}" \
 TOCSIN_TRANSPORT="${TOCSIN_TRANSPORT:-tor}" \
 TOCSIN_TOR_GATEWAYS="${TOCSIN_TOR_GATEWAYS:-127.0.0.1:12298:uEiDmYGjwNwrPIT33fsdOLp4inBsIhgiqQAEWvspt4G2uPQ}" \
@@ -65,7 +66,7 @@ TOCSIN_MAINNET_EXECUTION_RPC="${TOCSIN_MAINNET_EXECUTION_RPC:-https://0xrpc.io/e
 node -e '
 const fs = require("fs");
 const keys = ["SEPOLIA_RPC_URL", "BROWSER_EXTENSION_PUBLIC_KEY", "REACT_APP_PIMLICO_API_KEY",
-  "TOCSIN_RPC_URL", "TOCSIN_LIST_NAME", "TOCSIN_LIST_RECORD", "TOCSIN_LOG_FROM_BLOCK",
+  "TOCSIN_RPC_URL", "TOCSIN_LIST_NAME", "TOCSIN_LIST_RECORD", "TOCSIN_LIST_RECORDS", "TOCSIN_LOG_FROM_BLOCK",
   "TOCSIN_TRANSPORT", "TOCSIN_TOR_GATEWAYS", "TOCSIN_MAINNET_CONSENSUS_RPC", "TOCSIN_MAINNET_EXECUTION_RPC"];
 let env = fs.readFileSync(process.env.DIR + "/.env-sample", "utf8");
 for (const k of keys) {

@@ -30,8 +30,9 @@ It takes about four minutes on a fast connection. If the install fails, run it a
 | Setting | Default | Meaning |
 | --- | --- | --- |
 | `TOCSIN_RPC_URL` | `https://0xrpc.io/sep` | The one RPC for the header, proofs, ENS and flags. Changeable later in Settings, Tocsin |
-| `TOCSIN_LIST_NAME` | `tocsin.eth` | Comma-separated lists, followed and pinned on first sync |
+| `TOCSIN_LIST_NAME` | `tocsin.eth,harborwatch.eth,lanterndao.eth` | Comma-separated lists, followed and pinned on first sync |
 | `TOCSIN_LIST_RECORD` | contents of `dapp/list-record.hex` | Replaces the ENS lookup of the first list. Set it empty to read ENS |
+| `TOCSIN_LIST_RECORDS` | `harborwatch.eth=` and `lanterndao.eth=` the contents of `dapp/list-record.harborwatch.hex` and `dapp/list-record.lanterndao.hex` | Comma-separated `name=0x…` pairs that replace the ENS lookup of those names. Set it empty to read ENS |
 | `TOCSIN_LOG_FROM_BLOCK` | `12074077` | The log's deploy block, where the first scan starts |
 | `TOCSIN_TRANSPORT` | `tor` | How Tocsin's reads leave the browser: `tor`, `nym` or `direct`. Localhost RPCs always go direct |
 | `TOCSIN_TOR_GATEWAYS` | the local `tor-js-gateway` | Comma-separated `host:port:peerId` for the tor transport. Yours is printed when the gateway starts |
@@ -81,6 +82,19 @@ dapp/packages/kohaku/demo.sh    # logs in /tmp/tocsin-demo, Ctrl-C stops everyth
 2. Settings, Tocsin, RPC URL `http://127.0.0.1:8550`, Save and sync. The page shows "chain mismatch at sequence 1", and the send screen shows Unverifiable, never green. Unverifiable does not block Send.
 3. Set the RPC URL back to `https://0xrpc.io/sep`, Save and sync, paste again. Blocked.
 
+The three default lists are `tocsin.eth` and the curator lists `harborwatch.eth` and `lanterndao.eth`. Their list documents come from the static site's `/lists/`.
+
+### Token check
+
+Kohaku does not seed tokens, so add the two demo tokens by hand once. Import the test wallet `0xE0DFbd2B761929D02b30f2173C3386f0ec4B3cca`, which holds 1,000 of each (view-only is enough). On the Dashboard's token list, scroll to the bottom and press "+ Add custom token". In the "Add Token" sheet, set "Choose Network" to Sepolia, paste the address into "Token Address", and press "Add Token". Do it once for each:
+
+| Token | Address | On Send |
+| --- | --- | --- |
+| fakeUSDC | `0x2Ba2B2F4bd18D04C3bA92DB9F73a49d19c87b4B8` | Under the amount field: "Tocsin blocked this token: Malicious token." A Blocked panel shows below the token selector, and Send stays disabled whatever the recipient |
+| realUSDC | `0xf53749FD5e85d4169E95E18FeD40b9A5219FC039` | No token panel and no amount error. The recipient check alone decides |
+
+Both show the symbol USDC, so tell them apart by address. The Sign screen also catches fakeUSDC when a dApp asks to transfer, approve or permit it: the token contract appears as "token contract" in the Blocked panel.
+
 ## Tests
 
 From `kohaku-extension/src/ambire-common`, with the env the tests need:
@@ -89,7 +103,7 @@ From `kohaku-extension/src/ambire-common`, with the env the tests need:
 SEPOLIA_RPC_URL=https://ethereum-sepolia-rpc.publicnode.com npx jest Tocsin tocsin decode.test
 ```
 
-30 tests in 5 suites.
+35 tests in 5 suites.
 
 ## Changing the code
 
@@ -97,4 +111,4 @@ Edit inside the clone, then run `dapp/packages/kohaku/update-patches.sh [clone d
 
 ## Not in Kohaku yet
 
-The Snap's Policy section (block threshold, warn-only categories), the token-contract `MALICIOUS_TOKEN` check, and the curator lists `harborwatch.eth` and `lanterndao.eth`. The reader already supports all three; Kohaku's controller and settings page don't pass them yet. Header and proofs come from one RPC, best effort, like the Snap. Kohaku's own Helios and Colibri are not used for Tocsin's proofs yet. Ticket 16 has the details.
+Header and proofs come from one RPC, best effort, like the Snap. Kohaku's own Helios and Colibri are not used for Tocsin's proofs yet. Ticket 16 has the details.
