@@ -84,6 +84,62 @@ Two ways to publish a list, and both work with the same reader:
 
 `core.tocsin.eth` is our own list: the 92 seed entries, one writer, signed by the maintainer key. Wallets ship names like browsers ship root CAs, and the user sees "flagged by seal.eth, listed by core.tocsin.eth," never a hex address.
 
+### How the hub is wired on ENSv2
+
+ENSv2 is a tree of registries, not one flat mapping. Each name's entry in its parent registry carries a `subregistry` pointer, and the names under it live in that child contract. A registrar is any contract that holds `ROLE_REGISTRAR` on a registry's root resource. The ETH Registrar is one for the `.eth` registry; the MirrorRegistrar is one for the `tocsin.eth` registry.
+
+```
+                   RootRegistry  (ENS governance)
+                        │ subregistry("eth")
+                        ▼
+                   ETHRegistry  ──── ETHRegistrar holds ROLE_REGISTRAR + ROLE_RENEW
+                   entry "tocsin":    (anyone registers a .eth name here)
+                     owner       = the maintainer key
+                     resolver    = our PermissionedResolver proxy
+                     subregistry ──────────────────────────────┐
+                                                               ▼
+                                              tocsin.eth UserRegistry (our proxy)
+                                              ROOT_RESOURCE roles after setup:
+                                                MirrorRegistrar: ROLE_REGISTRAR | ROLE_RENEW
+                                                maintainer:      none   (emancipated)
+                                              entries:
+                                                "core"   owner = maintainer, resolver = ours
+                                                "james"  owner = whoever owns james.eth
+                                                            │ subregistry (optional)
+                                                            ▼
+                                                 james.tocsin.eth UserRegistry, if james wants sub-subnames
+
+  MirrorRegistrar.claim("james", resolver)
+      ├─ ETHRegistry.findOwner("james") == msg.sender ?        the only rule
+      ├─ hub.getStatus(labelhash("james")) == AVAILABLE ?
+      └─ hub.register("james", msg.sender, 0, resolver, CLAIM_ROLES, ETHRegistry.findExpiry("james"))
+```
+
+Attaching the registrar is three transactions, all in `scripts/ens/2-setup-core.mjs`: deploy the UserRegistry through the Verifiable Factory, `setSubregistry` on the ETHRegistry so `tocsin.eth` points at it, `grantRootRoles(ROLE_REGISTRAR | ROLE_RENEW, registrar)` on the new registry. Then every other root role is revoked.
+
+Resolving `core.tocsin.eth` is a walk down the tree, and every step is a storage read:
+
+```
+UniversalResolverV2
+  → RootRegistry.getSubregistry("eth")        = ETHRegistry
+  → ETHRegistry.getSubregistry("tocsin")      = our UserRegistry
+  → UserRegistry.getResolver("core")          = our PermissionedResolver
+  → resolver.text(namehash("core.tocsin.eth"), "erc-threat-flag-log.list")
+```
+
+The Tocsin reader does the same walk through `eth_getProof` against the light client's state root, so the list record is verified the same way the log head is. That is why the ERC treats a record resolved through an unverifiable gateway as unverified.
+
+Who can do what once setup has run:
+
+```
+                             register  renew  setResolver  setSubregistry  unregister  transfer  upgrade
+MirrorRegistrar                 yes     yes       no            no             no         no       no
+maintainer (owns tocsin.eth)    no      no        no            no             no         no       no
+owner of james.tocsin.eth        –       –     own name      own name          no      own name    no
+```
+
+The maintainer can still repoint `tocsin.eth`'s subregistry in the ETHRegistry, which replaces the whole directory in one visible transaction. It cannot touch a name inside it.
+
 ## Repo map
 
 | Path | What it is |
