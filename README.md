@@ -359,7 +359,7 @@ On Sepolia, `tocsin.eth` owns its own [UserRegistry subregistry](https://github.
 
 The lists live on those names. `core.tocsin.eth` carries the `tocsin.list` text record, [built and signed here](https://github.com/easonchai/tocsin/blob/main/scripts/seed/publish-list.mjs#L74): the list's hash, a version, the maintainer's EIP-712 signature, and the document URI. A wallet pins the maintainer key the first time, so a lapsed or re-sold name cannot swap the list it follows. The detector, an automated writer, has its own name, key, and list at `detector.tocsin.eth`, and sits at warn weight in the core list. With [`authorizeTextRoles`](https://github.com/easonchai/tocsin/blob/main/scripts/ens/5-delegate-publisher.mjs#L20) the name owner can let a hot key update that one record and nothing else.
 
-Live now: four names claimed, three from separate keys; two signed lists verified end to end; a claim page that registers a `.eth` name, claims the subname, and shows the registry's guarantees from a wallet; [seven fork tests](https://github.com/easonchai/tocsin/blob/main/scripts/ens/test/MirrorRegistrar.t.sol) against the deployed ENSv2 contracts.
+Four names are claimed, three from separate keys. Two signed lists are published and verified end to end. The claim page registers a `.eth` name, claims the subname, and shows the registry's guarantees from a wallet. [Seven fork tests](https://github.com/easonchai/tocsin/blob/main/scripts/ens/test/MirrorRegistrar.t.sol) run against the deployed ENSv2 contracts.
 
 **Link to the line of code**
 
