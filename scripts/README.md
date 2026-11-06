@@ -8,6 +8,7 @@ Run in this order:
 node --env-file=scripts/.env scripts/ens/1-register-tocsin.mjs      # tocsin.eth on ENSv2 Sepolia (test USDC, commit, wait ~75s, register)
 node --env-file=scripts/.env scripts/ens/2-setup-core.mjs           # resolver + subregistry + MirrorRegistrar + core.tocsin.eth, then emancipate
 node --env-file=scripts/.env scripts/ens/3-claim.mjs <label>        # anyone who owns <label>.eth: claim <label>.tocsin.eth
+node --env-file=scripts/.env scripts/ens/4-register-and-claim.mjs <label>   # demo: register <label>.eth with CLAIMER_PRIVATE_KEY, then claim the subname
 node --env-file=scripts/.env scripts/seed/seed-core.mjs --dry       # resolve evidence blocks, show the batches
 node --env-file=scripts/.env scripts/seed/seed-core.mjs             # append 92 leaves to the log (one batch of 100 max per tx)
 node --env-file=scripts/.env scripts/seed/publish-list.mjs          # sign the trust list, set the ENS record, write core.list.json
