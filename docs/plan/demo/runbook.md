@@ -96,7 +96,7 @@ yarn workspace @tocsin/reader publish-list sign "$PWD/../site/lists/default.json
 
 `mirror` writes `site/mirror/<writer>.json` for both writers in the seed manifest and refuses to write a short snapshot. Pass writer addresses as arguments to mirror others, which is how the two curator writers from step 2b got theirs. Commit `site/lists/default.json` and `site/mirror/*.json`, deploy `site/`, and check that both `snapshotURI` values in the list answer. Put the contents of `list-record.hex` in `LIST_RECORD`. It is not secret.
 
-The curator lists, `site/lists/harborwatch.json` and `site/lists/lanterndao.json`, each name one `feed` writer and were signed the same way with that curator's maintainer key in `MAINTAINER_PRIVATE_KEY`. Their records are committed as `dapp/list-record.harborwatch.hex` and `dapp/list-record.lanterndao.hex`; the Kohaku build reads them through `TOCSIN_LIST_RECORDS` instead of ENS.
+The curator lists, `site/lists/harborwatch.json` and `site/lists/lanterndao.json`, each name one `feed` writer and were signed the same way with that curator's maintainer key in `MAINTAINER_PRIVATE_KEY`. Their records are committed as `dapp/list-record.harborwatch.hex` and `dapp/list-record.lanterndao.hex` and set under `tocsin.list` on each name, which is where the hosts read them. `TOCSIN_LIST_RECORDS` replaces that lookup for a rehearsal.
 
 The detector appends on its own schedule, and each new leaf makes the detector's mirror file stale. Rerun `mirror` and redeploy `site/` right before the demo.
 

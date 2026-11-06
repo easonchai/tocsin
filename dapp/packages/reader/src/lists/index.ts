@@ -13,8 +13,9 @@ import {
 } from "viem";
 import { namehash, normalize } from "viem/ens";
 
-export const LIST_RECORD_KEY = "erc-threat-flag-log.list";
-export const SAFELIST_RECORD_KEY = "erc-threat-flag-log.safelist";
+// The ERC's key is `erc-XXXX.list` until numbered; the Sepolia deployment and `scripts/ens/setup-all.mjs` use these.
+export const LIST_RECORD_KEY = "tocsin.list";
+export const SAFELIST_RECORD_KEY = "tocsin.safelist";
 
 export type ListKind = "list" | "safelist";
 
@@ -128,14 +129,16 @@ const arr = (v: unknown): unknown[] => {
 };
 
 /**
- * Parses the JSON wire form. Integers may be JSON numbers or decimal/hex strings.
+ * Parses the JSON wire form, bare or wrapped as `{ trustList, labels, ... }` (what `scripts/ens/setup-all.mjs` writes).
+ * Integers may be JSON numbers or decimal/hex strings.
  * Address, bytes32 and range checks happen in the ABI encoder, so call `listRoot` before trusting the result.
  */
 export function parseList(kind: "list", json: unknown): TrustList;
 export function parseList(kind: "safelist", json: unknown): Safelist;
 export function parseList(kind: ListKind, json: unknown): TrustList | Safelist;
 export function parseList(kind: ListKind, json: unknown): TrustList | Safelist {
-  const d = obj(json);
+  const wrapped = obj(json).trustList;
+  const d = obj(wrapped ?? json);
   const head = {
     log: str<Address>(d.log),
     chainId: int(d.chainId),
@@ -199,8 +202,10 @@ function verifyLabels(labels: unknown, list: TrustList | Safelist): Record<strin
   const known = new Set(
     list.entries.flatMap(e => [e.operator.toLowerCase(), e.upstream.toLowerCase()]).filter(h => h !== zeroHash),
   );
-  for (const [name, hash] of Object.entries(labels)) {
-    if (typeof hash !== "string") continue;
+  for (const [key, value] of Object.entries(labels)) {
+    if (typeof value !== "string") continue;
+    // `{ name: namehash }` per the ERC, or `{ namehash: name }` as `scripts/ens/setup-all.mjs` writes it
+    const [name, hash] = /^0x[0-9a-fA-F]{64}$/.test(key) ? [value, key] : [key, value];
     let normalized: string;
     try {
       normalized = normalize(name);

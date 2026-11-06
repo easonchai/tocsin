@@ -44,11 +44,11 @@ fi
 # Your own lists, if ./bootstrap.sh made some, win over the committed deployment's.
 DEMO_ENV="$ROOT/.tocsin-demo/demo.env"
 [[ -f "$DEMO_ENV" ]] && { echo "Using your lists from $DEMO_ENV"; source "$DEMO_ENV"; }
-hex() { tr -d '[:space:]' < "$DAPP/$1"; }
 export TOCSIN_RPC_URL="${TOCSIN_RPC_URL:-https://0xrpc.io/sep}"
-export TOCSIN_LIST_NAME="${TOCSIN_LIST_NAME:-tocsin.eth,harborwatch.eth,lanterndao.eth}"
-export TOCSIN_LIST_RECORD="${TOCSIN_LIST_RECORD-$(hex list-record.hex)}"
-export TOCSIN_LIST_RECORDS="${TOCSIN_LIST_RECORDS-harborwatch.eth=$(hex list-record.harborwatch.hex),lanterndao.eth=$(hex list-record.lanterndao.hex)}"
+# The hosts read each name's tocsin.list record through ENS. TOCSIN_LIST_RECORD(S) replace that lookup; demo.env sets them.
+export TOCSIN_LIST_NAME="${TOCSIN_LIST_NAME:-core.tocsin.eth,harborwatch.eth,lanterndao.eth}"
+export TOCSIN_LIST_RECORD="${TOCSIN_LIST_RECORD:-}"
+export TOCSIN_LIST_RECORDS="${TOCSIN_LIST_RECORDS:-}"
 export TOCSIN_LOG_FROM_BLOCK="${TOCSIN_LOG_FROM_BLOCK:-12074077}"
 # The certhash comes from this machine's gateway key, so the build must carry this machine's value.
 # `init` prints it without rotating an existing key, but refuses if its config file exists, so drop the throwaway one.
@@ -66,8 +66,16 @@ kohaku_yarn() { (cd "$DIR" && YARN_IGNORE_PATH=1 npx --yes yarn@1.22.22 "$@"); }
 
 # --- Build what is missing ---------------------------------------------------------------------------------
 [[ -f "$DIR/.env" ]] || { echo "Setting up Kohaku in $DIR (about 4 minutes)"; "$KOHAKU/setup.sh" "$DIR"; }
+# setup.sh copies the reader into the clone once; a reader changed since then means a fresh copy and a rebuild.
+READER_COPY="$DIR/src/ambire-common/src/libs/tocsin/reader"
+if ! diff -rq "$DAPP/packages/reader/src" "$READER_COPY" >/dev/null 2>&1; then
+  echo "Kohaku's copy of the reader is out of date; refreshing it and rebuilding"
+  rm -r "$READER_COPY" 2>/dev/null || true
+  mkdir -p "$READER_COPY" && cp -R "$DAPP/packages/reader/src/." "$READER_COPY/"
+  rm -r "$BUILD" 2>/dev/null || true
+fi
 # The build bakes these in, so a value that differs from .env (this machine's certhash, your own lists) means a rebuild.
-for var in TOCSIN_TOR_GATEWAYS TOCSIN_LIST_RECORD TOCSIN_LIST_RECORDS TOCSIN_LOG_FROM_BLOCK; do
+for var in TOCSIN_TOR_GATEWAYS TOCSIN_LIST_NAME TOCSIN_LIST_RECORD TOCSIN_LIST_RECORDS TOCSIN_LOG_FROM_BLOCK; do
   [[ "$var" == TOCSIN_TOR_GATEWAYS && "$TOCSIN_TRANSPORT" != tor ]] && continue
   grep -qF "$var=\"${!var}\"" "$DIR/.env" && continue
   echo "Kohaku's .env has another $var; updating it and rebuilding"
@@ -76,7 +84,11 @@ for var in TOCSIN_TOR_GATEWAYS TOCSIN_LIST_RECORD TOCSIN_LIST_RECORDS TOCSIN_LOG
 done
 [[ -d "$BUILD" ]] || { echo "Building Kohaku production bundle (a few minutes)"; kohaku_yarn build:web:webkit; }
 [[ -d "$DAPP/node_modules" ]] || { echo "Installing dapp workspace"; dapp_yarn install; }
-if [[ ! -d "$SNAP_DIST" || "$DEMO_ENV" -nt "$SNAP_DIST" ]]; then echo "Building the Snap"; dapp_yarn workspace @tocsin/snap build; fi
+# The Snap bakes in the same values; a stamp in dist says which ones the current bundle carries.
+snap_env="$(env | grep -E '^TOCSIN_(RPC_URL|LIST_NAME|LIST_RECORDS?|LOG_FROM_BLOCK)=' | sort)"
+if [[ "$(cat "$SNAP_DIST/.tocsin-env" 2>/dev/null)" != "$snap_env" ]]; then
+  echo "Building the Snap"; dapp_yarn workspace @tocsin/snap build && printf '%s\n' "$snap_env" >"$SNAP_DIST/.tocsin-env"
+fi
 
 # --- Servers -----------------------------------------------------------------------------------------------
 pids=()
@@ -105,7 +117,7 @@ else
   wait_for "tor gateway (TorClient bootstrapped)" 180 grep -q "TorClient bootstrapped" "$LOG_DIR/gateway.log"
 fi
 
-# 2. Static site with CORS. The list records point at http://localhost:8000/lists/*.json; without the CORS header the fetch is blocked.
+# 2. Static site with CORS. The curator lists' records point at http://localhost:8000/lists/*.json; without the CORS header the fetch is blocked.
 if curl -sfI http://127.0.0.1:8000/ >/dev/null 2>&1; then
   echo "  reusing: something already serves 127.0.0.1:8000"
 else

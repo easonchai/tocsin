@@ -1,6 +1,6 @@
 # Own writers and lists
 
-`./bootstrap.sh` puts flags from writers you hold the keys to on the shared Sepolia log and signs your own three list documents, so the demo runs on your lists end to end. The log, the demo tokens and the demo account stay the committed ones. Nothing is deployed and ENS is not touched: the hosts take the signed records directly, so the three names are labels.
+`./bootstrap.sh` puts flags from writers you hold the keys to on the shared Sepolia log and signs your own three list documents, so the demo runs on your lists end to end. The log, the demo tokens and the demo account stay the committed ones. Nothing is deployed and ENS is not touched: the hosts take the signed records directly, so the three names (`tocsin.eth` in place of `core.tocsin.eth`, then `harborwatch.eth` and `lanterndao.eth`) are labels.
 
 ## Steps
 

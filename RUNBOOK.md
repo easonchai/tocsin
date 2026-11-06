@@ -1,6 +1,6 @@
 # Run the demo
 
-Nothing team-side is needed. The log is deployed and seeded on Sepolia, the three trust lists are signed and committed, and their documents are served from this repo's `site/` folder by the script below. One command on a fresh clone gets you a Kohaku wallet and a MetaMask Snap that check addresses against the log.
+Nothing team-side is needed. The log is deployed and seeded on Sepolia, the three trust lists, `core.tocsin.eth`, `harborwatch.eth` and `lanterndao.eth`, are published as `tocsin.list` records on their ENS names. The wallets resolve them through ENS on first sync. Core's document is on GitHub; the two curator documents are served from this repo's `site/` folder by the script below. One command on a fresh clone gets you a Kohaku wallet and a MetaMask Snap that check addresses against the log.
 
 ## Prereqs
 
@@ -27,7 +27,7 @@ It starts, and reuses if already running:
 | Server | Where | For |
 | --- | --- | --- |
 | `tor-js-gateway` | UDP 12298 | the Tor path out of the browser |
-| static `site/` with CORS | `127.0.0.1:8000` | the list documents the wallet syncs |
+| static `site/` with CORS | `127.0.0.1:8000` | the two curator list documents the wallet syncs |
 | lying proxy | `127.0.0.1:8550` | beat 2: a Sepolia RPC that drops one flag |
 | Snap server | `localhost:8080` | Flask installs the Snap from here |
 

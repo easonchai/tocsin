@@ -55,7 +55,7 @@ async function resolveAddr(call: EthCall, name: string, ur: Address): Promise<Ad
 }
 
 /**
- * The `erc-threat-flag-log.list` (or `.safelist`) record of `name`, as the `record` of a `SignedList`.
+ * The `tocsin.list` (or `tocsin.safelist`) record of `name`, as the `record` of a `SignedList`.
  * `undefined` means unverifiable: any revert (OffchainLookup, no resolver, no record), a failed call, or a
  * value that is not hex. Pass it to `acceptList` as `fetched: undefined` so the last verified pin shows stale.
  * Throws only on a name that is not valid ENSIP-15, which is a settings error, not a lookup result.

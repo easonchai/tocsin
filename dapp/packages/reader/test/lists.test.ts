@@ -66,6 +66,15 @@ describe("acceptList", () => {
     expect(out.list?.labels).toEqual({ "tocsin.eth": namehash("tocsin.eth") });
   });
 
+  it("accepts the scripts/ens/setup-all.mjs layout: the list under trustList, labels keyed by namehash", async () => {
+    const { labels: _, ...bare } = doc(1);
+    const { record } = await sign(bare);
+    const wrapper = { name: "core.tocsin.eth", trustList: bare, labels: { [namehash("tocsin.eth")]: "tocsin.eth" }, record };
+    const out = await acceptList({ ...ctx, fetched: { record, document: wrapper } });
+    expect(out.status).toBe("accepted");
+    expect(out.list?.labels).toEqual({ "tocsin.eth": namehash("tocsin.eth") });
+  });
+
   it("hashes the typed struct, so reformatted JSON with the same values still verifies", async () => {
     const signed = await sign(doc(1));
     const d = doc(1);

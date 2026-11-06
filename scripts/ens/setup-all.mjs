@@ -1,7 +1,10 @@
 // One script for the whole ENSv2 hub on Sepolia, on the contract set the Universal Resolver reads.
 //
 //   TOCSIN key      owns tocsin.eth, the subregistry, the maintainer resolver, core.tocsin.eth, and signs the core list
-//   CORE_WRITER key the key whose 92 leaves are already in the log (defaults to the TOCSIN key)
+//   CORE_WRITER key the key whose 92 leaves are already in the log (defaults to the TOCSIN key). Without the key,
+//                   CORE_WRITER=<address> names it, which is all the list needs.
+//   MANUAL_WRITER   the @tocsin/infra manual writer, fixed below: it flags the Sepolia demo subjects, so core
+//                   carries it at weight 255. Leaving it out of a republish takes every Sepolia block out of core.
 //   BLOCKAID, SCAMSNIFFER keys: each registers <label>.eth if needed, deploys its own resolver, claims
 //                   <label>.tocsin.eth through the MirrorRegistrar.
 //   detector.tocsin.eth already exists in the hub (the live detector agent); its addr record names the writer,
@@ -31,7 +34,8 @@ const PARENT = 'tocsin';
 
 const tocsin = clientsFor(env('TOCSIN_PRIVATE_KEY'));
 const { pub } = tocsin;
-const coreWriter = privateKeyToAccount(env('CORE_WRITER_PRIVATE_KEY', env('TOCSIN_PRIVATE_KEY'))).address;
+const coreWriter = env('CORE_WRITER', '') || privateKeyToAccount(env('CORE_WRITER_PRIVATE_KEY', env('TOCSIN_PRIVATE_KEY'))).address;
+const MANUAL_WRITER = '0x1D3B86A924ffb140bdD74Ee6a7533921ed141583';
 const claimants = ['blockaid', 'scamsniffer'].filter((l) => process.env[`${l.toUpperCase()}_PRIVATE_KEY`]?.trim().length === 66).map((l) => ({ label: l, ...clientsFor(env(`${l.toUpperCase()}_PRIVATE_KEY`)) }));
 console.log(`maintainer ${tocsin.account.address}; core writer ${coreWriter}; claimants ${claimants.map((c) => `${c.label}=${c.account.address}`).join(', ') || 'none'}`);
 
@@ -149,7 +153,7 @@ async function publishList({ name, maintainer, resolverAddress, writers, warn = 
 }
 if (!flag('--skip-lists') && LOG) {
   if (detectorWriter) await publishList({ name: detectorName, maintainer: tocsin, resolverAddress: detectorResolver, writers: [detectorWriter] });
-  await publishList({ name: `core.${PARENT}.eth`, maintainer: tocsin, resolverAddress: resolver, writers: detectorWriter ? [coreWriter, detectorWriter] : [coreWriter], warn: detectorWriter ? [detectorWriter] : [] });
+  await publishList({ name: `core.${PARENT}.eth`, maintainer: tocsin, resolverAddress: resolver, writers: [coreWriter, MANUAL_WRITER, ...(detectorWriter ? [detectorWriter] : [])], warn: detectorWriter ? [detectorWriter] : [] });
 } else if (!LOG) console.log('LOG_ADDRESS not set: lists skipped');
 
 // ---- 8. emancipate the subregistry

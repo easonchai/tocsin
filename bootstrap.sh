@@ -90,6 +90,7 @@ lantern="$(sign lanterndao.json "$LANTERN_MAINTAINER_PRIVATE_KEY")"
 # --- 5. What demo.sh sources. -----------------------------------------------------------------------------
 cat >"$OUT/demo.env" <<EOF
 # Written by bootstrap.sh. demo.sh sources this before its defaults; source it yourself for the CLI beats (yarn workspace @tocsin/infra eval).
+export TOCSIN_LIST_NAME=tocsin.eth,harborwatch.eth,lanterndao.eth
 export TOCSIN_LIST_RECORD=$record
 export TOCSIN_LIST_RECORDS=harborwatch.eth=$harbor,lanterndao.eth=$lantern
 export TOCSIN_LOG_FROM_BLOCK=$FROM_BLOCK

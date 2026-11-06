@@ -98,7 +98,7 @@ Published lists, both signed by the maintainer key `0x8E2C…3e31`:
 
 | Name | Record | Writers |
 | --- | --- | --- |
-| `core.tocsin.eth` | `tocsin.list` version 3, root `0x62ea0207…`, tx `0xe88b75c1…9178047d` | core writer `0x36a2…387E` at weight 255 (92 leaves), detector writer `0xe3a9…A999` at weight 1, warn (25 leaves) |
+| `core.tocsin.eth` | `tocsin.list` version 4, tx `0xaf24db8a…9eb37e8ff` (block 12078138) | core writer `0x36a2…387E` at weight 255 (92 leaves, none on Sepolia), manual writer `0x1D3B…1583` at weight 255 (the Sepolia demo subjects), detector writer `0xe3a9…A999` at weight 1, warn (25 leaves) |
 | `detector.tocsin.eth` | `tocsin.list` version 2, root `0x30cf0073…`, tx `0xe2b7a7d9…a995887c` | detector writer `0xe3a9…A999` at weight 255 (25 leaves) |
 
 The documents the records point at are `docs/plan/demo/seed/core.list.json` and `detector.list.json`.
