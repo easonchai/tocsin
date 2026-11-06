@@ -129,27 +129,44 @@ const listType = { type: 'tuple', components: [
     { name: 'fromBlock', type: 'uint64' }, { name: 'toBlock', type: 'uint64' }, { name: 'headPin', type: 'bytes32' }, { name: 'categories', type: 'uint256' }, { name: 'snapshotURI', type: 'string' } ] } ] };
 const recordType = [{ type: 'bytes32' }, { type: 'uint64' }, { type: 'bytes' }, { type: 'string' }];
 const categories = [1, 2, 3, 4, 5, 6, 7, 8].reduce((acc, c) => acc | (1n << BigInt(c)), 0n);
-async function publishList({ name, maintainer, resolverAddress, writers, warn = [] }) {
+// The reader takes the bare TrustList, so demo.sh serves a copy from site/lists/ and overrides the ENS lookup with the
+// same root, version and signature pointing there (the listURI is outside the signature).
+function demoCopy(file, name) {
+  if (name === detectorName) return; // not a list the demo follows
+  const p = JSON.parse(readFileSync(file, 'utf8'));
+  const doc = { ...p.trustList, labels: Object.fromEntries(Object.entries(p.labels).map(([h, n]) => [n, h])) };
+  writeFileSync(new URL(`../../site/lists/${name}.json`, import.meta.url), JSON.stringify(doc, null, 2) + '\n');
+  const [root, version, signature] = decodeAbiParameters(recordType, p.record);
+  writeFileSync(new URL(`../../dapp/list-record.${name.split('.')[0]}.hex`, import.meta.url), encodeAbiParameters(recordType, [root, version, signature, `http://localhost:8000/lists/${name}.json`]) + '\n');
+}
+async function publishList({ name, maintainer, resolverAddress, writers, warn = [], operator = `${PARENT}.eth` }) {
   const current = await urText(pub, name, KEY);
   const decoded = (() => { try { return current ? decodeAbiParameters(recordType, current) : null; } catch { return null; } })();
   const file = new URL(`${name.split('.')[0]}.list.json`, seedDir);
   const prev = existsSync(file) ? JSON.parse(readFileSync(file, 'utf8')) : null;
   const highest = [decoded ? decoded[1] : 0n, BigInt(Number(prev?.trustList?.version ?? 0))].reduce((a, b) => (a > b ? a : b));
-  const build = (version) => ({ log: LOG, chainId: 11155111n, maintainer: maintainer.account.address, version, entries: writers.map((w) => ({ writer: w, weight: warn.some((x) => same(x, w)) ? 1 : 255, operator: namehash(`${PARENT}.eth`), upstream: ZERO32, fromBlock: 0n, toBlock: 0n, headPin: ZERO32, categories, snapshotURI: '' })) });
+  const build = (version) => ({ log: LOG, chainId: 11155111n, maintainer: maintainer.account.address, version, entries: writers.map((w) => ({ writer: w, weight: warn.some((x) => same(x, w)) ? 1 : 255, operator: namehash(operator), upstream: ZERO32, fromBlock: 0n, toBlock: 0n, headPin: ZERO32, categories, snapshotURI: '' })) });
   // same content as the live record: nothing to do
-  if (decoded && prev && prev.trustList && keccak256(encodeAbiParameters([listType], [build(decoded[1])])) === decoded[0]) { console.log(`${name}: list record already current (version ${decoded[1]})`); return; }
+  if (decoded && prev && prev.trustList && keccak256(encodeAbiParameters([listType], [build(decoded[1])])) === decoded[0]) { console.log(`${name}: list record already current (version ${decoded[1]})`); demoCopy(file, name); return; }
   const version = highest + 1n, trustList = build(version);
   const root = keccak256(encodeAbiParameters([listType], [trustList]));
   const signature = await maintainer.wallet.signTypedData({ domain: { name: 'ThreatFlagLog', version: '1', chainId: 11155111, verifyingContract: LOG }, types: { ListRoot: [{ name: 'root', type: 'bytes32' }, { name: 'version', type: 'uint64' }] }, primaryType: 'ListRoot', message: { root, version } });
   const listURI = `https://raw.githubusercontent.com/easonchai/tocsin/main/docs/plan/demo/seed/${name.split('.')[0]}.list.json`;
   const record = encodeAbiParameters(recordType, [root, version, signature, listURI]);
   const json = (v) => JSON.parse(JSON.stringify(v, (_, x) => (typeof x === 'bigint' ? x.toString() : x)));
-  writeFileSync(file, JSON.stringify({ name, trustList: json(trustList), labels: { [namehash(`${PARENT}.eth`)]: `${PARENT}.eth` }, root, version: version.toString(), signature, listURI, record, publishedAt: new Date().toISOString() }, null, 2) + '\n');
+  writeFileSync(file, JSON.stringify({ name, trustList: json(trustList), labels: { [namehash(operator)]: operator }, root, version: version.toString(), signature, listURI, record, publishedAt: new Date().toISOString() }, null, 2) + '\n');
   await send(pub, maintainer.wallet, `set ${KEY} on ${name} (version ${version})`, { address: resolverAddress, abi: abi.resolver, functionName: 'setText', args: [dns(name), KEY, record] });
+  demoCopy(file, name);
 }
 if (!flag('--skip-lists') && LOG) {
   if (detectorWriter) await publishList({ name: detectorName, maintainer: tocsin, resolverAddress: detectorResolver, writers: [detectorWriter] });
   await publishList({ name: `core.${PARENT}.eth`, maintainer: tocsin, resolverAddress: resolver, writers: detectorWriter ? [coreWriter, detectorWriter] : [coreWriter], warn: detectorWriter ? [detectorWriter] : [] });
+  // Each claimant signs its own list naming its own key; scamsniffer's writer warns only. The operator is the claimed .eth name.
+  for (const c of claimants) {
+    const res = claims[c.label]?.resolver;
+    if (!res) { console.log(`${c.label}.${PARENT}.eth has no resolver in claims.sepolia.json: list skipped`); continue; }
+    await publishList({ name: `${c.label}.${PARENT}.eth`, maintainer: c, resolverAddress: res, writers: [c.account.address], warn: c.label === 'scamsniffer' ? [c.account.address] : [], operator: `${c.label}.eth` });
+  }
 } else if (!LOG) console.log('LOG_ADDRESS not set: lists skipped');
 
 // ---- 8. emancipate the subregistry
