@@ -196,7 +196,7 @@ $('claim').onclick = async () => {
     for (const log of r.logs) { try { const ev = decodeEventLog({ abi: abi.mirror, data: log.data, topics: log.topics }); if (ev.eventName === 'Claimed') say('claimOut', `expiry ${new Date(Number(ev.args.expiry) * 1000).toISOString().slice(0, 10)}`, 'muted'); } catch {} }
     await send('claimOut', 'set addr record', { address: resolver, abi: abi.resolver, functionName: 'setAddr', args: [namehash(`${label}.tocsin.eth`), account] });
     say('claimOut', `done. <a href="https://sepolia.app.ens.domains/${label}.tocsin.eth" target="_blank" style="color:inherit">sepolia.app.ens.domains/${label}.tocsin.eth</a>`, 'ok');
-    say('claimOut', `to publish a list: set text key erc-threat-flag-log.list on your resolver for node ${namehash(`${label}.tocsin.eth`)}`, 'muted');
+    say('claimOut', `to publish a list: set text key tocsin.list on your resolver for node ${namehash(`${label}.tocsin.eth`)}`, 'muted');
     loadClaims();
   } catch (e) { say('claimOut', e.shortMessage || e.message, 'bad'); $('claim').disabled = false; }
 };

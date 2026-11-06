@@ -58,7 +58,7 @@ Takes about five minutes and needs a little Sepolia ETH.
 
 ## Publishing a list under your name
 
-The ERC's list record is the text key `erc-threat-flag-log.list` on your name, holding the ABI-encoded root, version, maintainer signature, and list URI. `scripts/seed/publish-list.mjs` builds and signs that record for the team's `core` list; adapting it to your name is a matter of pointing it at your resolver and node, which the claim script prints. A generalised publish command is on the list.
+The ERC's list record is the text key `tocsin.list` on your name, holding the ABI-encoded root, version, maintainer signature, and list URI. `scripts/seed/publish-list.mjs` builds and signs that record for the team's `core` list; adapting it to your name is a matter of pointing it at your resolver and node, which the claim script prints. A generalised publish command is on the list.
 
 ## Verify the guarantees yourself
 

@@ -132,7 +132,7 @@ Three demo beats (HANDOFF, build order step 3), run inside Kohaku. Honest RPC: t
 
 - Document wire format is JSON with the `TrustList` and `Safelist` fields as named in the ERC. The root is the keccak of the ABI encoding of the typed struct, never of the JSON bytes, so formatting does not affect the hash (ERC, Trust lists, `listRoot`).
 - Signature: EIP-712 over `ListRoot(bytes32 root,uint64 version)` in the log's domain (ERC, Trust lists, signature bullet).
-- Publication is method (b): ENS text records `erc-threat-flag-log.list` and `erc-threat-flag-log.safelist` with the hex of `abi.encode(root, version, signature, listURI)`. Method (a), an on-chain list contract, is not built.
+- Publication is method (b): ENS text records `tocsin.list` and `tocsin.safelist` with the hex of `abi.encode(root, version, signature, listURI)`. Method (a), an on-chain list contract, is not built.
 - `listURI` points at a static file in the wallet build and at the mirror for the demo. Content addressing is deferred.
 - `snapshotURI` (ERC v2.1, Trust lists): each default-list entry carries the URL of that writer's mirror file. The reader builds a leaf source from it when the host's source switch selects the snapshot; the result is verified by replay like any other source. Empty `snapshotURI` means RPC only.
 - ENSv2: the team's name mounted as a subregistry, writers as subnames, the record in a permissioned resolver, Enhanced Access Control granting the publish role to the maintainer key. Read through Helios `eth_call` with CCIP-read off (HANDOFF step 4). Fallback if the subregistry is not standing by the end of step 4: a plain text record on the same name read the same way. The maintainer signature carries the trust either way, which is the ERC's point.

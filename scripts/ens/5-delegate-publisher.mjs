@@ -7,7 +7,7 @@ import { parseAbi, toHex } from 'viem';
 import { packetToBytes } from 'viem/ens';
 import { readFileSync } from 'node:fs';
 
-const KEY = 'erc-threat-flag-log.list';
+const KEY = 'tocsin.list';
 const publisher = process.argv[2];
 if (!publisher || !/^0x[0-9a-fA-F]{40}$/.test(publisher)) { console.error('usage: 5-delegate-publisher.mjs <publisher address> [--revoke] [--resolver 0x…]'); process.exit(1); }
 const revoke = process.argv.includes('--revoke');

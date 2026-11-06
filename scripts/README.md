@@ -13,7 +13,7 @@ node --env-file=scripts/.env scripts/ens/5-delegate-publisher.mjs <addr>  # let 
 node --env-file=scripts/.env scripts/agent/detector.mjs --dry              # the detector agent: scan mainnet for poisoning dust, flag operators, append under its own key
 node --env-file=scripts/.env scripts/seed/seed-core.mjs --dry       # resolve evidence blocks, show the batches
 node --env-file=scripts/.env scripts/seed/seed-core.mjs             # append 92 leaves to the log (one batch of 100 max per tx)
-node --env-file=scripts/.env scripts/seed/publish-list.mjs          # sign the trust list, set the ENS record, write core.list.json
+node --env-file=scripts/.env scripts/seed/publish-list.mjs          # sign core's trust list, set the tocsin.list record, write core.list.json
 git add docs/plan/demo/seed && git commit -m "Seed: core list on Sepolia"   # so LIST_URI serves the signed document
 ```
 
@@ -51,4 +51,26 @@ To give it its name: register `detector.eth` and claim `detector.tocsin.eth` wit
 
 ## Delegating the publish role
 
-`5-delegate-publisher.mjs <address>` calls `authorizeTextRoles` on your resolver so that one account can set the `erc-threat-flag-log.list` text key and nothing else. The name owner's key stays cold; a CI job or an agent holds the publishing key. `--revoke` takes it back. This is the Enhanced Access Control feature the ENS prize text names: delegating a specific right on a name rather than the name.
+`5-delegate-publisher.mjs <address>` calls `authorizeTextRoles` on your resolver so that one account can set the `tocsin.list` text key and nothing else. The name owner's key stays cold; a CI job or an agent holds the publishing key. `--revoke` takes it back. This is the Enhanced Access Control feature the ENS prize text names: delegating a specific right on a name rather than the name.
+
+## Two lists, two writers: the full demo sequence
+
+The detector gets its own name and publishes a self-list; then `core` republishes naming both writers, the detector at warn weight. Readers following `core.tocsin.eth` then see two writers; readers following `detector.tocsin.eth` see one.
+
+```
+# 1. the detector's name. CLAIMER_PRIVATE_KEY = the detector key for this step
+node --env-file=scripts/.env scripts/ens/4-register-and-claim.mjs detector
+# 2. the detector scans mainnet and appends a few flags under its own key
+node --env-file=scripts/.env scripts/agent/detector.mjs --blocks 60 --limit 5
+# 3. the detector publishes its self-list on detector.tocsin.eth
+node --env-file=scripts/.env scripts/seed/publish-list.mjs --name detector --key-env DETECTOR_PRIVATE_KEY
+# 4. core seeds its 92 leaves and publishes a list naming both writers
+node --env-file=scripts/.env scripts/seed/seed-core.mjs
+node --env-file=scripts/.env scripts/seed/publish-list.mjs --writers core,detector --warn detector
+# 5. commit the documents the list URIs point at
+git add docs/plan/demo/seed scripts/ens/claims.sepolia.json && git commit -m "Lists: detector self-list, core names both writers" && git push
+```
+
+`publish-list.mjs` resolves labels to keys through `scripts/ens/claims.sepolia.json`, which `3-claim.mjs` writes. Both of our writers declare the same operator, `tocsin.eth`, so a reader never counts them as independent; that is honest, and it is what the `operator` field is for. A standalone detector machine needs only `scripts/.env.detector.example`.
+
+The record key is `tocsin.list` for now. The ERC draft calls it `erc-threat-flag-log.list`, becoming `erc-N.list` once numbered. Any string works; the reader just has to use the same one.

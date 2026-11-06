@@ -92,13 +92,13 @@ ENSv2 Sepolia contracts the scripts call, from the `contracts-v2` deployment of 
 
 Re-check any address with `cast code` before it touches real funds.
 
-The namehash is how ENS turns a name into a fixed 32-byte key, by hashing the labels from the right: `node("core.tocsin.eth") = keccak(node("tocsin.eth") ‖ keccak("core"))`, down to 32 zero bytes for the root. Resolvers store records under that key, so the list record is written with `setText(0x0551…8abc, "erc-threat-flag-log.list", value)` and read back the same way. A labelhash is different: `keccak("core")` alone, which registries use because each registry already knows its parent.
+The namehash is how ENS turns a name into a fixed 32-byte key, by hashing the labels from the right: `node("core.tocsin.eth") = keccak(node("tocsin.eth") ‖ keccak("core"))`, down to 32 zero bytes for the root. Resolvers store records under that key, so the list record is written with `setText(0x0551…8abc, "tocsin.list", value)` and read back the same way. A labelhash is different: `keccak("core")` alone, which registries use because each registry already knows its parent.
 
 ## Names and lists
 
 Two ways to publish a list, and both work with the same reader:
 
-- Under your own name. Put the `erc-threat-flag-log.list` text record on a name you own. The ERC locates a list by any name record and authenticates it by the maintainer's signature, so no hub is needed. This is the token-lists model and it is the primary one.
+- Under your own name. Put the `tocsin.list` text record on a name you own. (The ERC draft names the key `erc-threat-flag-log.list`, becoming `erc-N.list` once numbered; the Sepolia deployment uses `tocsin.list` until then. Any key string works, readers just have to agree on it.) The ERC locates a list by any name record and authenticates it by the maintainer's signature, so no hub is needed. This is the token-lists model and it is the primary one.
 - Under the hub. Own `james.eth`, claim `james.tocsin.eth` in one transaction through the MirrorRegistrar. The subname's expiry mirrors the `.eth` name's. After setup, no account holds a dangerous role on the hub registry, so nobody can revoke a claimed name or change its resolver. Check `hasAssignees(0, dangerousRoles)` on the registry.
 
 `core.tocsin.eth` is our own list: the 92 seed entries, one writer, signed by the maintainer key. Wallets ship names like browsers ship root CAs, and the user sees "flagged by seal.eth, listed by core.tocsin.eth," never a hex address.
@@ -135,7 +135,7 @@ flowchart LR
   ur["UniversalResolverV2"] --> a["RootRegistry<br/>getSubregistry(eth)"]
   a --> b["ETHRegistry<br/>getSubregistry(tocsin)"]
   b --> c["our UserRegistry<br/>getResolver(core)"]
-  c --> d["our PermissionedResolver<br/>text(namehash, erc-threat-flag-log.list)"]
+  c --> d["our PermissionedResolver<br/>text(namehash, tocsin.list)"]
 ```
 
 The Tocsin reader does the same walk through `eth_getProof` against the light client's state root, so the list record is verified the same way the log head is. That is why the ERC treats a record resolved through an unverifiable gateway as unverified.
@@ -179,7 +179,7 @@ ROOT_RESOURCE   MirrorRegistrar  REGISTRAR, RENEW        operational roles; cann
 
 A bug in the registrar cannot damage a claimed name, because it holds no role that can change or delete one. Each claimant controls only their own name and can delegate it with their admin roles or lock it by revoking them. The hub has no master key: `hasAssignees(0, dangerousRoles)` returns false, which is what the ENS docs mean by emancipated.
 
-The resolver uses the same system and is not emancipated, on purpose. The maintainer keeps every record role on it so `core.tocsin.eth` can be updated. The deployed resolver also has `authorizeTextRoles(name, key, account, grant)`, which hands one account the right to set one text key. That is how a hot publishing key would get `erc-threat-flag-log.list` without owning the name. The publish script does not use it yet; the maintainer key sets the record directly.
+The resolver uses the same system and is not emancipated, on purpose. The maintainer keeps every record role on it so `core.tocsin.eth` can be updated. The deployed resolver also has `authorizeTextRoles(name, key, account, grant)`, which hands one account the right to set one text key. That is how a hot publishing key would get `tocsin.list` without owning the name. The publish script does not use it yet; the maintainer key sets the record directly.
 
 ## Repo map
 
