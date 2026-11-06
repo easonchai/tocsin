@@ -14,11 +14,7 @@
   body.one .board.on { display: grid; }
   .board { position: relative; width: 1600px; height: 1000px; box-sizing: border-box; padding: 88px 96px; overflow: hidden; background: var(--ink-900); color: var(--paper-100);
            display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 64px; }
-  .board::before { content: ""; position: absolute; inset: 0; pointer-events: none;
-    background: radial-gradient(900px 700px at 78% 60%, var(--signal-30), transparent 70%); opacity: .35; }
-  .board.rings::after { content: ""; position: absolute; inset: -30%; pointer-events: none; opacity: .12;
-    background: repeating-radial-gradient(circle at 78% 60%, transparent 0 56px, var(--paper-100) 56px 57px); }
-  .board.alert::before { background: radial-gradient(900px 700px at 78% 60%, var(--alert-40), transparent 70%); }
+  .board .field { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
   .board > * { position: relative; }
   .top { position: absolute; top: 48px; left: 96px; right: 96px; display: flex; justify-content: space-between; align-items: center; }
   .top .wordmark { font-size: 24px; display: flex; gap: 10px; align-items: center; }
@@ -76,17 +72,17 @@
   .board.paper .sub { color: var(--ink-700); }
   .board.paper .top .label, .board.paper .foot { color: var(--ink-400); }
   .board.paper .pair figcaption { color: var(--ink-700); }
-  .board.paper::before { opacity: .5; }
 </style>
 </head>
 <body>
 
 <!-- 01 cover: the moment the wallet says no -->
-<section class="board rings alert" data-b="1">
+<section class="board" data-b="1">
+  <canvas class="field" data-state="blocked"></canvas>
   <div class="top"><span class="wordmark">🔔 tocsin</span><span class="label">01 / 06 · metamask flask · sepolia</span></div>
   <div>
     <h1>The wallet already knew the <em class="red">drainer</em>.</h1>
-    <p class="sub">Tocsin is an append-only log of scam infrastructure on Ethereum. Your wallet syncs it and checks every recipient before you sign.</p>
+    <p class="sub">Tocsin is scam prevention infrastructure on Ethereum. Your wallet syncs the flag log from chain state and checks every recipient before you sign.</p>
   </div>
   <div class="panel" style="--y:-440px"><img src="../screens/raw/snap-block.jpg?v=3" alt="MetaMask Flask transaction insight from Tocsin: Blocked, drainer receiver"></div>
   <div class="chip" style="right: 56px; top: 150px"><div class="label">flagged by</div><div class="v">3 independent writers</div></div>
@@ -96,10 +92,11 @@
 
 <!-- 02 pass vs block -->
 <section class="board" data-b="2" style="grid-template-columns: 1fr auto; padding-top: 120px">
+  <canvas class="field" data-state="idle"></canvas>
   <div class="top"><span class="wordmark">🔔 tocsin</span><span class="label">02 / 06 · same send, two recipients</span></div>
   <div>
     <h1>Same send.<br>Lists <em>you</em> chose.<br>One verdict.</h1>
-    <p class="sub">The wallet never asks a server. It reads the log it synced and the lists you follow.</p>
+    <p class="sub">No server is asked. The wallet reads the log it already synced and the lists you follow, so nobody learns what you were about to do.</p>
   </div>
   <div class="pair">
     <figure><div class="panel sm" style="--y:-600px"><img src="../screens/raw/snap-pass.jpg?v=3" alt="No flags"></div><figcaption><b class="pass">Pass</b>not on any list you follow</figcaption></figure>
@@ -110,6 +107,7 @@
 
 <!-- 03 anatomy of a flag -->
 <section class="board" data-b="3" style="grid-template-columns: auto 1fr; gap: 96px">
+  <canvas class="field" data-state="idle"></canvas>
   <div class="top"><span class="wordmark">🔔 tocsin</span><span class="label">03 / 06 · one flag, opened</span></div>
   <div class="panel" style="--y:-700px; height: 600px"><img src="../screens/raw/snap-block.jpg?v=3" alt="Flag detail"></div>
   <div class="callouts">
@@ -123,7 +121,8 @@
 </section>
 
 <!-- 04 trust lists -->
-<section class="board rings" data-b="4">
+<section class="board" data-b="4">
+  <canvas class="field" data-state="idle"></canvas>
   <div class="top"><span class="wordmark">🔔 tocsin</span><span class="label">04 / 06 · trust lists on ens</span></div>
   <div>
     <h1>You pick who gets to ring the <em>bell</em>.</h1>
@@ -140,6 +139,7 @@
 
 <!-- 05 the demo page -->
 <section class="board" data-b="5" style="grid-template-columns: 1fr auto; gap: 56px">
+  <canvas class="field" data-state="idle"></canvas>
   <div class="top"><span class="wordmark">🔔 tocsin</span><span class="label">05 / 06 · try it</span></div>
   <div>
     <h1>Send to a <em>drainer</em>. Watch it get caught.</h1>
@@ -151,11 +151,12 @@
 </section>
 
 <!-- 06 nothing leaves the device -->
-<section class="board rings" data-b="6">
+<section class="board" data-b="6">
+  <canvas class="field" data-state="idle"></canvas>
   <div class="top"><span class="wordmark">🔔 tocsin</span><span class="label">06 / 06 · verified, not trusted</span></div>
   <div>
     <h1>Nothing leaves your <em>device</em>.</h1>
-    <p class="sub">The wallet replays each writer's hash chain from a proven block header. No API, no account, no company in the middle to go down, get bought or get subpoenaed.</p>
+    <p class="sub">Each writer's hash chain is proven against a block header on your device. No API key, no account, no company that can go down, get bought or get subpoenaed.</p>
   </div>
   <div class="panel" style="--y:-1000px; height: 250px"><img src="../screens/raw/snap-pass.jpg?v=3" alt="synced, proven, source lines"></div>
   <div class="chip" style="right: 96px; top: 660px"><div class="label">proven</div><div class="v">4 writer heads · block 12,077,378</div></div>
@@ -163,9 +164,20 @@
   <div class="foot"><span>ERC draft · Append-Only Threat Flag Log</span><span>github.com/easonchai/tocsin</span></div>
 </section>
 
+<script src="ringfield.js"></script>
 <script>
   var b = new URLSearchParams(location.search).get('b');
   if (b) { document.body.classList.add('one'); document.querySelector('[data-b="' + b + '"]').classList.add('on'); }
+  // one dot field per visible board; the panel gets a strike so the ripple sits behind it
+  window.fields = [];
+  document.querySelectorAll('.board').forEach(function (sec, i) {
+    if (b && !sec.classList.contains('on')) return;
+    var c = sec.querySelector('.field');
+    var rf = Tocsin.ringfield(c, { seed: 7 + i, state: c.dataset.state, mask: 'h1, .sub, .top, .foot, .co, .lcard, .pair figcaption' });
+    window.fields.push(rf);
+    var t = sec.querySelector('.panel, .pair, .lists, .browser'); var r = t.getBoundingClientRect(), s = sec.getBoundingClientRect();
+    setTimeout(function () { rf.strike(r.left - s.left + r.width / 2, r.top - s.top + r.height / 2); }, 200);
+  });
 </script>
 </body>
 </html>
