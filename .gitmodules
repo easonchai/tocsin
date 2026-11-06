@@ -1,0 +1,6 @@
+[submodule "dapp/packages/foundry/lib/forge-std"]
+	path = dapp/packages/foundry/lib/forge-std
+	url = https://github.com/foundry-rs/forge-std
+[submodule "dapp/packages/foundry/lib/solidity-bytes-utils"]
+	path = dapp/packages/foundry/lib/solidity-bytes-utils
+	url = https://github.com/gnsps/solidity-bytes-utils

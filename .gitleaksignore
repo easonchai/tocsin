@@ -1,0 +1,6 @@
+# SE-2 scaffold false positives: doc-example Postgres creds and ERC-20 token addresses, not secrets.
+dapp/.agents/skills/drizzle-neon/SKILL.md:generic-credential-uri:61
+dapp/.agents/skills/drizzle-neon/SKILL.md:generic-password:76
+dapp/packages/nextjs/utils/scaffold-eth/fetchPriceFromUniswap.ts:generic-api-key:32
+dapp/packages/nextjs/utils/scaffold-eth/networks.ts:generic-api-key:60
+dapp/packages/nextjs/utils/scaffold-eth/networks.ts:generic-api-key:64

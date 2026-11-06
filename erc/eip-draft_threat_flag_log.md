@@ -161,6 +161,15 @@ The canonical log SHOULD be deployed on Ethereum mainnet. A consensus light clie
 
 The log MUST be deployed through the deterministic deployment proxy at `0x4e59b44847b379578588920cA78FbF26c0B4956C` with salt `bytes32(0)` and the init code in the assets folder, so that the address is the same on every chain where it is deployed. The canonical address and runtime code hash will be recorded here once deployed. Other deployments are permitted; readers choose which they pin.
 
+Testnet deployment (Sepolia, chain id 11155111), predicted and not yet broadcast:
+
+| Field | Value |
+| --- | --- |
+| Address | `0xC5616bb2FDCcdD761aa969c5C0dFb3D5c7d93865` |
+| Runtime code hash | `0xdc59334640b4a42e076253a531f923cb65fa6e1091f535da8ff17ce74c24b93c`, measured on a fork of Sepolia; the runtime code embeds the chain id and address through immutables |
+| Compiler | solc 0.8.28, optimizer on, 200 runs, EVM version `cancun`, default CBOR metadata |
+| ERC-7730 descriptors | [`calldata-ThreatFlagLog.json`](../dapp/packages/foundry/erc7730/calldata-ThreatFlagLog.json) for `append` and `appendSigned`, [`eip712-ThreatFlagLog.json`](../dapp/packages/foundry/erc7730/eip712-ThreatFlagLog.json) for `Append`; both move to the assets folder with the ERC PR. ERC-7730 v2 does not allow calldata and EIP-712 contexts in one file, so the descriptor is a pair |
+
 ### Categories
 
 Categories identify the kind of infrastructure a subject is. They are limited to kinds that attackers reuse across victims, because a reader that syncs a writer pays for every leaf that writer appends.
@@ -220,7 +229,7 @@ struct Safelist {
 - A list or safelist MUST be accompanied by an EIP-712 signature by `maintainer` over `ListRoot(bytes32 root,uint64 version)` in the same domain as the log. A name record or a contract locates a list; only the signature authenticates it.
 - Publication MUST use at least one of two methods. (a) On-chain: a contract exposing `function listRoot() external view returns (bytes32)`, `function listSignature() external view returns (bytes memory)`, and `function listURI() external view returns (string memory)`. (b) Through a name record: a text record under the key `erc-threat-flag-log.list` (for safelists, `erc-threat-flag-log.safelist`) whose value is the `0x`-prefixed lowercase hex of `abi.encode(root, version, signature, listURI)`. When the final ERC number is assigned, the keys become `erc-N.list` and `erc-N.safelist`.
 - `listURI` SHOULD be content-addressed so that any peer can serve the document and the reader verifies it against the root.
-- `snapshotURI` SHOULD point to a content-addressed file of the writer's leaves, as the ABI-encoded `Appended` events in `writerSeq` order, and SHOULD be refreshed by the maintainer when the writer publishes a new snapshot. A reader MAY use it as a leaf source; it is verified by replay like any other source.
+- `snapshotURI` SHOULD point to a content-addressed file of the writer's leaves, as the ABI-encoded `Appended` events in `writerSeq` order, each with the number of the block it was appended in, and SHOULD be refreshed by the maintainer when the writer publishes a new snapshot. A reader MAY use it as a leaf source; it is verified by replay like any other source.
 - Readers MUST verify that the fetched `TrustList` hashes to the published root and that the signature is valid for `maintainer`. Readers MUST record `maintainer` and the highest `version` applied the first time they accept a list, MUST reject a lower version, and MUST NOT apply a list signed by a different maintainer without the user's explicit confirmation. A change of name owner, resolver, or subregistry MUST NOT by itself change the maintainer; a reader that cannot verify the current record MUST keep applying the last verified version and show the list as stale.
 - Readers MUST obtain the published root either from L1 contract state read through the same verified state root used for the log, or from an off-chain lookup whose result is verified against L1 state. A record resolved through an unverifiable gateway MUST be treated as unverified.
 - Entries sharing the same `operator` or the same non-zero `upstream` MUST be treated as one writer when counting independent writers.
@@ -318,7 +327,7 @@ Subjects of this log never consent and cannot be asked to register. There is not
 ### Typed signatures and relayed batches
 
 
-Letting a relayer submit a batch signed by the writer means a security team can keep its key in a cold wallet or a multisig, and a grant or sponsor can pay gas, without the log knowing anything about sponsorship. The batch is signed as a typed array rather than an opaque hash so that a signing device can display every subject and category. ERC-1271 is accepted so that a contract account can be a writer. That is safe here, unlike for removal, because a writer is an identity a list maintainer chose rather than an unconsenting subject.
+Letting a relayer submit a batch signed by the writer means a security team can keep its key in a cold wallet or a multisig, and a grant or sponsor can pay gas, without the log knowing anything about sponsorship. The batch is signed as a typed array rather than an opaque hash so that a signing device can display every subject and category. ERC-1271 is accepted so that a contract account can be a writer. That is safe here, unlike for removal, because a writer is an identity a list maintainer chose rather than an unconsenting subject. An EIP-7702-delegated writer has code and therefore signs through ERC-1271, so its delegate must implement `isValidSignature`, or the writer should sign from a plain EOA key that has no delegation.
 
 ### Future calldata repricing
 
@@ -346,7 +355,7 @@ The log is a new contract and the list encoding is new, so there are no backward
 
 ## Test Cases
 
-Test vectors accompany the reference implementation. The following cases are normative.
+Test vectors accompany the reference implementation, in [`parity.json`](../dapp/packages/foundry/fixtures/parity.json), which moves to the assets folder with the ERC PR: a fixed scenario with every leaf's inputs, append block number, leaf hash, and both heads after it. The following cases are normative. Cases 1 to 9 test the log; cases 10 to 12 test the reference reader, the `@tocsin/reader` library that accompanies this ERC.
 
 1. Appending one `FLAG` leaf from a fresh writer yields `writerSeq = 1`, `globalSeq = n + 1`, `writerHead = keccak256(abi.encodePacked(bytes32(0), leafHash))`, and one `Appended` event whose fields equal the stored values.
 2. Appending a batch of three leaves updates each head three times in calldata order and emits three events with consecutive sequence numbers.
@@ -409,6 +418,11 @@ contract ThreatFlagLog {
 
     function DOMAIN_SEPARATOR() public view returns (bytes32) {
         return block.chainid == INITIAL_CHAIN_ID ? INITIAL_DOMAIN_SEPARATOR : _buildDomain();
+    }
+
+    /// @dev ERC-165: 0x01ffc9a7 is ERC-165 itself; 0xffc90efa is type(IThreatFlagLog).interfaceId.
+    function supportsInterface(bytes4 interfaceId) external pure returns (bool) {
+        return interfaceId == 0x01ffc9a7 || interfaceId == 0xffc90efa;
     }
 
     function append(Leaf[] calldata leaves) external {
@@ -507,7 +521,7 @@ contract ThreatFlagLog {
 
 **Sybil lists.** The log makes sybil writers harmless. It cannot make sybil lists harmless. A reader that pins a list from an unknown maintainer is trusting that maintainer. Wallets should ship with a small default set of lists from named organizations, pin their maintainers, and show the user which lists are active.
 
-**Data availability.** The log keeps only heads in state. Leaves live in transaction history, which execution clients are not required to retain under [EIP-4444](./eip-4444.md). A writer should publish a content-addressed snapshot of its own leaves, as the ABI-encoded `Appended` events in `writerSeq` order, at least once per 10,000 leaves and at least once a year, and reference it from its list entry. A snapshot needs no trust because it is verified by replay against the proven head. A reader that cannot obtain a pinned writer's leaves must report that writer as unavailable, never as clean.
+**Data availability.** The log keeps only heads in state. Leaves live in transaction history, which execution clients are not required to retain under [EIP-4444](./eip-4444.md). A writer should publish a content-addressed snapshot of its own leaves, as the ABI-encoded `Appended` events in `writerSeq` order, each with the number of the block it was appended in, at least once per 10,000 leaves and at least once a year, and reference it from its list entry. A snapshot needs no trust because it is verified by replay against the proven head. The block number travels with each event because the leaf hash commits to it and the event does not carry it. A reader that cannot obtain a pinned writer's leaves must report that writer as unavailable, never as clean.
 
 **Attacker adaptation.** The reuse measurements behind the category table were taken before any reader consumed a log like this. A funding hop costs a fraction of a cent, and a drainer kit can move its receiver out of bytecode once wallets enforce on it. The log's value is bounded by how expensive it is for attackers to abandon the flagged layer, and maintainers should expect to re-aim categories over time.
 

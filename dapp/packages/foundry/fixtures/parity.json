@@ -1,0 +1,278 @@
+{
+  "chainId": "11155111",
+  "domainSeparator": "0x85aaf2f1277f7634ef7a77f877342db22bdc89051fd10c52d870858a41f4bcdb",
+  "format": "All integers are decimal strings. Addresses are EIP-55 checksummed hex; bytes32 and bytes are 0x-prefixed lowercase hex. leaves are in globalSeq order; blockNumber is the block the leaf was appended in. leafHash = keccak256(abi.encode(writer, blockNumber, writerSeq, globalSeq, leaf)); writerHeadAfter and globalHeadAfter fold keccak256(abi.encodePacked(previousHead, leafHash)) from bytes32(0). The log is deployed with deployCodeTo at the predicted Sepolia CREATE2 address with chainid 11155111, so domainSeparator is the one that address has on Sepolia. Each signed batch covers the leaves with globalSeq firstGlobalSeq to firstGlobalSeq + count - 1; signature is r || s || v over digest = keccak256(0x1901 || domainSeparator || hashStruct(Append(leaves, deadline, nonce))). writers holds each writer's final head, seq and signatureNonce as read from the log.",
+  "globalHead": "0x4b13a792fa4623279cbd4c3cee1ab13139926452e41534af4c9c8c35fca71649",
+  "globalSeq": "12",
+  "leaves": [
+    {
+      "blockNumber": "9000000",
+      "entryPoint": "append",
+      "globalHeadAfter": "0x661bdcbf011d5eca9234113aa67d797a2b63f7f6b19d3dc7fdcd3e1e45784b65",
+      "globalSeq": "1",
+      "leaf": {
+        "category": "1",
+        "chainId": "0",
+        "evidence": "0xfbff162579b8cdca8f11993e374aa1ce4197da40f6c1d3e8764063d6dd8d0a01",
+        "op": "0",
+        "refLeaf": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "seenBlock": "21400100",
+        "subject": "0xC80613B2DEDCBA582832c3eC72b5032F35B39911"
+      },
+      "leafHash": "0xbc7d08dcba219c9d21e3a3724ff9736e776bb1e0258b7d27e337cc1e90b6b96a",
+      "writer": "0x17544700BBaA02ae28d9123b7712d2D3ba8847e8",
+      "writerHeadAfter": "0x661bdcbf011d5eca9234113aa67d797a2b63f7f6b19d3dc7fdcd3e1e45784b65",
+      "writerSeq": "1"
+    },
+    {
+      "blockNumber": "9000000",
+      "entryPoint": "append",
+      "globalHeadAfter": "0x403575966e55c0f7d4b043d0be9da1d6a354856d98ea50e492ebfa94321cdfc8",
+      "globalSeq": "2",
+      "leaf": {
+        "category": "3",
+        "chainId": "11155111",
+        "evidence": "0x4a5029f695674f0ab86ca86e3bd7fd188495318907f721f0ab662f3992c413ce",
+        "op": "0",
+        "refLeaf": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "seenBlock": "8999870",
+        "subject": "0xec68B0B157c6B1Ee321cA7266b7D930362F0C0A8"
+      },
+      "leafHash": "0xf8a91aa15be292d67ff8bf7a543ba2569d50061493d2a078696c0f5815ea9fd3",
+      "writer": "0x17544700BBaA02ae28d9123b7712d2D3ba8847e8",
+      "writerHeadAfter": "0x403575966e55c0f7d4b043d0be9da1d6a354856d98ea50e492ebfa94321cdfc8",
+      "writerSeq": "2"
+    },
+    {
+      "blockNumber": "9000000",
+      "entryPoint": "append",
+      "globalHeadAfter": "0x1f00ba9b6cd930b32da4249f8dccccc1df8c672e8f4e7ad39cbd1b0e8a17d832",
+      "globalSeq": "3",
+      "leaf": {
+        "category": "4",
+        "chainId": "11155111",
+        "evidence": "0x93253ab2f82db3cff83b68390fe8efc9be7e3e8bc58c65cb75ab705f6f78fe83",
+        "op": "0",
+        "refLeaf": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "seenBlock": "8999911",
+        "subject": "0x0b2182Bcd824e5e605b273df0Baa796A22bEF499"
+      },
+      "leafHash": "0x407e2b8ee027635f0d754aea8d7feee6aefc7b8e796d22eb1ef71f2567e3a854",
+      "writer": "0x17544700BBaA02ae28d9123b7712d2D3ba8847e8",
+      "writerHeadAfter": "0x1f00ba9b6cd930b32da4249f8dccccc1df8c672e8f4e7ad39cbd1b0e8a17d832",
+      "writerSeq": "3"
+    },
+    {
+      "blockNumber": "9000001",
+      "entryPoint": "appendSigned",
+      "globalHeadAfter": "0xdf7ac36bd685324bc6511d7aaedd3c9e24bd8938f5b2448f102858821db4d100",
+      "globalSeq": "4",
+      "leaf": {
+        "category": "2",
+        "chainId": "0",
+        "evidence": "0x77b036e216ea756416998c3290512a030e9d5ac2b9ae2c2098fc8010b7202a8d",
+        "op": "0",
+        "refLeaf": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "seenBlock": "21399870",
+        "subject": "0xa4174364d5eb8ADf3Fb99B4126B32F1C4863CC90"
+      },
+      "leafHash": "0x974bfaca4511e2a9b246522e63405fad27a195655309169a892f8f7eb3c4687d",
+      "writer": "0x6FBfDEAA475323a879c506Bcda1d0489996E75F9",
+      "writerHeadAfter": "0xfe27a849a2bda10110dbfa2367612e5bbe97555f191289babdc37e92081d47c8",
+      "writerSeq": "1"
+    },
+    {
+      "blockNumber": "9000001",
+      "entryPoint": "appendSigned",
+      "globalHeadAfter": "0x2133602ec57badc452a0c4acf9073d5bca7d0b5a36a37fae6a96340308651b83",
+      "globalSeq": "5",
+      "leaf": {
+        "category": "5",
+        "chainId": "1",
+        "evidence": "0x95390f63c804a5da89c64744167454da1ada646f6cddedce55414106da1042ce",
+        "op": "0",
+        "refLeaf": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "seenBlock": "21398002",
+        "subject": "0x95C932a837645d05a52888855aEd524dB9d92292"
+      },
+      "leafHash": "0xf354c045efeb33251b2b0e74e91bc3a9a6fe190c7c6b37f6182518a1e5bb7ff4",
+      "writer": "0x6FBfDEAA475323a879c506Bcda1d0489996E75F9",
+      "writerHeadAfter": "0x33b3bac0845efda2becbac3122ea3e26910d010220d0f936cf819e47fede043a",
+      "writerSeq": "2"
+    },
+    {
+      "blockNumber": "9000004",
+      "entryPoint": "append",
+      "globalHeadAfter": "0x893580721ea7be2e5f0c196262e96661e882f73aff44af801a68cfab7ceb8121",
+      "globalSeq": "6",
+      "leaf": {
+        "category": "3",
+        "chainId": "11155111",
+        "evidence": "0x6fa8b7f7c65eae8e0c270e8c90bd836b42f4b46974fa2e9e3652de09b2882a58",
+        "op": "1",
+        "refLeaf": "0xf8a91aa15be292d67ff8bf7a543ba2569d50061493d2a078696c0f5815ea9fd3",
+        "seenBlock": "9000002",
+        "subject": "0xec68B0B157c6B1Ee321cA7266b7D930362F0C0A8"
+      },
+      "leafHash": "0x7f63af0b8f3cf6f2c01c43268cf2fd289a71d6aa5e3994f07de9c65655fb40c6",
+      "writer": "0x17544700BBaA02ae28d9123b7712d2D3ba8847e8",
+      "writerHeadAfter": "0x4e6d3f78ef018c2dafb45391ffedd03402d005ce6a55b9a4f439d32f41ace1ee",
+      "writerSeq": "4"
+    },
+    {
+      "blockNumber": "9000004",
+      "entryPoint": "append",
+      "globalHeadAfter": "0x35d2b6f9c505ddf63e11729cf716048f9736b4f39ba7e96f2154a92fc82b6763",
+      "globalSeq": "7",
+      "leaf": {
+        "category": "6",
+        "chainId": "0",
+        "evidence": "0xfa88e1fc57558751e110ec053d3e2b7db756b1174a7074e5212761cc085592f3",
+        "op": "0",
+        "refLeaf": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "seenBlock": "21400350",
+        "subject": "0x92272A8688d00B9913167247760572AaD8e70909"
+      },
+      "leafHash": "0x1bea28e5a0c71a648ed6df1b9c2e6b4a1d49950ca86f4f544c58f0d6be9b086c",
+      "writer": "0x17544700BBaA02ae28d9123b7712d2D3ba8847e8",
+      "writerHeadAfter": "0xe961118d9327933536166421fa52be44fa51c670ff34566c2b661dd2eced6992",
+      "writerSeq": "5"
+    },
+    {
+      "blockNumber": "9000004",
+      "entryPoint": "append",
+      "globalHeadAfter": "0xcd250b0f166861243e5e40b9f2ec1af9d1c9da1ebd61ecc5d7f558b68e290c33",
+      "globalSeq": "8",
+      "leaf": {
+        "category": "7",
+        "chainId": "11155111",
+        "evidence": "0x91791ccdec34293292ae0fb47547ac97d965a829b7d329643cf7942d8af03a8f",
+        "op": "0",
+        "refLeaf": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "seenBlock": "9000003",
+        "subject": "0x52e1FC212A7b65AAB123c5DB3A0521880fc4e792"
+      },
+      "leafHash": "0x75fc9309888c2b5d25e31d4e1b5662f836b6a1f64e0615db32966a2f4c585663",
+      "writer": "0x17544700BBaA02ae28d9123b7712d2D3ba8847e8",
+      "writerHeadAfter": "0x238e3b2bc753bd915b4515ee8235e27c32b176f5620f3c94139418c2ec4df445",
+      "writerSeq": "6"
+    },
+    {
+      "blockNumber": "9000010",
+      "entryPoint": "appendSigned",
+      "globalHeadAfter": "0x72bc00c9792fbe1c50759b16e79e10dc5a05c1c5f1e93f039268ffabadae1f3e",
+      "globalSeq": "9",
+      "leaf": {
+        "category": "1",
+        "chainId": "0",
+        "evidence": "0x1f90c8caee0c2898167e47cb619bcef18712cb400f0fb4f7a784fc6fc44e2f4c",
+        "op": "2",
+        "refLeaf": "0xbc7d08dcba219c9d21e3a3724ff9736e776bb1e0258b7d27e337cc1e90b6b96a",
+        "seenBlock": "21400400",
+        "subject": "0xC80613B2DEDCBA582832c3eC72b5032F35B39911"
+      },
+      "leafHash": "0x311bc6edbae6fad03d2b18a2d85061cd6b74cdfe236737c38ae5bbf966d0a7ac",
+      "writer": "0x6FBfDEAA475323a879c506Bcda1d0489996E75F9",
+      "writerHeadAfter": "0xbc370b42eb1fcf5aa03a17a3638a09523c50fa13d48f363ffeaa0e8e79744fb4",
+      "writerSeq": "3"
+    },
+    {
+      "blockNumber": "9000010",
+      "entryPoint": "appendSigned",
+      "globalHeadAfter": "0x5eb83ce1cf1a0b3fc55ac761db64fed2a615d22d0cd3fabba452f0c1d6129faa",
+      "globalSeq": "10",
+      "leaf": {
+        "category": "5",
+        "chainId": "11155111",
+        "evidence": "0xf0787f7bc01c409c49f2f1fa338a68a49c541bd64b4029a65cc4f8a0791cbc42",
+        "op": "3",
+        "refLeaf": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "seenBlock": "9000008",
+        "subject": "0x6FBfDEAA475323a879c506Bcda1d0489996E75F9"
+      },
+      "leafHash": "0xde24f83e20e430e99f72c42044adfdc8267cafbf44897fef6380202ab796286c",
+      "writer": "0x6FBfDEAA475323a879c506Bcda1d0489996E75F9",
+      "writerHeadAfter": "0x037ea4e089a627a18b09c910361b495272b9cc2a510a55f2fdda0f37cae0815f",
+      "writerSeq": "4"
+    },
+    {
+      "blockNumber": "9000010",
+      "entryPoint": "appendSigned",
+      "globalHeadAfter": "0x7566f4f59de2159ae4a250283ac5415241a9064b2c8faf2a37b5713b0a37b6ab",
+      "globalSeq": "11",
+      "leaf": {
+        "category": "8",
+        "chainId": "0",
+        "evidence": "0x0d84cb407f018ead70359314ada3da09c3fdd805685c48b2c088073e73a3a71c",
+        "op": "0",
+        "refLeaf": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "seenBlock": "21400420",
+        "subject": "0xA0eccAa607E5F763Da19388Ce4778Bdfdc1c1621"
+      },
+      "leafHash": "0x04ef0a26fdc435d0c40be418339c9c2b172d4b2e22e018b939ad3e7a2c705195",
+      "writer": "0x6FBfDEAA475323a879c506Bcda1d0489996E75F9",
+      "writerHeadAfter": "0x7369b5f0f0e6ed479f23c006540fe259c4194d38321c02f2a739d28e14e623af",
+      "writerSeq": "5"
+    },
+    {
+      "blockNumber": "9000011",
+      "entryPoint": "append",
+      "globalHeadAfter": "0x4b13a792fa4623279cbd4c3cee1ab13139926452e41534af4c9c8c35fca71649",
+      "globalSeq": "12",
+      "leaf": {
+        "category": "8",
+        "chainId": "11155111",
+        "evidence": "0xe2f5e405f35ee2af2082b1a7ee9ef22c0714a8e9a43289bbac1485bb3bb20670",
+        "op": "0",
+        "refLeaf": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "seenBlock": "9000010",
+        "subject": "0x58D78249EA710219D76a78B7604155932586beb9"
+      },
+      "leafHash": "0xe259c0c07b2d0967dacb4683e307c38593db18b27197f178d36be11df02432f0",
+      "writer": "0x17544700BBaA02ae28d9123b7712d2D3ba8847e8",
+      "writerHeadAfter": "0xf0d93e16d40787650aa3c1d8fa7d08cc20a4a2b165a360f4e2e5bd9733c26d5a",
+      "writerSeq": "7"
+    }
+  ],
+  "log": "0xC5616bb2FDCcdD761aa969c5C0dFb3D5c7d93865",
+  "signedBatches": [
+    {
+      "blockNumber": "9000001",
+      "count": "2",
+      "deadline": "1790003600",
+      "digest": "0x5a6401d9c3e64d0aa1fd0dfd09d739635462cf821ca3bb2925a5380f15828781",
+      "firstGlobalSeq": "4",
+      "nonce": "0",
+      "signature": "0x41fe3169d5696218cb472a2dd0a92b61017ad40be9ab56b7226df8074e5bc36f2136aa6e2fe13967031aba334b02d664edaa5e33bfe219797eb5ce78e2aa7ca91c",
+      "submitter": "0x810B24FF505c00F595A30fB98D6CECbE253c93A3",
+      "writer": "0x6FBfDEAA475323a879c506Bcda1d0489996E75F9"
+    },
+    {
+      "blockNumber": "9000010",
+      "count": "3",
+      "deadline": "1790003600",
+      "digest": "0xf8c2a41da5a185bc6063f5b87dd7eabc56c1c6a382e7108f84a591df37ed58c1",
+      "firstGlobalSeq": "9",
+      "nonce": "1",
+      "signature": "0x7130b3a047a241c254011618c56d6bc9c3ab2f72cc22212ac1da6bd24d4a03df366c6a553fe37a2b9a6c6e634cb75aaa2ee891ca2e90dc6066953e715b93a7c41c",
+      "submitter": "0x810B24FF505c00F595A30fB98D6CECbE253c93A3",
+      "writer": "0x6FBfDEAA475323a879c506Bcda1d0489996E75F9"
+    }
+  ],
+  "writers": [
+    {
+      "address": "0x17544700BBaA02ae28d9123b7712d2D3ba8847e8",
+      "head": "0xf0d93e16d40787650aa3c1d8fa7d08cc20a4a2b165a360f4e2e5bd9733c26d5a",
+      "label": "alpha",
+      "seq": "7",
+      "signatureNonce": "0"
+    },
+    {
+      "address": "0x6FBfDEAA475323a879c506Bcda1d0489996E75F9",
+      "head": "0x7369b5f0f0e6ed479f23c006540fe259c4194d38321c02f2a739d28e14e623af",
+      "label": "beta",
+      "seq": "5",
+      "signatureNonce": "2"
+    }
+  ]
+}
