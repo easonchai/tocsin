@@ -25,15 +25,14 @@
       tocsin
     </a>
     <div class="nav-links">
-      <a href="#minute">In one minute</a>
-      <a href="#why">Why</a>
       <a href="#how">How it works</a>
       <a href="#trust">Trust</a>
       <a href="#faq">FAQ</a>
       <a href="claim.html">Claim a name</a>
+      <a href="erc.html">ERC draft</a>
       <a href="https://github.com/easonchai/tocsin">GitHub</a>
     </div>
-    <a class="btn" href="erc.html">ERC draft <span class="arrow">→</span></a>
+    <a class="btn" href="https://tocsin-eth.vercel.app">Open the demo <span class="arrow">↗</span></a>
   </div>
 </nav>
 
@@ -44,8 +43,8 @@
       <h1 class="rv d1">Your wallet checked<br>Ethereum <em>itself.</em></h1>
       <p class="lede rv d2">Every wallet asks a company whether an address is safe. That company can be hacked, bought, or lied to, and it sees who is asking. Tocsin is a log of scam infrastructure on Ethereum that nobody can edit, and a reader your wallet runs to prove it against Ethereum itself. The endpoint cannot lie to you, and cannot tell it is you.</p>
       <div class="ctas rv d2">
-        <a class="btn primary" href="erc.html">Read the ERC draft <span class="arrow">→</span></a>
-        <a class="btn" href="https://github.com/easonchai/tocsin#demo">Demo <span class="arrow">↗</span></a><!-- TODO: replace with the live demo URL -->
+        <a class="btn primary" href="https://tocsin-eth.vercel.app">Open the demo <span class="arrow">↗</span></a>
+        <a class="btn" href="erc.html">Read the ERC draft <span class="arrow">→</span></a>
         <a class="btn" href="#how">How it works</a>
       </div>
       <div class="meta rv d2">
@@ -297,9 +296,9 @@
     <span>Built at Devcon 8 and ETHGlobal Mumbai, November 2026 · <a href="https://tocsin.eth.limo">tocsin.eth</a></span>
     <div class="links">
       <a href="claim.html">Claim a name</a>
-      <a href="https://github.com/easonchai/tocsin#demo">Demo</a><!-- TODO: live demo URL -->
+      <a href="https://tocsin-eth.vercel.app">Demo</a>
       <a href="https://github.com/easonchai/tocsin">GitHub</a>
-      <a href="https://t.me/tocsin_eth">Telegram</a><!-- TODO: real group link -->
+      <a href="https://t.me/tocsin_eth">Telegram</a><!-- TODO: Eason's personal handle -->
       <a href="https://x.com/tocsin_eth">X</a><!-- TODO: real handle -->
       <a href="erc.html">ERC draft</a>
       <a href="#top">Top</a>
@@ -328,8 +327,8 @@
     ['00.02', 'helios', 'lc', 'finalized header slot 11,482,207 · sync committee 512/512'],
     ['00.03', 'helios', 'lc', 'eth_getProof(log, [0,1]) · 6.9 kB · verified against stateRoot'],
     ['00.04', 'tocsin', 'ab', 'globalHead 0x9c4e…a1f0 · seq 41,207 · replayed 41,207 leaves ✓'],
-    ['00.05', 'tocsin', 'ab', 'lists: seal.tocsin.eth, scamsniffer.tocsin.eth · 2 independent'],
-    ['00.06', 'tocsin', 'ab', '<span class="k">0x7a3F…c91B</span> → DRAINER_RECEIVER · flagged by 2/2 · evidence 0x31b7…'],
+    ['00.05', 'tocsin', 'ab', 'lists: core.tocsin.eth, blockaid.tocsin.eth, scamsniffer.tocsin.eth · 3 independent'],
+    ['00.06', 'tocsin', 'ab', '<span class="k">0x7a3F…c91B</span> → DRAINER_RECEIVER · flagged by 3/3 · evidence 0x31b7…'],
     ['00.07', 'tocsin', 'ab', 'local heuristic: no prefix/suffix match with your history', 'dim'],
   ];
   var term = document.getElementById('term'), idleTimer;
@@ -345,7 +344,7 @@
       if (i >= script.length) {
         var v = document.createElement('div');
         v.className = 'verdict';
-        v.innerHTML = '<b>Blocked.</b> Drainer receiver, flagged by SEAL and Scam Sniffer.';
+        v.innerHTML = '<b>Blocked.</b> Drainer receiver, flagged by core, Blockaid and Scam Sniffer.';
         cur.remove(); body.appendChild(v);
         document.getElementById('term-foot').textContent = 'The RPC said clean. The wallet never asked it who to trust.';
         dot.className = 'dot blocked';

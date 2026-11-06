@@ -27,8 +27,8 @@
   --hair: 1px solid var(--ink-700);
   --hair-strong: 1px solid var(--ink-600);
   --grid: 24px;
-  --gutter: 24px;
-  --max: 1160px;
+  --gutter: 40px;
+  --max: 1200px;
 
   /* motion */
   --enter: 240ms;
