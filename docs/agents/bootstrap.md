@@ -1,6 +1,6 @@
 # Own writers and lists
 
-`./bootstrap.sh` puts flags from writers you hold the keys to on the shared Sepolia log and signs your own three list documents, so the demo runs on your lists end to end. The log, the demo tokens and the demo account stay the committed ones. Nothing is deployed and ENS is not touched: the hosts take the signed records directly, so the three names (`tocsin.eth` in place of `core.tocsin.eth`, then `harborwatch.eth` and `lanterndao.eth`) are labels.
+`./bootstrap.sh` puts flags from writers you hold the keys to on the shared Sepolia log and signs your own three list documents, so the demo runs on your lists end to end. The log, the demo tokens and the demo account stay the committed ones. Nothing is deployed and ENS is not touched: the hosts take the signed records directly, so the three names (`local-tocsin.eth` in place of `core.tocsin.eth`, then `local-harborwatch.eth` and `local-lanterndao.eth`) are labels. The `local-` prefix keeps them apart from names someone may own on ENS. A wallet profile that already pinned the committed lists keeps those pins and shows these as separate lists.
 
 ## Steps
 

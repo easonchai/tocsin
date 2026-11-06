@@ -78,9 +78,12 @@ fill() {
   TOCSIN_MAINTAINER="$3" TOCSIN_MANUAL_WRITER="$4" TOCSIN_DETECTOR_WRITER="$5" TOCSIN_OPERATOR_NAME="$6" TOCSIN_SITE_BASE_URL="$SITE" \
     reader publish-list fill "$ROOT/site/lists/$1" "$LOCAL/lists/$2"
 }
-fill default.template.json default.json "$MAINTAINER_ADDRESS" "$MANUAL_WRITER_ADDRESS" "$DETECTOR_ADDRESS" tocsin.eth
-fill curator.template.json harborwatch.json "$HARBOR_MAINTAINER_ADDRESS" "$HARBOR_WRITER_ADDRESS" "$HARBOR_WRITER_ADDRESS" harborwatch.eth
-fill curator.template.json lanterndao.json "$LANTERN_MAINTAINER_ADDRESS" "$LANTERN_WRITER_ADDRESS" "$LANTERN_WRITER_ADDRESS" lanterndao.eth
+# Labels only, never looked up on ENS. The local- prefix keeps them apart from real names, and from the
+# committed lists a wallet may already have pinned to another maintainer.
+CORE_NAME=local-tocsin.eth HARBOR_NAME=local-harborwatch.eth LANTERN_NAME=local-lanterndao.eth
+fill default.template.json default.json "$MAINTAINER_ADDRESS" "$MANUAL_WRITER_ADDRESS" "$DETECTOR_ADDRESS" "$CORE_NAME"
+fill curator.template.json harborwatch.json "$HARBOR_MAINTAINER_ADDRESS" "$HARBOR_WRITER_ADDRESS" "$HARBOR_WRITER_ADDRESS" "$HARBOR_NAME"
+fill curator.template.json lanterndao.json "$LANTERN_MAINTAINER_ADDRESS" "$LANTERN_WRITER_ADDRESS" "$LANTERN_WRITER_ADDRESS" "$LANTERN_NAME"
 # A load-balanced public RPC can report a head that the node serving eth_getLogs has not reached yet. Retry that one error.
 for try in 1 2 3; do
   if out="$(LOG_FROM_BLOCK="$FROM_BLOCK" MIRROR_DIR="$LOCAL/mirror" infra mirror "$MANUAL_WRITER_ADDRESS" "$DETECTOR_ADDRESS" "$HARBOR_WRITER_ADDRESS" "$LANTERN_WRITER_ADDRESS" 2>&1)"; then
@@ -97,10 +100,9 @@ lantern="$(sign lanterndao.json "$LANTERN_MAINTAINER_PRIVATE_KEY")"
 # --- 5. What demo.sh sources. -----------------------------------------------------------------------------
 cat >"$OUT/demo.env" <<EOF
 # Written by bootstrap.sh. demo.sh sources this before its defaults; source it yourself for the CLI beats (yarn workspace @tocsin/infra eval).
-export TOCSIN_LIST_NAME=tocsin.eth,harborwatch.eth,lanterndao.eth
+export TOCSIN_LIST_NAME=$CORE_NAME,$HARBOR_NAME,$LANTERN_NAME
 export TOCSIN_LIST_RECORD=$record
-export TOCSIN_LIST_NAME=tocsin.eth,harborwatch.eth,lanterndao.eth
-export TOCSIN_LIST_RECORDS=harborwatch.eth=$harbor,lanterndao.eth=$lantern
+export TOCSIN_LIST_RECORDS=$HARBOR_NAME=$harbor,$LANTERN_NAME=$lantern
 export TOCSIN_LOG_FROM_BLOCK=$FROM_BLOCK
 export PROXY_DROP_WRITER=$MANUAL_WRITER_ADDRESS PROXY_DROP_SEQ=1
 export RPC_URL=$RPC_URL CHAIN_ID=$CHAIN_ID LOG_ADDRESS=$LOG_ADDRESS
@@ -111,7 +113,7 @@ cat <<EOF
 Done. Your lists are signed and your flags are on the log from block $FROM_BLOCK.
   manual writer   $MANUAL_WRITER_ADDRESS   (the lying proxy drops its sequence 1)
   detector        $DETECTOR_ADDRESS
-  harborwatch     $HARBOR_WRITER_ADDRESS
-  lanterndao      $LANTERN_WRITER_ADDRESS
+  $HARBOR_NAME   $HARBOR_WRITER_ADDRESS
+  $LANTERN_NAME   $LANTERN_WRITER_ADDRESS
 Next: ./demo.sh    (rebuilds the Snap and Kohaku with these records), then RUNBOOK.md.
 EOF
