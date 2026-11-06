@@ -8,7 +8,7 @@
 <style>
 /* Mock of docs/plan/demo-page/explainer-spec.md. Cards, then one card lifts to the top and the stage plays under it.
    Static data; nothing here talks to a chain. */
-:root { --c-core: #ece7dc; --c-blockaid: #6bb3e0; --c-sniffer: #5fb8b0; }
+:root { --pass: #4fbf7a; } /* the one green on the page: a Pass pill on a card */
 body { min-height: 100vh; overflow-x: hidden; background:
   radial-gradient(circle at 1px 1px, var(--ink-700) 1px, transparent 1.5px) 0 0 / var(--grid) var(--grid), var(--ink-900); }
 .top { display: flex; align-items: center; justify-content: space-between; padding: 20px 32px; }
@@ -22,7 +22,10 @@ body { min-height: 100vh; overflow-x: hidden; background:
 .p { display: inline-flex; align-items: center; gap: 6px; font: 500 11px/1 var(--mono); letter-spacing: .04em; text-transform: uppercase; color: var(--paper-200); border: var(--hair-strong); border-radius: 999px; padding: 6px 9px 6px 7px; white-space: nowrap; }
 .p i { font-style: normal; font-size: 12px; line-height: 1; width: 14px; text-align: center; }
 .p.act { background: var(--ink-900); color: var(--paper-100); }
-.p.list::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--c); box-shadow: 0 0 0 2px color-mix(in srgb, var(--c) 25%, transparent); }
+.p.v { font-weight: 600; }
+.p.v.block { border-color: var(--alert); color: var(--alert); background: color-mix(in srgb, var(--alert) 12%, transparent); }
+.p.v.warn, .p.v.unverifiable { border-color: var(--signal); color: var(--signal); background: color-mix(in srgb, var(--signal) 12%, transparent); }
+.p.v.clean { border-color: var(--pass); color: var(--pass); background: color-mix(in srgb, var(--pass) 12%, transparent); }
 .p.cat { border-style: dashed; color: var(--ink-400); }
 .p.cat.hot { border-color: var(--alert); color: var(--alert); border-style: solid; }
 .p.tomb { text-decoration: line-through; color: var(--ink-400); }
@@ -45,6 +48,8 @@ body { min-height: 100vh; overflow-x: hidden; background:
 /* focus: the chosen card lifts to the top, the rest go */
 #focus { display: none; padding: 0 32px 16px; }
 #focus.on { display: grid; grid-template-columns: 1fr minmax(420px, 640px) 1fr; align-items: start; gap: 24px; }
+#focus .cta { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 10px; }
+#focus .cta .foot { flex-basis: 100%; }
 #focus .card { cursor: default; min-height: 0; }
 #focus .card:hover { border-color: var(--ink-700); }
 #focus .back { justify-self: start; }
@@ -65,7 +70,7 @@ body { min-height: 100vh; overflow-x: hidden; background:
 .in.on { opacity: 1; transform: none; }
 .ctx { font: 500 11px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-400); }
 
-.lcard { border: var(--hair); border-left: 3px solid var(--c); border-radius: var(--r); padding: 12px 14px; background: var(--ink-900); }
+.lcard { border: var(--hair); border-radius: var(--r); padding: 12px 14px; background: var(--ink-900); }
 .lcard .name { font: 500 14px/1.2 var(--mono); color: var(--paper-100); display: flex; justify-content: space-between; gap: 8px; }
 .lcard .name small { font-family: var(--body); font-weight: 400; color: var(--ink-400); font-size: 12px; }
 .writers { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
@@ -136,9 +141,9 @@ body { min-height: 100vh; overflow-x: hidden; background:
   <section class="cards" id="cards" aria-label="scenarios"></section>
 </div>
 <section id="focus">
-  <button class="btn back" id="back">← all scenarios</button>
+  <button class="btn back" id="back">← All scenarios</button>
   <div id="slot"></div>
-  <div class="nav"><button class="btn" id="prev">↑ prev</button><button class="btn" id="next">next ↓</button></div>
+  <div class="nav"><button class="btn" id="prev">↑ Previous</button><button class="btn" id="next">Next ↓</button></div>
 </section>
 <main class="stage empty" id="stage" aria-live="polite">
   <svg class="wires" id="wires"></svg>
@@ -150,9 +155,9 @@ body { min-height: 100vh; overflow-x: hidden; background:
 <script>
 // ---- data: in the real page this is utils/demo/scenarios.ts plus LISTS, pinned to the tsv by a test
 const LISTS = [
-  { name: 'core.tocsin.eth', short: 'core', role: 'us', c: 'var(--c-core)', writers: [ { id: 'manual', label: 'core', w: 255 }, { id: 'detector', label: 'detector', w: 1 } ] },
-  { name: 'blockaid.tocsin.eth', short: 'blockaid', role: 'security vendor', c: 'var(--c-blockaid)', writers: [ { id: 'harbor', label: 'blockaid', w: 255 } ] },
-  { name: 'scamsniffer.tocsin.eth', short: 'scamsniffer', role: 'phishing researchers', c: 'var(--c-sniffer)', writers: [ { id: 'lantern', label: 'scamsniffer', w: 1 } ] },
+  { name: 'core.tocsin.eth', short: 'core', role: 'us', writers: [ { id: 'manual', label: 'core', w: 255 }, { id: 'detector', label: 'detector', w: 1 } ] },
+  { name: 'blockaid.tocsin.eth', short: 'blockaid', role: 'security vendor', writers: [ { id: 'harbor', label: 'blockaid', w: 255 } ] },
+  { name: 'scamsniffer.tocsin.eth', short: 'scamsniffer', role: 'phishing researchers', writers: [ { id: 'lantern', label: 'scamsniffer', w: 1 } ] },
 ];
 const ACT = { 'Send ETH': ['→', 'send eth'], 'Send token': ['◇', 'send token'], 'Approve': ['✓', 'approve'], 'Swap': ['⇄', 'swap'] };
 const CATI = { DRAINER_RECEIVER: '⤓', DRAINER_SPENDER: '⤓', POISONING_OPERATOR: '≈', THEFT_PROCEEDS: '$', PAID_LOOKALIKE: '≠', FAKE_TOKEN: '◇' };
@@ -204,12 +209,12 @@ const sched = (fn, t) => timers.push(setTimeout(fn, t));
 const stop = () => { timers.forEach(clearTimeout); timers = []; };
 function el(tag, cls, html) { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
 const pillAct = g => `<span class="p act"><i>${ACT[g][0]}</i>${ACT[g][1]}</span>`;
-const pillList = L => `<span class="p list" style="--c:${L.c}">${L.short}</span>`;
+const VERD = { clean: ['✓', 'Pass'], warn: ['!', 'Warn'], block: ['✕', 'Block'], unverifiable: ['?', 'Unverifiable'] };
+const pillVerdict = v => `<span class="p v ${v}"><i>${VERD[v][0]}</i>${VERD[v][1]}</span>`;
 const pillCat = (cat, hot) => cat ? `<span class="p cat${hot ? ' hot' : ''}"><i>${CATI[cat]}</i>${cat.toLowerCase().replace('_', ' ')}</span>` : '';
 function cardPills(sc) {
-  const lists = [...new Set(sc.flags.filter(f => !f.tomb).map(f => listOf(f.writer)))];
-  const tomb = sc.flags.length && !lists.length;
-  return `<div class="pills">${pillAct(sc.group)}${lists.map(pillList).join('')}${tomb ? '<span class="p tomb">retracted</span>' : ''}${!sc.flags.length ? '<span class="p none">no flags</span>' : ''}${pillCat(sc.cat)}</div>`;
+  const tomb = sc.flags.length && sc.flags.every(f => f.tomb);
+  return `<div class="pills">${pillAct(sc.group)}${pillCat(sc.cat)}${tomb ? '<span class="p tomb">retracted</span>' : ''}${pillVerdict(explain(sc).verdict)}</div>`;
 }
 function cardEl(sc) {
   return el('button', 'card', `<div class="t"><span>${sc.title}</span>${sc.tag ? `<span class="tag">${sc.tag}</span>` : ''}</div><div class="d">${sc.desc}</div>${cardPills(sc)}`);
@@ -224,6 +229,13 @@ function open(i, fromCard) {
   const first = fromCard?.getBoundingClientRect();
   $('grid').classList.add('off'); $('focus').classList.add('on'); $('stage').classList.remove('empty');
   $('slot').innerHTML = ''; const hero = cardEl(S[i]); $('slot').append(hero);
+  const ex0 = explain(S[i]), cta = el('div', 'cta');
+  const send = el('button', `btn ${ex0.verdict === 'warn' || ex0.verdict === 'block' ? 'signal' : 'primary'}`, 'Send it to the wallet');
+  send.onclick = () => { send.textContent = 'Sent. The wallet is answering.'; send.disabled = true; }; cta.append(send);
+  if (S[i].poison) cta.append(el('span', 'copy', `http://127.0.0.1:8550 <button class="btn" style="padding:4px 8px;font-size:11px">Copy</button><small>paste into the Snap RPC setting first</small>`));
+  if (S[i].tag === 'snap only') cta.append(el('span', 'copy', `<small>Snap only until Kohaku lands token checks</small>`));
+  cta.append(el('div', 'foot', 'The wallet should say this. The stage is drawn from the seed table; the wallet checks the chain itself.'));
+  $('slot').append(cta);
   if (first) {
     const last = hero.getBoundingClientRect(), ghost = cardEl(S[i]); ghost.classList.add('flying');
     Object.assign(ghost.style, { left: last.left + 'px', top: last.top + 'px', width: last.width + 'px', height: last.height + 'px', transform: `translate(${first.left - last.left}px, ${first.top - last.top}px)` });
@@ -259,7 +271,7 @@ function play(i) {
   // 2. the lists the wallet follows
   const nodes = {};
   LISTS.forEach((L, k) => {
-    const card = el('div', 'lcard in', `<div class="name"><span>${L.name}</span><small>${L.role}</small></div>`); card.style.setProperty('--c', L.c); const ws = el('div', 'writers');
+    const card = el('div', 'lcard in', `<div class="name"><span>${L.name}</span><small>${L.role}</small></div>`); const ws = el('div', 'writers');
     L.writers.forEach(w => { const row = el('div', 'writer'); const pill = el('span', 'pill', `${w.label}<span class="w">w${w.w}</span>`); const says = el('span', 'says pills'); row.append(pill, says); ws.append(row); nodes[w.id] = { pill, says }; });
     card.append(ws); $('lists').append(card); sched(() => card.classList.add('on'), t + 380 + k * 120);
   });
@@ -310,18 +322,8 @@ function play(i) {
   sched(() => finish(sc, ex), t);
 }
 function paintRed() { document.querySelector('#mid .subject:last-of-type')?.classList.add('bad'); document.querySelectorAll('.mote').forEach(m => m.classList.add('bad')); document.querySelectorAll('#mid .subject .p.cat').forEach(p => p.classList.add('hot')); }
-function finish(sc, ex) {
-  final = true; const mid = $('mid');
-  if (mid.querySelector('.actions')) return;
-  const acts = el('div', 'actions in');
-  const send = el('button', `btn ${ex.verdict === 'warn' || ex.verdict === 'block' ? 'signal' : 'primary'}`, 'Send it to the wallet');
-  send.onclick = () => { send.textContent = 'sent: the wallet is answering'; send.disabled = true; }; acts.append(send);
-  if (sc.poison) acts.append(el('span', 'copy', `http://127.0.0.1:8550 <button class="btn" style="padding:4px 8px;font-size:11px">copy</button><small>paste into the Snap RPC setting first</small>`));
-  if (sc.tag === 'snap only') acts.append(el('span', 'copy', `<small>Snap only until Kohaku lands token checks</small>`));
-  const foot = el('div', 'foot in', 'the wallet should say this. Drawn from the seed table; the wallet checks the chain itself.');
-  mid.append(acts, foot); requestAnimationFrame(() => { acts.classList.add('on'); foot.classList.add('on'); });
-}
-function skip() { if (final || cur < 0) return; stop(); document.querySelectorAll('#stage .in, #stage .says').forEach(e => e.classList.add('on')); document.querySelectorAll('.wire').forEach(w => w.classList.add('drawn')); document.querySelectorAll('.link').forEach(l => l.classList.add('on')); const sc = S[cur], ex = explain(sc); if (ex.verdict === 'block') paintRed(); finish(sc, ex); }
+function finish() { final = true; }
+function skip() { if (final || cur < 0) return; stop(); document.querySelectorAll('#stage .in, #stage .says').forEach(e => e.classList.add('on')); document.querySelectorAll('.wire').forEach(w => w.classList.add('drawn')); document.querySelectorAll('.link').forEach(l => l.classList.add('on')); const sc = S[cur], ex = explain(sc); if (ex.verdict === 'block') paintRed(); finish(); }
 $('stage').addEventListener('click', e => { if (e.target.closest('button, a')) return; skip(); });
 $('back').onclick = back;
 $('prev').onclick = () => open(Math.max(0, cur - 1));
