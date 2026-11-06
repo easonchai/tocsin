@@ -2,7 +2,7 @@
 
 An append-only log of scam infrastructure on Ethereum that any light-client wallet verifies without trusting an RPC, an explorer, or a security vendor. Anyone writes flags under their own name. Nothing is ever removed. Wallets choose whose flags to believe through signed trust lists, and check every address on the device.
 
-Built at Devcon 8 and ETHGlobal Mumbai, 5 to 7 November 2026. Written up as an ERC draft, "Append-Only Threat Flag Log." Site: https://tocsin.eth.limo (once the content hash is set). Repo: https://github.com/easonchai/tocsin.
+Built at Devcon 8 and ETHGlobal Mumbai, 5 to 7 November 2026. Written up as an ERC draft, "Append-Only Threat Flag Log." Demo: https://tocsin-eth.vercel.app. Site: https://tocsin.eth.limo (once the content hash is set). Repo: https://github.com/easonchai/tocsin.
 
 ## The problem
 
@@ -247,6 +247,38 @@ The log has two state-changing functions and no others. Nothing in it runs on a 
 | `appendSigned(writer, leaves, deadline, nonce, sig)` | Any relayer | The writer sponsors the relayer, or runs its own, so its signing key never holds gas | The signed batch expires at its deadline and the writer's nonce is untouched, so the writer re-signs or sends `append` itself |
 
 Nobody can stop a writer: a relayer that refuses a batch is bypassed by sending `append` directly.
+
+## Write an agent that flags
+
+Any process with a key can be a writer. The detector in `scripts/agent/detector.mjs` is the template: it finds candidates, attaches on-chain evidence, appends them under its own key, and gets its own name and list. Keep the shape, replace the detection.
+
+The one function to write returns candidates. Each one needs the chain, the subject, a category from the ERC's table, the transaction that proves the subject's role, and the block it was seen in:
+
+```js
+async function findCandidates() {
+  // your detection here: a heuristic, a model, a feed you trust, a human queue
+  return [{
+    chainId: 1,
+    subject: '0x5126633bCFdb9E4A2FE7AB445394AE0a217f9120',
+    category: 'POISONING_OPERATOR',
+    evidence: '0x3725c75cfdcd2a59dc1721ded1001aa0a83123c1f63e52e0043de64565af9dce',
+    seenBlock: 21_904_118,
+    note: 'sent zero-value USDT to 212 addresses in 3 txs',
+  }];
+}
+```
+
+The template dedupes against what the writer already flagged, caps the batch, writes `docs/plan/demo/seed/detector.json`, then calls `append` on the log from the writer's key. The log assigns the sequence numbers and folds each flag into that writer's head. Nothing else in the repo has to know the writer exists.
+
+```
+node --env-file=scripts/.env scripts/agent/detector.mjs --dry               # find and print, append nothing
+node --env-file=scripts/.env scripts/agent/detector.mjs --limit 5           # append the first five new candidates
+node --env-file=scripts/.env scripts/agent/detector.mjs --source live       # the built-in zero-value-transfer heuristic on mainnet
+```
+
+The key is `DETECTOR_PRIVATE_KEY` in `scripts/.env`. Load it from a secret store into that variable; the file never holds it in a commit. The built-in live source is deliberately crude, which is why its writer sits at warn weight in `core.tocsin.eth`: a reader that follows it is warned, not blocked, until a second independent writer agrees.
+
+To be found by wallets, the writer needs a name and a list. Own `yourname.eth` on Sepolia, claim `yourname.tocsin.eth` from `site/claim.html` (or let `setup-all.mjs` do it with your key in a claimant slot), set the name's addr record to the writer key, and publish a `tocsin.list` text record naming the writer. The `publishList` function in `scripts/ens/setup-all.mjs` builds, signs and sets that record; point it at your name and resolver. From then on a wallet that adds your name to its followed lists syncs your flags and verifies them against the chain, with no call to you.
 
 ## Test and deploy the log
 
