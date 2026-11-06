@@ -13,7 +13,8 @@
 
 /* header slot */
 .demo .hdr { position: relative; display: flex; gap: 10px; align-items: center; }
-.demo .hdr-msg { margin: 0; position: absolute; right: 0; top: calc(100% + 6px); width: max-content; max-width: 420px; text-align: right; font: 400 12px/1.4 var(--mono); color: var(--paper-200); }
+/* floats over the page like the ⋯ menu, so it gets the menu's panel instead of bare text over the nav buttons */
+.demo .hdr-msg { margin: 0; position: absolute; right: 0; top: calc(100% + 8px); z-index: 20; width: max-content; max-width: 420px; padding: 8px 12px; background: var(--ink-800); border: var(--hair-strong); border-radius: var(--r); font: 400 12px/1.4 var(--mono); color: var(--paper-200); }
 .demo .hdr-msg.bad { color: var(--signal); }
 .demo .more { position: relative; }
 .demo .more summary { list-style: none; }

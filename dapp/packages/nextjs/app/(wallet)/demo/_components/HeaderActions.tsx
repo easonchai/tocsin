@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { sepolia } from "viem/chains";
 import { useAccount } from "wagmi";
@@ -74,6 +74,12 @@ const Overflow = () => {
 export const HeaderActions = () => {
   const { connector } = useAccount();
   const [message, setMessage] = useState<{ text: string; bad?: boolean }>();
+  // A success note clears itself; an error stays until the next try so the presenter can read it.
+  useEffect(() => {
+    if (!message || message.bad) return;
+    const t = setTimeout(() => setMessage(undefined), 4000);
+    return () => clearTimeout(t);
+  }, [message]);
 
   return (
     <div className="hdr">
