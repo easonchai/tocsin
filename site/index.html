@@ -25,6 +25,7 @@
       tocsin
     </a>
     <div class="nav-links">
+      <a href="#minute">In one minute</a>
       <a href="#why">Why</a>
       <a href="#how">How it works</a>
       <a href="#trust">Trust</a>
@@ -40,7 +41,7 @@
     <div class="left">
       <div class="eyebrow rv">ERC draft · Append-Only Threat Flag Log</div>
       <h1 class="rv d1">Your wallet checked<br>Ethereum <em>itself.</em></h1>
-      <p class="lede rv d2">An append-only on-chain log of scam infrastructure that any light-client wallet verifies without trusting an RPC, an explorer, or a vendor. The first wallet bitten immunizes every wallet that syncs.</p>
+      <p class="lede rv d2">Every wallet asks a company whether an address is safe. That company can be hacked, bought, or lied to, and it sees who is asking. Tocsin is a log of scam infrastructure on Ethereum that nobody can edit, and a reader your wallet runs to prove it against Ethereum itself. The endpoint cannot lie to you, and cannot tell it is you.</p>
       <div class="ctas rv d2">
         <a class="btn primary" href="erc.html">Read the ERC draft <span class="arrow">→</span></a>
         <a class="btn" href="https://github.com/easonchai/tocsin#demo">Demo <span class="arrow">↗</span></a><!-- TODO: replace with the live demo URL -->
@@ -67,12 +68,44 @@
   </div>
 </header>
 
+<section id="minute">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">In one minute</div>
+      <h2>Not a list. A log nobody can edit, and a wallet that checks it without asking anyone.</h2>
+      <p class="lede">Three parts: a contract, a reader, and a standard. The contract is deliberately dumb. The reader is where the work is.</p>
+    </div>
+    <div class="minute rv">
+      <div>
+        <div class="eyebrow"><span class="n">1</span>What it is</div>
+        <h3>A log on Ethereum with no owner and no delete.</h3>
+        <p>Anyone can write a flag about an address under their own name. Nothing is ever removed, not by the writer, not by the scammer, not by us. Corrections are new entries. A reader that stops believing a writer drops the writer, and the record stays.</p>
+      </div>
+      <div>
+        <div class="eyebrow"><span class="n">2</span>Why it is not just a list</div>
+        <h3>The wallet never trusts the server that hands it the list.</h3>
+        <p>Every list before this had an owner who could edit it, a server that could lie, and a lookup that told the server who you are. Here the wallet syncs the flags of the writers it chose and checks addresses on the device. It never asks anyone about an address. An attacker cannot lie to you, and cannot tell it is you.</p>
+      </div>
+      <div>
+        <div class="eyebrow"><span class="n">3</span>How it knows without trusting anyone</div>
+        <h3>Prove the end of the chain, then replay to it.</h3>
+        <ol>
+          <li>The contract hashes every flag into a chain. The end of that chain, the head, sits in Ethereum's state.</li>
+          <li>The wallet's light client verifies a finalized block from validator signatures. No RPC is trusted.</li>
+          <li>One storage proof against that block gives the wallet the head of every writer it follows.</li>
+          <li>It downloads the flags from anywhere, even a lying RPC, and replays them. They land on the proven head or they do not. Landing means real and complete. Not landing means unverifiable, never clean.</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section id="why">
   <div class="wrap">
     <div class="section-head">
       <div class="eyebrow">Why</div>
-      <h2>Every wallet asks a company whether to trust an address.</h2>
-      <p class="lede">Explorer labels, phishing databases, and simulation vendors each hold a private list, serve it from an API, and see every address you ask about. In a 2023 sample, 0.002% of detected phishing addresses carried an explorer label. A wallet that embeds a light client and refuses to trust an RPC still has to trust a label server. The one check that prevents the most common losses is the one check that stays unverifiable and non-private.</p>
+      <h2>A targeted attack needs a party that can lie, and a way to know it is you.</h2>
+      <p class="lede">Today's security lookups give an attacker both. Explorer labels, phishing databases, and simulation vendors each hold a private list, serve it from an API, and see every address you ask about. A compromised endpoint can lie to one victim and stay honest to everyone else, which is why nobody notices. In a 2023 sample, 0.002% of detected phishing addresses carried an explorer label. Even a wallet with a light client still trusts a label server for the one check that prevents the most common losses.</p>
     </div>
     <div class="argue rv">
       <div>
@@ -248,6 +281,10 @@
       <div class="r"><span class="label">Why on-chain at all?</span><p>Because the RPC can lie and the wallet still catches it. A label served from an API is trusted on the server's word. A head proven against a finalized state root and a leaf set replayed to that head is trusted on the chain's word. Nothing off-chain survives the demo where the RPC says “clean”.</p></div>
       <div class="r"><span class="label">Isn't this just Etherscan with extra steps?</span><p>On day one, almost. There will be one or two writers and one or two lists. The difference is that the record is public, forkable, and verifiable, any wallet can pick a different list, and no curator can erase another writer's flag. Year two has two curators. Etherscan never will.</p></div>
       <div class="r"><span class="label">What about fresh lookalike addresses?</span><p>We don't chase them. About 1 in 9,000 is ever paid, and they land within minutes. The local prefix/suffix check against your own history catches them. Tocsin flags the operator that planted the dust, so a synced wallet badges the planted entry the moment it arrives, on every chain that operator works.</p></div>
+      <div class="r"><span class="label">Can't someone fake a list and a head? Hashing is cheap.</span><p>Anyone can make a fake head in milliseconds. It is worthless, because the wallet never accepts a head from anyone. It reads the head out of Ethereum's state, under a storage proof checked against a finalized block its light client verified. For a fake head to pass, the attacker would need to forge that proof or forge the validators' signatures. Serving the real flags minus one fails too: a hash chain changes if any entry is removed, inserted, reordered, or edited.</p></div>
+      <div class="r"><span class="label">Does this remove trust, or just move it?</span><p>It removes the trust you never agreed to and keeps the trust you can see. Gone: the RPC, the vendor API, the mirror, the log operator. None of them can lie or withhold without the wallet noticing. Kept: Ethereum's finality, which every user already trusts, and the writers you chose to follow. The log proves what a writer said and that none of it was taken back. It cannot prove the writer was right. That is your list, and you can change it.</p></div>
+      <div class="r"><span class="label">Can it flag scam links and domains, not just addresses?</span><p>Not in this version, on purpose. Every category names on-chain evidence that proves the subject's role, which is what makes a flag checkable rather than an opinion. A phishing URL has no transaction to check against. If it is ever wanted, it is one new category with a hashed domain as the subject and an archived page as evidence; the contract does not change.</p></div>
+      <div class="r"><span class="label">Why not just use ENS?</span><p>We do, for names. Trust lists are published under maintainer names, and the wallet resolves them through the same verified state root it uses for the log. ENS cannot be the log: its records are mutable, a record is a current value with no commitment to what came before, and a name has one key. A flag log needs no delete path, a head that commits to the whole history, and many independent writers.</p></div>
       <div class="r"><span class="label">Who pays in year two?</span><p>A flag costs about 10,000 gas, so a year of 50,000 flags is a few hundred dollars at current mainnet fees, and writer-signed batches let any grant or relayer pay. The reader cost is a few megabytes a year, which is why scope is restricted. This is a public good aimed at SEAL and the EF's Trillion Dollar Security work, not a company.</p></div>
     </div>
   </div>

@@ -81,6 +81,12 @@ section { padding: 64px 0; }
 .argue > div { padding: 28px 0 8px; }
 .argue > div:first-child { border-right: var(--hair); padding-right: 40px; }
 .argue > div:last-child { padding-left: 40px; }
+.minute { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--gutter); }
+.minute > div { border-top: 1px solid var(--ink-700); padding-top: 18px; }
+.minute .eyebrow { margin-bottom: 14px; }
+.minute h3 { font-size: 22px; }
+.minute p, .minute li { color: var(--paper-200); font-size: 15px; line-height: 1.55; margin: 0; }
+.minute ol { margin: 0; padding-left: 20px; display: grid; gap: 8px; }
 .argue h3 { display: flex; align-items: center; gap: 10px; }
 .argue h3 .tag { font-family: var(--mono); font-size: 11px; padding: 2px 7px; border-radius: var(--r); border: 1px solid currentColor; font-weight: 500; letter-spacing: .06em; color: var(--ink-400); }
 .argue ul { margin: 14px 0 0; padding: 0; list-style: none; }
@@ -164,7 +170,7 @@ section.bleed { padding: 64px 0; }
   .hero .split { grid-template-columns: 1fr; }
   .hero .left { padding: 56px 0 32px; }
   .hero .right { border-left: 0; border-top: var(--hair); padding: 32px 0 48px; }
-  .argue, .privacy, .erc, .table-head, .rows .r, .scene, .section-head { grid-template-columns: 1fr; }
+  .argue, .privacy, .erc, .table-head, .rows .r, .scene, .section-head, .minute { grid-template-columns: 1fr; }
   .argue > div:first-child { border-right: 0; border-bottom: var(--hair); }
   .nav-links { display: none; }
   section { padding: 64px 0; }
