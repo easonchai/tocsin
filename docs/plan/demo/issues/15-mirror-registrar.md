@@ -8,7 +8,7 @@ Spec: this file. ERC: `erc/eip-draft_threat_flag_log.md`, Trust lists, publicati
 
 **Ethskills:** ship, security, addresses (per AGENTS.md; load before starting)
 
-**Status:** ready-for-agent
+**Status:** ready-for-human (deployed on Sepolia 6 Nov 2026; remaining: third-party claim demo)
 
 ## The rule
 
@@ -48,3 +48,17 @@ What the team keeps: ownership of `tocsin.eth` itself in the ETH registry, which
 ## Pitch line
 
 "Any security team that owns a .eth name already owns its slot under tocsin.eth. Claim it in one transaction. We cannot take it back: no account holds a dangerous role on the registry, and you can check that on-chain."
+
+## Comments
+
+6 Nov 2026, deployed on Sepolia by the maintainer key 0x36a279136adDde960599fcA356369C04A96D387E:
+
+- tocsin.eth registered: 0x9e8b2a8d9889f148d24010d25f708c03e5998b7ab1459b6b6e4569b62320ed0f
+- resolver proxy 0x1cBF0A41B77416381C6eEC40b703BBe4722519E6: 0x95668f78dd2b75fd5507d4d8fa4faaf225ebfbd64882c61ee0fac89bbad89aab
+- subregistry proxy 0x61F6B44C598d7171947eE059e1d486eDd6950b88: 0x5eb6bf2ef3559f776e869bd2286515f82db086c7a3f4f93963f3940269e7376f
+- setSubregistry: 0xfaafcb925eeee295aae651f0dc7d75ab62a343dfff8a3af5bbcf568964434809; setParent: 0x551a8c73b24ef0759f6b2ee40aa76c352001f4600f9fc7ba61ae8fdabf2840ce; tocsin.eth resolver: 0xf85cac5061921d776223d529c34ede2453736dd676ad74cb4b654412c79309ce
+- MirrorRegistrar 0x081d9c8ea86b6022c3e2f0a61f5c26cf9a7cb436: 0x173396d955c012e55266879b34f33472ba0dbcc5a427969a1a5bd5b9d70d831a; roles granted: 0xcf1e6c613233ae16806baa1544e3af75451c264a203d02de1554b4ed6c4f5aa6
+- core.tocsin.eth registered: 0x9ce57cacef83420b10939c51415b59dc59988fa935be3ef42f00c953dd1d2342; addr records: 0x5bab06d4fa2c8f47b94f666af461680834678ebaec89cd7ba5c023086b65eb32, 0x2bb5fe670213a400caa0506003b5c65828d1c2817ffdebcb98d5e3f1522b14b4
+- emancipation: 0x657f671b0701890804a788111e8041f6344117f8adf7226ef9a91ba8b2e7781c. Verified afterwards with cast: hasAssignees(0, dangerous) = false, registrar holds REGISTRAR|RENEW, core owner and resolver as expected.
+
+Acceptance still open: a claim from a second key (4-register-and-claim.mjs), and the ENS app check.
