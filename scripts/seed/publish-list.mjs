@@ -49,7 +49,8 @@ const prev = read(`${name}.list.json`);
 // version: one above whatever is higher, the last document we wrote or the record already on the name
 const decodeVersion = (rec) => { try { return rec && rec !== '0x' ? decodeAbiParameters([{ type: 'bytes32' }, { type: 'uint64' }, { type: 'bytes' }, { type: 'string' }], rec)[1] : 0n; } catch { return 0n; } };
 const onchain = await pub.readContract({ address: target.resolver, abi: ensAbi.resolver, functionName: 'text', args: [target.node, KEY] }).catch(() => '');
-const highest = [BigInt(Number(prev?.trustList?.version ?? 0)), decodeVersion(onchain)].reduce((a, b) => (a > b ? a : b));
+const legacy = await pub.readContract({ address: target.resolver, abi: ensAbi.resolver, functionName: 'text', args: [target.node, 'erc-threat-flag-log.list'] }).catch(() => ''); // records published before the key was renamed
+const highest = [BigInt(Number(prev?.trustList?.version ?? 0)), decodeVersion(onchain), decodeVersion(legacy)].reduce((a, b) => (a > b ? a : b));
 const version = arg('--version') ? BigInt(arg('--version')) : highest + 1n;
 
 // categories bitmap: bit i for category i, 1..8. Category 8 stays in; the ERC says readers warn, not block, on it.
