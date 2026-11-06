@@ -44,9 +44,9 @@ yarn workspace @tocsin/infra test
 yarn workspace @tocsin/infra seed
 ```
 
-- [ ] Check the printed chain, log, balances, and gas price, then type `SEED`. If it stops partway, read the printed hashes before rerunning: a rerun resends the first manual batch.
-- [ ] 3 transactions, 50 leaves. Hashes recorded, `Appended` events visible on Etherscan.
-- [ ] Writer sequences after seeding match the leaf counts the script sent.
+- [x] Check the printed chain, log, balances, and gas price, then type `SEED`. If it stops partway, read the printed hashes before rerunning: a rerun resends the first manual batch.
+- [x] 3 transactions, 50 leaves. Hashes recorded, `Appended` events visible on Etherscan.
+- [x] Writer sequences after seeding match the leaf counts the script sent. Manual 25, detector 25, global 51 (50 plus the smoke leaf). Hashes in ticket 06.
 
 ## 3. Trust list and mirror (demo 04)
 
