@@ -219,7 +219,8 @@ The resolver uses the same system and is not emancipated, on purpose. The mainta
 | `docs/claim-a-name.md` | How anyone claims `<label>.tocsin.eth` on Sepolia and publishes under it |
 | `docs/pitch/arguments.md` | Pitch copy: the supply-chain argument, fake heads, why not ENS, one-liners |
 | `docs/plan/demo/` | Demo spec, Snap UI spec, seed list, build tickets 01 to 15 |
-| `docs/plan/demo/runbook.md` | Commands and env var names to seed, relay, detect, mirror, lie, publish lists, and build the Snap and extension, plus where each judge check is shown |
+| `RUNBOOK.md` | Run the demo on a fresh clone: `./demo.sh`, then the beats in Kohaku and the Snap |
+| `docs/plan/demo/runbook.md` | Operator side: commands and env var names to seed, relay, detect, mirror, lie, publish lists, and build the extension, plus where each judge check is shown |
 | `docs/plan/log-contract/` | Contract spec and tickets |
 | `docs/wallet-integrations.md` | The three hosts: Kohaku, Snap, extension |
 | `docs/ideas/` | Parked ideas, such as the open-silicon signer |
@@ -283,6 +284,8 @@ The first should print `0xd9f882ccb806d16653f80dc459f533e23363936675d52e08f9ed7e
 For a local chain, SE-2's usual `yarn chain` and `yarn deploy` in `dapp/` deploy to the same address on anvil.
 
 ## Run things
+
+The demo, on a fresh clone: `./demo.sh`, then follow `RUNBOOK.md`. It needs Node 22, Chrome, and `tor-js-gateway` (or `TOCSIN_TRANSPORT=direct`); nothing else and no keys.
 
 Preview the site from the repo root:
 

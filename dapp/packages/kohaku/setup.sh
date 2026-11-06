@@ -49,7 +49,7 @@ cp "$DAPP/packages/nextjs/utils/harness/anonHelios.ts" "$DAPP/packages/nextjs/ut
 [[ -f "$DIR/key.pem" ]] || openssl genrsa -out "$DIR/key.pem" 2048 2>/dev/null
 EXTENSION_PUBLIC_KEY="$(openssl rsa -in "$DIR/key.pem" -pubout -outform DER 2>/dev/null | base64 | tr -d '\n')"
 
-# Demo values from docs/plan/demo/runbook.md. Every one is public; override any of them from the shell.
+# Demo values, the same ones ../../../demo.sh exports. Every one is public; override any of them from the shell.
 DIR="$DIR" \
 SEPOLIA_RPC_URL="${SEPOLIA_RPC_URL:-https://ethereum-sepolia-rpc.publicnode.com}" \
 BROWSER_EXTENSION_PUBLIC_KEY="$EXTENSION_PUBLIC_KEY" \

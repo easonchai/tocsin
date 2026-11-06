@@ -1,4 +1,6 @@
-# Demo runbook
+# Operator runbook
+
+To run the demo, use `RUNBOOK.md` at the repo root: one script starts Kohaku, the Snap and every server. This file is for the operator side: keys, deploy, seed, lists, ENS, the detector, and the two hosts without a package README.
 
 Everything a fresh clone needs to stand up the demo on Sepolia, in order. Every command was checked against the `scripts` in the package it names. Run `yarn install` once in `dapp/` first. Commands start in `dapp/` unless a step says otherwise.
 
@@ -35,30 +37,6 @@ Each package documents its names in a committed `.env.example`. Copy it to the i
 | `packages/nextjs/.env.local` | `NEXT_PUBLIC_HARNESS_SEPOLIA_CONSENSUS_RPC`, `NEXT_PUBLIC_HARNESS_SEPOLIA_EXECUTION_RPC`, `NEXT_PUBLIC_HARNESS_MAINNET_CONSENSUS_RPC`, `NEXT_PUBLIC_HARNESS_MAINNET_EXECUTION_RPC`, `NEXT_PUBLIC_HARNESS_TOR_GATEWAYS`, `NEXT_PUBLIC_HARNESS_WRITERS`. The keyless public defaults are in `.env.example`. The extension build reads this file too |
 
 The Snap and extension builds read their own `TOCSIN_*` settings from the shell, listed in their steps. Whatever they read is bundled into `dist/`, so give them keyless RPC URLs only.
-
-## Servers on the demo laptop
-
-Nothing here is a backend of ours. Each server either hosts static files the reader verifies, or is a dev tool. Start only the rows the thing you're showing needs.
-
-| Server | Command, from `dapp/` | Listens on | Needed for | Why |
-| --- | --- | --- | --- | --- |
-| Static site with CORS | the `python3` command below | `127.0.0.1:8000` | Snap, extension, Kohaku, `eval --source mirror` | All three ENS list records point their `listURI` at `http://localhost:8000/lists/*.json`, and the lists point `snapshotURI` at `/mirror/*.json` there. A host syncing a list fetches its document from here. If it's down, a fresh install can't accept any list, and an installed Snap keeps its pins and shows "Last check: stale" |
-| Snap dev server | `yarn workspace @tocsin/snap start` with the build settings from step 7 | `localhost:8080` | Installing or reinstalling the Snap | Flask installs `local:http://localhost:8080` from here. `start` rebuilds and serves on every save, but Flask doesn't hot reload: reinstall to pick up a change. `serve` serves `dist/` without rebuilding. Once installed, the Snap runs without it |
-| Lying proxy | `yarn workspace @tocsin/infra lying-proxy` | `127.0.0.1:8550` | Beat 2, in the Snap and at the command line | Forwards to `RPC_URL` but drops the drainer flag, so the reader shows "chain mismatch at sequence 1" |
-| Next.js | `yarn start` | `localhost:3000` | The `/harness` page and the dapp | Boots Helios and the Anon-RPC worker in the page. The Snap and the CLI don't use it |
-| Tor gateway | `tor-js-gateway` | UDP `12298` | Tor in the harness and the extension | Browsers can't open raw TCP to Tor relays. See "Local Tor gateway" in step 9. Nym and the Snap don't use it |
-| Detector | `yarn workspace @tocsin/infra detect` | none | Live lookalike flags, step 5 | Watches Sepolia and appends flags. The beats work without it |
-
-The static site, from `dapp/`. `python3 -m http.server` won't do, because it sends no `access-control-allow-origin` header and the Snap fetches cross-origin:
-
-```sh
-python3 -c 'import http.server as h, functools as f
-class H(h.SimpleHTTPRequestHandler):
-    def end_headers(s): s.send_header("Access-Control-Allow-Origin", "*"); super().end_headers()
-h.ThreadingHTTPServer(("127.0.0.1", 8000), f.partial(H, directory="../site")).serve_forever()'
-```
-
-For the Snap test in Flask, run the static site and the Snap dev server, plus the lying proxy for beat 2.
 
 ## 1. Deploy the log
 
@@ -155,19 +133,9 @@ yarn workspace @tocsin/infra eval 0xCd2698C9c9b2b69625DD2a56252190647F34913d --s
 
 Expect `block`, then `unavailable, chain mismatch at sequence 1`, then `block`, then `warn`.
 
-## 7. The Snap
+## 7. The Snap and Kohaku
 
-Production MetaMask installs only allowlisted Snaps, so use MetaMask Flask in a fresh Chrome profile.
-
-```sh
-TOCSIN_LIST_NAME=<team name> TOCSIN_LOG_FROM_BLOCK=<deploy block> yarn workspace @tocsin/snap build
-yarn workspace @tocsin/snap test
-yarn workspace @tocsin/snap serve
-```
-
-Optional build settings: `TOCSIN_RPC_URL`, a keyless https Sepolia RPC, defaulting to publicnode. Set it to `https://0xrpc.io/sep`: publicnode's backends lag each other by about a block, so a proof at "latest" fails with "block not found" about 1 time in 6, and the Snap shows "proof request for 2 writers failed". 0xrpc.io passed 10 of 10 and serves the log scan and CORS (2026-11-06). `TOCSIN_LIST_RECORD`, which replaces the ENS lookup for a rehearsal before the name exists. `serve` listens on http://localhost:8080. Ticket 12's Comments give the install call and the acceptance steps. In Flask: Menu, Snaps, Tocsin opens the home page from `docs/plan/demo/snap-ui.md`. Settings opens the same page. Its Network section holds the one RPC URL, used for the header, proofs, ENS and flags. The three beats switch that URL: honest RPC, the lying proxy at `http://127.0.0.1:8550`, then back to the honest RPC and Retry sync.
-
-The Snap checks against every followed list. A block from any followed list blocks. `TOCSIN_LIST_NAME` takes comma-separated names, followed by default and pinned silently on first sync. The home page's Add form takes any other ENS name and shows the maintainer and writer count in a dialog before pinning. A list whose maintainer changes is excluded until the user presses Review on its card and accepts. An unfollowed list keeps its pin. For a rehearsal, `TOCSIN_LIST_RECORDS=a.eth=0x…,b.eth=0x…` replaces the ENS lookup per name. `TOCSIN_LIST_RECORD` still applies to the first default name. If Chrome blocks the Snap from reaching `127.0.0.1`, put the lying proxy behind an https tunnel and enter that as the RPC URL.
+Both are in the root `RUNBOOK.md`: `./demo.sh` builds them with the public defaults and starts their servers.
 
 ## 8. The extension
 
@@ -176,18 +144,7 @@ TOCSIN_LIST_NAME=<team name> TOCSIN_LOG_FROM_BLOCK=<deploy block> yarn workspace
 yarn workspace @tocsin/extension test
 ```
 
-`TOCSIN_TRANSPORT` is `tor` by default. Set it to `nym`, or to `direct` if the venue network blocks both. `direct` is not anonymised and the overlay says so. `TOCSIN_LIST_RECORD` works as in the Snap. The RPC and consensus endpoints come from `packages/nextjs/.env.local`. The Sepolia execution RPC depends on the transport, as in step 9. Rebuild after changing it, because the build bakes it in. Tor needs the local gateway running. Load `packages/extension/dist` unpacked at `chrome://extensions`. Ticket 13's Comments give the acceptance steps.
-
-### Kohaku
-
-Kohaku with Tocsin is not a workspace. It is two patches on upstream Kohaku, applied by a script, with Node 22.12 or later 22.x:
-
-```sh
-packages/kohaku/setup.sh
-cd packages/kohaku/kohaku-extension && YARN_IGNORE_PATH=1 npx yarn@1.22.22 web:webkit
-```
-
-Load `packages/kohaku/kohaku-extension/build/webkit-dev` unpacked. It needs the static site, the local Tor gateway from step 9 (start it first; Tocsin's reads go through the tor-js Anon-RPC worker and the first sync waits for it, about 30 seconds), and, for beat 2, the lying proxy. `packages/kohaku/README.md` has the settings, the beats and how to update the patches. A sync over Tor can fail once with "request to 0xrpc.io failed" while a circuit is built; press Sync now again.
+`TOCSIN_TRANSPORT` is `tor` by default. Set it to `nym`, or to `direct` if the venue network blocks both. `direct` is not anonymised and the overlay says so. `TOCSIN_LIST_RECORD` works as in the Snap. The RPC and consensus endpoints come from `packages/nextjs/.env.local`. The Sepolia execution RPC depends on the transport, as in step 9. Rebuild after changing it, because the build bakes it in. Tor needs the local gateway running (`./demo.sh` starts it, or run `tor-js-gateway` yourself) and `NEXT_PUBLIC_HARNESS_TOR_GATEWAYS=127.0.0.1:12298:<the certhash it prints>` in `packages/nextjs/.env.local`. Load `packages/extension/dist` unpacked at `chrome://extensions`. Ticket 13's Comments give the acceptance steps.
 
 ## 9. The harness page
 
@@ -195,7 +152,7 @@ Load `packages/kohaku/kohaku-extension/build/webkit-dev` unpacked. It needs the 
 yarn start
 ```
 
-Open http://localhost:3000/harness. It boots Helios, bootstraps the Anon-RPC worker through it, and proves `writerHead` and `writerSeq` for the writers in `NEXT_PUBLIC_HARNESS_WRITERS`. Tor needs the local gateway below. Keep Nym as the live switch.
+Open http://localhost:3000/harness. It boots Helios, bootstraps the Anon-RPC worker through it, and proves `writerHead` and `writerSeq` for the writers in `NEXT_PUBLIC_HARNESS_WRITERS`. Tor needs the local gateway and the `NEXT_PUBLIC_HARNESS_TOR_GATEWAYS` setting as in step 8. Keep Nym as the live switch.
 
 Set the Sepolia execution RPC by transport (`NEXT_PUBLIC_HARNESS_SEPOLIA_EXECUTION_RPC`, or the field on the page):
 
@@ -204,36 +161,6 @@ Set the Sepolia execution RPC by transport (`NEXT_PUBLIC_HARNESS_SEPOLIA_EXECUTI
 | Tor | `https://0xrpc.io/sep` | Tenderly answers Tor exits with 403 |
 | Nym | `https://sepolia.gateway.tenderly.co` | the Nym worker drops request headers, and 0xrpc.io answers 415 without a content-type |
 | direct | `https://0xrpc.io/sep` | serves finalized proofs |
-
-### Local Tor gateway
-
-Browsers cannot open the raw TCP that Tor uses, so tor-js dials a gateway over KPS (WebRTC on UDP 12298). The gateway forwards encrypted bytes to Tor relays and cannot read them. The public demo gateway `152.236.3.22:12298` was down on 2026-11-06, so we run our own on the demo laptop.
-
-Already done once on this Mac: the binary is at `~/.cargo/bin/tor-js-gateway`, and the config and identity key are in `~/Library/Application Support/tor-js-gateway/`. `.env.local` points at it. To restart:
-
-```sh
-tor-js-gateway          # own terminal; ready at "TorClient bootstrapped", about 10 s
-```
-
-Then set this in `packages/nextjs/.env.local` and restart `yarn start`:
-
-```
-NEXT_PUBLIC_HARNESS_TOR_GATEWAYS=127.0.0.1:12298:uEiDmYGjwNwrPIT33fsdOLp4inBsIhgiqQAEWvspt4G2uPQ
-```
-
-The certhash comes from `kps.key`, so it stays the same until that key file is deleted. A machine's LAN IP works too, but it changes with the network, and `127.0.0.1` doesn't. Start the gateway before the harness or the extension starts Tor.
-
-On a fresh machine, which needs Rust 1.91+, OpenSSL and SQLite:
-
-```sh
-git clone --depth 1 https://github.com/ethereum/tor-js && cd tor-js
-cargo build --release -p tor-js-gateway          # about 6 min
-cp target/release/tor-js-gateway ~/.cargo/bin/
-tor-js-gateway init                              # prints the certhash
-tor-js-gateway
-```
-
-Check it with the tor-js live demo at https://ethereum.github.io/tor-js/demo.html. Paste the address, then Connect, then Send request. It should return a Tor exit IP.
 
 ## 10. Live walkaway test
 
@@ -248,7 +175,7 @@ Run after steps 1 to 4 and 7. The offline version is the `walkaway` test in `pac
 
 ## Judge checks
 
-From the spec's "Judge checks, by prize". Kohaku fell through in ticket 02, so checks the spec places in Kohaku move to the extension and the harness page.
+From the spec's "Judge checks, by prize". Written when Kohaku was still a diagram; Kohaku now carries the Anon-RPC and ENS checks too (HANDOFF, "Kohaku state").
 
 | Check | Where it is shown | State |
 | --- | --- | --- |
