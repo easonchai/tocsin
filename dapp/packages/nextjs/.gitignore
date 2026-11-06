@@ -36,3 +36,15 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 ipfs-upload.config.json
+
+# Generated from canonical site/ and design/ sources by scripts/sync-site.mjs
+/app/_generated/
+/styles/landing.css
+/styles/scenes.css
+/styles/tokens.css
+/public/kit/
+/public/fonts/
+/public/screens/raw/
+/public/og.png
+/public/icon-512.png
+/public/favicon.svg

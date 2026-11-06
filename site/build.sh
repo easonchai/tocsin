@@ -4,7 +4,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 rm -rf dist && mkdir -p dist/kit dist/fonts
-cp site/index.html site/claim.html site/style.css site/trust.js dist/
+cp site/index.html site/claim.html site/style.css site/trust.js site/landing.js dist/
 cp site/fonts/* dist/fonts/
 cp design/kit/tokens.css design/kit/ringfield.js design/kit/scenes.js design/kit/scenes.css design/kit/favicon.svg design/kit/mark.svg design/kit/icon.svg dist/kit/
 cp design/screens/cover-1280x720.png dist/og.png

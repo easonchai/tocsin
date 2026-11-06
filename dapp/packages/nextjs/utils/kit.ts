@@ -7,6 +7,8 @@ export type Ringfield = {
 };
 
 type Tocsin = {
+  mountLanding?: () => () => void;
+  mountTrustTour?: () => () => void;
   ringfield: (canvas: HTMLCanvasElement, opts?: { seed?: number; state?: string; mask?: string | false }) => Ringfield;
   scene?: (el: Element, name: string) => { stop: () => void } | undefined;
 };
