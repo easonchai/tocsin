@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tocsin scenes</title>
+<link rel="icon" href="favicon.svg">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="scenes.css">
+<style>
+  .page { max-width: var(--max); margin: 0 auto; padding: 56px var(--gutter) 96px; }
+  header { display: flex; align-items: center; gap: 14px; margin-bottom: 48px; }
+  header .wordmark { font-size: 24px; }
+  header .label { margin-left: auto; }
+  .scene { display: grid; grid-template-columns: 240px 1fr; gap: 40px; padding: 40px 0; border-top: var(--hair); }
+  .scene h2 { font-size: 22px; }
+  .scene p { color: var(--paper-200); font-size: 14px; margin: 10px 0 0; max-width: 28ch; }
+  .frame { background: var(--ink-900); border: var(--hair); border-radius: var(--r); padding: 16px; }
+</style>
+</head>
+<body>
+<div class="page">
+  <header><img src="mark.svg" width="28" height="28" alt=""><span class="wordmark">tocsin</span><span class="label">scenes · each loops under 10s</span></header>
+  <div class="scene"><div><h2>1 · One bite, everyone immune</h2><p>A victim pays, a writer records it, the log keeps it forever, every wallet that syncs knows.</p></div><div class="frame" data-scene="append" aria-label="Writers append leaves into their own chains in the log"></div></div>
+  <div class="scene"><div><h2>2 · Your wallet checks Ethereum itself</h2><p>A proof from Ethereum, flags from anywhere, replayed until they match. Blocked on the device, nobody asked.</p></div><div class="frame" data-scene="prove" aria-label="The wallet proves a head and replays leaves to it"></div></div>
+  <div class="scene"><div><h2>3 · An RPC lies. The wallet notices</h2><p>The RPC says clean and drops a flag. The replay never reaches the proven head. Unverifiable, never clean.</p></div><div class="frame" data-scene="lie" aria-label="A lying RPC is caught by a chain mismatch"></div></div>
+</div>
+<script src="scenes.js"></script>
+</body>
+</html>

@@ -155,3 +155,18 @@ Trust assumptions, in order: the sync committee and the pinned weak-subjectivity
 ## License
 
 MIT for this repository. CC0 for everything under `erc/`, as the EIP process requires.
+
+## Website
+
+The landing page and ERC draft live in `site/`. Preview from the repo root with `python3 -m http.server 8732` and open `/site/`.
+
+To publish on ENS and IPFS (served at https://tocsin.eth.limo):
+
+```
+./site/build.sh                      # self-contained dist/ with relative paths
+ipfs add -r --cid-version 1 dist     # or upload dist/ to web3.storage, Pinata, or Fleek
+```
+
+Then set the `tocsin.eth` contenthash to `ipfs://<CID>` in the ENS manager. eth.limo resolves it with no further setup.
+
+Links in `site/index.html` marked `TODO` are placeholders: the demo URL, the Telegram group, and the X handle.

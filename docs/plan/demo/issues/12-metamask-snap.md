@@ -1,6 +1,6 @@
 # 12: MetaMask Snap
 
-Spec: `docs/plan/demo/spec.md`, Implementation decisions, Host 2: MetaMask Snap; Judge checks (the Snap does not claim Anon-RPC). `docs/wallet-integrations.md`, MetaMask Snap.
+Spec: `docs/plan/demo/spec.md`, Implementation decisions, Host 2: MetaMask Snap; Judge checks (the Snap does not claim Anon-RPC). `docs/wallet-integrations.md`, MetaMask Snap. UI, screen by screen: `docs/plan/demo/snap-ui.md`.
 
 **What to build:** A user installs the Snap in a clean MetaMask, pastes a flagged drainer receiver, and sees the panel block it before the confirm button, naming writer, category, and evidence and stating that verification is best-effort because the header comes from an RPC. A permit for a flagged spender gets the same treatment at signing. Without the Snap the same address shows nothing.
 

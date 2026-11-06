@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tocsin · MetaMask Snap screens</title>
+<link rel="icon" href="favicon.svg">
+<link rel="stylesheet" href="tokens.css">
+<style>
+  /* Page chrome is the Tocsin kit. The panels inside are MetaMask's dark theme, because a Snap inherits it and
+     cannot pick fonts or colours. Every panel is built only from components the Snaps SDK offers; see
+     docs/plan/demo/snap-ui.md for the component tree each one maps to. */
+  body { background: var(--ink-900); color: var(--paper-100); margin: 0; padding: 56px 40px 96px; }
+  .top { display: flex; align-items: center; justify-content: space-between; max-width: 1240px; margin: 0 auto 48px; }
+  .top .wordmark { display: flex; align-items: center; gap: 10px; font-size: 22px; }
+  .top .wordmark svg { width: 28px; height: 28px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 48px 40px; max-width: 1240px; margin: 0 auto; align-items: start; }
+  .cell h3 { font-size: 18px; margin: 0 0 6px; }
+  .cell > p { color: var(--paper-200); font-size: 14px; margin: 0 0 16px; max-width: 46ch; line-height: 1.5; }
+  .cell .note { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-400); margin-top: 12px; }
+
+  /* MetaMask dark theme tokens */
+  .mm { --bg: #24272a; --bg-alt: #141618; --bg-section: #2e3135; --fg: #ffffff; --fg-alt: #d6d9dc; --fg-muted: #9fa6ae; --border: #3b4046; --primary: #43aefc;
+        --err: #ff7584; --err-bg: #3a2228; --warn: #ffdf70; --warn-bg: #3a3222; --ok: #28a745; --ok-bg: #1e3326; --info: #43aefc; --info-bg: #1e2d3a;
+        width: 360px; background: var(--bg); color: var(--fg); border-radius: 12px; border: 1px solid var(--border); overflow: hidden;
+        font-family: "Euclid Circular B", "Inter", -apple-system, "Segoe UI", Roboto, sans-serif; font-size: 14px; line-height: 1.4; }
+  .mm * { box-sizing: border-box; }
+  .mm .bar { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid var(--border); font-size: 13px; color: var(--fg-alt); }
+  .mm .bar b { color: var(--fg); font-weight: 500; }
+  .mm .fox { width: 18px; height: 18px; border-radius: 50%; background: #f5841f; display: inline-block; vertical-align: -4px; margin-right: 8px; }
+  .mm .tabs { display: flex; border-bottom: 1px solid var(--border); padding: 0 16px; }
+  .mm .tabs span { padding: 10px 12px; color: var(--fg-muted); font-size: 13px; }
+  .mm .tabs span.on { color: var(--primary); border-bottom: 2px solid var(--primary); }
+  .mm .body { padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+  .mm .kv { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; }
+  .mm .kv span:first-child { color: var(--fg-muted); }
+  .mm .kv span:last-child { text-align: right; }
+  .mm .kv.err span:first-child { color: var(--err); }
+  .mm .kv.warn span:first-child { color: var(--warn); }
+  .mm .head { display: flex; align-items: center; gap: 8px; font-size: 18px; font-weight: 600; }
+  .mm .head svg { width: 20px; height: 20px; }
+  .mm .sub { font-size: 13px; margin-top: -6px; }
+  .mm .sub.err { color: var(--err); } .mm .sub.warn { color: var(--warn); } .mm .sub.muted { color: var(--fg-muted); }
+  .mm .banner { border-radius: 8px; padding: 12px 12px 12px 40px; position: relative; font-size: 13px; }
+  .mm .banner b { display: block; font-weight: 600; margin-bottom: 2px; }
+  .mm .banner::before { content: ""; position: absolute; left: 12px; top: 14px; width: 18px; height: 18px; border-radius: 50%; }
+  .mm .banner.danger { background: var(--err-bg); border-left: 4px solid var(--err); } .mm .banner.danger::before { background: var(--err); }
+  .mm .banner.warning { background: var(--warn-bg); border-left: 4px solid var(--warn); } .mm .banner.warning::before { background: var(--warn); }
+  .mm .banner.success { background: var(--ok-bg); border-left: 4px solid var(--ok); } .mm .banner.success::before { background: var(--ok); }
+  .mm .banner.info { background: var(--info-bg); border-left: 4px solid var(--info); } .mm .banner.info::before { background: var(--info); }
+  .mm .section { background: var(--bg-section); border-radius: 8px; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+  .mm .addr { display: inline-flex; align-items: center; gap: 6px; }
+  .mm .jazz { width: 16px; height: 16px; border-radius: 50%; background: conic-gradient(#f5841f, #43aefc, #28a745, #f5841f); }
+  .mm .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; }
+  .mm .link { color: var(--primary); }
+  .mm .lines { display: flex; flex-direction: column; gap: 2px; align-items: flex-end; }
+  .mm .lines small { color: var(--fg-muted); font-size: 11px; }
+  .mm hr { border: 0; border-top: 1px solid var(--border); margin: 2px 0; }
+  .mm .muted { color: var(--fg-muted); font-size: 12px; }
+  .mm .foot { display: flex; gap: 10px; padding: 12px 16px 16px; border-top: 1px solid var(--border); }
+  .mm .btn { flex: 1; padding: 11px; border-radius: 999px; text-align: center; font-weight: 500; font-size: 14px; border: 1px solid var(--primary); color: var(--primary); }
+  .mm .btn.primary { background: var(--primary); color: #141618; }
+  .mm .btn.sm { flex: 0 0 auto; padding: 7px 14px; font-size: 13px; }
+  .mm .btn.danger { border-color: var(--err); color: var(--err); }
+  .mm .spin { display: inline-block; width: 12px; height: 12px; border: 2px solid var(--fg-muted); border-top-color: transparent; border-radius: 50%; vertical-align: -2px; margin-right: 6px; animation: s 1s linear infinite; }
+  @keyframes s { to { transform: rotate(360deg); } }
+  .mm .card { background: var(--bg-section); border-radius: 8px; padding: 12px; display: flex; flex-direction: column; gap: 6px; }
+  .mm .card .t { font-weight: 600; }
+  .mm .card .d { color: var(--fg-muted); font-size: 12px; }
+  .mm .row-ctl { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 13px; }
+  .mm .chk { width: 34px; height: 20px; border-radius: 999px; background: var(--primary); position: relative; flex: 0 0 auto; }
+  .mm .chk::after { content: ""; position: absolute; top: 2px; right: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fff; }
+  .mm .chk.off { background: var(--border); } .mm .chk.off::after { right: auto; left: 2px; }
+  .mm .input { border: 1px solid var(--border); border-radius: 8px; padding: 9px 12px; color: var(--fg-muted); font-size: 13px; background: var(--bg); }
+  .mm .select { border: 1px solid var(--border); border-radius: 8px; padding: 9px 12px; font-size: 13px; display: flex; justify-content: space-between; }
+  .mm .radio { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+  .mm .radio i { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--fg-muted); display: inline-block; }
+  .mm .radio i.on { border-color: var(--primary); box-shadow: inset 0 0 0 3px var(--bg), inset 0 0 0 8px var(--primary); }
+  .mm h4 { margin: 4px 0 0; font-size: 13px; text-transform: uppercase; letter-spacing: .04em; color: var(--fg-muted); font-weight: 500; }
+  .mm .dialog { padding: 20px 16px 16px; display: flex; flex-direction: column; gap: 10px; }
+  .mm .dialog .head { font-size: 20px; }
+  @media (max-width: 760px) { body { padding: 32px 16px 64px; } .mm { width: 100%; } }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><g id="mark"><g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="square"><path d="M8.80 17.50C10.08 17.50 9.92 16.10 10.02 15.50C10.11 14.90 10.40 13.50 12.00 13.50C13.60 13.50 13.89 14.90 13.98 15.50C14.08 16.10 13.92 17.50 15.20 17.50"/><path d="M5.60 17.50C8.16 17.50 7.84 14.70 8.03 13.50C8.22 12.30 8.80 9.50 12.00 9.50C15.20 9.50 15.78 12.30 15.97 13.50C16.16 14.70 15.84 17.50 18.40 17.50"/><path d="M2.00 17.50C6.00 17.50 5.50 13.12 5.80 11.25C6.10 9.38 7.00 5.00 12.00 5.00C17.00 5.00 17.90 9.38 18.20 11.25C18.50 13.12 18.00 17.50 22.00 17.50" opacity=".5"/><path d="M2 18.5h20"/></g><circle cx="12" cy="15.6" r=".8" fill="currentColor"/></g></defs></svg>
+
+<div class="top">
+  <span class="wordmark"><svg viewBox="0 0 24 24"><use href="#mark"/></svg>tocsin</span>
+  <span class="label">MetaMask Snap · every state · spec in docs/plan/demo/snap-ui.md</span>
+</div>
+
+<div class="grid">
+
+  <!-- BLOCKED -->
+  <div class="cell">
+    <h3>1 · Blocked</h3>
+    <p>Transaction insight tab. Verdict first, then who flagged it and the evidence, then the sync and source rows. MetaMask's Reject button is the action; a Snap cannot disable Confirm.</p>
+    <div class="mm">
+      <div class="bar"><span><i class="fox"></i><b>Confirm transaction</b></span><span>Account 1</span></div>
+      <div class="tabs"><span>Details</span><span class="on">Tocsin</span><span>Hex</span></div>
+      <div class="body">
+        <div class="head"><svg viewBox="0 0 24 24"><use href="#mark"/></svg>Blocked</div>
+        <div class="sub err">Reject this transaction.</div>
+        <div class="banner danger"><b>Drainer receiver</b>This address receives funds forwarded by wallet drainers. Flagged by 2 of 2 lists you follow.</div>
+        <div class="section">
+          <div class="kv"><span>address</span><span class="addr"><i class="jazz"></i><span class="mono">0x7a3F…c91B</span></span></div>
+          <div class="kv"><span>role</span><span>recipient</span></div>
+          <div class="kv"><span>category</span><span class="mono">DRAINER_RECEIVER</span></div>
+          <div class="kv"><span>flagged by</span><span class="lines"><span>seal.tocsin.eth <small>· via seal list</small></span><span>scamsniffer.tocsin.eth <small>· via scamsniffer list</small></span></span></div>
+          <div class="kv"><span>evidence</span><span class="lines"><span class="mono link">0x31b7…9e02 ↗</span><span class="mono link">0x8d40…11af ↗</span></span></div>
+          <div class="kv"><span>seen</span><span>block 23,410,118 · 14 days ago</span></div>
+        </div>
+        <hr>
+        <div class="kv"><span>synced</span><span class="muted">41,207 flags · 2 writers · 4 min ago</span></div>
+        <div class="kv"><span>proven</span><span class="muted mono">head 0x9c4e…a1f0 · block 11,482,207</span></div>
+        <div class="kv"><span>source</span><span class="muted">rpc.sepolia.org · best effort, not a light client</span></div>
+        <div class="muted">Checked on this device. Nothing was sent to anyone.</div>
+      </div>
+      <div class="foot"><span class="btn">Reject</span><span class="btn primary">Confirm</span></div>
+    </div>
+    <div class="note">Banner danger · Row label error · Address · Link + Copyable</div>
+  </div>
+
+  <!-- WARNING -->
+  <div class="cell">
+    <h3>2 · Warning</h3>
+    <p>Flagged, but the user's policy wants two independent writers, or the category is warn-only. Same rows, amber banner, the banner says why it is not a block.</p>
+    <div class="mm">
+      <div class="bar"><span><i class="fox"></i><b>Confirm transaction</b></span><span>Account 1</span></div>
+      <div class="tabs"><span>Details</span><span class="on">Tocsin</span><span>Hex</span></div>
+      <div class="body">
+        <div class="head"><svg viewBox="0 0 24 24"><use href="#mark"/></svg>Warning</div>
+        <div class="sub warn">Check this address before you continue.</div>
+        <div class="banner warning"><b>Poisoning funder</b>This account funded addresses later used in address poisoning. Flagged by 1 of 2 lists you follow. Your policy blocks only on two independent writers.</div>
+        <div class="section">
+          <div class="kv"><span>address</span><span class="addr"><i class="jazz"></i><span class="mono">0x4bE9…0d27</span></span></div>
+          <div class="kv"><span>role</span><span>spender</span></div>
+          <div class="kv"><span>category</span><span class="mono">POISONING_FUNDER</span></div>
+          <div class="kv"><span>flagged by</span><span class="lines"><span>seal.tocsin.eth <small>· via seal list</small></span></span></div>
+          <div class="kv"><span>evidence</span><span class="mono link">0xa1c0…77e3 ↗</span></div>
+          <div class="kv"><span>seen</span><span>block 23,201,004 · 31 days ago</span></div>
+        </div>
+        <hr>
+        <div class="kv"><span>synced</span><span class="muted">41,207 flags · 2 writers · 4 min ago</span></div>
+        <div class="kv"><span>proven</span><span class="muted mono">head 0x9c4e…a1f0 · block 11,482,207</span></div>
+        <div class="kv"><span>source</span><span class="muted">rpc.sepolia.org · best effort, not a light client</span></div>
+        <div class="muted">Checked on this device. Nothing was sent to anyone.</div>
+      </div>
+      <div class="foot"><span class="btn">Reject</span><span class="btn primary">Confirm</span></div>
+    </div>
+    <div class="note">Banner warning · Row label warning</div>
+  </div>
+
+  <!-- NO FLAGS -->
+  <div class="cell">
+    <h3>3 · No flags</h3>
+    <p>Green only with the "checked against N lists, synced X ago" line under it. The word is never "safe" or "clean". Short, so the honesty line is still visible.</p>
+    <div class="mm">
+      <div class="bar"><span><i class="fox"></i><b>Confirm transaction</b></span><span>Account 1</span></div>
+      <div class="tabs"><span>Details</span><span class="on">Tocsin</span><span>Hex</span></div>
+      <div class="body">
+        <div class="head"><svg viewBox="0 0 24 24"><use href="#mark"/></svg>No flags</div>
+        <div class="banner success"><b>Not on any list you follow</b>Checked against 2 lists, 41,207 flags, synced 4 min ago.</div>
+        <div class="section">
+          <div class="kv"><span>checked</span><span class="lines"><span>recipient <span class="mono">0x8c1D…4e9a</span></span><span>spender <span class="mono">0x6812…0a3F</span></span></span></div>
+          <div class="kv"><span>lists</span><span>seal, scamsniffer</span></div>
+        </div>
+        <hr>
+        <div class="kv"><span>synced</span><span class="muted">41,207 flags · 2 writers · 4 min ago</span></div>
+        <div class="kv"><span>proven</span><span class="muted mono">head 0x9c4e…a1f0 · block 11,482,207</span></div>
+        <div class="kv"><span>source</span><span class="muted">rpc.sepolia.org · best effort, not a light client</span></div>
+        <div class="muted">Checked on this device. Nothing was sent to anyone.</div>
+      </div>
+      <div class="foot"><span class="btn">Reject</span><span class="btn primary">Confirm</span></div>
+    </div>
+    <div class="note">Banner success · no custom shield; SDK icon beside the heading if one exists</div>
+  </div>
+
+  <!-- UNVERIFIABLE -->
+  <div class="cell">
+    <h3>4 · Unverifiable</h3>
+    <p>The lying-RPC beat. Blue, not green, not red. Names the cause, keeps the last good state, offers Retry.</p>
+    <div class="mm">
+      <div class="bar"><span><i class="fox"></i><b>Confirm transaction</b></span><span>Account 1</span></div>
+      <div class="tabs"><span>Details</span><span class="on">Tocsin</span><span>Hex</span></div>
+      <div class="body">
+        <div class="head"><svg viewBox="0 0 24 24"><use href="#mark"/></svg>Unverifiable</div>
+        <div class="sub warn">Tocsin could not verify the flag log. Treat this address as unchecked.</div>
+        <div class="banner info"><b>The RPC's data does not match Ethereum</b>Replayed 41,206 flags from rpc.evil.example and the chain did not reach the head proven at block 11,482,207. One or more flags are missing or altered. Switch RPC in Tocsin settings.</div>
+        <div class="kv"><span>last good</span><span class="muted">41,207 flags · 2 h ago</span></div>
+        <div class="kv"><span>proven</span><span class="muted mono">head 0x9c4e…a1f0 · block 11,482,207</span></div>
+        <div class="kv"><span>replayed</span><span class="muted mono" style="color:var(--err)">0x4d01…be77 · seq 41,206 ✕</span></div>
+        <div class="kv"><span>source</span><span class="muted">rpc.evil.example · best effort, not a light client</span></div>
+        <div class="row-ctl"><span class="muted">Nothing was sent to anyone.</span><span class="btn sm">Retry sync</span></div>
+      </div>
+      <div class="foot"><span class="btn">Reject</span><span class="btn primary">Confirm</span></div>
+    </div>
+    <div class="note">Banner info · interactive Button → onUserInput → snap_updateInterface</div>
+  </div>
+
+  <!-- SYNCING -->
+  <div class="cell">
+    <h3>5 · Syncing overlay</h3>
+    <p>A sync is running when the panel opens. Show the cached verdict and one extra row; replace it when the sync finishes. Never block the panel on the sync.</p>
+    <div class="mm">
+      <div class="bar"><span><i class="fox"></i><b>Confirm transaction</b></span><span>Account 1</span></div>
+      <div class="tabs"><span>Details</span><span class="on">Tocsin</span><span>Hex</span></div>
+      <div class="body">
+        <div class="head"><svg viewBox="0 0 24 24"><use href="#mark"/></svg>No flags</div>
+        <div class="banner success"><b>Not on any list you follow</b>Checked against 2 lists, 41,207 flags, synced 18 min ago.</div>
+        <div class="section">
+          <div class="kv"><span>checked</span><span>recipient <span class="mono">0x8c1D…4e9a</span></span></div>
+          <div class="kv"><span>lists</span><span>seal, scamsniffer</span></div>
+        </div>
+        <hr>
+        <div class="kv"><span>sync</span><span class="muted"><i class="spin"></i>updating…</span></div>
+        <div class="kv"><span>source</span><span class="muted">rpc.sepolia.org · best effort, not a light client</span></div>
+        <div class="muted">Checked on this device. Nothing was sent to anyone.</div>
+      </div>
+      <div class="foot"><span class="btn">Reject</span><span class="btn primary">Confirm</span></div>
+    </div>
+    <div class="note">Spinner in a Row · cached verdict stays visible</div>
+  </div>
+
+  <!-- SIGNATURE -->
+  <div class="cell">
+    <h3>6 · Signature, flagged spender</h3>
+    <p>Permit and Permit2 typed data. MetaMask shows signature insight only at severity Critical, so this panel exists only when the spender is flagged. Clean permits show nothing, by MetaMask's design.</p>
+    <div class="mm">
+      <div class="bar"><span><i class="fox"></i><b>Signature request</b></span><span>Account 1</span></div>
+      <div class="tabs"><span>Message</span><span class="on">Tocsin</span></div>
+      <div class="body">
+        <div class="head"><svg viewBox="0 0 24 24"><use href="#mark"/></svg>Blocked</div>
+        <div class="sub err">Reject this signature.</div>
+        <div class="banner danger"><b>Drainer spender</b>This contract has used permits and approvals to drain wallets. Flagged by 2 of 2 lists you follow.</div>
+        <div class="section">
+          <div class="kv"><span>address</span><span class="addr"><i class="jazz"></i><span class="mono">0xB0c2…e4D1</span></span></div>
+          <div class="kv"><span>role</span><span>spender · Permit2</span></div>
+          <div class="kv"><span>category</span><span class="mono">DRAINER_SPENDER</span></div>
+          <div class="kv"><span>flagged by</span><span class="lines"><span>seal.tocsin.eth <small>· via seal list</small></span><span>scamsniffer.tocsin.eth <small>· via scamsniffer list</small></span></span></div>
+          <div class="kv"><span>evidence</span><span class="mono link">0xc9e8…2b10 ↗</span></div>
+        </div>
+        <hr>
+        <div class="kv"><span>synced</span><span class="muted">41,207 flags · 2 writers · 4 min ago</span></div>
+        <div class="kv"><span>source</span><span class="muted">rpc.sepolia.org · best effort, not a light client</span></div>
+        <div class="muted">Checked on this device. Nothing was sent to anyone.</div>
+      </div>
+      <div class="foot"><span class="btn">Reject</span><span class="btn primary">Sign</span></div>
+    </div>
+    <div class="note">onSignature · severity Critical · same block as 1</div>
+  </div>
+
+  <!-- HOME / SETTINGS -->
+  <div class="cell">
+    <h3>7 · Home page, which is settings</h3>
+    <p>MetaMask menu → Snaps → Tocsin. The only place a Snap can hold settings. Interactive UI: every control reports to onUserInput and the page redraws.</p>
+    <div class="mm">
+      <div class="bar"><span><i class="fox"></i><b>Tocsin</b></span><span>Snaps</span></div>
+      <div class="body">
+        <h4>Status</h4>
+        <div class="kv"><span>flags</span><span>41,207 across 2 writers</span></div>
+        <div class="kv"><span>proven head</span><span class="mono">0x9c4e…a1f0 · seq 41,207</span></div>
+        <div class="kv"><span>last sync</span><span>4 min ago</span></div>
+        <div class="kv"><span>source</span><span class="muted">rpc.sepolia.org · best effort</span></div>
+        <div class="row-ctl"><span></span><span class="btn sm">Sync now</span></div>
+
+        <h4>Lists</h4>
+        <div class="card"><span class="t">seal.tocsin.eth</span><span class="d">maintainer 0xD8Ac…81ec · 1 writer · version 3 · updated 2 days ago</span><div class="row-ctl"><span>Follow this list</span><i class="chk"></i></div><div class="row-ctl"><span></span><span class="btn sm danger">Remove</span></div></div>
+        <div class="card"><span class="t">scamsniffer.tocsin.eth</span><span class="d">maintainer 0x19fA…c004 · 1 writer · version 1 · updated 6 days ago</span><div class="banner warning" style="padding-left:40px"><b>Maintainer changed</b>Was 0x19fA…c004, now 0x77b1…2e9d. Excluded until you review.</div><div class="row-ctl"><span>Follow this list</span><i class="chk off"></i></div><div class="row-ctl"><span class="btn sm">Review</span><span class="btn sm danger">Remove</span></div></div>
+        <div class="input">Add a list by ENS name · name.tocsin.eth</div>
+        <div class="row-ctl"><span></span><span class="btn sm">Add</span></div>
+
+        <h4>Policy</h4>
+        <div class="kv"><span>Block when flagged by</span></div>
+        <div class="select"><span>2 independent writers</span><span>▾</span></div>
+        <div class="row-ctl"><span>POISONING_FUNDER · warn only</span><i class="chk"></i></div>
+        <div class="row-ctl"><span>THEFT_PROCEEDS · warn only</span><i class="chk"></i></div>
+        <div class="row-ctl"><span>Check approvals, permits and 7702 delegates</span><i class="chk"></i></div>
+
+        <h4>Network</h4>
+        <div class="radio"><i></i>MetaMask's network</div>
+        <div class="radio"><i class="on"></i>Custom RPC</div>
+        <div class="input">https://rpc.sepolia.org</div>
+        <div class="muted">This Snap cannot run a light client or route through anon-rpc. The RPC you pick can see which flags you download, never which address you check. Use Kohaku for full verification.</div>
+
+        <h4>About</h4>
+        <div class="muted">Tocsin is an open, append-only log of scam infrastructure on Ethereum. Flags come from writers on lists you choose. Nothing is ever removed.</div>
+        <div class="kv"><span class="link">Read the standard</span><span class="link">Source</span></div>
+        <div class="muted">v0.1.0 · Sepolia</div>
+      </div>
+    </div>
+    <div class="note">onHomePage · Card · Checkbox · Form + Input · Dropdown · RadioGroup · snap_dialog on maintainer change</div>
+  </div>
+
+  <!-- INSTALL -->
+  <div class="cell">
+    <h3>8 · After install</h3>
+    <p>One alert dialog after the first sync. The failure variant says what failed and that the Snap retries in the background.</p>
+    <div class="mm">
+      <div class="bar"><span><i class="fox"></i><b>Tocsin</b></span><span></span></div>
+      <div class="dialog">
+        <div class="head"><svg viewBox="0 0 24 24"><use href="#mark"/></svg>Tocsin is on</div>
+        <div>Every transaction and permit is now checked against 2 lists, 41,207 flags, on this device.</div>
+        <div class="muted">Open Tocsin from the Snaps menu to change lists or the RPC.</div>
+      </div>
+      <div class="foot"><span class="btn primary">OK</span></div>
+    </div>
+    <div class="note">onInstall → first sync → snap_dialog alert</div>
+  </div>
+
+</div>
+</body>
+</html>
