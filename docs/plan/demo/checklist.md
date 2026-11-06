@@ -197,5 +197,5 @@ Add `TOCSIN_TRANSPORT=direct` only if the network blocks Tor and Nym.
 
 ## 11. Wrap-up
 
-- [ ] Drop the "not yet deployed" sentence from the README CROPS section.
+- [x] Drop the "not yet deployed" sentence from the README CROPS section.
 - [ ] Right before the demo, rerun `yarn workspace @tocsin/infra mirror` and redeploy `site/`. Detector leaves make the mirror stale.

@@ -156,14 +156,15 @@ The following positions are normative, so that a storage proof can be constructe
 
 The canonical log SHOULD be deployed on Ethereum mainnet. A consensus light client verifies a mainnet state root from sync-committee signatures alone, so a proven slot is trustless. A light client for a rollup either trusts the sequencer's signature on recent blocks or waits for the rollup's state to be proven on L1, so a reader on any chain verifies the canonical log with a mainnet light client; the chain the user transacts on does not matter to the read.
 
-The log MUST be deployed through the deterministic deployment proxy at `0x4e59b44847b379578588920cA78FbF26c0B4956C` with salt `bytes32(0)` and the init code in the assets folder, so that the address is the same on every chain where it is deployed. The canonical address and runtime code hash will be recorded here once deployed. Other deployments are permitted; readers choose which they pin.
+The log MUST be deployed through the deterministic deployment proxy at `0x4e59b44847b379578588920cA78FbF26c0B4956C` with salt `bytes32(0)` and the init code in the assets folder, so that the address is the same on every chain where it is deployed. The canonical mainnet address and runtime code hash will be recorded here once deployed. Other deployments are permitted; readers choose which they pin.
 
-Testnet deployment (Sepolia, chain id 11155111), predicted and not yet broadcast:
+Testnet deployment (Sepolia, chain id 11155111):
 
 | Field | Value |
 | --- | --- |
 | Address | `0xB639d15A0E7aE24E4C32E851Fbe0E57585565b14` |
-| Runtime code hash | `0xd9f882ccb806d16653f80dc459f533e23363936675d52e08f9ed7e7ee56a4ea5`, measured on a fork of Sepolia; the runtime code embeds the chain id and address through immutables |
+| Deployment | transaction `0x10e8e5dab0c7571012fbdabddd9200bcedfb8fb68426452f1c5a55709e1061b8`, block 12074077; verified on Sourcify and Etherscan |
+| Runtime code hash | `0xd9f882ccb806d16653f80dc459f533e23363936675d52e08f9ed7e7ee56a4ea5`, read from Sepolia; the runtime code embeds the chain id and address through immutables |
 | Compiler | solc 0.8.28, optimizer on, 200 runs, EVM version `cancun`, default CBOR metadata |
 | ERC-7730 descriptors | [`calldata-ThreatFlagLog.json`](../dapp/packages/foundry/erc7730/calldata-ThreatFlagLog.json) for `append` and `appendSigned`, [`eip712-ThreatFlagLog.json`](../dapp/packages/foundry/erc7730/eip712-ThreatFlagLog.json) for `Append`; both move to the assets folder with the ERC PR. ERC-7730 v2 does not allow calldata and EIP-712 contexts in one file, so the descriptor is a pair |
 
