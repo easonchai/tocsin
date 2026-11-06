@@ -25,5 +25,8 @@
   "bugs": {
     "url": "https://github.com/easonchai/antibody/issues"
   },
-  "homepage": "https://github.com/easonchai/antibody#readme"
+  "homepage": "https://github.com/easonchai/antibody#readme",
+  "dependencies": {
+    "viem": "^2.57.16"
+  }
 }

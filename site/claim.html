@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Claim your name under tocsin.eth</title>
+<meta name="description" content="Own label.eth on ENSv2 Sepolia, claim label.tocsin.eth in one transaction. Nobody can take it back.">
+<link rel="icon" href="../design/kit/favicon.svg">
+<link rel="stylesheet" href="style.css">
+<style>
+  .claim { max-width: 760px; margin: 0 auto; padding: 56px 24px 96px; position: relative; z-index: 1; }
+  .claim h1 { font-size: clamp(34px, 5vw, 52px); margin: 10px 0 14px; }
+  .claim .lede { margin-bottom: 36px; }
+  .panel { background: var(--ink-800); border: var(--hair); border-radius: var(--r); padding: 22px 24px; margin-bottom: 20px; }
+  .panel h2 { font-size: 18px; margin: 0 0 14px; display: flex; align-items: center; gap: 12px; }
+  .panel h2 .n { font-family: var(--mono); font-size: 12px; color: var(--ink-400); letter-spacing: .08em; }
+  .row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  input[type=text] { font-family: var(--mono); font-size: 15px; padding: 10px 12px; background: var(--ink-900); color: var(--paper-100); border: 1px solid var(--ink-600); border-radius: var(--r); min-width: 220px; }
+  input[type=text]:focus { outline: none; border-color: var(--paper-200); }
+  .suffix { font-family: var(--mono); color: var(--ink-400); }
+  .status { font-family: var(--mono); font-size: 13px; color: var(--paper-200); margin-top: 12px; line-height: 1.7; white-space: pre-wrap; }
+  .status .ok { color: var(--paper-100); } .status .bad { color: var(--alert); } .status .amber { color: var(--signal); } .status .muted { color: var(--ink-400); }
+  .btn[disabled] { opacity: .45; pointer-events: none; }
+  .kv { display: grid; grid-template-columns: 160px 1fr; gap: 6px 16px; font-family: var(--mono); font-size: 13px; }
+  .kv span:first-child { color: var(--ink-400); }
+  .kv a { color: var(--paper-100); border-bottom: 1px solid var(--ink-600); }
+  .claims li { font-family: var(--mono); font-size: 13px; padding: 6px 0; border-bottom: var(--hair); display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .claims li span:last-child { color: var(--ink-400); }
+  .note { font-size: 14px; color: var(--ink-400); margin-top: 10px; }
+</style>
+</head>
+<body>
+<canvas id="field" aria-hidden="true"></canvas>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><g id="mark"><g fill="none" stroke="#ece7dc" stroke-width="1.4" stroke-linecap="square"><path d="M8.80 17.50C10.08 17.50 9.92 16.10 10.02 15.50C10.11 14.90 10.40 13.50 12.00 13.50C13.60 13.50 13.89 14.90 13.98 15.50C14.08 16.10 13.92 17.50 15.20 17.50"/><path d="M5.60 17.50C8.16 17.50 7.84 14.70 8.03 13.50C8.22 12.30 8.80 9.50 12.00 9.50C15.20 9.50 15.78 12.30 15.97 13.50C16.16 14.70 15.84 17.50 18.40 17.50"/><path d="M2.00 17.50C6.00 17.50 5.50 13.12 5.80 11.25C6.10 9.38 7.00 5.00 12.00 5.00C17.00 5.00 17.90 9.38 18.20 11.25C18.50 13.12 18.00 17.50 22.00 17.50" opacity=".5"/></g><path d="M2 18.5h20" stroke="#ece7dc" stroke-width="1.4" stroke-linecap="square"/><circle cx="12" cy="15.6" r=".8" fill="#ece7dc"/></g></defs></svg>
+
+<nav class="nav"><div class="wrap">
+  <a class="wordmark" href="index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#mark"/></svg>tocsin</a>
+  <div class="nav-links"><a href="index.html#minute">In one minute</a><a href="index.html#how">How it works</a><a href="https://github.com/easonchai/tocsin">GitHub</a></div>
+  <a class="btn" href="erc.html">ERC draft <span class="arrow">→</span></a>
+</div></nav>
+
+<main class="claim">
+  <div class="eyebrow">ENSv2 · Sepolia · live</div>
+  <h1>Own <em style="font-style:normal;color:var(--signal)">you.eth</em>? Claim you.tocsin.eth.</h1>
+  <p class="lede">One rule: whoever owns <code>label.eth</code> on ENSv2 Sepolia can claim <code>label.tocsin.eth</code>. One transaction. Nobody approves it, and nobody can take it back, which you can verify below before you spend gas.</p>
+
+  <section class="panel">
+    <h2><span class="n">01</span> Connect</h2>
+    <div class="row"><button class="btn primary" id="connect">Connect wallet</button><span class="status" id="acct" style="margin:0"></span></div>
+    <p class="note">Sepolia only. The page switches your wallet if needed. You pay gas; the name costs 8 test USDC, which the page mints for you.</p>
+  </section>
+
+  <section class="panel">
+    <h2><span class="n">02</span> Check a label</h2>
+    <div class="row"><input type="text" id="label" placeholder="yourname" autocomplete="off" spellcheck="false"><span class="suffix">.eth → .tocsin.eth</span><button class="btn" id="check">Check</button></div>
+    <div class="status" id="checkOut"></div>
+  </section>
+
+  <section class="panel">
+    <h2><span class="n">03</span> Register the .eth name if you do not own it</h2>
+    <div class="row"><button class="btn" id="register" disabled>Register label.eth</button></div>
+    <div class="status" id="regOut"></div>
+    <p class="note">Mint test USDC, approve, commit, wait 60 seconds, register. Five transactions. Skip this if you already own the name.</p>
+  </section>
+
+  <section class="panel">
+    <h2><span class="n">04</span> Claim</h2>
+    <div class="row"><button class="btn primary" id="claim" disabled>Claim label.tocsin.eth</button></div>
+    <div class="status" id="claimOut"></div>
+    <p class="note">Deploys your own Permissioned Resolver if you have none, calls <code>claim</code> on the MirrorRegistrar, sets the addr record. Up to three transactions.</p>
+  </section>
+
+  <section class="panel">
+    <h2><span class="n">05</span> Verify the guarantees, live</h2>
+    <div class="row"><button class="btn" id="verify">Read the registry</button></div>
+    <div class="kv" id="verifyOut" style="margin-top:12px"></div>
+    <p class="note">Read straight from the Sepolia contracts. "Emancipated" means no account holds a role that can change or remove any name in the registry.</p>
+  </section>
+
+  <section class="panel">
+    <h2><span class="n">06</span> Claimed so far</h2>
+    <ul class="claims" id="claims" style="list-style:none;padding:0;margin:0"></ul>
+  </section>
+
+  <p class="note">Addresses and source: <a href="https://github.com/easonchai/tocsin/blob/main/docs/claim-a-name.md" style="color:var(--paper-100)">docs/claim-a-name.md</a>. Prefer the terminal? <code>node --env-file=scripts/.env scripts/ens/4-register-and-claim.mjs label</code>.</p>
+</main>
+
+<script src="../design/kit/ringfield.js"></script>
+<script type="module">
+import { createPublicClient, createWalletClient, custom, http, parseAbi, keccak256, toHex, namehash, encodeFunctionData, decodeEventLog, parseAbiItem } from 'https://esm.sh/viem@2.57.16';
+import { sepolia } from 'https://esm.sh/viem@2.57.16/chains';
+
+const A = {
+  ETHRegistry: '0x67b728a792e789a8978b30cF1b3b641f19354b43', ETHRegistrar: '0xa4449a0dd2b83007553d9b1d28b583a46a805a30',
+  Factory: '0x118Bc31A50d559F7015a8Da26d54B3b030CdB70F', ResolverImpl: '0x7e4b2d59938930168024201752ee5503df402303',
+  USDC: '0xd3322b29a7bdee707d1684676f149bf41aa3422f', Hub: '0x61F6B44C598d7171947eE059e1d486eDd6950b88', Registrar: '0x081d9c8ea86b6022c3e2f0a61f5c26cf9a7cb436',
+};
+const abi = {
+  registry: parseAbi(['function findOwner(string label) view returns (address)', 'function findExpiry(string label) view returns (uint64)', 'function getStatus(uint256 anyId) view returns (uint8)', 'function getResolver(string label) view returns (address)', 'function hasAssignees(uint256 anyId, uint256 roleBitmap) view returns (bool)', 'function hasRootRoles(uint256 roleBitmap, address account) view returns (bool)']),
+  registrar: parseAbi(['function isAvailable(string label) view returns (bool)', 'function getRegisterPrice(string label, uint64 duration, address paymentToken) view returns (uint256 base, uint256 premium)', 'function makeCommitment(string label, address owner, bytes32 secret, address subregistry, address resolver, uint64 duration, bytes32 referrer) view returns (bytes32)', 'function MIN_COMMITMENT_AGE() view returns (uint64)', 'function commit(bytes32 commitment)', 'function register(string label, address owner, bytes32 secret, address subregistry, address resolver, uint64 duration, address paymentToken, bytes32 referrer) returns (uint256)']),
+  mirror: parseAbi(['function canClaim(string label, address account) view returns (bool)', 'function claim(string label, address resolver) returns (uint256 tokenId)', 'event Claimed(string label, address indexed owner, uint64 expiry, uint256 tokenId)']),
+  factory: parseAbi(['function deployProxy(address implementation, uint256 salt, bytes data) returns (address proxy)', 'event ProxyDeployed(address indexed sender, address indexed proxyAddress, uint256 salt, address implementation)']),
+  resolver: parseAbi(['function initialize(address admin, uint256 roleBitmap, bytes[] setters)', 'function setAddr(bytes32 node, address addr_)', 'function addr(bytes32 node) view returns (address)']),
+  usdc: parseAbi(['function mint(address to, uint256 amount)', 'function balanceOf(address) view returns (uint256)', 'function allowance(address owner, address spender) view returns (uint256)', 'function approve(address spender, uint256 value) returns (bool)']),
+};
+const adminOf = (r) => r << 128n, withAdmin = (...rs) => rs.reduce((a, r) => a | r | adminOf(r), 0n);
+const DANGEROUS = withAdmin(1n << 24n, 1n << 20n, 1n << 12n, 1n << 124n) | ((1n << 28n) << 128n);
+const RESOLVER_ROLES = withAdmin(1n << 0n, 1n << 4n, 1n << 8n, 1n << 12n, 1n << 16n, 1n << 20n, 1n << 24n, 1n << 28n, 1n << 124n);
+const ZERO = '0x0000000000000000000000000000000000000000', ZERO32 = '0x' + '00'.repeat(32);
+const YEAR = 365n * 24n * 3600n;
+
+const pub = createPublicClient({ chain: sepolia, transport: http('https://ethereum-sepolia-rpc.publicnode.com') });
+let wallet = null, account = null, label = '';
+const $ = (id) => document.getElementById(id);
+const say = (id, html, cls) => { const el = $(id); el.innerHTML += (cls ? `<span class="${cls}">${html}</span>` : html) + '\n'; };
+const clear = (id) => { $(id).innerHTML = ''; };
+const short = (a) => a.slice(0, 6) + '…' + a.slice(-4);
+const txlink = (h) => `<a href="https://sepolia.etherscan.io/tx/${h}" target="_blank" style="color:inherit">${short(h)}</a>`;
+
+async function send(out, what, req) {
+  const { request } = await pub.simulateContract({ account, ...req });
+  const hash = await wallet.writeContract(request);
+  say(out, `${what}: ${txlink(hash)} …`, 'muted');
+  const r = await pub.waitForTransactionReceipt({ hash });
+  if (r.status !== 'success') { say(out, `${what} reverted`, 'bad'); throw new Error(`${what} reverted`); }
+  say(out, `${what}: ok`, 'ok');
+  await settle(r.blockNumber);
+  return r;
+}
+async function settle(n) { for (let i = 0, ok = 0; i < 40 && ok < 3; i++) { const b = await pub.getBlockNumber({ cacheTime: 0 }).catch(() => 0n); ok = b >= n ? ok + 1 : 0; if (ok < 3) await new Promise((r) => setTimeout(r, 1500)); } }
+async function until(fn, accept, tries = 8) { let v; for (let i = 0; i < tries; i++) { v = await fn().catch(() => undefined); if (v !== undefined && accept(v)) return v; await new Promise((r) => setTimeout(r, 2500)); } return v; }
+
+$('connect').onclick = async () => {
+  if (!window.ethereum) { $('acct').innerHTML = '<span class="bad">No wallet found. Install MetaMask or Rabby.</span>'; return; }
+  const w = createWalletClient({ chain: sepolia, transport: custom(window.ethereum) });
+  [account] = await w.requestAddresses();
+  try { await w.switchChain({ id: sepolia.id }); } catch { try { await w.addChain({ chain: sepolia }); } catch {} }
+  wallet = createWalletClient({ account, chain: sepolia, transport: custom(window.ethereum) });
+  $('acct').innerHTML = `<span class="ok">${short(account)}</span> <span class="muted">on Sepolia</span>`;
+  if (label) $('check').click();
+};
+
+$('check').onclick = async () => {
+  label = $('label').value.trim().toLowerCase();
+  clear('checkOut'); $('register').disabled = true; $('claim').disabled = true;
+  if (!/^[a-z0-9-]{3,}$/.test(label)) { say('checkOut', 'Use at least three characters, letters, digits or hyphens.', 'bad'); return; }
+  $('register').textContent = `Register ${label}.eth`; $('claim').textContent = `Claim ${label}.tocsin.eth`;
+  const [ethOwner, hubOwner] = await Promise.all([
+    pub.readContract({ address: A.ETHRegistry, abi: abi.registry, functionName: 'findOwner', args: [label] }),
+    pub.readContract({ address: A.Hub, abi: abi.registry, functionName: 'findOwner', args: [label] }),
+  ]);
+  const mine = !!account && ethOwner.toLowerCase() === account.toLowerCase();
+  say('checkOut', `${label}.eth: ` + (ethOwner === ZERO ? '<span class="amber">available</span>' : `owned by <span class="${mine ? 'ok' : 'muted'}">${short(ethOwner)}${mine ? ' (you)' : ''}</span>`));
+  say('checkOut', `${label}.tocsin.eth: ` + (hubOwner === ZERO ? '<span class="amber">unclaimed</span>' : `claimed by <span class="ok">${short(hubOwner)}</span>`));
+  if (!account) { say('checkOut', 'Connect a wallet to continue.', 'muted'); return; }
+  const can = await pub.readContract({ address: A.Registrar, abi: abi.mirror, functionName: 'canClaim', args: [label, account] });
+  if (ethOwner === ZERO) { $('register').disabled = false; say('checkOut', 'Register the .eth name in step 03, then claim.', 'muted'); }
+  else if (can) { $('claim').disabled = false; say('checkOut', 'canClaim is true. Go to step 04.', 'ok'); }
+  else if (mine) say('checkOut', 'You own the .eth name but the subname is already claimed and unexpired.', 'bad');
+  else say('checkOut', 'Only the owner of that .eth name can claim its subname.', 'bad');
+};
+
+$('register').onclick = async () => {
+  clear('regOut'); $('register').disabled = true;
+  try {
+    const [base, premium] = await pub.readContract({ address: A.ETHRegistrar, abi: abi.registrar, functionName: 'getRegisterPrice', args: [label, YEAR, A.USDC] });
+    const price = base + premium, want = price + price / 10n;
+    say('regOut', `price: ${Number(price) / 1e6} test USDC for one year`, 'muted');
+    const bal = await pub.readContract({ address: A.USDC, abi: abi.usdc, functionName: 'balanceOf', args: [account] });
+    if (bal < want) await send('regOut', 'mint test USDC', { address: A.USDC, abi: abi.usdc, functionName: 'mint', args: [account, want - bal] });
+    const allowance = await pub.readContract({ address: A.USDC, abi: abi.usdc, functionName: 'allowance', args: [account, A.ETHRegistrar] });
+    if (allowance < want) await send('regOut', 'approve registrar', { address: A.USDC, abi: abi.usdc, functionName: 'approve', args: [A.ETHRegistrar, want] });
+    const secret = toHex(crypto.getRandomValues(new Uint8Array(32)));
+    const commitment = await pub.readContract({ address: A.ETHRegistrar, abi: abi.registrar, functionName: 'makeCommitment', args: [label, account, secret, ZERO, ZERO, YEAR, ZERO32] });
+    await send('regOut', 'commit', { address: A.ETHRegistrar, abi: abi.registrar, functionName: 'commit', args: [commitment] });
+    const minAge = Number(await pub.readContract({ address: A.ETHRegistrar, abi: abi.registrar, functionName: 'MIN_COMMITMENT_AGE' })) + 15;
+    for (let s = minAge; s > 0; s--) { $('regOut').lastChild && ($('regOut').lastChild.textContent = ''); say('regOut', `waiting ${s}s for the commitment to age…`, 'muted'); await new Promise((r) => setTimeout(r, 1000)); $('regOut').innerHTML = $('regOut').innerHTML.replace(/<span class="muted">waiting \d+s[^<]*<\/span>\n$/, ''); }
+    await send('regOut', `register ${label}.eth`, { address: A.ETHRegistrar, abi: abi.registrar, functionName: 'register', args: [label, account, secret, ZERO, ZERO, YEAR, A.USDC, ZERO32] });
+    const owner = await until(() => pub.readContract({ address: A.ETHRegistry, abi: abi.registry, functionName: 'findOwner', args: [label] }), (o) => o.toLowerCase() === account.toLowerCase());
+    say('regOut', `${label}.eth is yours (${short(owner)}). Claim it in step 04.`, 'ok');
+    $('claim').disabled = false;
+  } catch (e) { say('regOut', e.shortMessage || e.message, 'bad'); $('register').disabled = false; }
+};
+
+$('claim').onclick = async () => {
+  clear('claimOut'); $('claim').disabled = true;
+  try {
+    const can = await until(() => pub.readContract({ address: A.Registrar, abi: abi.mirror, functionName: 'canClaim', args: [label, account] }), (v) => v === true);
+    if (!can) throw new Error('canClaim is false: you must own the .eth name and the subname must be free');
+    const salt = BigInt(keccak256(toHex('tocsin-resolver-v1')));
+    const init = encodeFunctionData({ abi: abi.resolver, functionName: 'initialize', args: [account, RESOLVER_ROLES, []] });
+    const { result: resolver } = await pub.simulateContract({ account, address: A.Factory, abi: abi.factory, functionName: 'deployProxy', args: [A.ResolverImpl, salt, init] });
+    if (!(await pub.getCode({ address: resolver }))) await send('claimOut', 'deploy your resolver', { address: A.Factory, abi: abi.factory, functionName: 'deployProxy', args: [A.ResolverImpl, salt, init] });
+    say('claimOut', `your resolver: ${short(resolver)}`, 'muted');
+    const r = await send('claimOut', `claim ${label}.tocsin.eth`, { address: A.Registrar, abi: abi.mirror, functionName: 'claim', args: [label, resolver] });
+    for (const log of r.logs) { try { const ev = decodeEventLog({ abi: abi.mirror, data: log.data, topics: log.topics }); if (ev.eventName === 'Claimed') say('claimOut', `expiry ${new Date(Number(ev.args.expiry) * 1000).toISOString().slice(0, 10)}`, 'muted'); } catch {} }
+    await send('claimOut', 'set addr record', { address: resolver, abi: abi.resolver, functionName: 'setAddr', args: [namehash(`${label}.tocsin.eth`), account] });
+    say('claimOut', `done. <a href="https://sepolia.app.ens.domains/${label}.tocsin.eth" target="_blank" style="color:inherit">sepolia.app.ens.domains/${label}.tocsin.eth</a>`, 'ok');
+    say('claimOut', `to publish a list: set text key tocsin.list on your resolver for node ${namehash(`${label}.tocsin.eth`)}`, 'muted');
+    loadClaims();
+  } catch (e) { say('claimOut', e.shortMessage || e.message, 'bad'); $('claim').disabled = false; }
+};
+
+$('verify').onclick = async () => {
+  const out = $('verifyOut'); out.innerHTML = '<span>reading…</span><span></span>';
+  const [dangerous, registrar, sub, coreOwner, coreRes] = await Promise.all([
+    pub.readContract({ address: A.Hub, abi: abi.registry, functionName: 'hasAssignees', args: [0n, DANGEROUS] }),
+    pub.readContract({ address: A.Hub, abi: abi.registry, functionName: 'hasRootRoles', args: [(1n << 0n) | (1n << 16n), A.Registrar] }),
+    pub.readContract({ address: A.ETHRegistry, abi: abi.registry, functionName: 'getResolver', args: ['tocsin'] }).then(() => pub.readContract({ address: A.ETHRegistry, abi: parseAbi(['function getSubregistry(string label) view returns (address)']), functionName: 'getSubregistry', args: ['tocsin'] })),
+    pub.readContract({ address: A.Hub, abi: abi.registry, functionName: 'findOwner', args: ['core'] }),
+    pub.readContract({ address: A.Hub, abi: abi.registry, functionName: 'getResolver', args: ['core'] }),
+  ]);
+  const row = (k, v) => `<span>${k}</span><span>${v}</span>`;
+  out.innerHTML = [
+    row('emancipated', dangerous ? '<span class="bad">no, a dangerous root role is held</span>' : '<span class="ok">yes: hasAssignees(ROOT, dangerous) = false</span>'),
+    row('registrar roles', registrar ? '<span class="ok">MirrorRegistrar holds REGISTRAR + RENEW</span>' : '<span class="bad">missing</span>'),
+    row('tocsin.eth points at', `<a href="https://sepolia.etherscan.io/address/${sub}" target="_blank">${short(sub)}</a>${sub.toLowerCase() === A.Hub.toLowerCase() ? ' (the hub)' : ''}`),
+    row('core.tocsin.eth', `owner ${short(coreOwner)} · resolver ${short(coreRes)}`),
+    row('hub registry', `<a href="https://sepolia.etherscan.io/address/${A.Hub}" target="_blank">${A.Hub}</a>`),
+    row('MirrorRegistrar', `<a href="https://sepolia.etherscan.io/address/${A.Registrar}" target="_blank">${A.Registrar}</a>`),
+  ].join('');
+};
+
+async function loadClaims() {
+  const ul = $('claims'); ul.innerHTML = '<li><span class="muted">loading…</span></li>';
+  try {
+    const logs = await pub.getLogs({ address: A.Registrar, event: parseAbiItem('event Claimed(string label, address indexed owner, uint64 expiry, uint256 tokenId)'), fromBlock: 12075790n, toBlock: 'latest' });
+    ul.innerHTML = logs.length ? logs.reverse().map((l) => `<li><span>${l.args.label}.tocsin.eth</span><span>${short(l.args.owner)} · expires ${new Date(Number(l.args.expiry) * 1000).toISOString().slice(0, 10)}</span></li>`).join('') : '<li><span class="muted">none yet</span></li>';
+  } catch { ul.innerHTML = '<li><span class="muted">could not load</span></li>'; }
+}
+loadClaims();
+$('label').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('check').click(); });
+
+Tocsin.ringfield(document.getElementById('field'), { seed: 11, state: 'idle', mask: '.claim h1, .claim .lede, .panel' });
+</script>
+</body>
+</html>

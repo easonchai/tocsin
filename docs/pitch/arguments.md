@@ -69,3 +69,13 @@ ENS cannot be the log, for three reasons:
 - ENS is one key per name. A flag log needs many independent writers, each with their own chain, so a reader can pick which to believe and prove them all with one storage proof.
 
 The sentence: "ENS tells you who the maintainer is. The log proves what they said and that none of it was taken back."
+
+## "So it's a list on chain"
+
+No. There is no list in the contract. Nothing is stored per flag. The contract keeps one running hash per writer, the head, and a count. Append means fold: `head = keccak(head, hash(flag))`, emit the flag as an event, forget it. Thirty-two bytes in, thirty-two bytes out.
+
+A fold has one direction, and the contract has no operation that produces a head any other way. Edit, remove, insert, reorder: none of them can be expressed. Append-only is not a permission we enforce. It is the only move that exists.
+
+The wallet proves the head from a block header, fetches the events from anyone, folds them itself, and compares 32 bytes. Match means complete and untouched. Mismatch means lied to.
+
+The line: "The log does not remember your flags. It remembers a fingerprint of everything ever said, and the only way to touch that fingerprint is to say one more thing."
