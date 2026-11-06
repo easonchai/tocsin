@@ -189,7 +189,6 @@ function Unverifiable({ state, assessments, chainId, retry }: { state: State; as
   const diverged = Object.values(state.sync?.writers ?? {}).filter((w) => w.status === "unavailable" && w.divergedAt !== undefined);
   return (
     <Box>
-      <Title text="Unverifiable" />
       <Text color="warning">Tocsin could not verify the flag log. Treat this address as unchecked.</Text>
       <Banner severity="info" title={c.title}>
         <Text>{c.body}</Text>
@@ -309,7 +308,6 @@ export function Panel({ state, assessments, chainId, signing = false }: PanelPro
     const lists = Object.entries(state.lists).filter(([, l]) => usable(l)).map(([n]) => n);
     return (
       <Box>
-        <Title text="No flags" />
         <Banner severity="success" title="Not on any list you follow">
           <Text>{`Checked against ${plural(lists.length, "list")}, ${num(state.sync ? flagCount(state.sync) : 0)} flags, synced ${state.syncedAt ? ago(state.syncedAt) : "never"}.`}</Text>
         </Banner>
@@ -334,7 +332,6 @@ export function Panel({ state, assessments, chainId, signing = false }: PanelPro
   const flagged = assessments.filter((a) => a.evaluation.findings.length > 0).sort((x, y) => RANK[y.evaluation.verdict] - RANK[x.evaluation.verdict]);
   return (
     <Box>
-      <Title text={block ? "Blocked" : "Warning"} />
       <Text color={block ? "error" : "warning"}>{block ? `Reject this ${signing ? "signature" : "transaction"}.` : "Check this address before you continue."}</Text>
       <Notes state={state} chainId={chainId} />
       {flagged.map((a) => (

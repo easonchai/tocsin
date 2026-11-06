@@ -263,8 +263,8 @@ test("install with no list: the alert says the first sync failed, and the panel 
   has(text(dialogs[0]), ["Tocsin is on", "First sync failed: follow at least one list"]);
   const r = await send(DRAINER);
   assert.equal(r.severity, undefined);
-  has(r.ui, ["Unverifiable", "Tocsin has not synced yet", "Retry sync", "best effort, not a light client"]);
-  assert.doesNotMatch(r.ui, /No flags/);
+  has(r.ui, ["Treat this address as unchecked.", "Tocsin has not synced yet", "Retry sync", "best effort, not a light client"]);
+  assert.doesNotMatch(r.ui, /Not on any list you follow/);
 });
 
 test("adding a list asks first with its maintainer and writer count; a no pins nothing", async () => {
@@ -282,7 +282,6 @@ test("beat 1: a yes pins and syncs; the drainer receiver is blocked with writer,
   const r = await send(DRAINER);
   assert.equal(r.severity, "critical");
   has(r.ui, [
-    "Blocked",
     "Reject this transaction.",
     "Drainer receiver",
     "DRAINER_RECEIVER",
@@ -302,13 +301,13 @@ test("the detector shows as a shortened address without a verified name", async 
 test("an address no list flags shows No flags with what was checked", async () => {
   const r = await send(CLEAN);
   assert.equal(r.severity, undefined);
-  has(r.ui, ["No flags", "Not on any list you follow", "Checked against 1 list, 3 flags", "recipient 0xc1ea…0001", "tocsin.eth"]);
+  has(r.ui, ["Not on any list you follow", "Checked against 1 list, 3 flags", "recipient 0xc1ea…0001", "tocsin.eth"]);
 });
 
 test("one weight-1 writer is a warning, and the banner says why it is not a block", async () => {
   const r = await send(SUSPECT);
   assert.equal(r.severity, undefined);
-  has(r.ui, ["Warning", "Check this address before you continue.", "Flagged by 1 writer on tocsin.eth", "Your policy blocks only on a weight-255 writer or two independent writers."]);
+  has(r.ui, ["Check this address before you continue.", "Flagged by 1 writer on tocsin.eth", "Your policy blocks only on a weight-255 writer or two independent writers."]);
 });
 
 test("on another chain a Sepolia-only flag does not count, and the panel names the chain", async () => {
@@ -325,7 +324,7 @@ test("signatures: a flagged spender is critical with 'Reject this signature', a 
   has(text(r.content), ["Reject this signature.", "DRAINER_SPENDER", "EIP-2612 permit spender"]);
   const w = await sign(SUSPECT);
   assert.equal(w.severity, "critical");
-  assert.match(text(w.content), /Warning/);
+  assert.match(text(w.content), /Check this address before you continue\./);
   assert.equal(await sign(CLEAN), null);
   assert.equal(await h.onSignature!({ signature: { from: CLEAN, signatureMethod: "personal_sign", data: "0x00" } }), null);
 });
@@ -348,7 +347,7 @@ test("policy: one writer blocks at threshold 1, a warn-only category warns, appr
   assert.equal((await send(SUSPECT)).severity, undefined);
 
   await change("warnOnly:3", true);
-  has((await send(DRAINER)).ui, ["Warning", "Your policy makes DRAINER_RECEIVER warn only."]);
+  has((await send(DRAINER)).ui, ["Check this address before you continue.", "Your policy makes DRAINER_RECEIVER warn only."]);
   await change("warnOnly:3", false);
   assert.equal((await send(DRAINER)).severity, "critical");
 
@@ -368,8 +367,8 @@ test("beat 2: with the lying RPC the panel is unverifiable at the dropped sequen
   for (const subject of [DRAINER, CLEAN]) {
     const r = await send(subject);
     assert.equal(r.severity, undefined);
-    has(r.ui, ["Unverifiable", "The RPC's data does not match Ethereum", "manual.tocsin.eth · chain mismatch at sequence 1", "last good", "liar.test", "Retry sync"]);
-    assert.doesNotMatch(r.ui, /No flags|Blocked/);
+    has(r.ui, ["Treat this address as unchecked.", "The RPC's data does not match Ethereum", "manual.tocsin.eth · chain mismatch at sequence 1", "last good", "liar.test", "Retry sync"]);
+    assert.doesNotMatch(r.ui, /Not on any list you follow|Reject this transaction/);
     if (subject === DRAINER) drainerPanel = r.id;
   }
 });
@@ -378,8 +377,8 @@ test("beat 3: switch back, Retry sync on the open panel, Blocked again", async (
   await home();
   await setRpc("https://rpc.test/");
   await input(drainerPanel, { type: "ButtonClickEvent", name: "retry" });
-  has(uiOf(drainerPanel), ["Blocked", "manual.tocsin.eth"]);
-  assert.doesNotMatch(uiOf(drainerPanel), /Unverifiable/);
+  has(uiOf(drainerPanel), ["Reject this transaction.", "manual.tocsin.eth"]);
+  assert.doesNotMatch(uiOf(drainerPanel), /Treat this address as unchecked/);
 });
 
 test("a changed maintainer: no dialog from the cron, the list is excluded, and Review asks", async () => {
@@ -392,7 +391,7 @@ test("a changed maintainer: no dialog from the cron, the list is excluded, and R
   has(ui, ["Maintainer changed", `Was ${before.slice(0, 6)}`, `now ${world.list.maintainer.slice(0, 6)}`, "Excluded until you review", "review:tocsin.eth"]);
   const r = await send(DRAINER);
   assert.equal(r.severity, undefined);
-  has(r.ui, ["Unverifiable", "No list to check against", "Not checked: tocsin.eth (its maintainer changed"]);
+  has(r.ui, ["Treat this address as unchecked.", "No list to check against", "Not checked: tocsin.eth (its maintainer changed"]);
 
   dialogAnswer = false;
   await click("review:tocsin.eth");
@@ -464,7 +463,7 @@ test("two lists: a block from either blocks; unfollowing drops one out and follo
   await follow("tocsin.eth", false);
   const r = await send(DRAINER);
   assert.equal(r.severity, undefined);
-  has(r.ui, ["No flags", "Checked against 1 list"]);
+  has(r.ui, ["Not on any list you follow", "Checked against 1 list"]);
   await follow("tocsin.eth", true);
   assert.equal((await send(DRAINER)).severity, "critical");
   assert.equal(dialogs.length, asked, "the kept pin is the same maintainer");
