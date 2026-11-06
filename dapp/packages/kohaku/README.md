@@ -31,8 +31,8 @@ It takes about four minutes on a fast connection. If the install fails, run it a
 | --- | --- | --- |
 | `TOCSIN_RPC_URL` | `https://0xrpc.io/sep` | The one RPC for the header, proofs, ENS and flags. Changeable later in Settings, Tocsin |
 | `TOCSIN_LIST_NAME` | `core.tocsin.eth,blockaid.tocsin.eth,scamsniffer.tocsin.eth` | Comma-separated lists, followed and pinned on first sync |
-| `TOCSIN_LIST_RECORD` | contents of `dapp/list-record.core.hex` | Replaces the ENS lookup of the first list. Set it empty to read ENS |
-| `TOCSIN_LIST_RECORDS` | `blockaid.tocsin.eth=` and `scamsniffer.tocsin.eth=` the contents of `dapp/list-record.blockaid.hex` and `dapp/list-record.scamsniffer.hex` | Comma-separated `name=0x…` pairs that replace the ENS lookup of those names. Set it empty to read ENS |
+| `TOCSIN_LIST_RECORD` | empty: read ENS | A record hex that replaces the ENS lookup of the first list, for a list with no ENS record yet |
+| `TOCSIN_LIST_RECORDS` | empty: read ENS | Comma-separated `name=0x…` pairs that replace the ENS lookup of those names |
 | `TOCSIN_LOG_FROM_BLOCK` | `12074077` | The log's deploy block, where the first scan starts |
 | `TOCSIN_TRANSPORT` | `tor` | How Tocsin's reads leave the browser: `tor`, `nym` or `direct`. Localhost RPCs always go direct |
 | `TOCSIN_TOR_GATEWAYS` | the local `tor-js-gateway` | Comma-separated `host:port:peerId` for the tor transport. Yours is printed when the gateway starts |

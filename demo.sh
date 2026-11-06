@@ -45,10 +45,10 @@ fi
 DEMO_ENV="$ROOT/.tocsin-demo/demo.env"
 [[ -f "$DEMO_ENV" ]] && { echo "Using your lists from $DEMO_ENV"; source "$DEMO_ENV"; }
 export TOCSIN_RPC_URL="${TOCSIN_RPC_URL:-https://0xrpc.io/sep}"
-# The records are the live tocsin.list values with the listURI pointed at site/lists/ (scripts/ens/setup-all.mjs writes both).
 export TOCSIN_LIST_NAME="${TOCSIN_LIST_NAME:-core.tocsin.eth,blockaid.tocsin.eth,scamsniffer.tocsin.eth}"
-export TOCSIN_LIST_RECORD="${TOCSIN_LIST_RECORD-$(hex list-record.core.hex)}"
-export TOCSIN_LIST_RECORDS="${TOCSIN_LIST_RECORDS-blockaid.tocsin.eth=$(hex list-record.blockaid.hex),scamsniffer.tocsin.eth=$(hex list-record.scamsniffer.hex)}"
+# Empty reads each list's tocsin.list record from ENS. Only bootstrap's demo.env sets these, for lists that have no ENS record.
+export TOCSIN_LIST_RECORD="${TOCSIN_LIST_RECORD-}"
+export TOCSIN_LIST_RECORDS="${TOCSIN_LIST_RECORDS-}"
 export TOCSIN_LOG_FROM_BLOCK="${TOCSIN_LOG_FROM_BLOCK:-12074077}"
 # The certhash comes from this machine's gateway key, so the build must carry this machine's value.
 # `init` prints it without rotating an existing key, but refuses if its config file exists, so drop the throwaway one.
@@ -117,7 +117,7 @@ else
   wait_for "tor gateway (TorClient bootstrapped)" 180 grep -q "TorClient bootstrapped" "$LOG_DIR/gateway.log"
 fi
 
-# 2. Static site with CORS. The curator lists' records point at http://localhost:8000/lists/*.json; without the CORS header the fetch is blocked.
+# 2. Static site with CORS, for the mirror and bootstrap's own lists at http://localhost:8000/; without the CORS header the fetch is blocked.
 if curl -sfI http://127.0.0.1:8000/ >/dev/null 2>&1; then
   echo "  reusing: something already serves 127.0.0.1:8000"
 else

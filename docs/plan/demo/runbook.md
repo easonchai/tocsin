@@ -90,7 +90,7 @@ The demo wallet follows `core.tocsin.eth`, `blockaid.tocsin.eth` and `scamsniffe
 yarn workspace @tocsin/infra tsx --env-file=../../../scripts/.env src/seed-names.ts
 ```
 
-Done on Sepolia in 4 transactions. They are in `packages/infra/names-manifest.11155111.json`, and per subject in `docs/plan/demo/seed/demo-flags.sepolia.json`. Core's drainer-receiver-1 flag is its sequence 93. The lists are published by `scripts/ens/setup-all.mjs` (`scripts/README.md`), which also writes the demo copies in `site/lists/<name>.json` and `dapp/list-record.<label>.hex`.
+Done on Sepolia in 4 transactions. They are in `packages/infra/names-manifest.11155111.json`, and per subject in `docs/plan/demo/seed/demo-flags.sepolia.json`. Core's drainer-receiver-1 flag is its sequence 93. The lists are published by `scripts/ens/setup-all.mjs` (`scripts/README.md`). The wallets read each list's `tocsin.list` record from ENS and fetch `docs/plan/demo/seed/<label>.list.json` from GitHub `main`.
 
 ## 3. Trust list and mirror
 
@@ -152,7 +152,7 @@ yarn workspace @tocsin/infra lying-proxy
 It listens on `127.0.0.1:8550` and drops core.tocsin.eth's writer `0x36a2…387E` at sequence 93, its drainer receiver flag. Point the CLI at core's list, then:
 
 ```sh
-export LIST_DOCUMENT="$PWD/../site/lists/core.tocsin.eth.json" LIST_RECORD="$(cat list-record.core.hex)" LOG_FROM_BLOCK=12074077
+export LIST_DOCUMENT="$PWD/../docs/plan/demo/seed/core.list.json" LIST_RECORD="$(node -p 'require("../docs/plan/demo/seed/core.list.json").record')" LOG_FROM_BLOCK=12074077
 yarn workspace @tocsin/infra eval 0x79fDaE13B1A677E5b8Ac9f5411F6664788A17537 --source rpc
 yarn workspace @tocsin/infra eval 0x79fDaE13B1A677E5b8Ac9f5411F6664788A17537 --source proxy
 yarn workspace @tocsin/infra eval 0x79fDaE13B1A677E5b8Ac9f5411F6664788A17537 --source mirror
