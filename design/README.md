@@ -26,7 +26,7 @@ Everything on screen serves one sentence: **your wallet checked Ethereum itself 
 Read `DIRECTION.md` for the full rules. The short version:
 
 - Dark greyscale with one warm amber. Amber is the strike and appears once per screen. Red appears only on a "Blocked" verdict. No green: clean is the absence of red.
-- Still until touched. Nothing bounces, nothing loops except the background field and the three schematics.
+- Still until touched. Nothing bounces. The background field, three schematics and pausable trust-list walkthrough carry the motion.
 - The mark is a bell drawn as its sound: three nested bell curves on one lip, with a strike dot. Eason chose it from the explorations in `explorations/marks-a.html` (option A2). The curve profile is a cast bell, not a Gaussian; the construction is recorded in `HANDOFF.md` at the repo root.
 - The wordmark is "tocsin", lowercase, Inter 700, tracking -0.03em. Lowercase because a bell is a common thing.
 - Fonts: Inter for display and body, JetBrains Mono for anything that is data. Both bundled under `site/fonts/` as variable fonts, both OFL. Changed from Bricolage Grotesque and Schibsted Grotesk on 6 Nov 2026 for legibility on a projector.
@@ -76,9 +76,19 @@ In order of value to the hackathon pitch:
 
 Not wanted: shields, locks, eyes, radar sweeps, node graphs with glowing edges, purple, gradients as texture, grain, a bell with a notification badge, any AI-generated imagery until Eason has approved the direction you propose.
 
-## Where the page still falls short
+## Current landing page and upload assets
 
-We ran four rounds of a harsh design review on the landing page. The hero scored 8.5 to 9 every time. The body scored 6: one section template repeated, nothing after the hero a judge would screenshot. The reviews wanted a dated ledger of real incidents to replace the quote, a per-leaf record drawn inside the first scene, the trust table run full-bleed, and the scope chips as a two-column table. Those are open. If you have a better answer to "what does the second beat of this page look like", that is the most valuable thing you could draw.
+The November 6 landing refinement preserves the original low-set hero, floating terminal, three-column sections, fine rules and continuous dot field. It adds sourced incident figures, the compromised-provider threat model, opaque animation canvases, a clear trust-list policy, local-check privacy, and Kohaku / Anon-RPC integration status. Solid dark backgrounds are limited to the problem and privacy sections; there is no light color band or stacked-card redesign. The CTAs target the planned `https://tocsin-eth.vercel.app/demo` route; the demo deployment is being handled separately.
+
+The trust-list section pairs three selectable steps with simple coded diagrams: a name resolves to a list, a pinned signer checks updates, and independent reports combine into a verdict. It advances every nine seconds, with a thin amber progress line. Clicking a step resets its timer and continues playback; keyboard navigation, the pause button and leaving the viewport stop it. Reduced-motion visitors start in manual mode with completed diagrams. On phones, the steps become compact tabs above the example.
+
+- `screens/cover-1280x720.png`: refreshed 1280×720 cover, also copied by `site/build.sh` to `dist/og.png`.
+- `screens/showcase-01.png` through `showcase-06.png`: refreshed 1600×1000 gallery boards. Source: `kit/showcase.html?b=1` through `?b=6`.
+- `screens/landing-hero.png`: current desktop landing-page capture.
+- `screens/logo-512.png`: existing finished icon, unchanged.
+- The Snap captures and `screens/demo-page-final.png` remain example UI. The gallery labels those examples; they are not evidence of a live hosted demo or external publisher participation.
+
+To export the cover, serve the repo root, load `kit/cover.html` at 1280×720, wait for local fonts, and capture `#cover`. For gallery boards, use a 1600×1000 viewport and capture `.board.on`. Reduced-motion mode provides a stable dot field. The build copies these PNGs; it does not regenerate them.
 
 ## Who decides
 

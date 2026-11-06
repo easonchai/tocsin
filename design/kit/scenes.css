@@ -14,3 +14,16 @@
 @keyframes sc-cap { 0% { opacity: 0; } 8% { opacity: 1; } 90% { opacity: 1; } 100% { opacity: 0; } }
 @keyframes sc-draw { to { stroke-dashoffset: 0; } }
 @media (prefers-reduced-motion: reduce) { .sc .in, .sc .draw { animation: none; opacity: 1; stroke-dashoffset: 0; } .sc .cap { animation: none; opacity: 0; } }
+
+/* Narration stays in document flow so it wraps instead of shrinking with the SVG. */
+.scene-captions { display: grid; min-height: 3.2em; padding: 4px 20px 12px; color: #ece7dc; font: 14px/1.5 Inter, sans-serif; text-align: center; }
+.scene-caption { grid-area: 1 / 1; align-self: start; opacity: 0; animation: sc-cap 2s linear forwards; }
+.scene-caption-final { animation: sc-in 240ms ease forwards; }
+@media (max-width: 480px) { .scene-captions { padding-inline: 12px; font-size: 13px; min-height: 4.5em; } }
+@media (prefers-reduced-motion: reduce) {
+  .scene-caption { animation: none; opacity: 0; }
+  .scene-caption-final { opacity: 1; }
+}
+
+/* Compact scenes use a 360-unit canvas and keep labels readable at phone widths. */
+.sc-compact text { font-size: 14px; }

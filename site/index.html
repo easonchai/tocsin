@@ -3,259 +3,309 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Tocsin. Scam addresses, verified on chain.</title>
-<meta name="description" content="Scam prevention infrastructure on Ethereum. Writers flag drainers, phishing contracts and mule wallets to an append-only log; your wallet proves it with a light client and checks every recipient before you sign.">
+<title>Tocsin. Scam warnings, verified on chain.</title>
+<meta name="description" content="An open threat log on Ethereum. Choose whose warnings to follow, verify the record, and check addresses locally before you sign. Explore the Tocsin Sepolia prototype.">
 <link rel="icon" href="../design/kit/favicon.svg">
 <link rel="canonical" href="https://tocsin.eth.limo/">
-<meta property="og:title" content="Tocsin. Scam addresses, verified on chain.">
-<meta property="og:description" content="Scam prevention infrastructure on Ethereum. Flags on an append-only log, proven by a light client in your wallet, checked before you sign.">
+<meta property="og:title" content="Tocsin. Scam warnings, verified on chain.">
+<meta property="og:description" content="Choose your sources. Verify their warnings against Ethereum. Keep address checks on your device.">
 <meta property="og:image" content="https://tocsin.eth.limo/og.png">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="../design/kit/scenes.css">
 </head>
-<body>
+<body class="landing">
 <canvas id="field" aria-hidden="true"></canvas>
+<a class="skip-link" href="#problem">Skip to content</a>
 
-<nav class="nav">
+<nav class="nav" aria-label="Main navigation">
   <div class="wrap">
-    <a class="wordmark" href="#top"><span role="img" aria-label="bell" style="font-size:1.05em;line-height:1">🔔</span>tocsin</a>
+    <a class="wordmark" href="#top"><img src="../design/kit/mark.svg" width="28" height="28" alt="">tocsin</a>
     <div class="nav-links">
       <a href="#how">How it works</a>
       <a href="#lists">Trust lists</a>
-      <a href="#use">Wallets</a>
-      <a href="https://github.com/easonchai/tocsin">GitHub</a>
+      <a href="#stack">Integrations</a>
+      <a href="https://github.com/easonchai/tocsin">GitHub ↗</a>
     </div>
-    <a class="btn signal" href="https://tocsin-eth.vercel.app">Open the demo <span class="arrow">↗</span></a>
+    <a class="btn signal" href="https://tocsin-eth.vercel.app/demo">Try the demo <span class="arrow" aria-hidden="true">↗</span></a>
   </div>
 </nav>
 
+<main>
 <header class="hero" id="top">
   <div class="left">
-    <h1 class="rv">Scam addresses, verified on chain.</h1>
-    <p class="tag rv d1">Flagged on an append-only log. Proven by your wallet. Checked before you sign.</p>
-    <div class="ctas rv d2">
-      <a class="btn signal" href="https://tocsin-eth.vercel.app">Open the demo <span class="arrow">↗</span></a>
+    <h1>Scam warnings, verified on chain.</h1>
+    <p class="tag">Flagged on an open log. Verified by your wallet. Checked on your device before you sign.</p>
+    <div class="ctas">
+      <a class="btn signal" href="https://tocsin-eth.vercel.app/demo">Try the Sepolia demo <span class="arrow" aria-hidden="true">↗</span></a>
       <a class="btn" href="#how">How it works</a>
     </div>
-    <div class="label nums rv d2">117 flags on Sepolia · 3 trust lists on ENS · 1 storage proof per check · 0 servers asked</div>
+    <p class="hero-note label">Ethereum · Open source · Sepolia prototype</p>
   </div>
   <div class="right">
     <div class="term" id="term">
-      <div class="term-bar">
-        <span class="dot live"></span>
-        <span>wallet · send 48,000 USDC</span>
-        <button class="replay" id="replay">replay</button>
-      </div>
+      <div class="term-bar"><span class="dot live" aria-hidden="true"></span><span>when a data provider hides a flag</span><button class="replay" id="replay" type="button">Replay</button></div>
+      <div class="term-context">Protocol illustration · independently verified Ethereum header</div>
       <div class="term-body" id="term-body"></div>
       <div class="term-foot" id="term-foot"></div>
     </div>
   </div>
 </header>
 
-<section class="statement">
-  <div>
-    <div class="label">Verified, not trusted</div>
-    <h2>Scam prevention infrastructure on Ethereum. No company in the middle, no account, no API key, and nobody learns who is asking.</h2>
+<section id="problem" class="sec problem" aria-labelledby="problem-title">
+  <div class="sec-head">
+    <div><div class="label">01 · The problem</div><h2 id="problem-title">One wrong address.<br>Very real money.</h2></div>
+    <p class="lede">A lookalike in your transaction history. A malicious approval on a familiar site. The warning needs to reach you before the signature does.</p>
+  </div>
+  <div class="incidents">
+    <article class="incident">
+      <div class="label">Address poisoning · May 2024</div>
+      <div class="amount">$68M</div>
+      <h3>Sent to a lookalike address.</h3>
+      <p>One wallet sent approximately $68 million in wrapped bitcoin to an attacker. The funds were later returned.</p>
+      <a class="source" href="https://www.chainalysis.com/blog/address-poisoning-scam/">Source: Chainalysis investigation ↗</a>
+    </article>
+    <article class="incident">
+      <div class="label">Wallet phishing · 2025 report</div>
+      <div class="amount">$83.85M</div>
+      <h3>Lost to signature phishing.</h3>
+      <p>Scam Sniffer reported 106,106 victims in 2025. Losses fell from 2024, but a convincing signature request still cost people their funds.</p>
+      <a class="source" href="https://drops.scamsniffer.io/scam-sniffer-2025-crypto-phishing-losses-fall-83-to-84-million/">Source: Scam Sniffer annual report ↗</a>
+    </article>
+  </div>
+  <div class="dependency">
+    <div>
+      <div class="label">The dependency behind the warning</div>
+      <h3>What if the service you ask is the part that gets compromised?</h3>
+    </div>
+    <div>
+      <p>A sophisticated attacker doesn't have to break Ethereum. Control a security API or RPC response, and they can omit a known flag or show one target a different answer. A label alone gives the wallet no proof that the record is complete.</p>
+      <p>The supply-chain risk is real: malicious Ledger Connect Kit releases reached dapps through a compromised publishing account in December 2023. <a class="source inline" href="https://www.ledger.com/blog/security-incident-report">Read Ledger's incident report ↗</a></p>
+      <p class="dependency-answer">Tocsin addresses the data side: verify the published record against Ethereum, then decide locally.</p>
+    </div>
   </div>
 </section>
 
-<section id="how" class="sec">
+<section id="how" class="sec how" aria-labelledby="how-title">
   <div class="sec-head">
-    <div class="label">01 · How it works</div>
-    <h2>Flag it. Prove it. Replay it.</h2>
-    <p class="lede">A writer records a scam in the log. Your wallet proves what the log says and replays every flag on the device. The RPC is never asked who to trust.</p>
+    <div class="label">02 · How it works</div>
+    <h2 id="how-title">Flag it. Prove it. Replay it.</h2>
+    <p class="lede">The protocol separates who reports a threat from who delivers the data. A server can carry the flags without being trusted to tell the truth.</p>
   </div>
-  <div class="trio">
-    <div class="rv">
+  <div class="trio how-steps">
+    <article>
       <div class="label">01</div>
-      <div class="pic"><div class="frame" data-scene="append" aria-label="Writers append leaves into their own chains in the log"></div></div>
-      <h3>Flag</h3>
-      <p>Someone pays a drainer. A writer records it in the log under its own name. The contract hashes it into that writer's chain, where nothing can be removed.</p>
-    </div>
-    <div class="rv d1">
+      <div class="pic scene-panel"><div class="frame" data-scene="append" aria-label="A writer publishes a flag to its own append-only record on Ethereum"></div></div>
+      <h3>Flag</h3><p>A researcher or detector records an address, a threat category and an evidence reference. Each writer has its own record. Corrections are added; history cannot be erased.</p>
+    </article>
+    <article>
       <div class="label">02</div>
-      <div class="pic"><div class="frame" data-scene="prove" aria-label="The wallet proves a head and replays leaves to it"></div></div>
-      <h3>Prove</h3>
-      <p>Your wallet's light client verifies a finalized block. One storage proof against it gives the head of every writer you follow. No RPC is trusted.</p>
-    </div>
-    <div class="rv d2">
+      <div class="pic scene-panel"><div class="frame" data-scene="prove" aria-label="A light-client reader proves a writer's head, replays its records and checks an address locally"></div></div>
+      <h3>Prove</h3><p>A light client verifies an Ethereum block. Storage proofs establish the fingerprint of each writer's record, so an RPC cannot substitute a made-up history.</p>
+    </article>
+    <article>
       <div class="label">03</div>
-      <div class="pic"><div class="frame" data-scene="lie" aria-label="A lying RPC is caught by a chain mismatch"></div></div>
-      <h3>Replay</h3>
-      <p>The flags come from anywhere, even a lying mirror, and get replayed on the device. They land on the proven head or the wallet says unverifiable, never clean.</p>
+      <div class="pic scene-panel"><div class="frame" data-scene="lie" aria-label="A provider omits a flag; the replay does not match the proven head and the reader reports unverifiable"></div></div>
+      <h3>Replay</h3><p>The wallet rebuilds that fingerprint from the records it downloads. Alter or omit one and it won't match. The result is <strong>unverifiable</strong>, never a false all-clear.</p>
+    </article>
+  </div>
+  <p class="section-note">This is the full light-client verification path. The current demo checks proofs and replay against an RPC-supplied header. <a href="#stack">Integration status ↓</a></p>
+</section>
+
+<section id="lists" class="sec trust" aria-labelledby="lists-title">
+  <div class="sec-head">
+    <div class="label">03 · Trust lists</div>
+    <h2 id="lists-title">Writers publish the reports. You choose who to trust.</h2>
+    <p class="lede">A trust list is a signed selection of writers and how much authority to give them. It turns a public log into a policy you choose.</p>
+  </div>
+  <div class="trust-tour" data-trust-tour>
+    <div class="trust-layout">
+      <div class="trust-steps" role="tablist" aria-label="How trust lists work" aria-orientation="vertical">
+        <button class="trust-step" id="trust-step-1" type="button" role="tab" aria-selected="true" aria-controls="trust-panel-1">
+          <span class="step-number">01</span><span class="step-copy"><span class="step-title">Follow a list by name.</span><span class="step-description">An ENS name such as <code>core.tocsin.eth</code> points to a list. Its maintainer selects the writers, their weights and the range of reports to use.</span></span><span class="step-track" aria-hidden="true"><span></span></span>
+        </button>
+        <button class="trust-step" id="trust-step-2" type="button" role="tab" aria-selected="false" aria-controls="trust-panel-2" tabindex="-1">
+          <span class="step-number">02</span><span class="step-copy"><span class="step-title">Pin who signed it.</span><span class="step-description">Your wallet checks the maintainer's signature and remembers their key and list version. A name changing hands cannot silently replace the person you trust.</span></span><span class="step-track" aria-hidden="true"><span></span></span>
+        </button>
+        <button class="trust-step" id="trust-step-3" type="button" role="tab" aria-selected="false" aria-controls="trust-panel-3" tabindex="-1">
+          <span class="step-number">03</span><span class="step-copy"><span class="step-title">Evaluate the verified reports.</span><span class="step-description">Your wallet checks the writers' records and applies your policy locally. Every warning shows who flagged the address and the evidence behind it.</span></span><span class="step-track" aria-hidden="true"><span></span></span>
+        </button>
+      </div>
+      <div class="trust-examples" aria-live="off">
+        <div class="trust-panel" id="trust-panel-1" role="tabpanel" aria-labelledby="trust-step-1" tabindex="0" data-beat="0">
+          <div class="label">Example · Follow a name</div>
+          <svg class="trust-visual" viewBox="0 0 520 360" role="img" aria-label="An ENS name resolves to a signed list, which selects two writers.">
+            <path class="tv-wire" d="M260 72V114M260 245V275H120V302M260 275H400V302"/>
+            <path class="tv-wire tv-draw-a" pathLength="1" d="M260 72V114"/>
+            <path class="tv-wire tv-draw-b" pathLength="1" d="M260 245V275H120V302M260 275H400V302"/>
+            <rect class="tv-node" x="130" y="24" width="260" height="48" rx="3"/>
+            <text x="260" y="54">core.tocsin.eth</text>
+            <g class="tv-reveal tv-beat-1">
+              <rect class="tv-paper" x="145" y="114" width="230" height="131" rx="3"/>
+              <text class="tv-ink tv-title" x="260" y="147">signed list</text>
+              <path class="tv-paper-line" d="M169 170H291M169 191H270M169 212H306"/>
+              <rect class="tv-amber" x="326" y="164" width="22" height="7"/><rect class="tv-amber" x="326" y="185" width="22" height="7"/>
+              <path class="tv-signature" d="M321 218l7-12 4 12 5-6 4 4 9-9"/>
+            </g>
+            <g class="tv-reveal tv-beat-2">
+              <rect class="tv-node" x="50" y="302" width="140" height="42" rx="3"/><text x="120" y="329">writer A</text>
+              <rect class="tv-node" x="330" y="302" width="140" height="42" rx="3"/><text x="400" y="329">writer B</text>
+            </g>
+            <rect class="tv-packet tv-packet-a" x="256" y="74" width="8" height="8"/>
+          </svg>
+          <p class="trust-caption">One name. A signed choice of writers.</p>
+        </div>
+        <div class="trust-panel" id="trust-panel-2" role="tabpanel" aria-labelledby="trust-step-2" tabindex="0" data-beat="0" hidden>
+          <div class="label">Example · Pin the signer</div>
+          <svg class="trust-visual" viewBox="0 0 520 360" role="img" aria-label="The wallet pins key A at version 4. A newer list from key A is accepted; a different signer needs your approval; an older version is rejected.">
+            <path class="tv-wire" d="M260 143V180M105 213V180H415V213M260 180V213"/>
+            <path class="tv-wire tv-draw-a" pathLength="1" d="M260 143V180M105 213V180H415V213M260 180V213"/>
+            <rect class="tv-paper" x="160" y="32" width="200" height="111" rx="3"/>
+            <text class="tv-ink tv-title" x="260" y="65">pinned signer</text>
+            <g class="tv-fingerprint"><rect x="188" y="87" width="8" height="27"/><rect x="201" y="92" width="8" height="22"/><rect x="214" y="82" width="8" height="32"/><rect x="227" y="95" width="8" height="19"/></g>
+            <text class="tv-ink" x="290" y="108">A · v4</text>
+            <g class="tv-reveal tv-beat-1">
+              <rect class="tv-node" x="40" y="213" width="130" height="72" rx="3"/><text x="105" y="257">A · v5</text>
+              <rect class="tv-node tv-dashed" x="195" y="213" width="130" height="72" rx="3"/><text x="260" y="257">B · v5</text>
+              <rect class="tv-node" x="350" y="213" width="130" height="72" rx="3"/><text x="415" y="257">A · v3</text>
+            </g>
+            <g class="tv-reveal tv-beat-2">
+              <path class="tv-check" d="M88 309l8 8 16-18"/><text class="tv-small" x="105" y="344">accept</text>
+              <text class="tv-question" x="260" y="318">?</text><text class="tv-small" x="260" y="344">ask you</text>
+              <path class="tv-stop" d="M405 305l20 20m0-20-20 20"/><text class="tv-small" x="415" y="344">reject</text>
+            </g>
+          </svg>
+          <p class="trust-caption">The name can change hands. Your trust doesn't.</p>
+        </div>
+        <div class="trust-panel" id="trust-panel-3" role="tabpanel" aria-labelledby="trust-step-3" tabindex="0" data-beat="0" hidden>
+          <div class="label">Example · Apply your policy</div>
+          <svg class="trust-visual" viewBox="0 0 520 360" role="img" aria-label="One writer produces a warning. A mirror of that writer adds no independent evidence. A second independent writer produces a block under the recommended policy.">
+            <path class="tv-wire" d="M163 66H245V177H320M163 154H245M163 284H245V209H320"/>
+            <path class="tv-wire tv-amber-line" d="M163 66H245V177H320"/>
+            <g class="tv-reveal tv-beat-1"><path class="tv-wire tv-dashed" d="M163 154H245"/><rect class="tv-node tv-dashed" x="23" y="132" width="140" height="44" rx="3"/><text class="tv-small" x="93" y="160">mirror of A</text></g>
+            <g class="tv-reveal tv-beat-2"><path class="tv-wire tv-red-line" d="M163 284H245V209H320"/><rect class="tv-node" x="23" y="261" width="140" height="46" rx="3"/><text x="93" y="290">writer B</text></g>
+            <rect class="tv-node" x="23" y="43" width="140" height="46" rx="3"/><text x="93" y="72">writer A</text>
+            <rect class="tv-paper" x="320" y="115" width="177" height="147" rx="3"/>
+            <text class="tv-ink tv-title" x="408" y="149">your wallet</text>
+            <rect class="tv-amber" x="348" y="171" width="48" height="8"/>
+            <rect class="tv-reveal tv-beat-2 tv-red" x="420" y="171" width="48" height="8"/>
+            <text class="tv-ink tv-warn-verdict" x="408" y="228">Warn</text>
+            <text class="tv-red-text tv-block-verdict" x="408" y="228">Block</text>
+            <rect class="tv-packet tv-packet-b" x="239" y="278" width="8" height="8"/>
+          </svg>
+          <p class="trust-caption"><span class="tv-early-caption">A copied feed still counts once.</span><span class="tv-final-caption">Two independent writers. A stronger warning.</span></p>
+          <p class="trust-panel-note">A weight-255 writer in a blocking list can block alone. Safelists and local overrides stay in your control.</p>
+        </div>
+      </div>
     </div>
+    <div class="trust-playback"><span class="label" data-trust-count aria-hidden="true">01 / 03</span><button type="button" class="trust-toggle" data-trust-toggle aria-label="Pause automatic trust-list steps">Pause <span aria-hidden="true">Ⅱ</span></button></div>
+  </div>
+  <div class="trust-foot"><p>The proof establishes what a writer published. You still choose whether to believe them.</p><a class="text-link" href="claim.html">Publish under your ENS name ↗</a></div>
+</section>
+
+<section id="leaks" class="sec privacy" aria-labelledby="privacy-title">
+  <div class="sec-head">
+    <div class="label">04 · Privacy</div>
+    <h2 id="privacy-title">The check stays on your device.</h2>
+    <p class="lede">Sync the reports from your chosen writers first. Then check recipients on your device, without sending each address to a security service.</p>
+  </div>
+  <div class="privacy-layout">
+    <div class="privacy-comparison">
+      <div class="privacy-row"><div><span class="label">Per-address API lookup</span><h3>The provider sees the recipient.</h3></div><p>“Is this address safe?” sends the address to a security service. The service sees what you ask about and when; your wallet depends on its answer.</p></div>
+      <div class="privacy-row local"><div><span class="label">Tocsin's local check</span><h3>The recipient stays on your device.</h3></div><p>Sync your chosen writers' reports, verify the record, then look up the address locally. The threat check needs no per-recipient request.</p></div>
+      <div class="privacy-row"><div><span class="label">Private transport</span><h3>Anon-RPC covers the connection.</h3></div><p>Direct sync can reveal your network address, timing and which writers you follow. Anon-RPC adds transport privacy; broadcast transactions remain public.</p></div>
+    </div>
+    <figure class="wallet-preview">
+      <div class="preview-label label">The warning, inside your wallet</div>
+      <div class="phone"><img src="../design/screens/raw/snap-block.jpg?v=3" width="742" height="2092" loading="lazy" alt="Illustrative Tocsin Snap warning showing a blocked drainer receiver, the flagging writers and evidence links"></div>
+      <figcaption>Snap UI example. The category, writers and evidence stay visible beside the verdict.</figcaption>
+    </figure>
   </div>
 </section>
 
-<section id="lists" class="sec">
+<section id="stack" class="sec integrations" aria-labelledby="stack-title">
   <div class="sec-head">
-    <div class="label">02 · Trust lists</div>
-    <h2>Writers flag under their own name. You choose which names to trust.</h2>
-    <p class="lede">Each list is an ENS name with a weight. Independent writers add up; mirrors of the same feed count once. <a class="more" href="claim.html">Claim a name ↗</a></p>
+    <div><div class="label">05 · Built to work together</div><h2 id="stack-title">Your wallet. Your connection. Your proof.</h2></div>
+    <p class="lede">Tocsin supplies the threat record. Wallets bring it to the signing screen. Private transport and independent verification address different points of trust.</p>
   </div>
-  <div class="trio">
-    <div class="rv">
-      <div class="label">01</div>
-      <div class="pic"><div class="big">255<small>weight · blocks alone</small></div></div>
-      <h3 class="name">core.tocsin.eth</h3>
-      <p>The Tocsin team. Hand-checked drainer receivers, poisoning operators and malicious delegates, each with on-chain evidence.</p>
-    </div>
-    <div class="rv d1">
-      <div class="label">02</div>
-      <div class="pic"><div class="big">255<small>weight · blocks alone</small></div></div>
-      <h3 class="name">blockaid.tocsin.eth</h3>
-      <p>A security vendor writing under its own key. Its flags count once, however many feeds mirror them.</p>
-    </div>
-    <div class="rv d2">
-      <div class="label">03</div>
-      <div class="pic"><div class="big">1<small>weight · needs a second writer</small></div></div>
-      <h3 class="name">scamsniffer.tocsin.eth</h3>
-      <p>Phishing researchers. Low weight on its own, decisive when it agrees with another independent writer.</p>
-    </div>
+  <div class="integration-grid">
+    <article class="integration"><div class="label">Wallets</div><h3>Kohaku</h3><p>Our integration brings Tocsin checks into Kohaku's send and signing flows, with list and RPC settings inside the wallet.</p><a class="text-link" href="https://github.com/easonchai/tocsin/tree/feat/kohaku/dapp/packages/kohaku">Explore the integration ↗</a></article>
+    <article class="integration"><div class="label">Private Transports</div><h3>Anon-RPC</h3><p>Routes Tocsin's reads through Tor or Nym to reduce the link between your device and its requests. Privacy for the connection; verification for the response.</p><a class="text-link" href="https://github.com/easonchai/tocsin/tree/feat/kohaku/dapp/packages/kohaku#anon-rpc">See the transport setup ↗</a></article>
+    <article class="integration"><div class="label">Clients</div><h3>Ethereum light clients</h3><p>An independently verified block anchors the record. A compromised RPC cannot pass off altered data as matching that block's state.</p><a class="text-link" href="https://github.com/easonchai/tocsin/blob/main/docs/spec/threat-flag-log.md#light-client-read-procedure">Read the verification path ↗</a></article>
+  </div>
+  <div class="build-status"><div class="label">Today on Sepolia</div><p>The log, signed ENS lists and reader are built, with Snap, browser-extension and Kohaku demo integrations. <strong>The current demo still trusts an RPC for the threat-log header.</strong> Helios verifies the Anon-RPC worker's published hash; connecting independent consensus verification to Tocsin's own proofs is the next step.</p></div>
+</section>
+
+<section id="faq" class="sec faq" aria-labelledby="faq-title">
+  <div class="sec-head"><div class="label">06 · Questions</div><h2 id="faq-title">Know what you're trusting.</h2></div>
+  <div class="rows">
+    <div class="r"><h3 class="q">Is this trustless?</h3><p>The full light-client path removes the data provider's authority over the answer. It still relies on Ethereum consensus, the light client's checkpoint, your wallet software and the writers and maintainers you choose. Proof of publication is not proof that a report is correct.</p></div>
+    <div class="r"><h3 class="q">What about a brand-new scam address?</h3><p>No flag doesn't mean safe. Tocsin distributes published reports about known infrastructure, including poisoning operators and drainer receivers. Fresh lookalikes still need local checks and new threats still need detection.</p></div>
+    <div class="r"><h3 class="q">Can someone remove a flag or correct a mistake?</h3><p>History cannot be deleted. A writer can append a correction that withdraws its flag, and your wallet updates the verdict while retaining the record. You can stop following a writer or override a block locally.</p></div>
+    <div class="r"><h3 class="q">Is this an Ethereum standard?</h3><p>Tocsin has an open, CC0 specification and a reference contract. It is a draft project specification, not an accepted Ethereum standard. Anyone can build a compatible reader or publish their own trust list.</p></div>
   </div>
 </section>
 
-<section id="use" class="sec">
-  <div class="sec-head">
-    <div class="label">03 · Use it</div>
-    <h2>Any wallet. Same log. Your lists.</h2>
-    <p class="lede">Tocsin is a contract, a reader and a spec. There is no official wallet. Any wallet that runs the reader gets the same verdicts from the same log, and picks its own lists.</p>
-  </div>
-  <div class="cards">
-    <div class="card rv">
-      <h3>MetaMask Flask Snap</h3>
-      <p>Transaction insights on every send: the verdict, the category, who flagged it and the evidence, computed on your device.</p>
-      <div class="shot"><img src="../design/screens/raw/snap-block.jpg?v=3" alt="Tocsin insight in MetaMask Flask: Blocked, drainer receiver" style="transform: translateY(-37%)"></div>
-      <a class="more" href="https://tocsin-eth.vercel.app">Install ↗</a>
-    </div>
-    <div class="card rv d1">
-      <h3>The demo on Sepolia</h3>
-      <p>Six scenarios. Pick one, watch the explainer trace the verdict while your own wallet pops up and blocks the send.</p>
-      <div class="shot"><img src="../design/screens/demo-page-final.png" alt="The Tocsin demo page"></div>
-      <a class="more" href="https://tocsin-eth.vercel.app/demo">Open ↗</a>
-    </div>
-    <div class="card rv d2">
-      <h3>The spec</h3>
-      <p>Leaf encoding, trust-list encoding, the reader policy and the light-client read procedure. Nothing else.</p>
-      <div class="shot text"><b>log</b> · one contract, append-only, a chain per writer<br><b>reader</b> · head proof, replay, verdict<br><b>lists</b> · ENS text records with a weight<br><b>proof</b> · 5 to 8 kB against a finalized root<br><b>license</b> · CC0</div>
-      <a class="more" href="https://github.com/easonchai/tocsin/blob/main/docs/spec/threat-flag-log.md">Read ↗</a>
-    </div>
-  </div>
+<section id="use" class="sec closing" aria-labelledby="use-title">
+  <div class="closing-copy"><div class="label">Try it on Sepolia</div><h2 id="use-title">See what happens<br>when the data lies.</h2><p>Follow a flagged address from the public log to a wallet warning. Explore the demo, inspect the evidence, or build with the spec.</p><div class="ctas"><a class="btn signal" href="https://tocsin-eth.vercel.app/demo">Open the interactive demo <span class="arrow" aria-hidden="true">↗</span></a><a class="btn" href="https://github.com/easonchai/tocsin/blob/main/docs/spec/threat-flag-log.md">Read the spec ↗</a></div><p class="closing-note">Sepolia prototype · Explore the scenarios and follow the evidence.</p></div>
 </section>
-
-<section id="leaks" class="sec">
-  <div class="sec-head">
-    <div class="label">04 · What leaks</div>
-    <h2>Nothing leaves your device.</h2>
-    <p class="lede">A label served from an API is trusted on the server's word, and the server learns who asked. A head proven against a finalized state root, with every flag replayed locally, tells nobody anything.</p>
-  </div>
-  <div class="leaks">
-    <div class="proof rv">
-      <div class="row leak"><span>per-address proof</span><b>leaks the recipient</b></div>
-      <div class="row leak"><span>vendor API call</span><b>leaks everything</b></div>
-      <div class="row"><span>per-writer head proofs + full sync</span><b>leaks only which lists you use</b></div>
-      <div class="row"><span>proof size</span><b>5 to 8 kB</b></div>
-      <div class="row"><span>a year of flags, 50k leaves</span><b>under 1 MB gzipped</b></div>
-    </div>
-    <div class="phone rv d1"><img src="../design/screens/raw/snap-block.jpg?v=3" alt="Tocsin insight in MetaMask Flask: Blocked, drainer receiver"></div>
-  </div>
-</section>
-
-<section class="sec quote">
-  <div class="sec-head">
-    <div class="label">Sovereign Infrastructure Hub · Devcon 8</div>
-    <h2>“Nobody wants a light client. People want their wallet to stop trusting a company.”</h2>
-  </div>
-</section>
-
-<section id="faq" class="sec">
-  <div class="sec-head">
-    <div class="label">05 · Questions</div>
-    <h2>What people ask.</h2>
-  </div>
-  <div class="rows rv">
-    <div class="r"><span class="q">Can a scammer remove their own flag?</span><p>No. Nothing is ever removed, not by the writer, not by the subject, not by us. Corrections are new leaves. A reader that stops believing a writer drops the writer, and the record stays.</p></div>
-    <div class="r"><span class="q">Isn't this just Etherscan with extra steps?</span><p>On day one, almost. The difference is that the record is public, forkable and verifiable, any wallet can pick a different list, and no curator can erase another writer's flag. Year two has two curators. Etherscan never will.</p></div>
-    <div class="r"><span class="q">Can't someone fake a list and a head? Hashing is cheap.</span><p>A fake head is worthless because the wallet never accepts a head from anyone. It reads the head out of Ethereum's state under a storage proof checked against a finalized block its light client verified. To pass, an attacker would have to forge Ethereum finality.</p></div>
-    <div class="r"><span class="q">What about fresh lookalike addresses?</span><p>We don't chase them. About 1 in 9,000 is ever paid and they land within minutes. A local prefix check against your own history catches them. Tocsin flags the operator that planted the dust, so every chain that operator works on is covered.</p></div>
-    <div class="r"><span class="q">Does this remove trust, or just move it?</span><p>It removes the trust you never agreed to. Gone: the RPC, the vendor API, the mirror, the log operator. Kept: Ethereum's finality, which you already trust, and the writers you chose to follow. The log proves what a writer said. Whether to believe the writer stays your call.</p></div>
-    <div class="r"><span class="q">Who pays in year two?</span><p>A flag costs about 10,000 gas, so a year of 50,000 flags is a few hundred dollars at current mainnet fees, and writer-signed batches let any grant or relayer pay. The reader cost is a few megabytes a year. This is a public good, not a company.</p></div>
-  </div>
-</section>
+</main>
 
 <footer>
-  <div class="foot-row">
-    <a class="wordmark" href="#top"><span role="img" aria-label="bell" style="font-size:1.05em;line-height:1">🔔</span>tocsin</a>
-    <div class="foot-links">
-      <a href="https://tocsin-eth.vercel.app">Demo</a>
-      <a href="https://github.com/easonchai/tocsin">GitHub</a>
-      <a href="https://t.me/tocsin_eth">Telegram</a>
-      <a href="https://x.com/tocsin_eth">X</a>
-      <a href="claim.html">Claim a name</a>
-      <a href="#top">Top</a>
-    </div>
-  </div>
-  <p class="note">Built at Devcon 8 and ETHGlobal Mumbai, November 2026. The log is on Sepolia, the names resolve through ENSv2, and the spec is CC0. Nobody is in charge of the log itself.</p>
+  <div class="foot-row"><a class="wordmark" href="#top"><img src="../design/kit/mark.svg" width="28" height="28" alt="">tocsin</a><div class="foot-links"><a href="https://github.com/easonchai/tocsin">GitHub</a><a href="https://t.me/tocsin_eth">Telegram</a><a href="https://x.com/tocsin_eth">X</a><a href="claim.html">Claim a name</a><a href="#top">Back to top ↑</a></div></div>
+  <p class="note">Built at Devcon 8 and ETHGlobal Mumbai, November 2026. Open source. Sepolia deployment. CC0 specification.</p>
 </footer>
 
 <script src="../design/kit/ringfield.js"></script>
 <script src="../design/kit/scenes.js"></script>
+<script src="trust.js"></script>
 <script>
 (function () {
-  var rf = Tocsin.ringfield(document.getElementById('field'), { seed: 7, mask: 'h1,h2,h3,p,.tag,.label,.proof,.rows,.card' });
-  var io = new IntersectionObserver(function (es) {
-    es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
-  }, { rootMargin: '0px 0px -8% 0px' });
-  document.querySelectorAll('.rv').forEach(function (el) { io.observe(el); });
-  setTimeout(function () { document.querySelectorAll('.rv').forEach(function (el) { el.classList.add('in'); }); }, 1200);
-
-  // the trace: the RPC lies, the wallet catches it
+  var rf = Tocsin.ringfield(document.getElementById('field'), { seed: 7, mask: 'h1,h2,h3,p,.tag,.label,.term,.amount,.source,.text-link,.trust-tour,.privacy-comparison,.build-status' });
   var body = document.getElementById('term-body');
-  var script = [
-    ['00.00', 'wallet', '', 'paste recipient <span class="k">0x7a3F…c91B</span>'],
-    ['00.01', 'rpc', 'rpc', 'label lookup → <span class="k">clean</span> (no reports)'],
-    ['00.02', 'helios', 'lc', 'finalized header slot 11,482,207 · sync committee 512/512'],
-    ['00.03', 'helios', 'lc', 'eth_getProof(log, [0,1]) · 6.9 kB · verified against stateRoot'],
-    ['00.04', 'tocsin', 'ab', 'globalHead 0x9c4e…a1f0 · seq 41,207 · replayed 41,207 leaves ✓'],
-    ['00.05', 'tocsin', 'ab', 'lists: core, blockaid, scamsniffer · 3 independent'],
-    ['00.06', 'tocsin', 'ab', '<span class="k">0x7a3F…c91B</span> → DRAINER_RECEIVER · flagged by 3/3 · evidence 0x31b7…'],
-    ['00.07', 'tocsin', 'ab', 'local heuristic: no prefix/suffix match with your history', 'dim'],
+  var foot = document.getElementById('term-foot');
+  var replay = document.getElementById('replay');
+  var reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var lines = [
+    ['01', 'choose', 'Load the writers from your signed trust list.'],
+    ['02', 'prove', 'Check their record fingerprints against a light-client-verified block.'],
+    ['03', 'replay', 'The provider left out a flag. The fingerprints do not match.'],
+    ['04', 'stop', '<span class="trace-alert">Unverifiable.</span> No all-clear from incomplete data.'],
+    ['05', 'retry', 'Fetch from another source. Replay matches the proven record.'],
+    ['06', 'check', 'A writer you allow to block has flagged this recipient.']
   ];
-  var idleTimer;
+  var lineTimer, idleTimer;
   function run() {
-    body.innerHTML = '';
+    clearTimeout(lineTimer); clearTimeout(idleTimer);
+    body.innerHTML = ''; foot.textContent = '';
+    replay.disabled = true;
     var dot = document.querySelector('.term-bar .dot');
     dot.className = 'dot live';
-    clearTimeout(idleTimer); rf.setState('syncing');
-    document.getElementById('term-foot').textContent = '';
-    var cur = document.createElement('div'); cur.className = 'ln cur'; cur.innerHTML = '<span class="t"> </span><span class="src"> </span><span class="msg">█</span>';
+    rf.setState('syncing');
     var i = 0;
     function next() {
-      if (i >= script.length) {
-        var v = document.createElement('div');
-        v.className = 'verdict';
-        v.innerHTML = '<b>Blocked.</b> Drainer receiver, flagged by core, Blockaid and Scam Sniffer.';
-        cur.remove(); body.appendChild(v);
-        document.getElementById('term-foot').textContent = 'The RPC said clean. The wallet never asked it who to trust.';
-        dot.className = 'dot blocked';
-        rf.setState('blocked'); var vr = v.getBoundingClientRect(); rf.strike(vr.left + vr.width / 2, vr.bottom);
+      if (i === lines.length) {
+        var verdict = document.createElement('div');
+        verdict.className = 'verdict';
+        verdict.innerHTML = '<b>Blocked.</b> The warning survives a dishonest provider.';
+        body.appendChild(verdict);
+        foot.textContent = 'Verify the record. Apply your policy. Keep the check local.';
+        replay.disabled = false; dot.className = 'dot blocked';
+        rf.setState('blocked');
+        var rect = verdict.getBoundingClientRect(); rf.strike(rect.left, rect.bottom);
         idleTimer = setTimeout(function () { rf.setState('idle'); }, 6000);
         return;
       }
-      var s = script[i++];
-      var d = document.createElement('div');
-      d.className = 'ln';
-      d.innerHTML = '<span class="t">' + s[0] + '</span><span class="src ' + s[2] + '">' + s[1] + '</span><span class="msg ' + (s[4] || '') + '">' + s[3] + '</span>';
-      body.appendChild(d); body.appendChild(cur);
-      if (i === 5) { rf.setState('verified'); }
-      setTimeout(next, i === 2 ? 650 : 420);
+      var line = lines[i++];
+      var row = document.createElement('div'); row.className = 'ln';
+      row.innerHTML = '<span class="t">' + line[0] + '</span><span class="src">' + line[1] + '</span><span class="msg">' + line[2] + '</span>';
+      body.appendChild(row);
+      if (reduced) next(); else lineTimer = setTimeout(next, 550);
     }
     next();
   }
-  document.getElementById('replay').addEventListener('click', run);
-  // the trace sits in the hero, so it runs on load and the strike lands where the reader is looking
-  setTimeout(run, 900);
+  replay.addEventListener('click', run);
+  run();
 })();
 </script>
 </body>

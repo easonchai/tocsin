@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="tokens.css">
 <style>
   /* Six 1600x1000 boards for the ETHGlobal showcase gallery. Open with ?b=N to render one board at 1600x1000
-     for screenshotting; no param stacks all of them. Screenshots live in ../screens/raw/. */
+     for screenshotting; no param stacks all of them. Exports live in ../screens/showcase-01.png through showcase-06.png. */
   body { background: #0b0c0e; margin: 0; padding: 40px 0; display: flex; flex-direction: column; gap: 40px; align-items: center; }
   body.one { padding: 0; gap: 0; background: var(--ink-900); }
   body.one .board { display: none; }
@@ -17,6 +17,7 @@
   .board .field { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
   .board > * { position: relative; }
   .top { position: absolute; top: 48px; left: 96px; right: 96px; display: flex; justify-content: space-between; align-items: center; }
+  .top .wordmark img { width: 32px; height: 32px; filter: brightness(0) invert(.92); }
   .top .wordmark { font-size: 24px; display: flex; gap: 10px; align-items: center; }
   .top .label { font-size: 13px; }
   h1 { font-size: 76px; max-width: none; }
@@ -33,15 +34,15 @@
   .panel.sm img { transform: translateY(var(--y, 0)); }
   .pair { display: flex; gap: 40px; align-items: flex-start; }
   .pair figure { margin: 0; text-align: center; }
-  .pair figcaption { margin-top: 20px; font-family: var(--mono); font-size: 15px; color: var(--paper-200); }
+  .pair figcaption { margin-top: 20px; font-family: var(--mono); font-size: 18px; color: var(--paper-200); }
   .pair figcaption b { display: inline-block; padding: 4px 12px; border-radius: 999px; font-weight: 600; margin-right: 10px; }
-  .pass { background: rgba(79,191,122,.18); color: #7fe0a5; }
+  .pass { background: var(--ink-700); color: var(--paper-100); }
   .block { background: var(--alert-40); color: #ff8a8f; }
 
   /* floating chips, like a callout that drifted off the screen */
   .chip { position: absolute; background: var(--ink-800); border: var(--hair-strong); border-radius: 12px; padding: 14px 18px; box-shadow: 0 30px 60px -30px rgba(0,0,0,.9); }
   .chip .label { font-size: 11px; margin-bottom: 4px; }
-  .chip .v { font-family: var(--mono); font-size: 16px; color: var(--paper-100); }
+  .chip .v { font-family: var(--mono); font-size: 18px; color: var(--paper-100); }
   .chip .v.red { color: #ff8a8f; }
 
   /* callouts for the anatomy board */
@@ -52,13 +53,16 @@
   .co p span { color: var(--paper-200); }
 
   /* list cards for the trust board */
-  .lists { display: grid; gap: 18px; width: 560px; }
+  .lists { display: grid; gap: 18px; width: 600px; }
   .lcard { background: var(--ink-800); border: var(--hair-strong); border-radius: 14px; padding: 22px 26px; display: grid; grid-template-columns: 1fr auto; grid-template-areas: "name w" "who w"; gap: 6px 24px; align-items: center; }
   .lcard .name { grid-area: name; } .lcard .who { grid-area: who; } .lcard .w { grid-area: w; }
   .lcard .name { font-family: var(--mono); font-size: 22px; color: var(--paper-100); }
-  .lcard .who { font-size: 15px; color: var(--ink-400); }
-  .lcard .w { font-family: var(--mono); font-size: 14px; color: var(--signal); text-align: right; }
+  .lcard .who { font-size: 18px; color: var(--ink-400); }
+  .lcard .w { font-family: var(--mono); font-size: 18px; color: var(--signal); text-align: right; }
   .lcard.me { border-color: var(--signal); }
+
+  .roles .lcard { display: block; padding: 28px; }
+  .roles .who { font-size: 22px; line-height: 1.4; margin-top: 12px; color: var(--paper-200); }
 
   /* browser frame for the demo board */
   .browser { width: 720px; border-radius: 14px; overflow: hidden; border: 1px solid var(--ink-600); background: var(--ink-800); box-shadow: 0 60px 120px -40px rgba(0,0,0,.9); }
@@ -79,43 +83,43 @@
 <!-- 01 cover: the moment the wallet says no -->
 <section class="board" data-b="1">
   <canvas class="field" data-state="blocked"></canvas>
-  <div class="top"><span class="wordmark">🔔 tocsin</span><span class="label">01 / 06 · metamask flask · sepolia</span></div>
+  <div class="top"><span class="wordmark"><img src="mark.svg" alt="">tocsin</span><span class="label">01 / 06 · Sepolia demo · example writers</span></div>
   <div>
-    <h1 style="font-size:84px">The wallet already<br>knew the <em class="red">drainer</em>.</h1>
-    <p class="sub">Tocsin is scam prevention infrastructure on Ethereum. Your wallet syncs the flag log from chain state and checks every recipient before you sign.</p>
+    <h1 style="font-size:84px">Scam warnings,<br>verified <em>on chain.</em></h1>
+    <p class="sub">Choose whose reports to follow. Verify the published record. Check recipients on your device before you sign.</p>
   </div>
   <div class="panel" style="--y:-440px"><img src="../screens/raw/snap-block.jpg?v=3" alt="MetaMask Flask transaction insight from Tocsin: Blocked, drainer receiver"></div>
-  <div class="chip" style="right: 56px; top: 150px"><div class="label">flagged by</div><div class="v">3 independent writers</div></div>
-  <div class="chip" style="right: 520px; bottom: 150px"><div class="label">checked</div><div class="v">on this device · nothing sent</div></div>
-  <div class="foot"><span>tocsin-eth.vercel.app</span><span>github.com/easonchai/tocsin</span></div>
+  <div class="chip" style="right: 56px; top: 150px"><div class="label">flagged by</div><div class="v">Example writer identities</div></div>
+  <div class="chip" style="right: 520px; bottom: 150px"><div class="label">checked</div><div class="v">Recipient checked locally</div></div>
+  <div class="foot"><span>tocsin-eth.vercel.app/demo</span><span>github.com/easonchai/tocsin</span></div>
 </section>
 
 <!-- 02 pass vs block -->
 <section class="board" data-b="2" style="grid-template-columns: 1fr auto; padding-top: 120px">
   <canvas class="field" data-state="idle"></canvas>
-  <div class="top"><span class="wordmark">🔔 tocsin</span><span class="label">02 / 06 · same send, two recipients</span></div>
+  <div class="top"><span class="wordmark"><img src="mark.svg" alt="">tocsin</span><span class="label">02 / 06 · same send, two recipients</span></div>
   <div>
     <h1 style="font-size:52px">Same send.<br>Lists <em>you</em> chose.<br>One verdict.</h1>
-    <p class="sub">No server is asked. The wallet reads the log it already synced and the lists you follow, so nobody learns what you were about to do.</p>
+    <p class="sub">The wallet checks a locally synced log against your chosen lists. No per-address security lookup is needed; syncing still uses the network.</p>
   </div>
   <div class="pair">
-    <figure><div class="panel sm" style="--y:-600px"><img src="../screens/raw/snap-pass.jpg?v=3" alt="No flags"></div><figcaption><b class="pass">Pass</b>not on any list you follow</figcaption></figure>
+    <figure><div class="panel sm" style="--y:-600px"><img src="../screens/raw/snap-pass.jpg?v=3" alt="No flags"></div><figcaption><b class="pass">Pass</b>no matching flag</figcaption></figure>
     <figure><div class="panel sm" style="--y:-390px"><img src="../screens/raw/snap-block.jpg?v=3" alt="Blocked"></div><figcaption><b class="block">Block</b>drainer receiver</figcaption></figure>
   </div>
-  <div class="foot"><span>63 flags · 4 writers · synced on device</span><span>tocsin.eth</span></div>
+  <div class="foot"><span>Illustrative Snap screens · example writers</span><span>tocsin.eth</span></div>
 </section>
 
 <!-- 03 anatomy of a flag -->
 <section class="board" data-b="3" style="grid-template-columns: auto 1fr; gap: 96px">
   <canvas class="field" data-state="idle"></canvas>
-  <div class="top"><span class="wordmark">🔔 tocsin</span><span class="label">03 / 06 · one flag, opened</span></div>
+  <div class="top"><span class="wordmark"><img src="mark.svg" alt="">tocsin</span><span class="label">03 / 06 · one flag, opened</span></div>
   <div class="panel" style="--y:-700px; height: 600px"><img src="../screens/raw/snap-block.jpg?v=3" alt="Flag detail"></div>
   <div class="callouts">
     <h1 style="font-size:82px;margin-bottom:12px">Every flag carries<br>its receipts.</h1>
-    <div class="co"><div class="label">who said it</div><p>Three writers, each under its own ENS name. <span>No writer can speak for another.</span></p></div>
+    <div class="co"><div class="label">who said it</div><p>Each report is attributed to its writer. <span>The names in this demo are examples.</span></p></div>
     <div class="co"><div class="label">why</div><p>A category your wallet understands: drainer receiver. <span>Warn or block is your policy, not ours.</span></p></div>
-    <div class="co"><div class="label">proof</div><p>Evidence transactions, on chain, one tap away. <span>Nothing to take on faith.</span></p></div>
-    <div class="co"><div class="label">when</div><p>The block it was seen in. <span>Flags only ever get added, never edited.</span></p></div>
+    <div class="co"><div class="label">proof</div><p>Evidence links let you inspect the source. <span>Proof of publication does not prove a report is true.</span></p></div>
+    <div class="co"><div class="label">when</div><p>The report records when it was seen. <span>Published flags remain in the append-only log.</span></p></div>
   </div>
   <div class="foot"><span>tocsin.eth · sepolia</span><span>github.com/easonchai/tocsin</span></div>
 </section>
@@ -123,45 +127,49 @@
 <!-- 04 trust lists -->
 <section class="board" data-b="4">
   <canvas class="field" data-state="idle"></canvas>
-  <div class="top"><span class="wordmark">🔔 tocsin</span><span class="label">04 / 06 · trust lists on ens</span></div>
+  <div class="top"><span class="wordmark"><img src="mark.svg" alt="">tocsin</span><span class="label">04 / 06 · trust lists on ens</span></div>
   <div>
     <h1 style="font-size:78px">You pick who gets<br>to ring the <em>bell</em>.</h1>
-    <p class="sub">A list is a signed ENS text record naming the writers it trusts. Follow three, follow thirty. Two have to agree before a send is blocked.</p>
+    <p class="sub">An ENS text record points to a signed trust list. Your wallet verifies its signature and applies the writer weights you chose.</p>
   </div>
   <div class="lists">
-    <div class="lcard me"><div class="name">core.tocsin.eth</div><div class="who">the Tocsin team · weight 255</div><div class="w">blocks alone</div></div>
-    <div class="lcard"><div class="name">blockaid.tocsin.eth</div><div class="who">security vendor · weight 255</div><div class="w">blocks alone</div></div>
-    <div class="lcard"><div class="name">scamsniffer.tocsin.eth</div><div class="who">phishing researchers · weight 1</div><div class="w">needs a second</div></div>
-    <div class="lcard" style="opacity:.55"><div class="name">detector.tocsin.eth</div><div class="who">automated agent · warn only</div><div class="w">never blocks</div></div>
+    <div class="label">Illustrative policy · your choices</div>
+    <div class="lcard"><div class="name">One writer reports</div><div class="who">An ordinary writer contributes one vote</div><div class="w">Warn</div></div>
+    <div class="lcard"><div class="name">Two independent writers</div><div class="who">Two ordinary writers agree on the address</div><div class="w">Block</div></div>
+    <div class="lcard"><div class="name">Same source, two lists</div><div class="who">Following it twice adds no extra vote</div><div class="w">Counts once</div></div>
+    <div class="lcard me"><div class="name">Chosen blocking writer</div><div class="who">You explicitly give this writer block weight</div><div class="w">Blocks alone</div></div>
   </div>
-  <div class="foot"><span>record key tocsin.list · EIP-712 signed · ENSv2 sepolia</span><span>tocsin.eth</span></div>
+  <div class="foot"><span>Signed lists · ENS lookup · Sepolia prototype</span><span>tocsin.eth</span></div>
 </section>
 
 <!-- 05 the demo page -->
 <section class="board" data-b="5" style="grid-template-columns: 1fr auto; gap: 56px">
   <canvas class="field" data-state="idle"></canvas>
-  <div class="top"><span class="wordmark">🔔 tocsin</span><span class="label">05 / 06 · try it</span></div>
+  <div class="top"><span class="wordmark"><img src="mark.svg" alt="">tocsin</span><span class="label">05 / 06 · try it</span></div>
   <div>
-    <h1 style="font-size:52px">Send to a <em>drainer</em>.<br>Watch it get caught.</h1>
-    <p class="sub">Six Sepolia scenarios. Pick one, the page explains the verdict while your own wallet pops up and blocks it.</p>
+    <h1 style="font-size:52px">Six scenarios.<br>See the <em>decision.</em></h1>
+    <p class="sub">Explore six Sepolia scenarios, including pass, warn and block outcomes. Pick one and compare the explanation with the Snap response.</p>
     <p class="sub" style="font-family:var(--mono);font-size:20px;color:var(--signal)">tocsin-eth.vercel.app/demo</p>
   </div>
-  <div class="browser"><div class="bar"><i></i><i></i><i></i><span>tocsin-eth.vercel.app/demo</span></div><img src="../screens/demo-page-final.png" alt="Demo page"></div>
+  <div class="browser"><div class="bar"><i></i><i></i><i></i><span>Prototype UI · example writers</span></div><img src="../screens/demo-page-final.png" alt="Prototype demo layout with illustrative writer identities and proof flow"></div>
   <div class="foot"><span>sepolia · metamask flask + tocsin snap</span><span>github.com/easonchai/tocsin</span></div>
 </section>
 
-<!-- 06 nothing leaves the device -->
+<!-- 06 integration roles and current status -->
 <section class="board" data-b="6">
   <canvas class="field" data-state="idle"></canvas>
-  <div class="top"><span class="wordmark">🔔 tocsin</span><span class="label">06 / 06 · verified, not trusted</span></div>
+  <div class="top"><span class="wordmark"><img src="mark.svg" alt="">tocsin</span><span class="label">06 / 06 · integration prototype</span></div>
   <div>
-    <h1 style="font-size:96px">Nothing leaves<br>your <em>device</em>.</h1>
-    <p class="sub">Each writer's hash chain is proven against a block header on your device. No API key, no account, no company that can go down, get bought or get subpoenaed.</p>
+    <h1 style="font-size:82px">A wallet that can<br>check the <em>record.</em></h1>
+    <p class="sub">Local recipient checks are one part. Private requests and independent verification each have their own role.</p>
+    <p class="sub">Today’s demo trusts an RPC-supplied header. Full consensus verification is the next step.</p>
   </div>
-  <div class="panel" style="--y:-1000px; height: 250px"><img src="../screens/raw/snap-pass.jpg?v=3" alt="synced, proven, source lines"></div>
-  <div class="chip" style="right: 96px; top: 660px"><div class="label">proven</div><div class="v">4 writer heads · block 12,077,378</div></div>
-  <div class="chip" style="right: 330px; top: 240px"><div class="label">log</div><div class="v">Sepolia 0xb639…5b14</div></div>
-  <div class="foot"><span>tocsin.eth · sepolia</span><span>github.com/easonchai/tocsin</span></div>
+  <div class="lists roles">
+    <div class="lcard"><div class="name">Kohaku</div><div class="who">Wallet integration prototype: bring the reader into the signing flow.</div></div>
+    <div class="lcard"><div class="name">Anon-RPC</div><div class="who">Private request transport: reduce what the RPC can learn about who is asking.</div></div>
+    <div class="lcard me"><div class="name">Light-client verification</div><div class="who">Verify the Ethereum header independently, then check the log against it. Full consensus proof path next.</div></div>
+  </div>
+  <div class="foot"><span>Sepolia prototype · integration work in progress</span><span>github.com/easonchai/tocsin</span></div>
 </section>
 
 <script src="ringfield.js"></script>
@@ -173,7 +181,7 @@
   document.querySelectorAll('.board').forEach(function (sec, i) {
     if (b && !sec.classList.contains('on')) return;
     var c = sec.querySelector('.field');
-    var rf = Tocsin.ringfield(c, { seed: 7 + i, state: c.dataset.state, mask: 'h1, .sub, .top, .foot, .co, .lcard, .pair figcaption' });
+    var rf = Tocsin.ringfield(c, { seed: 7 + i, state: c.dataset.state, mask: 'h1, .sub, .top, .foot, .co, .lcard, .pair figcaption, .chip' });
     window.fields.push(rf);
     var t = sec.querySelector('.panel, .pair, .lists, .browser'); var r = t.getBoundingClientRect(), s = sec.getBoundingClientRect();
     setTimeout(function () { rf.strike(r.left - s.left + r.width / 2, r.top - s.top + r.height / 2); }, 200);
