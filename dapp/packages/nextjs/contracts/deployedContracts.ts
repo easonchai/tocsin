@@ -4,6 +4,677 @@
  */
 import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 
-const deployedContracts = {} as const;
+const deployedContracts = {
+  31337: {
+    ThreatFlagLog: {
+      address: "0xc5616bb2fdccdd761aa969c5c0dfb3d5c7d93865",
+      abi: [
+        {
+          type: "constructor",
+          inputs: [],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "DOMAIN_SEPARATOR",
+          inputs: [],
+          outputs: [
+            {
+              name: "",
+              type: "bytes32",
+              internalType: "bytes32",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "append",
+          inputs: [
+            {
+              name: "leaves",
+              type: "tuple[]",
+              internalType: "struct ThreatFlagLog.Leaf[]",
+              components: [
+                {
+                  name: "chainId",
+                  type: "uint64",
+                  internalType: "uint64",
+                },
+                {
+                  name: "subject",
+                  type: "address",
+                  internalType: "address",
+                },
+                {
+                  name: "category",
+                  type: "uint8",
+                  internalType: "uint8",
+                },
+                {
+                  name: "op",
+                  type: "uint8",
+                  internalType: "uint8",
+                },
+                {
+                  name: "evidence",
+                  type: "bytes32",
+                  internalType: "bytes32",
+                },
+                {
+                  name: "seenBlock",
+                  type: "uint64",
+                  internalType: "uint64",
+                },
+                {
+                  name: "refLeaf",
+                  type: "bytes32",
+                  internalType: "bytes32",
+                },
+              ],
+            },
+          ],
+          outputs: [],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "appendSigned",
+          inputs: [
+            {
+              name: "writer",
+              type: "address",
+              internalType: "address",
+            },
+            {
+              name: "leaves",
+              type: "tuple[]",
+              internalType: "struct ThreatFlagLog.Leaf[]",
+              components: [
+                {
+                  name: "chainId",
+                  type: "uint64",
+                  internalType: "uint64",
+                },
+                {
+                  name: "subject",
+                  type: "address",
+                  internalType: "address",
+                },
+                {
+                  name: "category",
+                  type: "uint8",
+                  internalType: "uint8",
+                },
+                {
+                  name: "op",
+                  type: "uint8",
+                  internalType: "uint8",
+                },
+                {
+                  name: "evidence",
+                  type: "bytes32",
+                  internalType: "bytes32",
+                },
+                {
+                  name: "seenBlock",
+                  type: "uint64",
+                  internalType: "uint64",
+                },
+                {
+                  name: "refLeaf",
+                  type: "bytes32",
+                  internalType: "bytes32",
+                },
+              ],
+            },
+            {
+              name: "deadline",
+              type: "uint256",
+              internalType: "uint256",
+            },
+            {
+              name: "nonce",
+              type: "uint256",
+              internalType: "uint256",
+            },
+            {
+              name: "signature",
+              type: "bytes",
+              internalType: "bytes",
+            },
+          ],
+          outputs: [],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "globalHead",
+          inputs: [],
+          outputs: [
+            {
+              name: "",
+              type: "bytes32",
+              internalType: "bytes32",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "globalSeq",
+          inputs: [],
+          outputs: [
+            {
+              name: "",
+              type: "uint64",
+              internalType: "uint64",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "signatureNonce",
+          inputs: [
+            {
+              name: "",
+              type: "address",
+              internalType: "address",
+            },
+          ],
+          outputs: [
+            {
+              name: "",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "supportsInterface",
+          inputs: [
+            {
+              name: "interfaceId",
+              type: "bytes4",
+              internalType: "bytes4",
+            },
+          ],
+          outputs: [
+            {
+              name: "",
+              type: "bool",
+              internalType: "bool",
+            },
+          ],
+          stateMutability: "pure",
+        },
+        {
+          type: "function",
+          name: "writerHead",
+          inputs: [
+            {
+              name: "",
+              type: "address",
+              internalType: "address",
+            },
+          ],
+          outputs: [
+            {
+              name: "",
+              type: "bytes32",
+              internalType: "bytes32",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "writerSeq",
+          inputs: [
+            {
+              name: "",
+              type: "address",
+              internalType: "address",
+            },
+          ],
+          outputs: [
+            {
+              name: "",
+              type: "uint64",
+              internalType: "uint64",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "event",
+          name: "Appended",
+          inputs: [
+            {
+              name: "writer",
+              type: "address",
+              indexed: true,
+              internalType: "address",
+            },
+            {
+              name: "writerSeq",
+              type: "uint64",
+              indexed: true,
+              internalType: "uint64",
+            },
+            {
+              name: "globalSeq",
+              type: "uint64",
+              indexed: false,
+              internalType: "uint64",
+            },
+            {
+              name: "leafHash",
+              type: "bytes32",
+              indexed: false,
+              internalType: "bytes32",
+            },
+            {
+              name: "writerHead",
+              type: "bytes32",
+              indexed: false,
+              internalType: "bytes32",
+            },
+            {
+              name: "globalHead",
+              type: "bytes32",
+              indexed: false,
+              internalType: "bytes32",
+            },
+            {
+              name: "leaf",
+              type: "tuple",
+              indexed: false,
+              internalType: "struct ThreatFlagLog.Leaf",
+              components: [
+                {
+                  name: "chainId",
+                  type: "uint64",
+                  internalType: "uint64",
+                },
+                {
+                  name: "subject",
+                  type: "address",
+                  internalType: "address",
+                },
+                {
+                  name: "category",
+                  type: "uint8",
+                  internalType: "uint8",
+                },
+                {
+                  name: "op",
+                  type: "uint8",
+                  internalType: "uint8",
+                },
+                {
+                  name: "evidence",
+                  type: "bytes32",
+                  internalType: "bytes32",
+                },
+                {
+                  name: "seenBlock",
+                  type: "uint64",
+                  internalType: "uint64",
+                },
+                {
+                  name: "refLeaf",
+                  type: "bytes32",
+                  internalType: "bytes32",
+                },
+              ],
+            },
+          ],
+          anonymous: false,
+        },
+      ],
+      inheritedFunctions: {},
+      deployedOnBlock: 1,
+    },
+  },
+  11155111: {
+    ThreatFlagLog: {
+      address: "0xb639d15a0e7ae24e4c32e851fbe0e57585565b14",
+      abi: [
+        {
+          type: "constructor",
+          inputs: [],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "DOMAIN_SEPARATOR",
+          inputs: [],
+          outputs: [
+            {
+              name: "",
+              type: "bytes32",
+              internalType: "bytes32",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "append",
+          inputs: [
+            {
+              name: "leaves",
+              type: "tuple[]",
+              internalType: "struct ThreatFlagLog.Leaf[]",
+              components: [
+                {
+                  name: "chainId",
+                  type: "uint64",
+                  internalType: "uint64",
+                },
+                {
+                  name: "subject",
+                  type: "address",
+                  internalType: "address",
+                },
+                {
+                  name: "category",
+                  type: "uint8",
+                  internalType: "uint8",
+                },
+                {
+                  name: "op",
+                  type: "uint8",
+                  internalType: "uint8",
+                },
+                {
+                  name: "evidence",
+                  type: "bytes32",
+                  internalType: "bytes32",
+                },
+                {
+                  name: "seenBlock",
+                  type: "uint64",
+                  internalType: "uint64",
+                },
+                {
+                  name: "refLeaf",
+                  type: "bytes32",
+                  internalType: "bytes32",
+                },
+              ],
+            },
+          ],
+          outputs: [],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "appendSigned",
+          inputs: [
+            {
+              name: "writer",
+              type: "address",
+              internalType: "address",
+            },
+            {
+              name: "leaves",
+              type: "tuple[]",
+              internalType: "struct ThreatFlagLog.Leaf[]",
+              components: [
+                {
+                  name: "chainId",
+                  type: "uint64",
+                  internalType: "uint64",
+                },
+                {
+                  name: "subject",
+                  type: "address",
+                  internalType: "address",
+                },
+                {
+                  name: "category",
+                  type: "uint8",
+                  internalType: "uint8",
+                },
+                {
+                  name: "op",
+                  type: "uint8",
+                  internalType: "uint8",
+                },
+                {
+                  name: "evidence",
+                  type: "bytes32",
+                  internalType: "bytes32",
+                },
+                {
+                  name: "seenBlock",
+                  type: "uint64",
+                  internalType: "uint64",
+                },
+                {
+                  name: "refLeaf",
+                  type: "bytes32",
+                  internalType: "bytes32",
+                },
+              ],
+            },
+            {
+              name: "deadline",
+              type: "uint256",
+              internalType: "uint256",
+            },
+            {
+              name: "nonce",
+              type: "uint256",
+              internalType: "uint256",
+            },
+            {
+              name: "signature",
+              type: "bytes",
+              internalType: "bytes",
+            },
+          ],
+          outputs: [],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "globalHead",
+          inputs: [],
+          outputs: [
+            {
+              name: "",
+              type: "bytes32",
+              internalType: "bytes32",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "globalSeq",
+          inputs: [],
+          outputs: [
+            {
+              name: "",
+              type: "uint64",
+              internalType: "uint64",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "signatureNonce",
+          inputs: [
+            {
+              name: "",
+              type: "address",
+              internalType: "address",
+            },
+          ],
+          outputs: [
+            {
+              name: "",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "supportsInterface",
+          inputs: [
+            {
+              name: "interfaceId",
+              type: "bytes4",
+              internalType: "bytes4",
+            },
+          ],
+          outputs: [
+            {
+              name: "",
+              type: "bool",
+              internalType: "bool",
+            },
+          ],
+          stateMutability: "pure",
+        },
+        {
+          type: "function",
+          name: "writerHead",
+          inputs: [
+            {
+              name: "",
+              type: "address",
+              internalType: "address",
+            },
+          ],
+          outputs: [
+            {
+              name: "",
+              type: "bytes32",
+              internalType: "bytes32",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "writerSeq",
+          inputs: [
+            {
+              name: "",
+              type: "address",
+              internalType: "address",
+            },
+          ],
+          outputs: [
+            {
+              name: "",
+              type: "uint64",
+              internalType: "uint64",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "event",
+          name: "Appended",
+          inputs: [
+            {
+              name: "writer",
+              type: "address",
+              indexed: true,
+              internalType: "address",
+            },
+            {
+              name: "writerSeq",
+              type: "uint64",
+              indexed: true,
+              internalType: "uint64",
+            },
+            {
+              name: "globalSeq",
+              type: "uint64",
+              indexed: false,
+              internalType: "uint64",
+            },
+            {
+              name: "leafHash",
+              type: "bytes32",
+              indexed: false,
+              internalType: "bytes32",
+            },
+            {
+              name: "writerHead",
+              type: "bytes32",
+              indexed: false,
+              internalType: "bytes32",
+            },
+            {
+              name: "globalHead",
+              type: "bytes32",
+              indexed: false,
+              internalType: "bytes32",
+            },
+            {
+              name: "leaf",
+              type: "tuple",
+              indexed: false,
+              internalType: "struct ThreatFlagLog.Leaf",
+              components: [
+                {
+                  name: "chainId",
+                  type: "uint64",
+                  internalType: "uint64",
+                },
+                {
+                  name: "subject",
+                  type: "address",
+                  internalType: "address",
+                },
+                {
+                  name: "category",
+                  type: "uint8",
+                  internalType: "uint8",
+                },
+                {
+                  name: "op",
+                  type: "uint8",
+                  internalType: "uint8",
+                },
+                {
+                  name: "evidence",
+                  type: "bytes32",
+                  internalType: "bytes32",
+                },
+                {
+                  name: "seenBlock",
+                  type: "uint64",
+                  internalType: "uint64",
+                },
+                {
+                  name: "refLeaf",
+                  type: "bytes32",
+                  internalType: "bytes32",
+                },
+              ],
+            },
+          ],
+          anonymous: false,
+        },
+      ],
+      inheritedFunctions: {},
+      deployedOnBlock: 12074077,
+    },
+  },
+} as const;
 
 export default deployedContracts satisfies GenericContractsDeclaration;
