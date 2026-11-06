@@ -11,3 +11,7 @@ cache/
 .cursor/
 .opencode/
 .mcp.json
+dist/
+scripts/.env
+scripts/ens/out/
+scripts/ens/cache/

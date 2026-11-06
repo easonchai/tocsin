@@ -3,26 +3,35 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Tocsin — herd immunity for Ethereum</title>
+<title>Tocsin. Your wallet checked Ethereum itself.</title>
 <meta name="description" content="An immutable, append-only on-chain log of scam infrastructure that any light-client wallet verifies without trusting an RPC, an explorer, or a vendor. ERC draft: Append-Only Threat Flag Log.">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 22V13M12 13L4 3M12 13L20 3' fill='none' stroke='%23e9a23b' stroke-width='2.4' stroke-linecap='round'/></svg>">
+<link rel="icon" href="../design/kit/favicon.svg">
+<link rel="canonical" href="https://tocsin.eth.limo/">
+<meta property="og:title" content="Tocsin. Your wallet checked Ethereum itself.">
+<meta property="og:description" content="An append-only on-chain log of scam infrastructure that any light-client wallet verifies without trusting an RPC.">
+<meta property="og:image" content="https://tocsin.eth.limo/og.png">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="../design/kit/scenes.css">
 </head>
 <body>
+<canvas id="field" aria-hidden="true"></canvas>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><g id="mark"><g fill="none" stroke="#ece7dc" stroke-width="1.4" stroke-linecap="square"><path d="M8.80 17.50C10.08 17.50 9.92 16.10 10.02 15.50C10.11 14.90 10.40 13.50 12.00 13.50C13.60 13.50 13.89 14.90 13.98 15.50C14.08 16.10 13.92 17.50 15.20 17.50"/><path d="M5.60 17.50C8.16 17.50 7.84 14.70 8.03 13.50C8.22 12.30 8.80 9.50 12.00 9.50C15.20 9.50 15.78 12.30 15.97 13.50C16.16 14.70 15.84 17.50 18.40 17.50"/><path d="M2.00 17.50C6.00 17.50 5.50 13.12 5.80 11.25C6.10 9.38 7.00 5.00 12.00 5.00C17.00 5.00 17.90 9.38 18.20 11.25C18.50 13.12 18.00 17.50 22.00 17.50" opacity=".5"/></g><path d="M2 18.5h20" stroke="#ece7dc" stroke-width="1.4" stroke-linecap="square"/><circle cx="12" cy="15.6" r=".8" fill="#ece7dc"/></g></defs></svg>
 
 <nav class="nav">
   <div class="wrap">
     <a class="wordmark" href="#top">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22V13M12 13L4 3M12 13L20 3" fill="none" stroke="#e9a23b" stroke-width="2.4" stroke-linecap="round"/></svg>
-      Tocsin
+      <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#mark"/></svg>
+      tocsin
     </a>
     <div class="nav-links">
+      <a href="#minute">In one minute</a>
       <a href="#why">Why</a>
       <a href="#how">How it works</a>
       <a href="#trust">Trust</a>
-      <a href="#read">Read path</a>
-      <a href="#scope">Scope</a>
       <a href="#faq">FAQ</a>
+      <a href="claim.html">Claim a name</a>
+      <a href="https://github.com/easonchai/tocsin">GitHub</a>
     </div>
     <a class="btn" href="erc.html">ERC draft <span class="arrow">→</span></a>
   </div>
@@ -32,13 +41,14 @@
   <div class="wrap split">
     <div class="left">
       <div class="eyebrow rv">ERC draft · Append-Only Threat Flag Log</div>
-      <h1 class="rv">Herd immunity<br>for <em>Ethereum.</em></h1>
-      <p class="lede rv">An append-only on-chain log of scam infrastructure that any light-client wallet verifies without trusting an RPC, an explorer, or a vendor. The first wallet bitten immunizes every wallet that syncs.</p>
-      <div class="ctas rv">
+      <h1 class="rv d1">Your wallet checked<br>Ethereum <em>itself.</em></h1>
+      <p class="lede rv d2">Every wallet asks a company whether an address is safe. That company can be hacked, bought, or lied to, and it sees who is asking. Tocsin is a log of scam infrastructure on Ethereum that nobody can edit, and a reader your wallet runs to prove it against Ethereum itself. The endpoint cannot lie to you, and cannot tell it is you.</p>
+      <div class="ctas rv d2">
         <a class="btn primary" href="erc.html">Read the ERC draft <span class="arrow">→</span></a>
+        <a class="btn" href="https://github.com/easonchai/tocsin#demo">Demo <span class="arrow">↗</span></a><!-- TODO: replace with the live demo URL -->
         <a class="btn" href="#how">How it works</a>
       </div>
-      <div class="meta rv">
+      <div class="meta rv d2">
         <span>status <b>Draft</b></span>
         <span>category <b>ERC</b></span>
         <span>requires <b>712, 1271</b></span>
@@ -53,27 +63,50 @@
           <button class="replay" id="replay">replay</button>
         </div>
         <div class="term-body" id="term-body"></div>
-        <div class="term-foot">The RPC lied. The wallet never asked it who to trust.</div>
+        <div class="term-foot" id="term-foot"></div>
       </div>
     </div>
   </div>
 </header>
 
-<div class="stats">
-  <div class="wrap grid">
-    <div class="stat rv"><div class="v">0.002<span>%</span></div><div class="l">of detected phishing addresses carried an explorer label</div><div class="s">Guan &amp; Li, CCS 2024 · Jun 2023 sample</div></div>
-    <div class="stat rv"><div class="v">1 <span>/</span> 9,000</div><div class="l">lookalike addresses ever got paid. Lists lose on fresh ones.</div><div class="s">Tsuchiya et al., USENIX Security 2025</div></div>
-    <div class="stat rv"><div class="v">97<span>%</span></div><div class="l">of poisoning dust comes from 49 operator groups. Lists win here.</div><div class="s">same dataset, 270M transfers</div></div>
-    <div class="stat rv"><div class="v">~10k</div><div class="l">gas per flag on L1, paid by the writer. A year of 50,000 flags is a few hundred dollars.</div><div class="s">measured, batches of 100, 0.2–0.5 gwei</div></div>
+<section id="minute">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">In one minute</div>
+      <h2>Not a list. A log nobody can edit, and a wallet that checks it without asking anyone.</h2>
+      <p class="lede">Three parts: a contract, a reader, and a standard. The contract is deliberately dumb. The reader is where the work is.</p>
+    </div>
+    <div class="minute rv">
+      <div>
+        <div class="eyebrow"><span class="n">1</span>What it is</div>
+        <h3>A log on Ethereum with no owner and no delete.</h3>
+        <p>Anyone can write a flag about an address under their own name. Nothing is ever removed, not by the writer, not by the scammer, not by us. Corrections are new entries. A reader that stops believing a writer drops the writer, and the record stays.</p>
+      </div>
+      <div>
+        <div class="eyebrow"><span class="n">2</span>Why it is not just a list</div>
+        <h3>The wallet never trusts the server that hands it the list.</h3>
+        <p>Every list before this had an owner who could edit it, a server that could lie, and a lookup that told the server who you are. Here the wallet syncs the flags of the writers it chose and checks addresses on the device. It never asks anyone about an address. An attacker cannot lie to you, and cannot tell it is you.</p>
+      </div>
+      <div>
+        <div class="eyebrow"><span class="n">3</span>How it knows without trusting anyone</div>
+        <h3>Prove the end of the chain, then replay to it.</h3>
+        <ol>
+          <li>The contract hashes every flag into a chain. The end of that chain, the head, sits in Ethereum's state.</li>
+          <li>The wallet's light client verifies a finalized block from validator signatures. No RPC is trusted.</li>
+          <li>One storage proof against that block gives the wallet the head of every writer it follows.</li>
+          <li>It downloads the flags from anywhere, even a lying RPC, and replays them. They land on the proven head or they do not. Landing means real and complete. Not landing means unverifiable, never clean.</li>
+        </ol>
+      </div>
+    </div>
   </div>
-</div>
+</section>
 
 <section id="why">
   <div class="wrap">
     <div class="section-head">
-      <div class="eyebrow"><span class="n">01</span>Why</div>
-      <h2>Every wallet asks a company whether to trust an address.</h2>
-      <p class="lede">Explorer labels, phishing databases, and simulation vendors each hold a private list, serve it from an API, and see every address you ask about. A wallet that embeds a light client and refuses to trust an RPC still has to trust a label server. The one check that prevents the most common losses is the one check that stays unverifiable and non-private.</p>
+      <div class="eyebrow">Why</div>
+      <h2>A targeted attack needs a party that can lie, and a way to know it is you.</h2>
+      <p class="lede">Today's security lookups give an attacker both. Explorer labels, phishing databases, and simulation vendors each hold a private list, serve it from an API, and see every address you ask about. A compromised endpoint can lie to one victim and stay honest to everyone else, which is why nobody notices. In a 2023 sample, 0.002% of detected phishing addresses carried an explorer label. Even a wallet with a light client still trusts a label server for the one check that prevents the most common losses.</p>
     </div>
     <div class="argue rv">
       <div>
@@ -106,71 +139,14 @@
 <section id="how">
   <div class="wrap">
     <div class="section-head">
-      <div class="eyebrow"><span class="n">02</span>How it works</div>
-      <h2>A dumb log, chosen lists, one proven slot.</h2>
+      <div class="eyebrow">How it works</div>
+      <h2>The log is dumb on purpose.</h2>
       <p class="lede">The log assigns no weight, computes no score, and has no owner. Trust lives in lists the reader picks. Verification costs one storage proof.</p>
     </div>
-    <div class="diagram rv">
-      <svg viewBox="0 54 1100 338" role="img" aria-label="Writers append to the log, mirrors serve leaves, the wallet proves one slot and applies pinned lists">
-        <defs>
-          <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#c9c3b6"/></marker>
-          <marker id="arr-amber" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#e9a23b"/></marker>
-        </defs>
-        <!-- solid: data flow. dashed amber: the one thing the wallet verifies itself -->
-        <g fill="none" stroke="#c9c3b6" stroke-width="1.5">
-          <path d="M224 190H300" marker-end="url(#arr)"/>
-          <path d="M540 150H600" marker-end="url(#arr)"/>
-          <path d="M790 125H900" marker-end="url(#arr)"/>
-          <path d="M790 295H900" marker-end="url(#arr)"/>
-        </g>
-        <path d="M420 245V372H992V320" fill="none" stroke="#e9a23b" stroke-width="2.25" stroke-dasharray="7 6" marker-end="url(#arr-amber)"/>
-        <g font-family="JetBrains Mono, monospace" font-size="13">
-          <rect x="228" y="165" width="68" height="20" rx="3" fill="#121418"/><text x="262" y="179" text-anchor="middle" fill="#c9c3b6">leaves</text>
-          <rect x="539" y="127" width="62" height="20" rx="3" fill="#121418"/><text x="570" y="141" text-anchor="middle" fill="#c9c3b6">events</text>
-          <rect x="805" y="102" width="80" height="20" rx="3" fill="#121418"/><text x="845" y="116" text-anchor="middle" fill="#c9c3b6">snapshot</text>
-          <rect x="788" y="272" width="114" height="20" rx="3" fill="#121418"/><text x="845" y="286" text-anchor="middle" fill="#c9c3b6">pinned by name</text>
-          <rect x="592" y="362" width="228" height="20" rx="3" fill="#121418"/><text x="706" y="376" text-anchor="middle" fill="#e9a23b">slot proof · verified on-device</text>
-        </g>
-        <g font-family="Schibsted Grotesk, sans-serif" font-size="14" fill="#c9c3b6">
-          <rect x="24" y="135" width="200" height="110" rx="3" fill="#0b0c0e" stroke="#3a3f47"/>
-          <text x="124" y="162" text-anchor="middle" font-family="Bricolage Grotesque, sans-serif" font-size="16" font-weight="600" fill="#ece7dc">Writers</text>
-          <text x="124" y="186" text-anchor="middle">SEAL · Scam Sniffer · detectors</text>
-          <text x="124" y="206" text-anchor="middle">any key, own namespace</text>
-          <text x="124" y="226" text-anchor="middle" fill="#8f8b82">zero weight by default</text>
-
-          <rect x="300" y="135" width="240" height="110" rx="3" fill="#0b0c0e" stroke="#c9c3b6" stroke-width="1.5"/>
-          <text x="420" y="162" text-anchor="middle" font-family="Bricolage Grotesque, sans-serif" font-size="16" font-weight="600" fill="#ece7dc">Threat flag log · L1</text>
-          <text x="420" y="186" text-anchor="middle">chain per writer + global chain</text>
-          <text x="420" y="206" text-anchor="middle">one head slot per writer</text>
-          <text x="420" y="226" text-anchor="middle" fill="#8f8b82">immutable · no admin · no delete</text>
-
-          <rect x="600" y="80" width="190" height="90" rx="3" fill="#0b0c0e" stroke="#3a3f47"/>
-          <text x="695" y="106" text-anchor="middle" font-family="Bricolage Grotesque, sans-serif" font-size="16" font-weight="600" fill="#ece7dc">Untrusted mirror</text>
-          <text x="695" y="130" text-anchor="middle">IPFS · torrent · eth_getLogs</text>
-          <text x="695" y="150" text-anchor="middle" fill="#8f8b82">a lie shows as a mismatch</text>
-
-          <rect x="600" y="250" width="190" height="90" rx="3" fill="#0b0c0e" stroke="#3a3f47"/>
-          <text x="695" y="276" text-anchor="middle" font-family="Bricolage Grotesque, sans-serif" font-size="16" font-weight="600" fill="#ece7dc">Trust lists · ENS</text>
-          <text x="695" y="300" text-anchor="middle">seal.tocsin.eth</text>
-          <text x="695" y="320" text-anchor="middle" fill="#8f8b82">writer · weight · operator · pins</text>
-
-          <rect x="900" y="100" width="184" height="220" rx="3" fill="#1a1d22" stroke="#ece7dc" stroke-width="1.5"/>
-          <text x="992" y="134" text-anchor="middle" font-family="Bricolage Grotesque, sans-serif" font-size="19" font-weight="700" fill="#ece7dc">Wallet</text>
-          <text x="992" y="154" text-anchor="middle" fill="#8f8b82">light client</text>
-          <text x="992" y="190" text-anchor="middle">proves trusted heads</text>
-          <text x="992" y="212" text-anchor="middle">replays every leaf</text>
-          <text x="992" y="234" text-anchor="middle">applies pinned lists</text>
-          <text x="992" y="256" text-anchor="middle">checks on-device</text>
-          <text x="992" y="292" text-anchor="middle" fill="#ece7dc" font-weight="600">no query leaves the phone</text>
-        </g>
-      </svg>
-      <p class="cap">Solid arrows carry data from anyone. The dashed amber path is the only thing the wallet verifies itself, and it is enough.</p>
-    </div>
-    <div class="steps">
-      <div class="step rv"><div class="n">1 · APPEND</div><p>A writer calls <code>append(Leaf[])</code>. Each leaf names a subject, a category, an evidence hash, and an op: flag, tombstone, counter, or dispute. The writer is <code>msg.sender</code> or an EIP-712 signer.</p></div>
-      <div class="step rv"><div class="n">2 · CHAIN</div><p>Every leaf is hashed with its writer, block, and sequence, then folded into the writer's chain and one global chain. Writers submit leaves, never roots. Nothing is ever deleted.</p></div>
-      <div class="step rv"><div class="n">3 · CHOOSE</div><p>A trust list names writers with weights, declared operator and upstream, and block-range or head pins, published under an ENS name. One listed writer warns. Two independent writers block.</p></div>
-      <div class="step rv"><div class="n">4 · PROVE</div><p>A light client proves the heads of the writers its lists name, syncs those writers' leaves from any mirror, replays each chain, and checks every address on-device.</p></div>
+    <div class="scenes">
+      <div class="scene rv"><div><h3>One bite, everyone immune</h3><p>Someone pays a scam address. A writer records it in the log under its own name. The log hashes it into that writer's chain, where nothing can be removed. Every wallet that syncs the log now knows.</p></div><div class="frame" data-scene="append" aria-label="Writers append leaves into their own chains in the log"></div></div>
+      <div class="scene rv"><div><h3>Your wallet checks Ethereum itself</h3><p>You paste an address. The wallet asks Ethereum, not a company, for the log's head, and checks the proof on the device. Then it downloads the flags from anywhere and replays them until they match. Flagged means blocked, and nobody was asked.</p></div><div class="frame" data-scene="prove" aria-label="The wallet proves a head and replays leaves to it"></div></div>
+      <div class="scene rv"><div><h3>An RPC lies. The wallet notices</h3><p>The RPC says clean and hands over flags with one missing. The wallet replays them and the chain never reaches the head Ethereum proved. It says unverifiable, never clean.</p></div><div class="frame" data-scene="lie" aria-label="A lying RPC is caught by a chain mismatch"></div></div>
     </div>
   </div>
 </section>
@@ -178,46 +154,11 @@
 <section id="trust">
   <div class="wrap">
     <div class="section-head">
-      <div class="eyebrow"><span class="n">03</span>Trust</div>
-      <h2>We don't fight sybils. We ignore them.</h2>
+      <div class="eyebrow">Trust</div>
+      <h2>We don't fight sybils.<br>We ignore them.</h2>
       <p class="lede">Writing is free and worthless by default. Weight comes only from a list the reader chose, and lists are maintained by named parties with a public, forkable, on-chain record. The hard problem moves from “who may write” to “who curates,” which is how browser root stores and filter lists have resisted sybils for decades.</p>
     </div>
-    <div class="cards">
-      <div class="card rv">
-        <div class="k">Namespaces</div>
-        <h3>Writes go nowhere</h3>
-        <p>Ten thousand sybil writers produce ten thousand namespaces that no wallet reads. The attacker pays gas to shout into an empty room. There is no averaging, no vote, and no “clean” leaf, so a scammer cannot whitewash an address either.</p>
-      </div>
-      <div class="card rv">
-        <div class="k">Lists</div>
-        <h3>Trust has a name</h3>
-        <p>A list entry declares its operator and upstream. Two keys from one company count once. Two honest writers mirroring the same vendor count once. Independence is declared by the maintainer, not claimed by the writer.</p>
-      </div>
-      <div class="card rv">
-        <div class="k">Pins</div>
-        <h3>Compromise is bounded</h3>
-        <p>A leaked writer key is cut at the block it leaked, with one list update every reader applies on next sync. A head pin is a git commit: trust a writer's chain up to an exact head and ignore later appends. The never-block safelist caps any single mistake at a warning.</p>
-      </div>
-    </div>
-
-    <div class="listentry rv">
-      <div>
-        <h3>One entry, five decisions</h3>
-        <p>Who the writer is, how much it counts, who operates it and where its data comes from, which block range to believe, and optionally an exact head to stop at. Everything a reader needs to cut a compromised key or freeze a version lives in the list, not in the log.</p>
-      </div>
-      <pre>ListEntry {
-  writer      0x5EA1…d4c2
-  weight      200          // sums toward the reader's threshold
-  operator    keccak("seal")
-  upstream    0x0          // original data, not a mirror
-  fromBlock   23_410_000   // count leaves from here
-  toBlock     0            // open; set to cut a leaked key
-  headPin     0x0          // 0 = follow the chain; else stop at this head
-  categories  0b0000_0000_1111_1110
-}</pre>
-    </div>
-
-    <div class="table-wrap rv" style="margin-top:48px">
+    <div class="table-wrap rv">
       <table>
         <thead><tr><th>Attack</th><th>Bonded attesters</th><th>Committee</th><th>Deterministic facts</th><th>Tocsin</th></tr></thead>
         <tbody>
@@ -229,21 +170,26 @@
         </tbody>
       </table>
     </div>
+    <div class="rows rv">
+      <div class="r"><span class="label">namespaces</span><p>Ten thousand sybil writers produce ten thousand namespaces that no wallet reads. The attacker pays gas to shout into an empty room. There is no averaging and no "clean" leaf, so a scammer cannot whitewash an address either.</p></div>
+      <div class="r"><span class="label">lists</span><p>A list entry declares its operator and upstream. Two keys from one company count once. Two honest writers mirroring the same vendor count once. Independence is declared by the maintainer, not claimed by the writer.</p></div>
+      <div class="r"><span class="label">pins</span><p>A leaked writer key is cut at the block it leaked, with one list update every reader applies on next sync. A head pin is a git commit: trust a chain up to an exact head and ignore later appends. The never-block safelist caps any single mistake at a warning.</p></div>
+    </div>
   </div>
 </section>
 
 <section id="read">
   <div class="wrap">
     <div class="section-head">
-      <div class="eyebrow"><span class="n">04</span>Read path</div>
-      <h2>One proof. Full sync. Zero leaks.</h2>
+      <div class="eyebrow">Read path</div>
+      <h2>The read path leaks nothing.</h2>
       <p class="lede">A per-address proof tells the proof server which address you are about to pay. A prefix bucket tells it almost as much once it has seen your balance queries. Tocsin keeps the permanent set small enough that a phone proves one slot, syncs the whole set, and checks locally.</p>
     </div>
     <div class="privacy">
       <div class="proof rv">
-        <div class="row"><span>per-address slot proof</span><b class="leak">leaks recipient</b></div>
-        <div class="row"><span>prefix bucket proof</span><b class="leak">leaks prefix, intersects history</b></div>
-        <div class="row"><span>vendor API call</span><b class="leak">leaks everything</b></div>
+        <div class="row leak"><span>per-address slot proof</span><b>leaks recipient</b></div>
+        <div class="row leak"><span>prefix bucket proof</span><b>leaks prefix, intersects history</b></div>
+        <div class="row leak"><span>vendor API call</span><b>leaks everything</b></div>
         <div class="row"><span>per-writer head proofs + full sync</span><b>leaks only which lists you use</b></div>
         <div class="row"><span>proof size</span><b>~5–8 kB</b></div>
         <div class="row"><span>permanent set, 50k leaves/yr</span><b>~3 MB raw, &lt;1 MB gz</b></div>
@@ -264,50 +210,39 @@
   <div class="table-bleed rv">
     <div class="wrap table-head">
       <div>
-        <div class="eyebrow"><span class="n">05</span>Scope</div>
-        <h2>Flag what attackers can't afford to rotate.</h2>
+        <div class="eyebrow">Scope</div>
+        <h2>Flag what attackers can't afford to rotate</h2>
       </div>
       <p class="lede">Every subject must be provable by a signature or by code, never by a log field an attacker controls. Unpaid lookalikes never enter the permanent core.</p>
     </div>
-    <div class="wrap">
-      <table>
-        <thead><tr><th>#</th><th>Category</th><th>Subject</th><th>Proven by</th><th>Policy</th></tr></thead>
-        <tbody>
-          <tr><td>1</td><td>POISONING_OPERATOR</td><td>EOA that paid gas for dust planting a lookalike</td><td><code>tx.from</code>, signer-recovered</td><td>live immediately</td></tr>
-          <tr><td>2</td><td>POISONING_FUNDER</td><td>Account whose outflows fund lookalikes at a high ratio</td><td>funding transfers, fan-out rule</td><td>warn only</td></tr>
-          <tr><td>3</td><td>DRAINER_RECEIVER</td><td>Fee-split or storage contract that kits forward to</td><td>forwarding trace</td><td>two writers to block</td></tr>
-          <tr><td>4</td><td>MALICIOUS_DELEGATE</td><td>7702 delegate that sweeps to a hard-coded address</td><td>codehash via <code>EXTCODECOPY</code></td><td>two writers to block</td></tr>
-          <tr><td>5</td><td>MALICIOUS_TOKEN</td><td>Contract emitting fake Transfer events</td><td>deployer <code>tx.from</code></td><td>live immediately</td></tr>
-          <tr><td>6</td><td>PAID_LOOKALIKE</td><td>A lookalike a victim actually paid</td><td>victim's payment receipt</td><td>live immediately</td></tr>
-          <tr><td>7</td><td>DRAINER_SPENDER</td><td>Contract that used approvals or permits to drain</td><td>drain transaction</td><td>two writers to block</td></tr>
-          <tr class="reserved"><td>128+</td><td><span class="mono">reserved · noisy</span></td><td>Unpaid lookalikes, high-volume detections</td><td>writer-defined</td><td>off by default</td></tr>
-        </tbody>
-      </table>
+    <div class="wrap chips">
+      <span>1 · POISONING_OPERATOR<b>live</b></span>
+      <span>2 · POISONING_FUNDER<b>warn only</b></span>
+      <span>3 · DRAINER_RECEIVER<b>2 writers</b></span>
+      <span>4 · MALICIOUS_DELEGATE<b>2 writers</b></span>
+      <span>5 · MALICIOUS_TOKEN<b>live</b></span>
+      <span>6 · PAID_LOOKALIKE<b>live</b></span>
+      <span>7 · DRAINER_SPENDER<b>2 writers</b></span>
+      <span class="off">128+ · noisy<b>off by default</b></span>
+      <a href="erc.html#categories">subjects and proofs for each, in the draft →</a>
     </div>
   </div>
 </section>
 
 <section id="erc">
   <div class="wrap">
-    <div class="section-head grid">
-      <div class="span-7">
-        <div class="eyebrow"><span class="n">06</span>The standard</div>
-        <h2>Why an ERC and not a product.</h2>
-        <p class="lede">Writers and readers will never coordinate directly. Without a shared leaf encoding every wallet writes a parser per writer. Without a shared list encoding every curator invents a format. Without a shared read procedure the light-client property dies at the first integration. The ERC standardizes those three things and nothing else. It does not say who is right.</p>
-      </div>
-      <div class="span-5">
-        <div class="pre erc-pre">
+    <div class="section-head">
+      <div class="eyebrow">The standard</div>
+      <h2>Why an ERC and not a product.</h2>
+      <div class="pre erc-pre">
 <span class="f">title:</span> Append-Only Threat Flag Log<br>
-<span class="f">description:</span> An immutable, namespaced, light-client-verifiable log of flagged addresses with reader-chosen trust lists.<br>
-<span class="f">status:</span> <span class="s">Draft</span><br>
-<span class="f">type:</span> Standards Track · <span class="f">category:</span> ERC<br>
-<span class="f">requires:</span> 712, 1271<br>
-<span class="f">created:</span> 2026-11-04
-        </div>
+<span class="f">status:</span> <span class="s">Draft</span> · <span class="f">type:</span> Standards Track · <span class="f">category:</span> ERC<br>
+<span class="f">requires:</span> 712, 1271, 7730 · <span class="f">created:</span> 2026-11-04
       </div>
     </div>
     <div class="erc rv">
       <div>
+        <p class="lede">Writers and readers will never coordinate directly. Without a shared leaf encoding every wallet writes a parser per writer. Without a shared list encoding every curator invents a format. Without a shared read procedure the light-client property dies at the first integration. The ERC standardizes those three things and nothing else. It does not say who is right.</p>
         <p class="abstract">Defines a singleton, immutable, append-only log in which any account may record a flag about an address under its own namespace; the contract computes a hash chain per writer and one global chain so no record can be removed or rewritten. Specifies the leaf encoding, the trust-list encoding, a recommended reader policy, and a light-client read procedure. Related: ERC-8004, ERC-7484, ERC-8259, Certificate Transparency.</p>
         <a class="btn primary" href="erc.html">Read the full draft <span class="arrow">→</span></a>
       </div>
@@ -339,34 +274,44 @@
 <section id="faq" class="tight">
   <div class="wrap">
     <div class="section-head">
-      <div class="eyebrow"><span class="n">07</span>FAQ</div>
-      <h2>The questions we get asked first.</h2>
+      <div class="eyebrow">FAQ</div>
+      <h2>Questions</h2>
     </div>
-    <div class="faq">
-      <details><summary>Can a scammer remove their own flag?</summary><p>No. Nothing is ever removed. Every flagged account in the operator, funder, and paid-lookalike categories is controlled by the attacker, and a flagged contract can make any signature check return true, so any removal path keyed on the subject's consent is a removal path for the attacker. Corrections are new leaves. A reader that wants a flag gone follows the writer's tombstone or drops the writer from its list.</p></details>
-      <details><summary>Why on-chain at all?</summary><p>Because the RPC can lie and the wallet still catches it. A label served from an API is trusted on the server's word. A head proven against a finalized state root and a leaf set replayed to that head is trusted on the chain's word. Nothing off-chain survives the demo where the RPC says “clean”.</p></details>
-      <details><summary>Isn't this just Etherscan with extra steps?</summary><p>On day one, almost. There will be one or two writers and one or two lists. The difference is that the record is public, forkable, and verifiable, any wallet can pick a different list, and no curator can erase another writer's flag. Year two has two curators. Etherscan never will.</p></details>
-      <details><summary>What about fresh lookalike addresses?</summary><p>We don't chase them. About 1 in 9,000 is ever paid, and they land within minutes. The local prefix/suffix check against your own history catches them. Tocsin flags the operator that planted the dust, so a synced wallet badges the planted entry the moment it arrives, on every chain that operator works.</p></details>
-      <details><summary>Who pays in year two?</summary><p>A flag costs about 10,000 gas, so a year of 50,000 flags is a few hundred dollars at current mainnet fees, and writer-signed batches let any grant or relayer pay. The reader cost is a few megabytes a year, which is why scope is restricted. This is a public good aimed at SEAL and the EF's Trillion Dollar Security work, not a company.</p></details>
-      <details><summary>What happens on Base and other L2s?</summary><p>The log lives on L1 and leaves are keyed by chain; an EOA flagged with chainId 0 is flagged everywhere. A wallet on an L2 reads the log through its L1 light client. We do not pretend L2 state reads are trustless today, and we do not deploy mirrors that would reintroduce a trusted relayer for wallets.</p></details>
+    <div class="rows faq rv">
+      <div class="r"><span class="label">Can a scammer remove their own flag?</span><p>No. Nothing is ever removed. Every flagged account in the operator, funder, and paid-lookalike categories is controlled by the attacker, and a flagged contract can make any signature check return true, so any removal path keyed on the subject's consent is a removal path for the attacker. Corrections are new leaves. A reader that wants a flag gone follows the writer's tombstone or drops the writer from its list.</p></div>
+      <div class="r"><span class="label">Why on-chain at all?</span><p>Because the RPC can lie and the wallet still catches it. A label served from an API is trusted on the server's word. A head proven against a finalized state root and a leaf set replayed to that head is trusted on the chain's word. Nothing off-chain survives the demo where the RPC says “clean”.</p></div>
+      <div class="r"><span class="label">Isn't this just Etherscan with extra steps?</span><p>On day one, almost. There will be one or two writers and one or two lists. The difference is that the record is public, forkable, and verifiable, any wallet can pick a different list, and no curator can erase another writer's flag. Year two has two curators. Etherscan never will.</p></div>
+      <div class="r"><span class="label">What about fresh lookalike addresses?</span><p>We don't chase them. About 1 in 9,000 is ever paid, and they land within minutes. The local prefix/suffix check against your own history catches them. Tocsin flags the operator that planted the dust, so a synced wallet badges the planted entry the moment it arrives, on every chain that operator works.</p></div>
+      <div class="r"><span class="label">Can't someone fake a list and a head? Hashing is cheap.</span><p>Anyone can make a fake head in milliseconds. It is worthless, because the wallet never accepts a head from anyone. It reads the head out of Ethereum's state, under a storage proof checked against a finalized block its light client verified. For a fake head to pass, the attacker would need to forge that proof or forge the validators' signatures. Serving the real flags minus one fails too: a hash chain changes if any entry is removed, inserted, reordered, or edited.</p></div>
+      <div class="r"><span class="label">Does this remove trust, or just move it?</span><p>It removes the trust you never agreed to and keeps the trust you can see. Gone: the RPC, the vendor API, the mirror, the log operator. None of them can lie or withhold without the wallet noticing. Kept: Ethereum's finality, which every user already trusts, and the writers you chose to follow. The log proves what a writer said and that none of it was taken back. It cannot prove the writer was right. That is your list, and you can change it.</p></div>
+      <div class="r"><span class="label">Can it flag scam links and domains, not just addresses?</span><p>Not in this version, on purpose. Every category names on-chain evidence that proves the subject's role, which is what makes a flag checkable rather than an opinion. A phishing URL has no transaction to check against. If it is ever wanted, it is one new category with a hashed domain as the subject and an archived page as evidence; the contract does not change.</p></div>
+      <div class="r"><span class="label">Why not just use ENS?</span><p>We do, for names. Trust lists are published under maintainer names, and the wallet resolves them through the same verified state root it uses for the log. ENS cannot be the log: its records are mutable, a record is a current value with no commitment to what came before, and a name has one key. A flag log needs no delete path, a head that commits to the whole history, and many independent writers.</p></div>
+      <div class="r"><span class="label">Who pays in year two?</span><p>A flag costs about 10,000 gas, so a year of 50,000 flags is a few hundred dollars at current mainnet fees, and writer-signed batches let any grant or relayer pay. The reader cost is a few megabytes a year, which is why scope is restricted. This is a public good aimed at SEAL and the EF's Trillion Dollar Security work, not a company.</p></div>
     </div>
   </div>
 </section>
 
 <footer>
   <div class="wrap">
-    <span>Tocsin · ERC draft · CC0</span>
-    <span>Built at Devcon 8 and ETHGlobal Mumbai, November 2026</span>
+    <span class="lockup"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#mark"/></svg><span class="wordmark">tocsin</span></span><span>ERC draft · CC0</span>
+    <span>Built at Devcon 8 and ETHGlobal Mumbai, November 2026 · <a href="https://tocsin.eth.limo">tocsin.eth</a></span>
     <div class="links">
+      <a href="claim.html">Claim a name</a>
+      <a href="https://github.com/easonchai/tocsin#demo">Demo</a><!-- TODO: live demo URL -->
+      <a href="https://github.com/easonchai/tocsin">GitHub</a>
+      <a href="https://t.me/tocsin_eth">Telegram</a><!-- TODO: real group link -->
+      <a href="https://x.com/tocsin_eth">X</a><!-- TODO: real handle -->
       <a href="erc.html">ERC draft</a>
-      <a href="#how">How it works</a>
       <a href="#top">Top</a>
     </div>
   </div>
 </footer>
 
+<script src="../design/kit/ringfield.js"></script>
+<script src="../design/kit/scenes.js"></script>
 <script>
 (function () {
+  var rf = Tocsin.ringfield(document.getElementById('field'), { seed: 7 });
   // reveal on scroll
   var io = new IntersectionObserver(function (es) {
     es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
@@ -387,25 +332,33 @@
     ['00.06', 'tocsin', 'ab', '<span class="k">0x7a3F…c91B</span> → DRAINER_RECEIVER · flagged by 2/2 · evidence 0x31b7…'],
     ['00.07', 'tocsin', 'ab', 'local heuristic: no prefix/suffix match with your history', 'dim'],
   ];
+  var term = document.getElementById('term'), idleTimer;
   function run() {
     body.innerHTML = '';
     var dot = document.querySelector('.term-bar .dot');
     dot.className = 'dot live';
+    clearTimeout(idleTimer); rf.setState('syncing');
+    document.getElementById('term-foot').textContent = '';
+    var cur = document.createElement('div'); cur.className = 'ln cur'; cur.innerHTML = '<span class="t"> </span><span class="src"> </span><span class="msg">█</span>';
     var i = 0;
     function next() {
       if (i >= script.length) {
         var v = document.createElement('div');
         v.className = 'verdict';
-        v.innerHTML = '<b>Blocked.</b> Drainer receiver, flagged by SEAL and Scam Sniffer. The RPC said clean. The wallet never asked it who to trust.';
-        body.appendChild(v);
+        v.innerHTML = '<b>Blocked.</b> Drainer receiver, flagged by SEAL and Scam Sniffer.';
+        cur.remove(); body.appendChild(v);
+        document.getElementById('term-foot').textContent = 'The RPC said clean. The wallet never asked it who to trust.';
         dot.className = 'dot blocked';
+        rf.setState('blocked'); var vr = v.getBoundingClientRect(); rf.strike(vr.left + vr.width / 2, vr.bottom);
+        idleTimer = setTimeout(function () { rf.setState('idle'); }, 6000);
         return;
       }
       var s = script[i++];
       var d = document.createElement('div');
       d.className = 'ln';
       d.innerHTML = '<span class="t">' + s[0] + '</span><span class="src ' + s[2] + '">' + s[1] + '</span><span class="msg ' + (s[4] || '') + '">' + s[3] + '</span>';
-      body.appendChild(d);
+      body.appendChild(d); body.appendChild(cur);
+      if (i === 5) { rf.setState('verified'); }
       setTimeout(next, i === 2 ? 650 : 420);
     }
     next();

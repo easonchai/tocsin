@@ -1,0 +1,22 @@
+[
+ {
+  "chainId": 1,
+  "subject": "0x012437b23bb065a70655bd1d4012a1e1a3cf6641",
+  "category": "POISONING_OPERATOR",
+  "evidence": "0xf50f654280a47ebb982e5af6c964516fed9f9827a9f78b2815f269b6cf581440",
+  "seenBlock": 26355157,
+  "note": "sent zero-value transfers of 0xdac17f958d2ee523a2206206994597c13d831ec7 to 115 recipients in 3 tx(s) within 40 blocks",
+  "detectedAt": "2026-11-06T10:25:20.040Z",
+  "writer": "detector.tocsin.eth"
+ },
+ {
+  "chainId": 1,
+  "subject": "0xd6434d157f254276d69ede3bd9fc805482206908",
+  "category": "POISONING_OPERATOR",
+  "evidence": "0x9542d06138813da56035e219d316354085047f2b61ee1ddaa4a68afbede9b7c5",
+  "seenBlock": 26355166,
+  "note": "sent zero-value transfers of 0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48 to 118 recipients in 6 tx(s) within 40 blocks",
+  "detectedAt": "2026-11-06T10:25:20.040Z",
+  "writer": "detector.tocsin.eth"
+ }
+]
