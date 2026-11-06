@@ -6,3 +6,5 @@ out/
 cache/
 dist/
 scripts/.env
+scripts/ens/out/
+scripts/ens/cache/
