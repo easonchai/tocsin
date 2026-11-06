@@ -173,6 +173,7 @@ let stored: unknown = null;
 const dialogs: { type: string; content: unknown }[] = [];
 let dialogAnswer = false;
 const interfaces = new Map<string, { ui: unknown; context: unknown }>();
+const scheduled: { duration: string; request: { method: string; params: any } }[] = [];
 const snap = {
   async request({ method, params }: { method: string; params: any }) {
     if (method === "snap_manageState") {
@@ -192,9 +193,17 @@ const snap = {
       interfaces.set(id, { ui: params.ui, context: params.context ?? null });
       return id;
     }
-    if (method === "snap_updateInterface") {
-      interfaces.set(params.id, { ...interfaces.get(params.id)!, ui: params.ui });
+    // MetaMask throws for an interface it has deleted (a closed confirmation); so does this fake.
+    if (method === "snap_updateInterface" || method === "snap_getInterfaceContext") {
+      const ui = interfaces.get(params.id);
+      if (!ui) throw new Error(`Interface with id '${params.id}' not found.`);
+      if (method === "snap_getInterfaceContext") return ui.context;
+      interfaces.set(params.id, { ...ui, ui: params.ui });
       return null;
+    }
+    if (method === "snap_scheduleBackgroundEvent") {
+      scheduled.push(params);
+      return `event-${scheduled.length}`;
     }
     throw new Error(`unexpected ${method}`);
   },
@@ -379,6 +388,33 @@ test("beat 3: switch back, Retry sync on the open panel, Blocked again", async (
   await input(drainerPanel, { type: "ButtonClickEvent", name: "retry" });
   has(uiOf(drainerPanel), ["Reject this transaction.", "manual.tocsin.eth"]);
   assert.doesNotMatch(uiOf(drainerPanel), /Treat this address as unchecked/);
+});
+
+test("an open panel re-syncs and redraws every 10 s by itself, and stops once the confirmation closes", async () => {
+  await home();
+  await setRpc("https://liar.test/");
+  const r = await send(DRAINER);
+  has(r.ui, ["Treat this address as unchecked."]);
+  const watch = scheduled.at(-1)!;
+  assert.equal(watch.duration, "PT10S");
+  assert.equal(watch.request.method, "watchPanel");
+  assert.equal(watch.request.params.id, r.id);
+
+  await setRpc("https://rpc.test/"); // fixes the sync, but only the home page redraws
+  has(uiOf(r.id), ["Treat this address as unchecked."]);
+  const before = scheduled.length;
+  await h.onCronjob!({ request: watch.request });
+  has(uiOf(r.id), ["Reject this transaction.", "manual.tocsin.eth"]);
+  assert.equal(scheduled.length, before + 1, "the next tick is queued");
+
+  interfaces.delete(r.id); // MetaMask deletes the panel when the confirmation closes
+  await h.onCronjob!({ request: scheduled.at(-1)!.request });
+  assert.equal(scheduled.length, before + 1, "no tick after the panel is gone");
+
+  const expired = (await send(DRAINER)).id;
+  const queued = scheduled.length;
+  await h.onCronjob!({ request: { ...watch.request, params: { ...watch.request.params, id: expired, until: 0 } } });
+  assert.equal(scheduled.length, queued, "past `until` the watch redraws once and queues nothing");
 });
 
 test("a changed maintainer: no dialog from the cron, the list is excluded, and Review asks", async () => {

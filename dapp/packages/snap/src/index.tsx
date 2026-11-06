@@ -17,6 +17,12 @@ import { AddListDialog, type HomeErrors, HomePage, InstallDialog, MaintainerDial
 
 /** What onUserInput needs to redraw a transaction panel after Retry sync. */
 type PanelContext = { kind: "panel"; targets: Target[]; chainId: string };
+/** An open transaction panel the snap re-syncs and redraws every 10 s, so a flag added mid-confirmation shows. */
+type Watch = PanelContext & { id: string; until: number };
+const WATCH_FOR_MS = 10 * 60 * 1000;
+
+const watchAgain = (params: Watch) =>
+  snap.request({ method: "snap_scheduleBackgroundEvent", params: { duration: "PT10S", request: { method: "watchPanel", params } } });
 
 const confirm = async (content: ComponentOrElement) =>
   (await snap.request({ method: "snap_dialog", params: { type: "confirmation", content } })) === true;
@@ -38,6 +44,21 @@ export const onInstall: OnInstallHandler = async () => {
 
 export const onCronjob: OnCronjobHandler = async ({ request }) => {
   if (request.method === "sync") await syncAndSave();
+  if (request.method === "watchPanel") {
+    // SAFETY: watchAgain is the only scheduler of watchPanel.
+    const w = request.params as Watch;
+    // MetaMask deletes the panel's interface when the confirmation closes, so a missing one ends the watch.
+    const open = await snap.request({ method: "snap_getInterfaceContext", params: { id: w.id } }).then(() => true, () => false);
+    if (!open) return;
+    // Scheduled before the sync, so a failed sync skips one tick instead of ending the watch.
+    if (Date.now() < w.until) await watchAgain(w);
+    const chain = BigInt(w.chainId);
+    const state = await syncAndSave();
+    await snap.request({
+      method: "snap_updateInterface",
+      params: { id: w.id, ui: <Panel state={state} assessments={await assess(state, w.targets, chain)} chainId={chain} /> },
+    });
+  }
 };
 
 const chainOf = (caip: string): bigint => {
@@ -55,6 +76,7 @@ export const onTransaction: OnTransactionHandler = async ({ transaction, chainId
     method: "snap_createInterface",
     params: { ui: <Panel state={state} assessments={assessments} chainId={chain} />, context },
   });
+  await watchAgain({ ...context, id, until: Date.now() + WATCH_FOR_MS });
   return { id, ...(assessments && worst(assessments) === "block" && { severity: "critical" as const }) };
 };
 
