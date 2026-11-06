@@ -4,7 +4,12 @@
 // Imports stay relative and type-only (besides viem) so `node --test` can load this file directly.
 import { type Address, type Hex, encodeFunctionData, parseAbi, parseEther } from "viem";
 
-export const SNAP_ID = "local:http://localhost:8080";
+// `yarn start` installs from the local Snap server (mm-snap serve); a production build installs the published
+// package, named as in snap.manifest.json. NEXT_PUBLIC_SNAP_ID overrides either, e.g. a local build pointed at :8080.
+export const SNAP_ID =
+  process.env.NEXT_PUBLIC_SNAP_ID ||
+  (process.env.NODE_ENV === "production" ? "npm:@tocsin/snap" : "local:http://localhost:8080");
+export const SNAP_IS_LOCAL = SNAP_ID.startsWith("local:");
 export const POISON_RPC = "http://127.0.0.1:8550";
 export const HONEST_RPC = "https://0xrpc.io/sep";
 

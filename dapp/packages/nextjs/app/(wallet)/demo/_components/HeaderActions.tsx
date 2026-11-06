@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { sepolia } from "viem/chains";
-import { useAccount } from "wagmi";
+import { useAccount, useConnect, useConnectors } from "wagmi";
 import { useOutsideClick } from "~~/hooks/scaffold-eth";
-import { SNAP_ID } from "~~/utils/demo/scenarios";
+import { SNAP_ID, SNAP_IS_LOCAL } from "~~/utils/demo/scenarios";
 import { getParsedError } from "~~/utils/scaffold-eth";
 
 export const errorCode = (e: unknown) => (e as { code?: unknown } | null)?.code;
@@ -17,14 +17,41 @@ export const isKohaku = (connectorName?: string) => /kohaku|ambire/i.test(connec
 const hostOf = (connectorName?: string) =>
   isKohaku(connectorName) ? "Kohaku" : connectorName === "MetaMask" ? "MetaMask + Tocsin Snap" : connectorName;
 
-const InstallSnap = ({ onMessage }: { onMessage: (m?: { text: string; bad?: boolean }) => void }) => {
+// Flask announces itself over EIP-6963 under this rdns; wagmi uses it as the connector id.
+const FLASK_RDNS = "io.metamask.flask";
+const FLASK_STORE =
+  "https://chromewebstore.google.com/detail/metamask-flask-developmen/ljfoeinjpaedjfecbmggjgodbgkmjkjk";
+const isFlask = (c?: { id: string; name: string }) => !!c && /flask/i.test(`${c.id} ${c.name}`);
+
+type Message = { text: string; bad?: boolean };
+
+const Step = ({ n, done, title, children }: { n: number; done: boolean; title: string; children: ReactNode }) => (
+  <li className={done ? "done" : undefined}>
+    <span className="n" aria-hidden>
+      {done ? "✓" : n}
+    </span>
+    <div>
+      <h3>{title}</h3>
+      {children}
+    </div>
+  </li>
+);
+
+const InstallSnap = ({ onMessage }: { onMessage: (m?: Message) => void }) => {
   const { connector } = useAccount();
+  const connectors = useConnectors();
+  const { connect, isPending: connecting } = useConnect();
+  const dialog = useRef<HTMLDialogElement>(null);
   const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string>();
+
+  const flask = connectors.find(c => c.id === FLASK_RDNS);
+  const onFlask = isFlask(connector);
 
   const install = async () => {
-    if (!connector) return onMessage({ text: "Connect MetaMask Flask first, then install the Snap.", bad: true });
+    if (!connector) return;
     setBusy(true);
-    onMessage(undefined);
+    setError(undefined);
     try {
       // SAFETY: every wagmi injected or EIP-6963 connector returns an EIP-1193 provider.
       const provider = (await connector.getProvider()) as {
@@ -32,24 +59,107 @@ const InstallSnap = ({ onMessage }: { onMessage: (m?: { text: string; bad?: bool
       };
       // Already installed is not an error: MetaMask returns the installed Snap.
       await provider.request({ method: "wallet_requestSnaps", params: { [SNAP_ID]: {} } });
+      dialog.current?.close();
       onMessage({ text: `Snap installed from ${SNAP_ID}.` });
     } catch (e) {
-      const text =
+      setError(
         errorCode(e) === -32601
           ? "This wallet does not run Snaps. Connect MetaMask Flask."
           : errorCode(e) === 4001
             ? "You rejected the install in the wallet."
-            : `${getParsedError(e)} Is the Snap dev server running on localhost:8080?`;
-      onMessage({ text, bad: true });
+            : SNAP_IS_LOCAL
+              ? `${getParsedError(e)} Is the Snap server running at ${SNAP_ID.slice("local:".length)}?`
+              : getParsedError(e),
+      );
     } finally {
       setBusy(false);
     }
   };
 
+  const open = () => {
+    onMessage(undefined);
+    setError(undefined);
+    dialog.current?.showModal();
+  };
+
   return (
-    <button type="button" className="btn" onClick={install} disabled={busy}>
-      {busy ? "Installing…" : "Install Snap"}
-    </button>
+    <>
+      <button type="button" className="btn" onClick={open}>
+        Install Snap
+      </button>
+      {/* native modal: focus trap, Escape and the backdrop come with showModal() */}
+      <dialog
+        ref={dialog}
+        className="snap-modal"
+        aria-labelledby="snap-modal-title"
+        onClick={e => e.target === e.currentTarget && dialog.current?.close()}
+      >
+        <header>
+          <h2 id="snap-modal-title">Install the Tocsin Snap</h2>
+          <button type="button" className="btn sm" aria-label="Close" onClick={() => dialog.current?.close()}>
+            ✕
+          </button>
+        </header>
+        <p className="lede">
+          The Snap needs network access, so regular MetaMask installs it only once MetaMask has reviewed and allowlisted
+          it. Until then it runs in MetaMask Flask, the developer build.
+        </p>
+        <ol>
+          <Step n={1} done={!!flask} title="Install MetaMask Flask">
+            {flask ? (
+              <p>Flask is in this browser.</p>
+            ) : (
+              <>
+                <p>Add it from the Chrome Web Store, then reload this page so it can find Flask.</p>
+                <div className="row">
+                  <a className="btn" href={FLASK_STORE} target="_blank" rel="noopener noreferrer">
+                    Open the store ↗
+                  </a>
+                  <button type="button" className="btn" onClick={() => location.reload()}>
+                    Reload
+                  </button>
+                </div>
+              </>
+            )}
+          </Step>
+          <Step n={2} done={onFlask} title="Connect with Flask">
+            {onFlask ? (
+              <p>Connected through Flask.</p>
+            ) : (
+              <>
+                <p>
+                  {connector
+                    ? `You are connected through ${connector.name}. Switch to Flask.`
+                    : "Connect the Flask account you send from."}
+                </p>
+                <button
+                  type="button"
+                  className="btn"
+                  disabled={!flask || connecting}
+                  onClick={() => flask && connect({ connector: flask, chainId: sepolia.id })}
+                >
+                  {connecting ? "Connecting…" : "Connect Flask"}
+                </button>
+              </>
+            )}
+          </Step>
+          <Step n={3} done={false} title="Install the Snap">
+            <p>
+              Flask installs <code>{SNAP_ID}</code> {SNAP_IS_LOCAL ? "from your machine" : "from npm"} and asks you to
+              approve it.
+            </p>
+            <button type="button" className="btn signal" disabled={!onFlask || busy} onClick={install}>
+              {busy ? "Installing…" : "Install Snap"}
+            </button>
+            {error && (
+              <p role="alert" className="err">
+                {error}
+              </p>
+            )}
+          </Step>
+        </ol>
+      </dialog>
+    </>
   );
 };
 
@@ -73,11 +183,10 @@ const Overflow = () => {
 /** The demo header's right slot: account and host, Install Snap, and the scaffold pages behind a menu. */
 export const HeaderActions = () => {
   const { connector } = useAccount();
-  const [message, setMessage] = useState<{ text: string; bad?: boolean }>();
-  // A success note clears itself; an error stays until the next try so the presenter can read it.
+  const [message, setMessage] = useState<Message>();
   useEffect(() => {
-    if (!message || message.bad) return;
-    const t = setTimeout(() => setMessage(undefined), 4000);
+    if (!message) return;
+    const t = setTimeout(() => setMessage(undefined), 3000);
     return () => clearTimeout(t);
   }, [message]);
 

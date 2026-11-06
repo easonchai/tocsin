@@ -16,6 +16,23 @@
 /* floats over the page like the ⋯ menu, so it gets the menu's panel instead of bare text over the nav buttons */
 .demo .hdr-msg { margin: 0; position: absolute; right: 0; top: calc(100% + 8px); z-index: 20; width: max-content; max-width: 420px; padding: 8px 12px; background: var(--ink-800); border: var(--hair-strong); border-radius: var(--r); font: 400 12px/1.4 var(--mono); color: var(--paper-200); }
 .demo .hdr-msg.bad { color: var(--signal); }
+
+/* Install Snap: the three-step Flask setup */
+.demo .snap-modal { width: min(520px, calc(100vw - 32px)); padding: 24px 28px 28px; background: var(--ink-800); border: var(--hair-strong); border-radius: var(--r); color: var(--paper-100); font-family: var(--body); }
+.demo .snap-modal::backdrop { background: rgba(18, 20, 23, .72); }
+.demo .snap-modal header { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+.demo .snap-modal h2 { margin: 0; font-size: 20px; font-weight: 600; }
+.demo .snap-modal .lede { margin: 8px 0 20px; font-size: 14px; line-height: 1.45; color: var(--paper-200); }
+.demo .snap-modal ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.demo .snap-modal li { display: grid; grid-template-columns: 28px 1fr; gap: 14px; padding: 14px 0; border-top: var(--hair); }
+.demo .snap-modal .n { display: grid; place-items: center; width: 28px; height: 28px; border: var(--hair-strong); border-radius: 999px; font: 500 12px/1 var(--mono); color: var(--paper-200); }
+.demo .snap-modal li.done .n { border-color: var(--pass); color: var(--pass); }
+.demo .snap-modal li.done p { color: var(--ink-400); }
+.demo .snap-modal h3 { margin: 4px 0 4px; font-size: 15px; font-weight: 600; }
+.demo .snap-modal p { margin: 0 0 10px; font-size: 13px; line-height: 1.45; color: var(--paper-200); }
+.demo .snap-modal code { font: 400 12px/1.4 var(--mono); color: var(--paper-100); overflow-wrap: anywhere; }
+.demo .snap-modal .row { display: flex; flex-wrap: wrap; gap: 8px; }
+.demo .snap-modal .err { margin: 10px 0 0; font: 400 12px/1.4 var(--mono); color: var(--signal); }
 .demo .more { position: relative; }
 .demo .more summary { list-style: none; }
 .demo .more summary::-webkit-details-marker { display: none; }
