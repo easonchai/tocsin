@@ -4,12 +4,12 @@ pragma solidity ^0.8.19;
 import "./DeployHelpers.s.sol";
 import { ThreatFlagLog } from "../contracts/ThreatFlagLog.sol";
 
-/// @notice Deploys ThreatFlagLog through the deterministic deployment proxy with salt zero (ERC, Deployment).
+/// @notice Deploys ThreatFlagLog through the deterministic deployment proxy with salt zero (spec, Deployment).
 /// Used by `yarn deploy` on localhost and by scripts-sh/deploy-sepolia.sh on Sepolia.
 contract DeployScript is ScaffoldETHDeploy {
     bytes32 internal constant SALT = bytes32(0);
 
-    /// @notice The address the ERC's deployment method gives for the current build.
+    /// @notice The address the spec's deployment method gives for the current build.
     function predicted() public pure returns (address) {
         return vm.computeCreate2Address(SALT, keccak256(type(ThreatFlagLog).creationCode), CREATE2_FACTORY);
     }

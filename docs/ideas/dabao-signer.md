@@ -22,7 +22,7 @@ Tocsin's reader today runs on the same OS the drainer runs on. The last trust ga
 
 Why it scores on their four criteria:
 
-- **Open.** The ERC and reader are CC0. Their RTL is open. Nothing closed in the trust path except the third-party IP they already disclose.
+- **Open.** The spec and reader are CC0. Their RTL is open. Nothing closed in the trust path except the third-party IP they already disclose.
 - **New.** No signer checks an on-chain threat log today, let alone one it verified against a finalized header.
 - **Uses the silicon.** Key store holds the signing key. Crypto accelerators do the hashing. Glitch sensors and the security mesh are the reason a verdict cannot be forced. The ERC-7730 clear-signing descriptor the draft already mandates maps straight onto the display.
 - **Works.** The risk. See below.
@@ -58,7 +58,7 @@ Also unknown: whether the Dabao board carries a display or one must be added ove
 
 Not in the Devcon submission. It dilutes "your wallet checked Ethereum itself."
 
-Long term it belongs under Security and the walkaway test in the ERC's security considerations, one sentence: an inspectable signer with the reader on-device closes the "but the host OS is trusted" objection, and IRIS inspection makes the hardware root of trust auditable without the vendor.
+Long term it belongs under Security and the walkaway test in the spec's security considerations, one sentence: an inspectable signer with the reader on-device closes the "but the host OS is trusted" objection, and IRIS inspection makes the hardware root of trust auditable without the vendor.
 
 ## Sources
 

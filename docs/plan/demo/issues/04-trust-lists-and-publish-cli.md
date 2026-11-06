@@ -1,6 +1,6 @@
 # 04: Trust list documents, signing, and the publish CLI
 
-Spec: `docs/plan/demo/spec.md`, Implementation decisions, Trust lists; Testing decisions, lists. PRD: `erc/eip-draft_threat_flag_log.md`, Trust lists.
+Spec: `docs/plan/demo/spec.md`, Implementation decisions, Trust lists; Testing decisions, lists. PRD: `docs/spec/threat-flag-log.md`, Trust lists.
 
 **What to build:** A maintainer runs one CLI command over a list document and gets back the signed ENS record value; a reader given that document, root, signature, and version accepts it, pins the maintainer, and rejects anything tampered, older, or signed by someone else.
 
@@ -10,7 +10,7 @@ Spec: `docs/plan/demo/spec.md`, Implementation decisions, Trust lists; Testing d
 
 **Status:** ready-for-human. Code and template are done. What remains is `site/lists/default.json`, which needs the real maintainer, manual writer and detector addresses: fill `dapp/packages/reader/.env` from `.env.example`, then run `yarn workspace @tocsin/reader publish-list fill ../../../site/lists/default.template.json ../../../site/lists/default.json` from `dapp/`. Workspace scripts run in the package directory, so the paths are relative to `dapp/packages/reader`.
 
-- [x] JSON document with the `TrustList`, `Safelist`, and `ListEntry` fields as named in the ERC, including `snapshotURI`; the root is the keccak of the ABI-encoded typed struct, never of the JSON bytes.
+- [x] JSON document with the `TrustList`, `Safelist`, and `ListEntry` fields as named in the spec, including `snapshotURI`; the root is the keccak of the ABI-encoded typed struct, never of the JSON bytes.
 - [x] EIP-712 `ListRoot(bytes32 root,uint64 version)` signature in the log's domain; the CLI reads the maintainer key from an ignored env file or keystore and emits the hex of `abi.encode(root, version, signature, listURI)`.
 - [x] Unsigned `labels` map verified by ENSIP-15 normalise and namehash; a label that does not hash to an entry's `operator` or `upstream` is dropped.
 - [x] Reader tests: hash mismatch rejected; bad signature rejected; lower version rejected; different maintainer returns a conflict and keeps the pinned list; unverifiable record keeps the last verified version marked stale; zero resolvable writers gives `unavailable`.
@@ -30,7 +30,7 @@ Built the list module, the publish CLI and the default list template.
 
 Surprises and decisions:
 
-- An equal version with a different root is rejected as `lower-version`. The ERC only says lower; accepting a second list at the same version would let a maintainer swap content without a bump.
+- An equal version with a different root is rejected as `lower-version`. The spec only says lower; accepting a second list at the same version would let a maintainer swap content without a bump.
 - Two extra reject reasons beyond the ticket: `wrong-log` (the document names another log or chain than the reader's) and `version-mismatch` (the record's version differs from the one the root commits to).
 - The pin a host stores is the raw `{ record, document }` pair, re-verified on every call. It is JSON-safe for Snap state, where bigints do not serialize.
 - Both default writers share one operator, so the policy counts them as one writer. That matches the spec: no second independent maintainer on stage.

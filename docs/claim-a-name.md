@@ -49,7 +49,7 @@ Takes about five minutes and needs a little Sepolia ETH.
 
 ## Publishing a list under your name
 
-The ERC's list record is the text key `tocsin.list` on your name, holding the ABI-encoded root, version, maintainer signature, and list URI. `publishList` in `scripts/ens/setup-all.mjs` builds and signs that record for the team's `core` and `detector` lists; to publish your own, sign the same `ListRoot` typed data with your key and call `setText(dns("<label>.tocsin.eth"), "tocsin.list", record)` on your resolver. A generalised publish command is on the list.
+The spec's list record is the text key `tocsin.list` on your name, holding the ABI-encoded root, version, maintainer signature, and list URI. `publishList` in `scripts/ens/setup-all.mjs` builds and signs that record for the team's `core` and `detector` lists; to publish your own, sign the same `ListRoot` typed data with your key and call `setText(dns("<label>.tocsin.eth"), "tocsin.list", record)` on your resolver. A generalised publish command is on the list.
 
 ## Verify the guarantees yourself
 

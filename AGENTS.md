@@ -17,11 +17,11 @@ In Claude Code, load `ethskills:<name>` (`why` is `ethskills:why-ethereum`). Oth
 | --- | --- |
 | Deciding product scope, chain, or whether to adopt or write an EIP | `why` |
 | Building the smart contracts | `ship` |
-| Writing contract specs, including `erc/` | `crops`, `protocol` |
+| Writing contract specs, including `docs/spec/` | `crops`, `protocol` |
 | Checking whether an EIP or fork feature is live | `protocol` |
 | Estimating or validating gas and dollar costs | `gas` |
 | Building the wallet: keys, signing, delegation | `wallets` |
-| Citing any EIP or ERC, or drafting ours | `standards` |
+| Citing any EIP or ERC | `standards` |
 | Picking a package, library, or version | `tools` |
 | Deploying to Sepolia or mainnet, or rehearsing a deploy on a fork | `orchestration` |
 | Designing or explaining how something onchain works | `concepts` |

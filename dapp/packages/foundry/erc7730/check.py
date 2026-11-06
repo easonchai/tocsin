@@ -1,7 +1,7 @@
 """Check the ThreatFlagLog ERC-7730 descriptors before deploy.
 
 1. Official JSON schema (erc7730-v2.schema.json from the registry).
-2. Enums equal the ERC tables.
+2. Enums equal the spec tables.
 3. erc7730 v2 linter, with the reference ABI taken from the local Forge artifact
    instead of Sourcify/Etherscan (the address has no code yet).
 usage: check7730.py <schema.json> <forge-artifact.json> <descriptor.json>...
@@ -33,8 +33,8 @@ for d in descriptors:
     for e in errors:
         print(f"schema error in {d.name}: {e.json_path}: {e.message}")
     assert not errors, f"{d.name} fails schema {schema['version']}"
-    assert doc["metadata"]["enums"] == {"category": CATEGORIES, "op": OPS}, f"{d.name} enums differ from ERC"
-    print(f"{d.name}: schema {schema['version']} ok, enums equal ERC tables")
+    assert doc["metadata"]["enums"] == {"category": CATEGORIES, "op": OPS}, f"{d.name} enums differ from the spec"
+    print(f"{d.name}: schema {schema['version']} ok, enums equal spec tables")
 
 abis = TypeAdapter(list[ABI]).validate_json(json.dumps(json.loads(artifact_path.read_text())["abi"]))
 client.get_contract_abis = lambda chain_id, address: abis

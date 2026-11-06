@@ -1,6 +1,6 @@
 # 07: Three beats at the command line: RPC source, lying proxy, mirror
 
-Spec: `docs/plan/demo/spec.md`, Solution, three beats; Implementation decisions, Demo infrastructure, lying proxy and snapshot mirror. PRD: `erc/eip-draft_threat_flag_log.md`, Security Considerations, Data availability. HANDOFF step 3.
+Spec: `docs/plan/demo/spec.md`, Solution, three beats; Implementation decisions, Demo infrastructure, lying proxy and snapshot mirror. PRD: `docs/spec/threat-flag-log.md`, Security Considerations, Data availability. HANDOFF step 3.
 
 **What to build:** A Node command that evaluates an address against the real Sepolia log through a chosen source, so beats one to three are proven before any wallet surface exists. Honest RPC: `block` naming writer, category, evidence. Lying proxy: `unavailable, chain mismatch at sequence N`. Mirror via the entry's `snapshotURI`: `block` returns on the proven head.
 

@@ -1,8 +1,8 @@
 # 06: CREATE2 deploy to Sepolia with verify and smoke append
 
-Spec: `docs/plan/log-contract/spec.md`, Implementation decisions, Deployment. PRD: `erc/eip-draft_threat_flag_log.md`, Deployment section. HANDOFF step 2. Sepolia only; mainnet is deferred.
+Spec: `docs/plan/log-contract/spec.md`, Implementation decisions, Deployment. PRD: `docs/spec/threat-flag-log.md`, Deployment section. HANDOFF step 2. Sepolia only; mainnet is deferred.
 
-**What to build:** One command deploys the log to Sepolia at the address the ERC's deployment method predicts, verifies the source on Sourcify and Etherscan, and sends one flag as a smoke test. Judges open the explorer and see verified source and the first `Appended` event.
+**What to build:** One command deploys the log to Sepolia at the address the spec's deployment method predicts, verifies the source on Sourcify and Etherscan, and sends one flag as a smoke test. Judges open the explorer and see verified source and the first `Appended` event.
 
 **Blocked by:** 01 (Scaffold, reference contract, normative cases 1 to 9), 02 (Signature and leaf boundaries)
 

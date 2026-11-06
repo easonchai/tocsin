@@ -5,7 +5,7 @@ import { Test, Vm } from "forge-std/Test.sol";
 import { ThreatFlagLog } from "../../contracts/ThreatFlagLog.sol";
 import { IThreatFlagLog } from "../../contracts/IThreatFlagLog.sol";
 
-/// @notice Shared helpers. Every hash here is recomputed from the ERC's formulas, never read back from the log.
+/// @notice Shared helpers. Every hash here is recomputed from the spec's formulas, never read back from the log.
 abstract contract LogBase is Test {
     bytes32 internal constant APPENDED_SIG =
         keccak256("Appended(address,uint64,uint64,bytes32,bytes32,bytes32,(uint64,address,uint8,uint8,bytes32,uint64,bytes32))");
@@ -65,7 +65,7 @@ abstract contract LogBase is Test {
         a[0] = l;
     }
 
-    // ---- ERC formulas, test side ----
+    // ---- spec formulas, test side ----
 
     function _leafHash(address writer, uint256 bn, uint256 wSeq, uint256 gSeq, IThreatFlagLog.Leaf memory l)
         internal

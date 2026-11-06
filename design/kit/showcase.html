@@ -19,7 +19,7 @@
   .top { position: absolute; top: 48px; left: 96px; right: 96px; display: flex; justify-content: space-between; align-items: center; }
   .top .wordmark { font-size: 24px; display: flex; gap: 10px; align-items: center; }
   .top .label { font-size: 13px; }
-  h1 { font-size: 76px; max-width: 12ch; }
+  h1 { font-size: 76px; max-width: none; }
   h1 em { font-style: normal; color: var(--signal); }
   h1 em.red { color: var(--alert); }
   .sub { font-size: 24px; line-height: 1.4; color: var(--paper-200); max-width: 34ch; margin: 28px 0 0; }
@@ -61,7 +61,7 @@
   .lcard.me { border-color: var(--signal); }
 
   /* browser frame for the demo board */
-  .browser { width: 820px; border-radius: 14px; overflow: hidden; border: 1px solid var(--ink-600); background: var(--ink-800); box-shadow: 0 60px 120px -40px rgba(0,0,0,.9); }
+  .browser { width: 720px; border-radius: 14px; overflow: hidden; border: 1px solid var(--ink-600); background: var(--ink-800); box-shadow: 0 60px 120px -40px rgba(0,0,0,.9); }
   .browser .bar { height: 40px; display: flex; align-items: center; gap: 8px; padding: 0 14px; border-bottom: 1px solid var(--ink-700); font-family: var(--mono); font-size: 13px; color: var(--ink-400); }
   .browser .bar i { width: 10px; height: 10px; border-radius: 50%; background: var(--ink-600); display: inline-block; }
   .browser .bar span { margin-left: 10px; }
@@ -81,7 +81,7 @@
   <canvas class="field" data-state="blocked"></canvas>
   <div class="top"><span class="wordmark">🔔 tocsin</span><span class="label">01 / 06 · metamask flask · sepolia</span></div>
   <div>
-    <h1>The wallet already knew the <em class="red">drainer</em>.</h1>
+    <h1 style="font-size:84px">The wallet already<br>knew the <em class="red">drainer</em>.</h1>
     <p class="sub">Tocsin is scam prevention infrastructure on Ethereum. Your wallet syncs the flag log from chain state and checks every recipient before you sign.</p>
   </div>
   <div class="panel" style="--y:-440px"><img src="../screens/raw/snap-block.jpg?v=3" alt="MetaMask Flask transaction insight from Tocsin: Blocked, drainer receiver"></div>
@@ -95,7 +95,7 @@
   <canvas class="field" data-state="idle"></canvas>
   <div class="top"><span class="wordmark">🔔 tocsin</span><span class="label">02 / 06 · same send, two recipients</span></div>
   <div>
-    <h1>Same send.<br>Lists <em>you</em> chose.<br>One verdict.</h1>
+    <h1 style="font-size:52px">Same send.<br>Lists <em>you</em> chose.<br>One verdict.</h1>
     <p class="sub">No server is asked. The wallet reads the log it already synced and the lists you follow, so nobody learns what you were about to do.</p>
   </div>
   <div class="pair">
@@ -111,13 +111,13 @@
   <div class="top"><span class="wordmark">🔔 tocsin</span><span class="label">03 / 06 · one flag, opened</span></div>
   <div class="panel" style="--y:-700px; height: 600px"><img src="../screens/raw/snap-block.jpg?v=3" alt="Flag detail"></div>
   <div class="callouts">
-    <h1 style="font-size:60px;margin-bottom:12px">Every flag carries its receipts.</h1>
+    <h1 style="font-size:82px;margin-bottom:12px">Every flag carries<br>its receipts.</h1>
     <div class="co"><div class="label">who said it</div><p>Three writers, each under its own ENS name. <span>No writer can speak for another.</span></p></div>
     <div class="co"><div class="label">why</div><p>A category your wallet understands: drainer receiver. <span>Warn or block is your policy, not ours.</span></p></div>
     <div class="co"><div class="label">proof</div><p>Evidence transactions, on chain, one tap away. <span>Nothing to take on faith.</span></p></div>
     <div class="co"><div class="label">when</div><p>The block it was seen in. <span>Flags only ever get added, never edited.</span></p></div>
   </div>
-  <div class="foot"><span>ERC draft · Append-Only Threat Flag Log</span><span>github.com/easonchai/tocsin</span></div>
+  <div class="foot"><span>tocsin.eth · sepolia</span><span>github.com/easonchai/tocsin</span></div>
 </section>
 
 <!-- 04 trust lists -->
@@ -125,7 +125,7 @@
   <canvas class="field" data-state="idle"></canvas>
   <div class="top"><span class="wordmark">🔔 tocsin</span><span class="label">04 / 06 · trust lists on ens</span></div>
   <div>
-    <h1>You pick who gets to ring the <em>bell</em>.</h1>
+    <h1 style="font-size:78px">You pick who gets<br>to ring the <em>bell</em>.</h1>
     <p class="sub">A list is a signed ENS text record naming the writers it trusts. Follow three, follow thirty. Two have to agree before a send is blocked.</p>
   </div>
   <div class="lists">
@@ -142,7 +142,7 @@
   <canvas class="field" data-state="idle"></canvas>
   <div class="top"><span class="wordmark">🔔 tocsin</span><span class="label">05 / 06 · try it</span></div>
   <div>
-    <h1>Send to a <em>drainer</em>. Watch it get caught.</h1>
+    <h1 style="font-size:52px">Send to a <em>drainer</em>.<br>Watch it get caught.</h1>
     <p class="sub">Six Sepolia scenarios. Pick one, the page explains the verdict while your own wallet pops up and blocks it.</p>
     <p class="sub" style="font-family:var(--mono);font-size:20px;color:var(--signal)">tocsin-eth.vercel.app/demo</p>
   </div>
@@ -155,13 +155,13 @@
   <canvas class="field" data-state="idle"></canvas>
   <div class="top"><span class="wordmark">🔔 tocsin</span><span class="label">06 / 06 · verified, not trusted</span></div>
   <div>
-    <h1>Nothing leaves your <em>device</em>.</h1>
+    <h1 style="font-size:96px">Nothing leaves<br>your <em>device</em>.</h1>
     <p class="sub">Each writer's hash chain is proven against a block header on your device. No API key, no account, no company that can go down, get bought or get subpoenaed.</p>
   </div>
   <div class="panel" style="--y:-1000px; height: 250px"><img src="../screens/raw/snap-pass.jpg?v=3" alt="synced, proven, source lines"></div>
   <div class="chip" style="right: 96px; top: 660px"><div class="label">proven</div><div class="v">4 writer heads · block 12,077,378</div></div>
   <div class="chip" style="right: 330px; top: 240px"><div class="label">log</div><div class="v">Sepolia 0xb639…5b14</div></div>
-  <div class="foot"><span>ERC draft · Append-Only Threat Flag Log</span><span>github.com/easonchai/tocsin</span></div>
+  <div class="foot"><span>tocsin.eth · sepolia</span><span>github.com/easonchai/tocsin</span></div>
 </section>
 
 <script src="ringfield.js"></script>
