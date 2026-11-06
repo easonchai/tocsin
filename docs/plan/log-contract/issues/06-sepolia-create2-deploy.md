@@ -8,13 +8,13 @@ Spec: `docs/plan/log-contract/spec.md`, Implementation decisions, Deployment. PR
 
 **Ethskills:** orchestration, wallets, gas (per AGENTS.md; load before starting)
 
-**Status:** ready-for-human
+**Status:** resolved
 
 - [x] Deploy script computes the CREATE2 address from the deterministic deployment proxy, salt zero, and the compiled init code with no constructor arguments; prints it; aborts if code already exists there.
 - [x] Deployer key comes from a Foundry keystore or an ignored env file; the RPC URL comes from the environment. Nothing in the repo carries either. Go/no-go before broadcasting: tests from 01 and 02 pass and the deployer address shows a Sepolia balance.
-- [ ] The deployed address equals the predicted address.
-- [ ] Sourcify and Etherscan verification run in the same step as the deploy and both show the source.
-- [ ] Smoke test: one `append` of a single flag leaf from the deployer key, then reads of writer sequence equal to 1 and global sequence equal to 1, with the transaction hash recorded in the ticket's Comments.
+- [x] The deployed address equals the predicted address.
+- [x] Sourcify and Etherscan verification run in the same step as the deploy and both show the source.
+- [x] Smoke test: one `append` of a single flag leaf from the deployer key, then reads of writer sequence equal to 1 and global sequence equal to 1, with the transaction hash recorded in the ticket's Comments.
 
 ## Comments
 
@@ -34,3 +34,9 @@ Spec: `docs/plan/log-contract/spec.md`, Implementation decisions, Deployment. PR
     ```
 
     It prints the predicted address, deployer, live balance, live gas price, and estimated cost, then waits for you to type `DEPLOY`. It asks for the keystore password up to three times, unless `ETH_PASSWORD` points at a password file. If a step after the deploy fails, do not rerun the script, because the address is taken. Run the retry commands it prints instead. Afterwards, record the deploy and smoke tx hashes here and tick boxes 3 to 5.
+- 2026-11-06: Deployed on Sepolia. Boxes 3 to 5 ticked.
+  - Log: `0xB639d15A0E7aE24E4C32E851Fbe0E57585565b14`, equal to the prediction. Runtime code hash `0xd9f882ccb806d16653f80dc459f533e23363936675d52e08f9ed7e7ee56a4ea5`, the same as the fork rehearsal.
+  - Deploy tx `0x10e8e5dab0c7571012fbdabddd9200bcedfb8fb68426452f1c5a55709e1061b8`, block 12074077, 6,226,284 gas. Deployer `0x8E2Cc65A08154a357136C8060DE5232FDdEe3e31`, which is also the ENS owner key (runbook, Keys).
+  - Smoke tx `0xeeced1917c1148e884ab95c8c6e41380c6e915df9ba125b1c77e95c2f28a8f2b`, block 12074089, 466,147 gas, the same as the fork. `cast call` reads `writerSeq(deployer)` 1 and `globalSeq()` 1.
+  - Verification: Sourcify verified during the run. The Etherscan step and the smoke step both failed inside `deploy-sepolia.sh` because the public RPC (publicnode) lagged behind the deploy: "Unable to locate ContractCode" and "block not found". Both were rerun by hand from `dapp/packages/foundry` with the retry commands the script printed. `forge verify-contract ... --verifier etherscan --watch` returned "Pass - Verified". The smoke was rerun with the same key from `--private-key` instead of the keystore. A keyed RPC in `SEPOLIA_RPC_URL` would likely avoid the lag.
+  - Gas: a one-leaf append costs 466,147 on live Sepolia, so HANDOFF's "about 10,000 gas per flag" does not hold under current rules.

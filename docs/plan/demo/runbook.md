@@ -8,17 +8,16 @@ No value in this file is secret, and none should be added. Keys live in git-igno
 
 Make a fresh key for each role with `cast wallet new`, or `cast wallet import <name> --interactive` for a keystore. Never reuse an anvil key: the anvil dev accounts carry EIP-7702 delegations on Sepolia.
 
-| Role | Needs Sepolia ETH | Where the key goes | What it does |
-| --- | --- | --- | --- |
-| Deployer | Yes | Foundry keystore, named by `DEPLOYER_KEYSTORE_ACCOUNT` | Deploys the log once through CREATE2 |
-| Manual writer | Yes, funded address 1 | `MANUAL_WRITER_PRIVATE_KEY` in `packages/infra/.env` | Sends `append` for the team's manual flags |
-| Relayer | Yes, funded address 2 | `RELAYER_PRIVATE_KEY` in `packages/infra/.env` | Pays gas for the detector's `appendSigned` batches |
-| Demo account | Yes, funded address 3 | MetaMask Flask, never on disk | The wallet the demo sends from |
-| Detector | Never | `DETECTOR_PRIVATE_KEY` in `packages/infra/.env` | Signs batches only. The scripts warn if it holds ETH |
-| ENS name owner | Yes | `ENS_OWNER_PRIVATE_KEY` in `packages/infra/.env` | Registers the team's name and runs `ens-setup` |
-| List maintainer | Yes, for `ens-publish` | `MAINTAINER_PRIVATE_KEY` in `packages/infra/.env`, and in `packages/reader/.env` or as the keystore `MAINTAINER_ACCOUNT` | Signs the list and publishes its record |
+| Role | Sepolia address | Needs Sepolia ETH | Where the key goes | What it does |
+| --- | --- | --- | --- | --- |
+| Deployer and ENS name owner | `0x8E2Cc65A08154a357136C8060DE5232FDdEe3e31` | Yes | `ENS_OWNER_PRIVATE_KEY` in `packages/infra/.env`, imported as the Foundry keystore `tocsin-deployer` that `DEPLOYER_KEYSTORE_ACCOUNT` names | Deploys the log once through CREATE2, registers the team's name, runs `ens-setup` |
+| Manual writer | `0x1D3B86A924ffb140bdD74Ee6a7533921ed141583` | Yes, funded address 1 | `MANUAL_WRITER_PRIVATE_KEY` in `packages/infra/.env` | Sends `append` for the team's manual flags |
+| Relayer | `0x7Bae2bbcEC2c9424aCCBB6a7EB43301D8Cc92C98` | Yes, funded address 2 | `RELAYER_PRIVATE_KEY` in `packages/infra/.env` | Pays gas for the detector's `appendSigned` batches |
+| Demo account | `0xE0DFbd2B761929D02b30f2173C3386f0ec4B3cca` | Yes, funded address 3 | MetaMask Flask, never on disk | The wallet the demo sends from |
+| Detector | `0xe3a9678eD0992416C5230f52E3B1fF9775CCA999` | Never | `DETECTOR_PRIVATE_KEY` in `packages/infra/.env` | Signs batches only. The scripts warn if it holds ETH |
+| List maintainer | `0x606EE24A4E6E3919FF90B1fD3d2649710Fd99DE1` | Yes, for `ens-publish` | `MAINTAINER_PRIVATE_KEY` in `packages/infra/.env` and `packages/reader/.env` | Signs the list and publishes its record |
 
-The spec's three funded addresses are the manual writer, the relayer, and the demo account. The ENS owner and the maintainer need gas too. About 0.05 ETH each is plenty.
+The spec's three funded addresses are the manual writer, the relayer, and the demo account. The deployer and the maintainer need gas too. About 0.05 ETH each is plenty, and the deployer needs about 0.1 for the deploy plus `ens-setup`. The deployer and the ENS owner share a key because both are one-time admin roles. Keep the others apart: the scripts refuse a relayer equal to the detector, and the maintainer's narrow `setText` grant is an ENS judge check.
 
 Faucet: the Google Cloud Web3 faucet at https://cloud.google.com/application/web3/faucet/ethereum/sepolia. Fallback: the PoW faucet at https://sepolia-faucet.pk910.de.
 
@@ -46,6 +45,8 @@ bash dapp/packages/foundry/scripts-sh/deploy-sepolia.sh
 ```
 
 It prints the predicted address `0xB639d15A0E7aE24E4C32E851Fbe0E57585565b14` and waits for you to type `DEPLOY`. Put that address in `LOG_ADDRESS`. The deploy block is the `blockNumber` of the receipt in `dapp/packages/foundry/broadcast/Deploy.s.sol/11155111/run-latest.json`. It goes in `LOG_FROM_BLOCK`, and later in `TOCSIN_LOG_FROM_BLOCK` for both hosts.
+
+Done on 2026-11-06: the log is at the predicted address, deployed in block 12074077, verified on Sourcify and Etherscan, smoke-tested. Hashes are in log-contract ticket 06. On the public RPC, the script's Etherscan and smoke steps failed because the node lagged behind the deploy. If that happens, don't rerun the script. Wait a block and run the retry commands it prints from `dapp/packages/foundry`.
 
 ## 2. Seed
 

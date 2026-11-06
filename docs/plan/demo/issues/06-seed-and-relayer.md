@@ -4,7 +4,7 @@ Spec: `docs/plan/demo/spec.md`, Implementation decisions, Demo infrastructure, s
 
 **What to build:** The deployed log on Sepolia holds about fifty leaves from two writers that cover every leaf kind the demo shows, and a relayer script submits any signed batch a key-without-gas hands it.
 
-**Blocked by:** None locally. Needs log-contract ticket 06 (the log deployed on Sepolia).
+**Blocked by:** None. Log-contract ticket 06 deployed the log on Sepolia at `0xB639d15A0E7aE24E4C32E851Fbe0E57585565b14`, block 12074077.
 
 **Ethskills:** wallets, orchestration, gas (per AGENTS.md; load before starting)
 
@@ -12,7 +12,7 @@ Spec: `docs/plan/demo/spec.md`, Implementation decisions, Demo infrastructure, s
 
 - [x] Seed script: about fifty leaves across the manual writer and the detector key, categories 1, 3, 6, 7, one category 8 leaf, one tombstone of an own leaf, one counter of the other writer's leaf, one dispute. Manual writer through `append`; detector through `appendSigned` via the relayer. Batches capped at 500.
 - [x] Relayer script: separate funded key, submits `appendSigned`, drops a batch whose deadline has passed instead of paying for a revert. The detector key holds no ETH.
-- [ ] Manual writer, relayer, and the demo account are funded from a faucet; the runbook lists the three addresses and the faucet. Keys and RPC URLs come from an ignored env file or keystore.
+- [x] Manual writer, relayer, and the demo account are funded from a faucet; the runbook lists the three addresses and the faucet. Keys and RPC URLs come from an ignored env file or keystore.
 - [ ] Transaction hashes of the seed batches recorded in Comments; explorer shows the `Appended` events.
 - [ ] A read of the writer sequences after seeding matches the leaf counts the script sent.
 
@@ -47,3 +47,4 @@ Spec: `docs/plan/demo/spec.md`, Implementation decisions, Demo infrastructure, s
 
        Check the printed chain (11155111), log address, balances, and gas price, then type `SEED`. If it stops partway, read the printed tx hashes before running it again (see Open above).
     4. Open each tx hash from `seed-manifest.11155111.json` at `https://sepolia.etherscan.io/tx/<hash>#eventlog` and confirm the `Appended` events. Record the three hashes here, fill in the three addresses above, commit the manifest, and tick boxes 3 to 5.
+- 2026-11-06: Box 3 ticked. Keys were generated with `cast wallet new` straight into the ignored `packages/infra/.env` and `packages/reader/.env`, and none passed through a chat. The faucet sent 0.5 Sepolia ETH to the deployer, which is also the ENS owner key. The deployer then sent 0.05 each to the manual writer (`0xcc567e58def9a057878dde310f0c19c522060a26c583a223290f4a4669a1fdaf`), the relayer (`0x967c49145f3b0c7359c0ff2fa1c76f4f851c80f4dc2a1167141788ef8515e62a`), the maintainer (`0xc93eaf73caa6366ce8e22a4ae9da8dc64f092918f45e727e44bf083a06e2b0a0`), and the demo account (`0x47c978172d7d1e3eb53c0aba588731e15f7f0bd3cabbe5c82ba7f310d726760f`). The detector holds 0. The runbook's "Keys, addresses, and funding" lists every address. Next: `yarn workspace @tocsin/infra seed`.

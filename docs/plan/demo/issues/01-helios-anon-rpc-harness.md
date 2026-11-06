@@ -8,7 +8,7 @@ Spec: `docs/plan/demo/spec.md`, Implementation decisions, Hour 0 to 6 harness. P
 
 **Ethskills:** tools, frontend-playbook, wallets (per AGENTS.md; load before starting)
 
-**Status:** ready-for-agent. One box remains: proving slots 2 and 3 at the log's own address, which needs the log deployed (HANDOFF step 2). Then rerun `/harness` with the default log address and tick it. The hour-6 call is the team's; the recommendation is in Comments.
+**Status:** ready-for-agent. One box remains: proving slots 2 and 3 at the log's own address. The log is now deployed at the default `LOG_ADDRESS` (log-contract 06, block 12074077), so rerun `/harness` and tick it. The hour-6 call is the team's; the recommendation is in Comments.
 
 - [x] Helios 0.12.0 runs in the browser on Sepolia with a pinned weak-subjectivity checkpoint and an editable consensus endpoint.
 - [x] The Anon-RPC browser-harness 0.4.0 worker is bootstrapped through Helios and its hash is checked against the light client; a `globalThis.fetch` shim sends Helios's execution RPC URL through the worker.
