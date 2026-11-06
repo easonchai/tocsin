@@ -16,7 +16,7 @@ Today the address table has subjects for categories 1, 3, 5, 6, 7 and 8 only. Ca
 - [x] `poisoning-funder-1` flagged category 2 by the lanterndao.eth writer. `malicious-delegate-1` flagged category 4 by the tocsin.eth manual writer. Transaction hashes appended to the curators manifest.
 - [x] The demo address table gains both rows with expected verdicts: funder warn on a send (warn-only by default policy), delegate "not reachable from a send".
 - [x] Mirrors under the static site regenerated so beat three still serves every leaf.
-- [ ] The scenario table gains a Send ETH row for poisoning-funder-1 (lanterndao.eth, POISONING_FUNDER, warn, note "warn-only category; toggle in Snap policy"). The constants test passes against the updated address table.
+- [x] The scenario table gains a Send ETH row for poisoning-funder-1 (lanterndao.eth, POISONING_FUNDER, warn, note "warn-only category; toggle in Snap policy"). The constants test passes against the updated address table.
 - [ ] Rehearsed with the Snap: the funder row warns with the toggle on and blocks at policy 1 with the toggle off. Recorded in Comments.
 
 ## Comments
