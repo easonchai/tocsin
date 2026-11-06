@@ -20,7 +20,7 @@
 
 <nav class="nav" aria-label="Main navigation">
   <div class="wrap">
-    <a class="wordmark" href="#top"><img src="../design/kit/mark.svg" width="28" height="28" alt="">tocsin</a>
+    <a class="wordmark" href="#top"><span class="mark" role="img" aria-label="bell">🔔</span>tocsin</a>
     <div class="nav-links">
       <a href="#how">How it works</a>
       <a href="#lists">Trust lists</a>
@@ -204,16 +204,18 @@
 </section>
 
 <section id="leaks" class="sec privacy" aria-labelledby="privacy-title">
-  <div class="sec-head">
-    <div class="label">04 · Privacy</div>
-    <h2 id="privacy-title">The check stays on your device.</h2>
-    <p class="lede">Sync the reports from your chosen writers first. Then check recipients on your device, without sending each address to a security service.</p>
-  </div>
   <div class="privacy-layout">
+    <div class="privacy-main">
+    <div class="sec-head">
+      <div class="label">04 · Privacy</div>
+      <h2 id="privacy-title">The check stays on your device.</h2>
+      <p class="lede">Sync the reports from your chosen writers first. Then check recipients on your device, without sending each address to a security service.</p>
+    </div>
     <div class="privacy-comparison">
       <div class="privacy-row"><div><span class="label">Per-address API lookup</span><h3>The provider sees the recipient.</h3></div><p>“Is this address safe?” sends the address to a security service. The service sees what you ask about and when; your wallet depends on its answer.</p></div>
       <div class="privacy-row local"><div><span class="label">Tocsin's local check</span><h3>The recipient stays on your device.</h3></div><p>Sync your chosen writers' reports, verify the record, then look up the address locally. The threat check needs no per-recipient request.</p></div>
       <div class="privacy-row"><div><span class="label">Private transport</span><h3>Anon-RPC covers the connection.</h3></div><p>Direct sync can reveal your network address, timing and which writers you follow. Anon-RPC adds transport privacy; broadcast transactions remain public.</p></div>
+    </div>
     </div>
     <figure class="wallet-preview">
       <div class="preview-label label">The warning, inside your wallet</div>
@@ -233,6 +235,8 @@
     <article class="integration"><div class="label">Private Transports</div><h3>Anon-RPC</h3><p>Routes Tocsin's reads through Tor or Nym to reduce the link between your device and its requests. Privacy for the connection; verification for the response.</p><a class="text-link" href="https://github.com/easonchai/tocsin/tree/feat/kohaku/dapp/packages/kohaku#anon-rpc">See the transport setup ↗</a></article>
     <article class="integration"><div class="label">Clients</div><h3>Ethereum light clients</h3><p>An independently verified block anchors the record. A compromised RPC cannot pass off altered data as matching that block's state.</p><a class="text-link" href="https://github.com/easonchai/tocsin/blob/main/docs/spec/threat-flag-log.md#light-client-read-procedure">Read the verification path ↗</a></article>
   </div>
+  <div class="kohaku-block">
+  <h3 class="kohaku-title">Example on custom Kohaku integration</h3>
   <div class="kohaku-previews">
     <figure>
       <a class="kohaku-crop swap" href="../design/screens/raw/kohaku-swap-block.jpg" aria-label="Open the full Kohaku blocked-swap capture"><img src="../design/screens/raw/kohaku-swap-block.jpg" width="2560" height="1581" loading="lazy" alt="Kohaku on Sepolia blocks a swap whose recipient is flagged as a drainer receiver, with writers, evidence and header source visible"></a>
@@ -242,7 +246,8 @@
       <a class="kohaku-crop theft" href="../design/screens/raw/kohaku-theft-warn.jpg" aria-label="Open the full Kohaku theft-proceeds capture"><img src="../design/screens/raw/kohaku-theft-warn.jpg" width="2560" height="1605" loading="lazy" alt="Kohaku on Sepolia warns about a theft-proceeds recipient, with evidence and the RPC-supplied header source visible"></a>
       <figcaption><strong>Theft proceeds warning.</strong> This category warns while leaving the decision to the sender.</figcaption>
     </figure>
-    <p class="capture-note">Sepolia demo captures; publisher names are examples. Select either image for the full capture.</p>
+  </div>
+  <p class="capture-note">Blocked and Warning verdicts from the same reader, on Sepolia</p>
   </div>
   <div class="build-status"><div class="label">Today on Sepolia</div><p>The log, signed ENS lists and reader are built, with Snap, browser-extension and Kohaku demo integrations. <strong>The current demo still trusts an RPC for the threat-log header.</strong> Helios verifies the Anon-RPC worker's published hash; connecting independent consensus verification to Tocsin's own proofs is the next step.</p></div>
 </section>
@@ -263,7 +268,7 @@
 </main>
 
 <footer>
-  <div class="foot-row"><a class="wordmark" href="#top"><img src="../design/kit/mark.svg" width="28" height="28" alt="">tocsin</a><div class="foot-links"><a href="https://github.com/easonchai/tocsin">GitHub</a><a href="https://t.me/tocsin_eth">Telegram</a><a href="https://x.com/tocsin_eth">X</a><a href="claim.html">Claim a name</a><a href="#top">Back to top ↑</a></div></div>
+  <div class="foot-row"><a class="wordmark" href="#top"><span class="mark" role="img" aria-label="bell">🔔</span>tocsin</a><div class="foot-links"><a href="https://github.com/easonchai/tocsin">GitHub</a><a href="https://t.me/tocsin_eth">Telegram</a><a href="https://x.com/tocsin_eth">X</a><a href="claim.html">Claim a name</a><a href="#top">Back to top ↑</a></div></div>
   <p class="note">Built at Devcon 8 and ETHGlobal Mumbai, November 2026. Open source. Sepolia deployment. CC0 specification.</p>
 </footer>
 
