@@ -152,6 +152,15 @@ Docs:
 
 Censorship resistance, open source, privacy, security: the Ethereum Foundation's test for what Ethereum must keep. This section describes the code as it ships on this branch. The log is deployed and verified on Sepolia at `0xB639d15A0E7aE24E4C32E851Fbe0E57585565b14`. `docs/operator.md` maps each judge check to a file, command, or demo beat.
 
+The short version, one or two lines a letter. The detail follows.
+
+- **C.** We run the `tocsin.eth` name, a static host for list documents, and the demo RPC. If all three vanish or refuse a user, an installed wallet keeps its pinned list on the device, replays the log from any Sepolia RPC, and still blocks; `dapp/packages/snap/test/bundle.test.ts` tests it.
+- **O.** MIT, with the spec and reference implementation CC0. A clone builds and runs every piece against public RPCs with no account, key, or service of ours.
+- **P.** No per-address query leaves the device. In Kohaku and the extension the Sepolia RPC sees a Tor or Nym exit, not the user; in the Snap it sees the user's IP and the pinned writers. No analytics, indexer, or backend exists.
+- **S.** Tocsin holds no keys and signs nothing; the wallet keeps custody. Trust, in order: each list's pinned maintainer key, the writers it names, then the RPC for the block header in the Snap and Kohaku, or the sync committee in the extension. A failed verification shows as unverifiable, never clean.
+
+In full:
+
 - **C.** We run the `tocsin.eth` name, the static host for list documents and mirror files, and the demo RPC. None of them sits in the read path after first sync: the log has no owner, pause, or delete, and every host keeps its pinned list and checkpoints on the device and replays leaves from any Sepolia RPC. If all three vanish or refuse a user, an installed host still blocks, which `dapp/packages/snap/test/bundle.test.ts` tests by deleting them. A fresh install has nothing to pin until someone serves a list record, and a writer whose relayer refuses sends `append` itself.
 - **O.** MIT for the repo, CC0 for the spec and the reference implementation. A clone builds and runs every piece with public RPCs and no account, key, or service of ours. `forge test`, the Snap and extension builds, and `dapp/packages/kohaku/setup.sh` are in this file and the runbook.
 - **P.** No per-address query leaves the device. In Kohaku and the extension, every Tocsin read (header, proofs, ENS, leaves) goes through the Anon-RPC worker, so the Sepolia RPC sees a Tor or Nym exit, not the user. The mainnet consensus server that verifies the worker hash sees the user's IP and learns that a light client runs. In the Snap, the configured RPC sees the IP, the log address, and the pinned writers. Our static host sees the IP of a Snap or extension that fetches a list document directly. No analytics, indexer, or backend of ours exists. Upstream Kohaku ships Sentry crash reporting behind `SENTRY_DSN_BROWSER_EXTENSION`; `setup.sh` leaves it empty, so it never initialises.
@@ -477,4 +486,4 @@ Before mainnet, a backtest decides whether the log is worth running. Take past l
 
 ## License
 
-MIT for this repository. CC0 for `docs/spec/` and the reference implementation in it.
+MIT for this repository, in `LICENSE`. CC0 for `docs/spec/` and the reference implementation in it, in `LICENSE-CC0`.
