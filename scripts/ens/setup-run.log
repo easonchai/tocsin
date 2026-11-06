@@ -1,16 +1,32 @@
-maintainer 0x8E2Cc65A08154a357136C8060DE5232FDdEe3e31; core writer 0x36a279136adDde960599fcA356369C04A96D387E; claimants blockaid=0x6f1524F5A1152d6b08ef8833E42E4311151e904F, etherscan=0x3a05D06949b9890aEAD4700AA5ECEbf4D1BA0Ba0, detector=0xe2605fA3c6CED0E1Dc05D19A0F1FdF51Dc5e7301
+maintainer 0x8E2Cc65A08154a357136C8060DE5232FDdEe3e31; core writer 0x36a279136adDde960599fcA356369C04A96D387E; claimants blockaid=0x6f1524F5A1152d6b08ef8833E42E4311151e904F, scamsniffer=0x3a05D06949b9890aEAD4700AA5ECEbf4D1BA0Ba0
 tocsin.eth is owned by the maintainer key
 resolver 0xedB3Ac2276803E249be532E6Bab168Af4b9549A6 already controlled by the maintainer key
 subregistry 0x45cb8bE82D927d8d310cd6B357708b0367B4435B already controlled by the maintainer key
-record the parent pointer: 0xd3760511be6e4ce9c712f6b03d8c01ab85a3294e5a882f3b845c77f4a49b48e0 … ok (block 12077303)
-deploy MirrorRegistrar: 0x62b66b348559d534049b11da1f74ea86fd1126f4d913c7809de4ca7b4cc49bd4 … ok at 0x9319461337a2c5fb1992fd467708cc46d716a427
-grant registrar + renew to the MirrorRegistrar: 0xf93fd6a1b35aa0bac08f2c89709fa39c8067b3f3a99a0ec7b0fcde6f6378c265 … ok (block 12077307)
-register core.tocsin.eth: 0xbaf22135f51cf6b64b87762bfb5980030852fb081f9b54adc23f1d11a50fa8ec … ok (block 12077309)
-set addr for tocsin.eth: 0xcb9e3df39548cc81f20e701a866620fd7f8446fca306a27628713ee8f08926cd … ok (block 12077311)
-set addr for core.tocsin.eth: 0xcba531527d85362d770ff0aee78c3ad9de7a6d397da0493da76d59c8e85db825 … ok (block 12077313)
+MirrorRegistrar 0x9319461337a2c5fb1992fd467708cc46d716a427 already bound to this subregistry
 == blockaid
-blockaid.eth costs 8.000021 test USDC for a year
-mint test USDC: 0xa026d25d0a4046ebdc8b3269b6eb41d290d12db903f06a2629baeeb2ebd9c85a … ok (block 12077315)
-approve registrar: 0x4f70c62b736b6755af3fe2b9a7695313bd009aa1dbe3520690e22514605274f7 … ok (block 12077318)
-commit blockaid.eth: 0xb43ee2340501f713126654c21bb183c96e502cc15429de2db3f764d0130a8798 … ok (block 12077320)
+blockaid.eth is already registered to this key
+blockaid.tocsin.eth already owned by its key
+== scamsniffer
+scamsniffer.eth costs 8.000021 test USDC for a year
+mint test USDC: 0xa26de66ced6661ee3e08516f1fad0d3f045fcbf31081720b86f70a8dd9fa0ece … ok (block 12077414)
+approve registrar: 0xb008b13422c98736115c4eb16485763f4cfc3a2998a2562241a8c00d3e1a7f3b … ok (block 12077416)
+commit scamsniffer.eth: 0xf905f3138169c0fe3369e7d0e41aee7547ab45a6fbcadbbe6f06a9a82ba0d49a … ok (block 12077418)
 waiting 75s for the commitment to age…
+register scamsniffer.eth: 0x89b3173d9f61335da88b65e80a51336464cc6cc17bc227f8f1e877d7ca307009 … ok (block 12077427)
+deploy resolver for 0x3a05D06949b9890aEAD4700AA5ECEbf4D1BA0Ba0: 0xee56328e0b634d795819ae304f88a695a52698cbf07903f0465fe7d6d6bb79cd … ok (block 12077429)
+resolver for 0x3a05D06949b9890aEAD4700AA5ECEbf4D1BA0Ba0 at 0xB28A4cd2eD1f11e5dbB1a3f2ABf6A83EE63b219f
+claim scamsniffer.tocsin.eth: 0xdb08b8b004e9bfa78b59600b866277471ac7da73bf4a0d83a1fb6b9b39496f46 … ok (block 12077432)
+set addr for scamsniffer.tocsin.eth: 0xd3735418eace3c3deb84c369871c445b8aca9ab757bbd2562c484b8c154834e5 … ok (block 12077434)
+detector.tocsin.eth resolves to writer 0xe3a9678eD0992416C5230f52E3B1fF9775CCA999 (resolver 0xedB3Ac2276803E249be532E6Bab168Af4b9549A6)
+set tocsin.list on detector.tocsin.eth (version 2): 0xe2b7a7d9fe3002d097b83c8e01fbb8a92536d30a0f31f87591db1a6ef995887c … ok (block 12077436)
+set tocsin.list on core.tocsin.eth (version 3): 0xe88b75c113bf91ba813f9f11607e3c00fc87782031717976581d543f9178047d … ok (block 12077439)
+emancipate: revoke every root role from the maintainer: 0x50be9f1fdeba9c0007203af4b147c51a2c1761ae0187d4902cf12f064f9a36c1 … ok (block 12077441)
+
+== resolution through the Universal Resolver proxy
+  tocsin.eth               addr 0x8E2Cc65A08154a357136C8060DE5232FDdEe3e31   tocsin.list none
+  core.tocsin.eth          addr 0x8E2Cc65A08154a357136C8060DE5232FDdEe3e31   tocsin.list set (770 hex chars)
+  detector.tocsin.eth      addr 0xe3a9678eD0992416C5230f52E3B1fF9775CCA999   tocsin.list set (770 hex chars)
+  blockaid.tocsin.eth      addr 0x6f1524F5A1152d6b08ef8833E42E4311151e904F   tocsin.list none
+  scamsniffer.tocsin.eth   addr 0x3a05D06949b9890aEAD4700AA5ECEbf4D1BA0Ba0   tocsin.list none
+  subregistry 0x45cb8bE82D927d8d310cd6B357708b0367B4435B emancipated: true   dangerous root role held: false
+state written to scripts/ens/state.sepolia.json and claims.sepolia.json; commit them with docs/plan/demo/seed

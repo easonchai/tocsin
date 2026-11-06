@@ -6,6 +6,8 @@ All Sepolia, on the ENSv2 contract set the Universal Resolver reads (the 1 Octob
 node --env-file=scripts/.env scripts/ens/setup-all.mjs
 ```
 
+The keys, one per role: `TOCSIN_PRIVATE_KEY` is the maintainer (owns `tocsin.eth`, the subregistry before emancipation, the maintainer resolver, `core` and `detector`, and signs both lists). `CORE_WRITER_PRIVATE_KEY` is the key whose 92 leaves are in the log; only its address is used, and it defaults to the maintainer. `BLOCKAID_PRIVATE_KEY` and `SCAMSNIFFER_PRIVATE_KEY` are the two claimants; the label each claims is the slot name. `DETECTOR_PRIVATE_KEY` is read only by `scripts/agent/detector.mjs`.
+
 What it does, in order, skipping anything already in place:
 
 1. Confirms the `TOCSIN` key owns `tocsin.eth` on the live ETHRegistry, or registers it (test USDC, commit, 75 s wait, register).
@@ -13,25 +15,27 @@ What it does, in order, skipping anything already in place:
 3. Uses the subregistry already on the name if that key holds the root roles, else deploys a UserRegistry proxy and points `tocsin.eth` at it.
 4. Deploys the MirrorRegistrar bound to that registry pair and grants it registrar and renew.
 5. Registers `core.tocsin.eth` to the maintainer, expiry mirrored from `tocsin.eth`, and sets addr records.
-6. For each of `BLOCKAID`, `ETHERSCAN`, `DETECTOR` keys present: registers `<label>.eth` if needed, deploys that key's resolver, claims `<label>.tocsin.eth`, sets its addr.
-7. Runs the detector agent once if its writer has no leaves yet (five sample flags).
-8. Publishes `detector.tocsin.eth`'s self-list and `core.tocsin.eth`'s list naming the core writer and the detector at warn weight, under the text key `tocsin.list`, skipping any record whose content is already live.
-9. Emancipates the subregistry: revokes every root role from the maintainer, then prints `isEmancipated()`.
+6. For each of the `BLOCKAID` and `SCAMSNIFFER` keys present: registers `<label>.eth` if needed, takes that key's resolver from `claims.sepolia.json` if it has code there (the factory reverts on a reused salt, so a second deploy would fail), else deploys one, claims `<label>.tocsin.eth` through the MirrorRegistrar, sets its addr.
+7. Reads `detector.tocsin.eth`, which the maintainer registered for the detector agent before this script existed. Whatever address it resolves to is the detector's writer. The script does not run the detector and does not claim that name.
+8. Publishes, from the maintainer key, `detector.tocsin.eth`'s list naming the detector writer and `core.tocsin.eth`'s list naming the core writer at weight 255 and the detector writer at weight 1 (warn), under the text key `tocsin.list`, skipping any record whose content is already live.
+9. Emancipates the subregistry: revokes every root role from the maintainer, then records `isEmancipated()` and `hasAssignees(ROOT, dangerousRoles)`.
 10. Resolves every name through the Universal Resolver proxy and prints what any app would see.
 
 Flags: `--keep-roles` skips emancipation (irreversible once run), `--skip-claims`, `--skip-lists`.
 
-Outputs to commit: `scripts/ens/state.sepolia.json`, `scripts/ens/claims.sepolia.json`, `docs/plan/demo/seed/*.list.json`, `docs/plan/demo/seed/detector.json`.
+Outputs to commit: `scripts/ens/state.sepolia.json`, `scripts/ens/claims.sepolia.json`, `docs/plan/demo/seed/core.list.json`, `docs/plan/demo/seed/detector.list.json`.
+
+A claimant label must be free on the registrar. `registerEth` stops with "not available (status N: reserved or in grace)" when `isAvailable(label)` is false. `etherscan` is on the Sepolia registrar's reserved list (status 1), which is why the second claimant is `scamsniffer`. Check a label first with `cast call 0xf633e7FC17e2bbE0D0965D18ec1821dcB754a3d3 'isAvailable(string)(bool)' <label> --rpc-url $SEPOLIA_RPC`.
 
 Other scripts:
 
 - `scripts/seed/seed-core.mjs [--dry]`: appends the 92 seed leaves under `CORE_WRITER_PRIVATE_KEY`. Already run; re-runs skip what `core.receipts.json` records.
-- `scripts/agent/detector.mjs`: the agent-writer template. `--source sample` by default, `--source live` for the mainnet heuristic. Needs `DETECTOR_PRIVATE_KEY`.
+- `scripts/agent/detector.mjs`: the agent-writer template. `--source sample` by default, `--source live` for the mainnet heuristic. Needs `DETECTOR_PRIVATE_KEY`, whose address is what `detector.tocsin.eth` resolves to (`0xe3a9…A999`, 25 leaves so far). Writes `docs/plan/demo/seed/detector.json`. Re-run `setup-all.mjs --skip-claims` afterwards if the lists need a new version.
 - `scripts/ens/common.mjs`: addresses, ABIs, and helpers the above share. The addresses and every selector were checked against the deployed bytecode on 6 Nov 2026.
 
 ## The contracts, and the trap
 
-`ensdomains/contracts-v2` still ships an older Sepolia set dated 29 June 2026 under `contracts/deployments/sepolia/`. Those contracts exist and answer calls, but the Universal Resolver, the ENS app, and ensjs read the October set. Names registered on the June set resolve nowhere. Take addresses from docs.ens.domains/learn/deployments or `@ensdomains/ensjs`, never from that folder. The October resolver matches the docs: setters take a DNS-encoded name, roles are scoped with `grantSetterRoles`, and registries expose `isEmancipated()`.
+`ensdomains/contracts-v2` still ships an older Sepolia set dated 29 June 2026 under `contracts/deployments/sepolia/`. Those contracts exist and answer calls, but the Universal Resolver, the ENS app, and ensjs read the October set. Names registered on the June set resolve nowhere. Take addresses from docs.ens.domains/learn/deployments or `@ensdomains/ensjs` 5.2.12 (`ensL1Contracts[11155111]`), never from that folder. The live hub on that set: subregistry `0x45cb8bE82D927d8d310cd6B357708b0367B4435B` (emancipated), MirrorRegistrar `0x9319461337a2c5fb1992fd467708cc46d716a427`, maintainer resolver `0xedB3Ac2276803E249be532E6Bab168Af4b9549A6`, maintainer `0x8E2Cc65A08154a357136C8060DE5232FDdEe3e31`. The October resolver matches the docs: setters take a DNS-encoded name, roles are scoped with `grantSetterRoles`, and registries expose `isEmancipated()`.
 
 ## The MirrorRegistrar
 

@@ -167,6 +167,7 @@ export async function registerEth(pub, wallet, label, { log = console.log } = {}
     if (owner.toLowerCase() === account.address.toLowerCase()) { log(`${label}.eth is already registered to this key`); return owner; }
     throw new Error(`${label}.eth is registered to ${owner}, not ${account.address}`);
   }
+  if (!(await pub.readContract({ address: ENSV2.ETHRegistrar, abi: abi.registrar, functionName: 'isAvailable', args: [label] }))) throw new Error(`${label}.eth is not available (status ${status}: reserved or in grace); pick another label`);
   const duration = 365n * 24n * 3600n;
   const [base, premium] = await pub.readContract({ address: ENSV2.ETHRegistrar, abi: abi.registrar, functionName: 'getRegisterPrice', args: [label, duration, ENSV2.MockUSDC] });
   const price = base + premium, want = price + price / 10n;

@@ -1,1 +1,12 @@
-{}
+{
+  "blockaid": {
+    "owner": "0x6f1524F5A1152d6b08ef8833E42E4311151e904F",
+    "resolver": "0x2a0F1707376b54058A8ecD6d88Ae05810a0Ab084",
+    "node": "0x1601f93a3c51429b4ad6778fa9e7e669a5684b80254e211b078b97f9499f115b"
+  },
+  "scamsniffer": {
+    "owner": "0x3a05D06949b9890aEAD4700AA5ECEbf4D1BA0Ba0",
+    "resolver": "0xB28A4cd2eD1f11e5dbB1a3f2ABf6A83EE63b219f",
+    "node": "0xbef8d310239734a04fcad8a5b8f73e51dbcf7115155d60b17b825e06aead41e0"
+  }
+}

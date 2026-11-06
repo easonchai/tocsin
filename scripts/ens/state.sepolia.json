@@ -7,5 +7,7 @@
     "parent": "tocsin.eth",
     "list": "core.tocsin.eth",
     "listNode": "0x0551573d8cba9f9ca27a75d85f7ca91d68a7c6b956c2c582c15d5ca027e18abc"
-  }
+  },
+  "emancipated": true,
+  "dangerousRootRoleHeld": false
 }

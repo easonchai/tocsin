@@ -2,9 +2,10 @@
 //
 //   TOCSIN key      owns tocsin.eth, the subregistry, the maintainer resolver, core.tocsin.eth, and signs the core list
 //   CORE_WRITER key the key whose 92 leaves are already in the log (defaults to the TOCSIN key)
-//   BLOCKAID, ETHERSCAN, DETECTOR keys: each registers <label>.eth if needed, deploys its own resolver, claims
-//                   <label>.tocsin.eth through the MirrorRegistrar. The detector also appends sample flags and
-//                   publishes its own list.
+//   BLOCKAID, SCAMSNIFFER keys: each registers <label>.eth if needed, deploys its own resolver, claims
+//                   <label>.tocsin.eth through the MirrorRegistrar.
+//   detector.tocsin.eth already exists in the hub (the live detector agent); its addr record names the writer,
+//                   and the maintainer publishes that writer's list on the name. DETECTOR key is only for detector.mjs.
 //
 // Run: node --env-file=scripts/.env scripts/ens/setup-all.mjs [--keep-roles] [--skip-claims] [--skip-lists]
 // Every step checks chain state first, so re-running is safe. State lands in scripts/ens/state.sepolia.json and
@@ -13,7 +14,6 @@ import { ENSV2, REG, abi, env, clientsFor, send, deployProxy, registerEth, ensur
 import { encodeAbiParameters, decodeAbiParameters, keccak256 } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
-import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 const flag = (f) => process.argv.includes(f);
@@ -32,7 +32,7 @@ const PARENT = 'tocsin';
 const tocsin = clientsFor(env('TOCSIN_PRIVATE_KEY'));
 const { pub } = tocsin;
 const coreWriter = privateKeyToAccount(env('CORE_WRITER_PRIVATE_KEY', env('TOCSIN_PRIVATE_KEY'))).address;
-const claimants = ['blockaid', 'etherscan', 'detector'].filter((l) => process.env[`${l.toUpperCase()}_PRIVATE_KEY`]?.trim().length === 66).map((l) => ({ label: l, ...clientsFor(env(`${l.toUpperCase()}_PRIVATE_KEY`)) }));
+const claimants = ['blockaid', 'scamsniffer'].filter((l) => process.env[`${l.toUpperCase()}_PRIVATE_KEY`]?.trim().length === 66).map((l) => ({ label: l, ...clientsFor(env(`${l.toUpperCase()}_PRIVATE_KEY`)) }));
 console.log(`maintainer ${tocsin.account.address}; core writer ${coreWriter}; claimants ${claimants.map((c) => `${c.label}=${c.account.address}`).join(', ') || 'none'}`);
 
 // ---- 1. tocsin.eth on the live registry
@@ -101,7 +101,9 @@ save();
 if (!flag('--skip-claims')) for (const c of claimants) {
   console.log(`== ${c.label}`);
   await registerEth(pub, c.wallet, c.label);
-  const res = await ensureResolver(pub, c.wallet);
+  // the factory reverts on a reused salt, so a resolver deployed by an earlier run is taken from the claims file
+  const known = claims[c.label]?.resolver;
+  const res = known && (await pub.getCode({ address: known })) ? known : await ensureResolver(pub, c.wallet);
   const have = await pub.readContract({ address: hub, abi: abi.registry, functionName: 'findOwner', args: [c.label] });
   if (!same(have, c.account.address)) {
     const can = await readUntil(() => pub.readContract({ address: registrar, abi: abi.mirror, functionName: 'canClaim', args: [c.label, c.account.address] }), (v) => v === true);
@@ -113,14 +115,12 @@ if (!flag('--skip-claims')) for (const c of claimants) {
   save();
 }
 
-// ---- 7. the detector's flags, then both lists
-const detector = claimants.find((c) => c.label === 'detector');
-if (LOG && detector) {
-  const logAbi = [{ type: 'function', name: 'writerSeq', stateMutability: 'view', inputs: [{ type: 'address' }], outputs: [{ type: 'uint64' }] }];
-  const seq = await pub.readContract({ address: LOG, abi: logAbi, functionName: 'writerSeq', args: [detector.account.address] });
-  if (seq === 0n) { console.log('== detector appends its sample flags'); execFileSync(process.execPath, [here('../agent/detector.mjs'), '--limit', '5'], { env: { ...process.env, DETECTOR_PRIVATE_KEY: env('DETECTOR_PRIVATE_KEY') }, stdio: 'inherit' }); }
-  else console.log(`detector already has ${seq} leaves in the log`);
-}
+// ---- 7. the detector: detector.tocsin.eth predates this script; whatever it resolves to is the detector's writer key
+const detectorName = `detector.${PARENT}.eth`;
+const detectorWriter = await urAddress(pub, detectorName);
+const detectorResolver = detectorWriter ? await pub.readContract({ address: hub, abi: abi.registry, functionName: 'getResolver', args: ['detector'] }) : ZERO;
+if (detectorWriter) console.log(`${detectorName} resolves to writer ${detectorWriter} (resolver ${detectorResolver})`);
+else console.log(`${detectorName} has no addr record: lists go out without a detector writer`);
 
 const listType = { type: 'tuple', components: [
   { name: 'log', type: 'address' }, { name: 'chainId', type: 'uint64' }, { name: 'maintainer', type: 'address' }, { name: 'version', type: 'uint64' },
@@ -148,8 +148,8 @@ async function publishList({ name, maintainer, resolverAddress, writers, warn = 
   await send(pub, maintainer.wallet, `set ${KEY} on ${name} (version ${version})`, { address: resolverAddress, abi: abi.resolver, functionName: 'setText', args: [dns(name), KEY, record] });
 }
 if (!flag('--skip-lists') && LOG) {
-  if (detector) await publishList({ name: `detector.${PARENT}.eth`, maintainer: detector, resolverAddress: claims.detector.resolver, writers: [detector.account.address] });
-  await publishList({ name: `core.${PARENT}.eth`, maintainer: tocsin, resolverAddress: resolver, writers: detector ? [coreWriter, detector.account.address] : [coreWriter], warn: detector ? [detector.account.address] : [] });
+  if (detectorWriter) await publishList({ name: detectorName, maintainer: tocsin, resolverAddress: detectorResolver, writers: [detectorWriter] });
+  await publishList({ name: `core.${PARENT}.eth`, maintainer: tocsin, resolverAddress: resolver, writers: detectorWriter ? [coreWriter, detectorWriter] : [coreWriter], warn: detectorWriter ? [detectorWriter] : [] });
 } else if (!LOG) console.log('LOG_ADDRESS not set: lists skipped');
 
 // ---- 8. emancipate the subregistry
@@ -163,7 +163,7 @@ save();
 
 // ---- 9. what the world sees, through the Universal Resolver
 console.log('\n== resolution through the Universal Resolver proxy');
-for (const name of [`${PARENT}.eth`, `core.${PARENT}.eth`, ...claimants.map((c) => `${c.label}.${PARENT}.eth`)]) {
+for (const name of [`${PARENT}.eth`, `core.${PARENT}.eth`, detectorName, ...claimants.map((c) => `${c.label}.${PARENT}.eth`)]) {
   const [a, t] = await Promise.all([urAddress(pub, name), urText(pub, name, KEY)]);
   console.log(`  ${name.padEnd(24)} addr ${a || 'none'}   ${KEY} ${t ? 'set (' + t.length + ' hex chars)' : 'none'}`);
 }

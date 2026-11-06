@@ -4,11 +4,11 @@ Spec: this file. ERC: `erc/eip-draft_threat_flag_log.md`, Trust lists, publicati
 
 **What to build:** A permissionless, non-revocable directory of list names under `tocsin.eth` on ENSv2 Sepolia. Whoever owns `james.eth` can claim `james.tocsin.eth` in one transaction. Nobody, including the team, can take a claimed name back, change its resolver, or mint names outside the rule, and that is checkable on-chain.
 
-**Blocked by:** tocsin.eth registered on ENSv2 Sepolia (done, `scripts/ens/1-register-tocsin.mjs`).
+**Blocked by:** tocsin.eth registered on ENSv2 Sepolia (done, owned by the maintainer key `0x8E2Cc65A08154a357136C8060DE5232FDdEe3e31` on the October 2026 set).
 
 **Ethskills:** ship, security, addresses (per AGENTS.md; load before starting)
 
-**Status:** done (deployed and claimed on Sepolia 6 Nov 2026)
+**Status:** done (deployed and claimed on Sepolia 6 Nov 2026, redeployed the same day on the October 2026 set; see the last comment)
 
 ## The rule
 
@@ -26,22 +26,22 @@ A reviewed or reserved namespace makes the team a committee, which the pitch say
 
 ENSv2 roles on `ROOT_RESOURCE` apply to every name in a registry. The registry is emancipated when no account holds a dangerous root role: set resolver, set subregistry, unregister, transfer admin, upgrade, and their admin counterparts. Registrar and renew roles are operational and do not count.
 
-After deploying the registrar and granting it `ROLE_REGISTRAR | ROLE_RENEW` on the subregistry's root, the setup script revokes every root role the owner account holds, including its own registrar role, so only the contract can mint. The deployed Sepolia `UserRegistryImpl` has no `isEmancipated()`, so the check is `hasAssignees(ROOT_RESOURCE, dangerousRoles) == false`, and the script prints it. This is irreversible: re-granting a dangerous role needs its admin role, which nobody holds afterwards.
+After deploying the registrar and granting it `ROLE_REGISTRAR | ROLE_RENEW` on the subregistry's root, the setup script revokes every root role the owner account holds, including its own registrar role, so only the contract can mint. The October 2026 `UserRegistryImpl` exposes `isEmancipated()`, and the script records it together with `hasAssignees(ROOT_RESOURCE, dangerousRoles) == false`. This is irreversible: re-granting a dangerous role needs its admin role, which nobody holds afterwards.
 
 What the team keeps: ownership of `tocsin.eth` itself in the ETH registry, which still allows repointing the subregistry. ENSv2 cannot remove that from a `.eth` owner. Say it plainly in the write-up: "we can replace the whole directory, we cannot touch a name inside it," and the subregistry's `setParent` pointer plus the revoked `ROLE_SET_PARENT` make any replacement visible.
 
 ## Files
 
 - `scripts/ens/contracts/MirrorRegistrar.sol`: the contract, about 60 lines, no dependencies beyond two minimal interfaces. Built with `forge build --root scripts/ens`; the artifact `scripts/ens/MirrorRegistrar.json` (abi plus bytecode) is committed so the Node script can deploy without a Foundry install.
-- `scripts/ens/2-setup-core.mjs`: deploys the subregistry, the registrar, registers `core`, grants and revokes roles, verifies emancipation, and writes `scripts/ens/state.sepolia.json`.
-- `scripts/ens/3-claim.mjs <label>`: what a third party runs. Deploys their own Permissioned Resolver through the Verifiable Factory if they do not have one, claims the name, sets an addr record.
+- `scripts/ens/setup-all.mjs`: deploys the subregistry and the registrar, registers `core`, grants roles, runs the team's claims (each claimant deploys its own Permissioned Resolver through the Verifiable Factory, claims the name, sets an addr record), publishes the lists, revokes the maintainer's root roles, and writes `scripts/ens/state.sepolia.json` and `scripts/ens/claims.sepolia.json`.
+- `site/claim.html`: what a third party uses. Registers the `.eth` name if needed, deploys their resolver, claims, sets the addr record.
 - `scripts/ens/test/MirrorRegistrar.t.sol`: Foundry fork test against the live Sepolia ENSv2 contracts: claim by owner succeeds, claim by non-owner reverts, re-claim reverts, sync extends after a renewal, non-owner cannot register through the registry directly.
 
 ## Acceptance
 
 - [ ] `forge test --root scripts/ens --fork-url $SEPOLIA_RPC` passes.
-- [ ] `2-setup-core.mjs` runs to completion on Sepolia and prints `emancipated: true`. State file committed.
-- [ ] `3-claim.mjs` run from a second key that owns some `.eth` name on Sepolia mints `<label>.tocsin.eth`; the same call from a key that does not own it reverts with `NotNameOwner`.
+- [x] `setup-all.mjs` runs to completion on Sepolia and prints `emancipated: true`. State file committed.
+- [x] A claim from a second key that owns some `.eth` name on Sepolia mints `<label>.tocsin.eth`; the same call from a key that does not own it reverts with `NotNameOwner`.
 - [ ] `sepolia.app.ens.domains/core.tocsin.eth` resolves to the maintainer address.
 - [ ] Transaction hashes and the registrar address recorded in Comments.
 
@@ -51,7 +51,9 @@ What the team keeps: ownership of `tocsin.eth` itself in the ETH registry, which
 
 ## Comments
 
-6 Nov 2026, deployed on Sepolia by the maintainer key 0x36a279136adDde960599fcA356369C04A96D387E:
+The comments below, up to the one dated 6 Nov 2026 (October set redeploy), record the first run, on the June 2026 contract set from `ensdomains/contracts-v2` `deployments/sepolia`. That set still answers calls, but the Universal Resolver does not read it, so none of these names ever resolved. Every address and hash in them is superseded; the scripts they name have since been replaced by `scripts/ens/setup-all.mjs`.
+
+6 Nov 2026, June-set run (never seen by resolvers), deployed on Sepolia by the key 0x36a279136adDde960599fcA356369C04A96D387E:
 
 - tocsin.eth registered: 0x9e8b2a8d9889f148d24010d25f708c03e5998b7ab1459b6b6e4569b62320ed0f
 - resolver proxy 0x1cBF0A41B77416381C6eEC40b703BBe4722519E6: 0x95668f78dd2b75fd5507d4d8fa4faaf225ebfbd64882c61ee0fac89bbad89aab
@@ -71,3 +73,16 @@ The first blockaid run failed on an RPC lag read (owner read as zero one block a
 detector.eth registered and detector.tocsin.eth claimed by the detector key 0xe2605fA3c6CED0E1Dc05D19A0F1FdF51Dc5e7301: register 0xf0dfe165e159a968191659c6692b2fb660edad2138810f67a848b3fd1ad9eeea; resolver 0x9D37b2C6a165ff7f30e8926224f3305ED273b7b1: 0xe236aa6cb9b7ac0d9502c4acfe25bc5c072f16f32dd82a3a88ea6d5a7a986bac; claim: 0xdd00e1eb4b4ffd668b6e6551235b8ceed9467f52e60dae94f04b5a1382894bb9; addr: 0x52b07d9058df32b4daa752e002706d84a449f425cf67b489c72c804a0799a9c6.
 
 Lists published under tocsin.list: detector v1 0x88b482f8b60097495a4e11204db8ede21ce570c4145d8c409816409dbe24dc02; core v2 (both writers, detector at warn weight) 0xc99899b004fa42135e1a1858e92253a3c478bb26c6ad183caecd4b6640e56e6d. Detector's first leaf: 0xca64af9b691cc076b64abf409d8337afa515266cd8ccb0ed047916ff8d5bb514. Verified: both records decode, signers recover to the maintainers, committed documents hash to the roots, writer heads read 92 and 1.
+
+6 Nov 2026, October set redeploy. The first run sat on the June 2026 set, which resolvers never saw, so the hub was rebuilt on the 1 October 2026 set the Universal Resolver reads (addresses from `@ensdomains/ensjs` 5.2.12, `ensL1Contracts[11155111]`: ETHRegistry 0xD4eBcbBdF463C9c45784603Db0dDD499BC44A8B4, ETHRegistrar 0xf633e7FC17e2bbE0D0965D18ec1821dcB754a3d3, VerifiableFactory 0xDa70306C98E97eCe36F997a21368e53298572991, PermissionedResolverImpl 0x115eb53F0c60696633855F90b138178Fb40b2b2C, UserRegistryImpl 0x9BD8a88719068D09ecee662f36C0E3856708366a, Universal Resolver proxy 0xeEeEEEeE14D718C2B47D9923Deab1335E144EeEe, MockUSDC 0x240b0316Df57887DBBE58b586508b19e633a14aa). One script, `node --env-file=scripts/.env scripts/ens/setup-all.mjs`, replaced the numbered ones.
+
+- tocsin.eth owner and maintainer: 0x8E2Cc65A08154a357136C8060DE5232FDdEe3e31. Maintainer resolver 0xedB3Ac2276803E249be532E6Bab168Af4b9549A6.
+- Subregistry 0x45cb8bE82D927d8d310cd6B357708b0367B4435B. Emancipation: 0x50be9f1fdeba9c0007203af4b147c51a2c1761ae0187d4902cf12f064f9a36c1 (block 12077441). Afterwards isEmancipated() is true and hasAssignees(ROOT, dangerousRoles) is false.
+- MirrorRegistrar 0x9319461337a2c5fb1992fd467708cc46d716a427: deploy 0x62b66b348559d534049b11da1f74ea86fd1126f4d913c7809de4ca7b4cc49bd4 (around block 12077305, so event scans start at 12077300); roles granted 0xf93fd6a1b35aa0bac08f2c89709fa39c8067b3f3a99a0ec7b0fcde6f6378c265 (block 12077307).
+- core.tocsin.eth registered to the maintainer with resolver 0xedB3…49A6: 0xbaf22135f51cf6b64b87762bfb5980030852fb081f9b54adc23f1d11a50fa8ec; addr is the maintainer.
+- detector.tocsin.eth: registered earlier by the maintainer key for the live detector agent, not claimed through the MirrorRegistrar. Resolver 0xedB3…49A6; resolves to the detector writer 0xe3a9678eD0992416C5230f52E3B1fF9775CCA999, which has 25 leaves in the log.
+- blockaid.tocsin.eth, claimed by 0x6f1524F5A1152d6b08ef8833E42E4311151e904F: blockaid.eth registered 0x5ada2ed4bfe1db589fbaad66414fba61b1e6beef164f29cc123be28c81431770; own resolver 0x2a0F1707376b54058A8ecD6d88Ae05810a0Ab084; claim 0xf1cb08bfe4346ee004174354052ed78f335c1077aa2880cf5d3e24ae59d7699f; addr 0x75efc3305c28b2472f044d1c4d599d7145b5a8cb5fa246163d448707b935d02b.
+- scamsniffer.tocsin.eth, claimed by 0x3a05D06949b9890aEAD4700AA5ECEbf4D1BA0Ba0: scamsniffer.eth registered 0x89b3173d9f61335da88b65e80a51336464cc6cc17bc227f8f1e877d7ca307009; own resolver 0xB28A4cd2eD1f11e5dbB1a3f2ABf6A83EE63b219f; claim 0xdb08b8b004e9bfa78b59600b866277471ac7da73bf4a0d83a1fb6b9b39496f46; addr 0xd3735418eace3c3deb84c369871c445b8aca9ab757bbd2562c484b8c154834e5.
+- There is no etherscan name on this set. etherscan.eth is on the registrar's reserved list (status 1, isAvailable false), so the role became scamsniffer and the env key SCAMSNIFFER_PRIVATE_KEY replaced ETHERSCAN_PRIVATE_KEY.
+
+Four names in the hub, two claimed through the registrar from separate keys. State in scripts/ens/state.sepolia.json and scripts/ens/claims.sepolia.json.
