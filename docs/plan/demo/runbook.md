@@ -32,7 +32,7 @@ Each package documents its names in a committed `.env.example`. Copy it to the i
 | Ignored file | Names |
 | --- | --- |
 | `packages/foundry/.env` | `SEPOLIA_RPC_URL`, `ETHERSCAN_API_KEY`, `DEPLOYER_KEYSTORE_ACCOUNT` |
-| `packages/infra/.env` | `RPC_URL`, `CHAIN_ID=11155111`, `LOG_ADDRESS`, `MANUAL_WRITER_PRIVATE_KEY`, `DETECTOR_PRIVATE_KEY`, `RELAYER_PRIVATE_KEY`, `LIST_RECORD`, `LIST_DOCUMENT`, `LOG_FROM_BLOCK`, `LOG_BLOCK_RANGE`, `PROXY_URL`, `PROXY_PORT`, `PROXY_DROP_WRITER`, `PROXY_DROP_SEQ`, `ENS_NAME`, `ENS_OWNER_PRIVATE_KEY`, `ENS_WRITERS`, `ENS_MAINTAINER`, `MAINTAINER_PRIVATE_KEY`, and the optional `DETECTOR_PREFIX_HEX`, `DETECTOR_SUFFIX_HEX`, `DETECTOR_DUST_WEI`, `DETECTOR_DUST_TOKEN_UNITS`, `DETECTOR_LEAVES_PER_HOUR`, `DETECTOR_FLUSH_SECONDS`, `DETECTOR_FROM_BLOCK` |
+| `packages/infra/.env` | `RPC_URL`, `CHAIN_ID=11155111`, `LOG_ADDRESS`, `MANUAL_WRITER_PRIVATE_KEY`, `DETECTOR_PRIVATE_KEY`, `RELAYER_PRIVATE_KEY`, `HARBOR_WRITER_PRIVATE_KEY`, `LANTERN_WRITER_PRIVATE_KEY`, `LIST_RECORD`, `LIST_DOCUMENT`, `LOG_FROM_BLOCK`, `LOG_BLOCK_RANGE`, `PROXY_URL`, `PROXY_PORT`, `PROXY_DROP_WRITER`, `PROXY_DROP_SEQ`, `ENS_NAME`, `ENS_OWNER_PRIVATE_KEY`, `ENS_WRITERS`, `ENS_MAINTAINER`, `MAINTAINER_PRIVATE_KEY`, and the optional `DETECTOR_PREFIX_HEX`, `DETECTOR_SUFFIX_HEX`, `DETECTOR_DUST_WEI`, `DETECTOR_DUST_TOKEN_UNITS`, `DETECTOR_LEAVES_PER_HOUR`, `DETECTOR_FLUSH_SECONDS`, `DETECTOR_FROM_BLOCK` |
 | `packages/reader/.env` | `MAINTAINER_PRIVATE_KEY` or `MAINTAINER_ACCOUNT`, never both; `TOCSIN_MAINTAINER`, `TOCSIN_MANUAL_WRITER`, `TOCSIN_DETECTOR_WRITER`, `TOCSIN_SITE_BASE_URL`, `TOCSIN_OPERATOR_NAME` |
 | `packages/nextjs/.env.local` | `NEXT_PUBLIC_HARNESS_SEPOLIA_CONSENSUS_RPC`, `NEXT_PUBLIC_HARNESS_SEPOLIA_EXECUTION_RPC`, `NEXT_PUBLIC_HARNESS_MAINNET_CONSENSUS_RPC`, `NEXT_PUBLIC_HARNESS_MAINNET_EXECUTION_RPC`, `NEXT_PUBLIC_HARNESS_TOR_GATEWAYS`, `NEXT_PUBLIC_HARNESS_WRITERS`. The keyless public defaults are in `.env.example`. The extension build reads this file too |
 
@@ -69,6 +69,19 @@ The seeded subjects come from fixed labels, so they are the same on every chain:
 | Drainer spender, category 7 | `0x7d77cf49d8c1851781C3cEfCdD9Bd9871366782e` | `block` as permit or approve spender |
 | Theft proceeds, category 8 | `0xCd2698C9c9b2b69625DD2a56252190647F34913d` | `warn` as recipient, by the ERC's category 8 cap |
 
+### 2b. Curator writers and demo tokens
+
+The Kohaku and Snap beats follow three lists, so two more writers and two token contracts go in after the main seed. Both scripts ask for `SEED` before sending.
+
+```sh
+yarn workspace @tocsin/infra seed-curators
+TEST_WALLET=0xE0DFbd2B761929D02b30f2173C3386f0ec4B3cca yarn workspace @tocsin/infra seed-tokens
+```
+
+`seed-curators` needs `HARBOR_WRITER_PRIVATE_KEY`, `LANTERN_WRITER_PRIVATE_KEY` and `RELAYER_PRIVATE_KEY`. Each writer signs its own batch and the relayer pays, so neither writer key holds ETH. The subjects overlap the main seed on purpose: the drainer receiver is flagged by all three lists. It writes `packages/infra/curators-manifest.11155111.json`.
+
+`seed-tokens` needs `MANUAL_WRITER_PRIVATE_KEY` and a `forge build` in `packages/foundry` first. It deploys fakeUSDC and realUSDC, both with symbol USDC, mints 1,000 of each to `TEST_WALLET`, and has the manual writer flag fakeUSDC as category 5 with the deployment transaction as evidence. realUSDC stays unflagged as the control. It writes `packages/infra/tokens-manifest.11155111.json`. Both are done on Sepolia; the addresses are in `RUNBOOK.md`'s token table.
+
 ## 3. Trust list and mirror
 
 Pick the static host first. It serves `site/`, and the list document and mirror files live under `TOCSIN_SITE_BASE_URL`. It must send `access-control-allow-origin: *`, because the Snap and the extension fetch cross-origin. `python3 -m http.server` does not send that header.
@@ -81,11 +94,15 @@ yarn workspace @tocsin/infra mirror
 yarn workspace @tocsin/reader publish-list sign "$PWD/../site/lists/default.json" "<TOCSIN_SITE_BASE_URL>/lists/default.json" > list-record.hex
 ```
 
-`mirror` writes `site/mirror/<writer>.json` for both writers in the seed manifest and refuses to write a short snapshot. Commit `site/lists/default.json` and `site/mirror/*.json`, deploy `site/`, and check that both `snapshotURI` values in the list answer. Put the contents of `list-record.hex` in `LIST_RECORD`. It is not secret.
+`mirror` writes `site/mirror/<writer>.json` for both writers in the seed manifest and refuses to write a short snapshot. Pass writer addresses as arguments to mirror others, which is how the two curator writers from step 2b got theirs. Commit `site/lists/default.json` and `site/mirror/*.json`, deploy `site/`, and check that both `snapshotURI` values in the list answer. Put the contents of `list-record.hex` in `LIST_RECORD`. It is not secret.
+
+The curator lists, `site/lists/harborwatch.json` and `site/lists/lanterndao.json`, each name one `feed` writer and were signed the same way with that curator's maintainer key in `MAINTAINER_PRIVATE_KEY`. Their records are committed as `dapp/list-record.harborwatch.hex` and `dapp/list-record.lanterndao.hex`; the Kohaku build reads them through `TOCSIN_LIST_RECORDS` instead of ENS.
 
 The detector appends on its own schedule, and each new leaf makes the detector's mirror file stale. Rerun `mirror` and redeploy `site/` right before the demo.
 
 ## 4. ENS name and list record
+
+Two ENS paths exist, and both are current. `tocsin.eth` and its hub (the subregistry, the MirrorRegistrar, `core`, `detector` and the claimant subnames, the `tocsin.list` records, emancipation) live in `scripts/ens/setup-all.mjs`, run from the repo root with `scripts/.env`; `scripts/README.md` is its runbook. The `@tocsin/infra` commands below are what set up the two curator names, `harborwatch.eth` and `lanterndao.eth`, once per name with `ENS_NAME`, `ENS_WRITERS=feed=<address>` and that curator's maintainer in the env. Hashes for all three are in ticket 08's Comments. An earlier run of these commands for `tocsin.eth` landed on the June 2026 contract set, which the Universal Resolver does not read, and is superseded.
 
 The owner registers the team's name at sepolia.app.ens.domains first. If the app will not take payment, ticket 08's Comments give the `cast` path through `MockUSDC` and the ETHRegistrar. Then set `ENS_NAME`, `ENS_OWNER_PRIVATE_KEY`, `ENS_WRITERS=manual=<address>,detector=<address>`, `ENS_MAINTAINER`, and `MAINTAINER_PRIVATE_KEY` in `packages/infra/.env`.
 
