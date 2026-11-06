@@ -105,10 +105,18 @@ SEPOLIA_RPC_URL=https://ethereum-sepolia-rpc.publicnode.com npx jest Tocsin tocs
 
 35 tests in 5 suites.
 
+## Debugging
+
+`runtime.sendMessage` does not reach the offscreen page, because Kohaku's own tab page answers first, so the service worker relays fetches over a named port (`background/tocsinAnonRpc.ts`).
+
+Check in this order: the gateway log ("peer connection state changed: connected" on worker boot, "CONNECT: tunnel to" on every read); `chrome://extensions`, Kohaku, Inspect views `tocsin-offscreen.html` (boot stages and failures); the service worker console (`[BG] Tocsin Anon-RPC worker` on a boot failure). There is no status row in settings yet.
+
+Known flakes: the first Tor sync after a boot sometimes fails with "request to 0xrpc.io failed"; press Sync now again. Publicnode's `eth_getProof` returns "block not found" about one time in six through the lying proxy; retry.
+
 ## Changing the code
 
 Edit inside the clone, then run `dapp/packages/kohaku/update-patches.sh [clone dir]` and commit the patches. It diffs against the pinned commits, new files included, and leaves out `yarn.lock`, `package-lock.json`, `key.pem`, `.env` and the reader copy. Change the reader in `dapp/packages/reader`, not in the clone, because `setup.sh` overwrites the copy.
 
 ## Not in Kohaku yet
 
-Header and proofs come from one RPC, best effort, like the Snap. Kohaku's own Helios and Colibri are not used for Tocsin's proofs yet. Ticket 16 has the details.
+Header and proofs come from one RPC, best effort, like the Snap. Kohaku's own Helios and Colibri are not used for Tocsin's proofs yet.

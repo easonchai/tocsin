@@ -1999,7 +1999,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@heroicons/react@npm:^2.2.0, @heroicons/react@npm:~2.2.0":
+"@heroicons/react@npm:~2.2.0":
   version: 2.2.0
   resolution: "@heroicons/react@npm:2.2.0"
   peerDependencies:
@@ -4767,24 +4767,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@scaffold-ui/debug-contracts@npm:^0.1.11":
-  version: 0.1.11
-  resolution: "@scaffold-ui/debug-contracts@npm:0.1.11"
-  dependencies:
-    "@heroicons/react": "npm:^2.2.0"
-    react-hot-toast: "npm:^2.5.2"
-  peerDependencies:
-    "@scaffold-ui/components": 0.1.12
-    "@scaffold-ui/hooks": 0.1.8
-    "@tanstack/react-query": ^5.59.15
-    "@types/react": ^19.0.7
-    react: ^19.2.3
-    viem: ^2.23.0
-    wagmi: ^2.14.11
-  checksum: 10/a72b4cca79bf3331dee3a1b3f1383113c5620e7bccdcd863b6472c6a359850f852aecfadc255baea200d997b6e673e869adb689779a690f3bac11281e4be20a2
-  languageName: node
-  linkType: hard
-
 "@scaffold-ui/hooks@npm:^0.1.8":
   version: 0.1.8
   resolution: "@scaffold-ui/hooks@npm:0.1.8"
@@ -4904,7 +4886,6 @@ __metadata:
     "@rainbow-me/rainbowkit": "npm:2.2.11"
     "@react-native-async-storage/async-storage": "npm:~2.2.0"
     "@scaffold-ui/components": "npm:^0.1.12"
-    "@scaffold-ui/debug-contracts": "npm:^0.1.11"
     "@scaffold-ui/hooks": "npm:^0.1.8"
     "@tailwindcss/postcss": "npm:4.2.4"
     "@tanstack/react-query": "npm:~5.100.5"
@@ -17051,7 +17032,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-hot-toast@npm:^2.5.2, react-hot-toast@npm:~2.6.0":
+"react-hot-toast@npm:~2.6.0":
   version: 2.6.1
   resolution: "react-hot-toast@npm:2.6.1"
   dependencies:

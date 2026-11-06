@@ -1,4 +1,4 @@
-// Every screen in docs/plan/demo/snap-ui.md, built from the Snaps SDK components only.
+// Every Snap screen, built from the Snaps SDK components only.
 import type { Verdict, VerifiedList, WriterSync } from "@tocsin/reader";
 import {
   Address,

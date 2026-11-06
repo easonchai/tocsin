@@ -203,7 +203,7 @@ Run after steps 1 to 4 and 7. The offline version is the `walkaway` test in `pac
 
 ## Judge checks
 
-From the spec's "Judge checks, by prize". Written when Kohaku was still a diagram; Kohaku now carries the Anon-RPC and ENS checks too (HANDOFF, "Kohaku state").
+From the spec's "Judge checks, by prize". Written when Kohaku was still a diagram; Kohaku now carries the Anon-RPC and ENS checks too (`dapp/packages/kohaku/README.md`).
 
 | Check | Where it is shown | State |
 | --- | --- | --- |

@@ -8,7 +8,7 @@
     "directory": "dapp/packages/snap"
   },
   "source": {
-    "shasum": "pxwbbGa2/O2OSjnmM4o4jQsyA3BpR5d9VSmGg9jyee0=",
+    "shasum": "2mDBb+v7NMjAEVHNOX6WG9cObstRnVSfD81VE0+B2Dw=",
     "location": {
       "npm": {
         "filePath": "dist/bundle.js",

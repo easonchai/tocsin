@@ -97,4 +97,4 @@ If Chrome blocks the Snap from reaching `127.0.0.1`, put the lying proxy behind 
 
 ## Also in the repo
 
-The provider-proxy extension and the `/harness` page, which prove the log's heads through Helios in the browser, are in `docs/plan/demo/runbook.md` under "The extension" and "The harness page". The command-line beats and everything an operator does (deploy, seed, lists, ENS, detector) are in the same file.
+The provider-proxy extension and the `/harness` page, which prove the log's heads through Helios in the browser, are in `docs/operator.md` under "The extension" and "The harness page". The command-line beats and everything an operator does (deploy, seed, lists, ENS, detector) are in the same file.

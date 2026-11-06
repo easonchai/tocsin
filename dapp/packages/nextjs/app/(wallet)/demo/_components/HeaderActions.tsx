@@ -4,7 +4,6 @@ import { type ReactNode, useEffect, useRef, useState } from "react";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { sepolia } from "viem/chains";
 import { useAccount, useConnect, useConnectors } from "wagmi";
-import { useOutsideClick } from "~~/hooks/scaffold-eth";
 import { SNAP_ID, SNAP_IS_LOCAL } from "~~/utils/demo/scenarios";
 import { getParsedError } from "~~/utils/scaffold-eth";
 
@@ -163,24 +162,7 @@ const InstallSnap = ({ onMessage }: { onMessage: (m?: Message) => void }) => {
   );
 };
 
-const Overflow = () => {
-  const ref = useRef<HTMLDetailsElement>(null);
-  useOutsideClick(ref, () => ref.current?.removeAttribute("open"));
-  return (
-    <details className="more" ref={ref}>
-      <summary className="btn" aria-label="More">
-        ⋯
-      </summary>
-      {/* plain links: the scaffold routes load their own CSS on a full page load */}
-      <div className="menu">
-        <a href="/debug">Debug contracts</a>
-        <a href="/blockexplorer">Block explorer</a>
-      </div>
-    </details>
-  );
-};
-
-/** The demo header's right slot: account and host, Install Snap, and the scaffold pages behind a menu. */
+/** The demo header's right slot: account and host, and Install Snap. */
 export const HeaderActions = () => {
   const { connector } = useAccount();
   const [message, setMessage] = useState<Message>();
@@ -212,7 +194,6 @@ export const HeaderActions = () => {
         }
       </ConnectButton.Custom>
       <InstallSnap onMessage={setMessage} />
-      <Overflow />
       {message && (
         <p role={message.bad ? "alert" : "status"} className={`hdr-msg${message.bad ? " bad" : ""}`}>
           {message.text}
