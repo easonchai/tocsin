@@ -48,7 +48,7 @@ python3 -m http.server 8732
 | --- | --- |
 | `design/kit/index.html` | The kit sheet: palette, type, mark at every size, the live background with its five states, motion rules, the avoid list |
 | `design/kit/scenes.html` | The three how-it-works loops: writers appending, the wallet proving and replaying, the lying RPC caught |
-| `design/kit/snap.html` | The MetaMask Snap, every state, in MetaMask's own theme; built from `docs/plan/demo/snap-ui.md` |
+| `design/kit/snap.html` | The MetaMask Snap, every state, in MetaMask's own theme |
 | `design/kit/mocks.html` | Tocsin inside three wallets: a Kohaku send screen, a MetaMask Snap panel, a browser-extension overlay |
 | `design/kit/cover.html` | The 16:9 cover and OG source; `screens/cover-1280x720.png` and `screens/logo-512.png` are rendered from `cover.html` and `icon.html` |
 | `design/explorations/marks-a.html` | The mark explorations A1, A2, A3; A2 is the one |

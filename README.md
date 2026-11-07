@@ -98,7 +98,7 @@ async function findCandidates() {
 }
 ```
 
-The template dedupes against what the writer already flagged, caps the batch, writes `docs/plan/demo/seed/detector.json`, then calls `append` on the log from the writer's key. The log assigns the sequence numbers and folds each flag into that writer's head. Nothing else in the repo has to know the writer exists.
+The template dedupes against what the writer already flagged, caps the batch, writes `scripts/seed/data/detector.json`, then calls `append` on the log from the writer's key. The log assigns the sequence numbers and folds each flag into that writer's head. Nothing else in the repo has to know the writer exists.
 
 ```
 node --env-file=scripts/.env scripts/agent/detector.mjs --dry               # find and print, append nothing
@@ -134,6 +134,7 @@ Code:
 | `dapp/packages/infra` | Demo scripts: seed, relayer, detector, lying proxy, mirror, three-beat CLI, ENS setup |
 | `scripts/ens/` | ENSv2 Sepolia: `setup-all.mjs` registers, sets up the hub, claims, publishes the lists, and emancipates; `common.mjs` holds the addresses; the MirrorRegistrar and its fork tests. `scripts/README.md` is the runbook |
 | `scripts/seed/`, `scripts/agent/` | Seed the log from `core.json`; the detector, an agent writer with its own name |
+| `scripts/seed/data/` | Seed flags, the demo's flags per subject, the signed list documents, test addresses |
 | `site/` | Static landing page, `claim.html`, `llms.txt`, fonts, and `build.sh` for an IPFS-ready `dist/` |
 
 Docs:
@@ -141,10 +142,7 @@ Docs:
 | Path | What it is |
 | --- | --- |
 | `docs/spec/threat-flag-log.md` | The spec: log, reader and trust lists |
-| `docs/wallet-integrations.md` | What each host proves: Kohaku, Snap, extension |
 | `docs/claim-a-name.md` | How anyone claims `<label>.tocsin.eth` on Sepolia and publishes under it |
-| `docs/pitch/` | Pitch copy and how it's made |
-| `docs/plan/demo/` | Seed lists and flags, the signed list documents the ENS records point at, test addresses |
 | `design/` | Brand kit, scenes, mocks, Snap screens, designer handoff (`design/README.md`) |
 | `GLOSSARY.md` | Log, writer, leaf, subject, head, maintainer, reader |
 
@@ -154,19 +152,19 @@ Censorship resistance, open source, privacy, security: the Ethereum Foundation's
 
 The short version, one or two lines a letter. The detail follows.
 
-- **C.** We run the `tocsin.eth` name, a static host for list documents, and the demo RPC. If all three vanish or refuse a user, an installed wallet keeps its pinned list on the device, replays the log from any Sepolia RPC, and still blocks; `dapp/packages/snap/test/bundle.test.ts` tests it.
+- **CR.** We run the `tocsin.eth` name, a static host for list documents, and the demo RPC. If all three vanish or refuse a user, an installed wallet keeps its pinned list on the device, replays the log from any Sepolia RPC, and still blocks; `dapp/packages/snap/test/bundle.test.ts` tests it.
 - **O.** MIT, with the spec and reference implementation CC0. A clone builds and runs every piece against public RPCs with no account, key, or service of ours.
 - **P.** No per-address query leaves the device. In Kohaku and the extension the Sepolia RPC sees a Tor or Nym exit, not the user; in the Snap it sees the user's IP and the pinned writers. No analytics, indexer, or backend exists.
 - **S.** Tocsin holds no keys and signs nothing; the wallet keeps custody. Trust, in order: each list's pinned maintainer key, the writers it names, then the RPC for the block header in the Snap and Kohaku, or the sync committee in the extension. A failed verification shows as unverifiable, never clean.
 
 In full:
 
-- **C.** We run the `tocsin.eth` name, the static host for list documents and mirror files, and the demo RPC. None of them sits in the read path after first sync: the log has no owner, pause, or delete, and every host keeps its pinned list and checkpoints on the device and replays leaves from any Sepolia RPC. If all three vanish or refuse a user, an installed host still blocks, which `dapp/packages/snap/test/bundle.test.ts` tests by deleting them. A fresh install has nothing to pin until someone serves a list record, and a writer whose relayer refuses sends `append` itself.
+- **CR.** We run the `tocsin.eth` name, the static host for list documents and mirror files, and the demo RPC. None of them sits in the read path after first sync: the log has no owner, pause, or delete, and every host keeps its pinned list and checkpoints on the device and replays leaves from any Sepolia RPC. If all three vanish or refuse a user, an installed host still blocks, which `dapp/packages/snap/test/bundle.test.ts` tests by deleting them. A fresh install has nothing to pin until someone serves a list record, and a writer whose relayer refuses sends `append` itself.
 - **O.** MIT for the repo, CC0 for the spec and the reference implementation. A clone builds and runs every piece with public RPCs and no account, key, or service of ours. `forge test`, the Snap and extension builds, and `dapp/packages/kohaku/setup.sh` are in this file and the runbook.
 - **P.** No per-address query leaves the device. In Kohaku and the extension, every Tocsin read (header, proofs, ENS, leaves) goes through the Anon-RPC worker, so the Sepolia RPC sees a Tor or Nym exit, not the user. The mainnet consensus server that verifies the worker hash sees the user's IP and learns that a light client runs. In the Snap, the configured RPC sees the IP, the log address, and the pinned writers. Our static host sees the IP of a Snap or extension that fetches a list document directly. No analytics, indexer, or backend of ours exists. Upstream Kohaku ships Sentry crash reporting behind `SENTRY_DSN_BROWSER_EXTENSION`; `setup.sh` leaves it empty, so it never initialises.
 - **S.** Tocsin holds no keys and signs nothing. It reads, and the wallet keeps custody. Pinned lists, checkpoints, and overrides live in Snap state or extension storage and never leave. Trust, in order: the pinned maintainer key of each list, the writers those lists name within their block ranges, the Sepolia RPC for the header in the Snap and Kohaku, and the sync committee plus pinned checkpoint in the extension. A read that fails to verify shows as unverifiable, never as clean.
 
-**Before and after.** Before ETHGlobal Mumbai, this repo held the ERC draft, its reference implementation with nine Foundry tests, and the landing page. Nothing was deployed and no wallet could read it. The hackathon put the log on Sepolia, registered the ENSv2 names and signed lists, and built the reader and three hosts: the Snap, the provider-proxy extension, and the Kohaku patches. The new property is C. A wallet now blocks a flagged address from a log nobody owns, and keeps blocking after our name, host, and RPC are gone. P is new in Kohaku, where the Anon-RPC worker carries every Tocsin read. Stock Kohaku sends to the drainer receiver with no warning. Patched Kohaku blocks it, and still blocks it when the RPC lies.
+**What the hackathon built.** We deployed the log on Sepolia, registered the ENSv2 names and published the signed lists, and built the reader and three hosts: the Snap, the provider-proxy extension, and the Kohaku patches. The new property is CR. A wallet now blocks a flagged address from a log nobody owns, and keeps blocking after our name, host, and RPC are gone. P is new in Kohaku, where the Anon-RPC worker carries every Tocsin read. Stock Kohaku sends to the drainer receiver with no warning. Patched Kohaku blocks it, and still blocks it when the RPC lies.
 
 **Operator powers: none on the log.** `ThreatFlagLog.sol` has two state-changing functions, `append` and `appendSigned`, and no owner, pause, upgrade, allowlist, or delete. Anyone can relay a signed batch, and a writer whose relayer refuses can send `append` itself. Two powers exist off the contract. The ENS name owner can repoint the list record, and the list maintainer can sign a new version. Hosts pin the maintainer on first use. In the Snap, a list signed by a different key opens a confirmation dialog. The extension keeps the old pin and says so on the overlay. A stolen maintainer key can still sign a higher version that hosts accept without asking. The maintainer's ENSv2 publish grant covers every name on its resolver, the writer subnames included.
 
@@ -184,7 +182,7 @@ In full:
 
 The spec says readers SHOULD fetch list documents over the anonymising transport. Kohaku does. The extension does not yet, so the static host learns the user's IP and which list they read. Kohaku's own reads, for balances and its bundler, are untouched and go to its configured RPC directly. That is a stated trade-off, not a gap: Tocsin anonymises what Tocsin adds.
 
-**Trust level of each host,** as `docs/wallet-integrations.md` defines it, adjusted for what shipped:
+**Trust level of each host:**
 
 - MetaMask Snap: best-effort. The header and storage proofs come from the configured RPC and no light client checks them. A lying RPC whose answers agree with each other could forge a head. One whose logs disagree with its proven head produces "cannot vouch", never "clean". The panel says the header is unverified and the RPC is not anonymised. The Snap cannot stop a transaction. It raises MetaMask's critical warning, and the confirm button stays the user's.
 - Provider-proxy extension: built for the full claim. Helios checks the header and proofs, and the Anon-RPC worker carries execution reads. It has not run in a real browser yet. It has no settings page and no mirror source. RPCs, transport, and list name are fixed at build time. The override enables after five seconds, on the device, and nobody is told.
@@ -211,7 +209,7 @@ The lists live on the names. `core.tocsin.eth` carries a `tocsin.list` text reco
 
 https://github.com/easonchai/tocsin/blob/main/scripts/ens/contracts/MirrorRegistrar.sol#L50
 
-That is the `HUB.register` call: the subregistry minting a name with the claimant's role bitmap and the expiry mirrored from the `.eth` registry, right after the ownership check. Subregistry `0x45cb8bE82D927d8d310cd6B357708b0367B4435B`, registrar `0x9319461337a2c5fb1992fd467708cc46d716a427`, both on Sepolia. The deploy, role grant, claim and emancipation transactions are linked under "Addresses" in the Reference section.
+That is the `HUB.register` call: the subregistry minting a name with the claimant's role bitmap and the expiry mirrored from the `.eth` registry, right after the ownership check. Subregistry `0x45cb8bE82D927d8d310cd6B357708b0367B4435B`, registrar `0x9319461337a2C5FB1992fD467708cC46d716a427`, both on Sepolia. The deploy, role grant, claim and emancipation transactions are linked under "Addresses" in the Reference section.
 
 **Ease of use: 7 out of 10**
 
@@ -268,34 +266,34 @@ All Sepolia. Nothing is on mainnet yet.
 | --- | --- |
 | `tocsin.eth` owner (maintainer key, signs both lists) | `0x8E2Cc65A08154a357136C8060DE5232FDdEe3e31` |
 | tocsin.eth subregistry (UserRegistry proxy, emancipated) | `0x45cb8bE82D927d8d310cd6B357708b0367B4435B` |
-| MirrorRegistrar | `0x9319461337a2c5fb1992fd467708cc46d716a427` |
+| MirrorRegistrar | `0x9319461337a2C5FB1992fD467708cC46d716a427` |
 | Maintainer's PermissionedResolver proxy | `0xedB3Ac2276803E249be532E6Bab168Af4b9549A6` |
 | Core writer (92 seed leaves) | `0x36a279136adDde960599fcA356369C04A96D387E` |
 | Detector writer (25 leaves) | `0xe3a9678eD0992416C5230f52E3B1fF9775CCA999` |
 | `core.tocsin.eth` namehash (32-byte record key, not an address) | `0x0551573d8cba9f9ca27a75d85f7ca91d68a7c6b956c2c582c15d5ca027e18abc` |
-| ThreatFlagLog | `0xb639d15a0e7ae24e4c32e851fbe0e57585565b14` |
+| ThreatFlagLog | `0xB639d15A0E7aE24E4C32E851Fbe0E57585565b14` |
 
 Names in the hub:
 
 | Name | Owner | Resolver | How it got there |
 | --- | --- | --- | --- |
-| `core.tocsin.eth` | `0x8E2C…3e31` | `0xedB3…49A6` | registered by the maintainer before emancipation, tx [`0xbaf22135…a50fa8ec`](https://sepolia.etherscan.io/tx/0xbaf22135f51cf6b64b87762bfb5980030852fb081f9b54adc23f1d11a50fa8ec) |
-| `detector.tocsin.eth` | `0x8E2C…3e31` | `0xedB3…49A6` | registered by the maintainer for the detector agent; resolves to the detector writer `0xe3a9…A999` |
+| `core.tocsin.eth` | `0x8E2Cc65A08154a357136C8060DE5232FDdEe3e31` | `0xedB3Ac2276803E249be532E6Bab168Af4b9549A6` | registered by the maintainer before emancipation, tx [`0xbaf22135…a50fa8ec`](https://sepolia.etherscan.io/tx/0xbaf22135f51cf6b64b87762bfb5980030852fb081f9b54adc23f1d11a50fa8ec) |
+| `detector.tocsin.eth` | `0x8E2Cc65A08154a357136C8060DE5232FDdEe3e31` | `0xedB3Ac2276803E249be532E6Bab168Af4b9549A6` | registered by the maintainer for the detector agent, tx [`0x4c0e4ed0…3469b78c`](https://sepolia.etherscan.io/tx/0x4c0e4ed0132e968ba1cfbc6c335f4a99d8da711f2b61456f5296c49b3469b78c); resolves to the detector writer `0xe3a9678eD0992416C5230f52E3B1fF9775CCA999` |
 | `blockaid.tocsin.eth` | `0x6f1524F5A1152d6b08ef8833E42E4311151e904F` | `0x2a0F1707376b54058A8ecD6d88Ae05810a0Ab084` | claimed through the MirrorRegistrar, tx [`0xf1cb08bf…59d7699f`](https://sepolia.etherscan.io/tx/0xf1cb08bfe4346ee004174354052ed78f335c1077aa2880cf5d3e24ae59d7699f) |
 | `scamsniffer.tocsin.eth` | `0x3a05D06949b9890aEAD4700AA5ECEbf4D1BA0Ba0` | `0xB28A4cd2eD1f11e5dbB1a3f2ABf6A83EE63b219f` | claimed through the MirrorRegistrar, tx [`0xdb08b8b0…b39496f46`](https://sepolia.etherscan.io/tx/0xdb08b8b004e9bfa78b59600b866277471ac7da73bf4a0d83a1fb6b9b39496f46) |
 
 The two claims come from separate keys, each of which first registered its own `.eth` name (`blockaid.eth` in [`0x5ada2ed4…c81431770`](https://sepolia.etherscan.io/tx/0x5ada2ed4bfe1db589fbaad66414fba61b1e6beef164f29cc123be28c81431770), `scamsniffer.eth` in [`0x89b3173d…ca307009`](https://sepolia.etherscan.io/tx/0x89b3173d9f61335da88b65e80a51336464cc6cc17bc227f8f1e877d7ca307009)) and deployed its own resolver. The rest of the scamsniffer run, blocks 12077414 to 12077439: mint test USDC [`0xa26de66c…dd9fa0ece`](https://sepolia.etherscan.io/tx/0xa26de66ced6661ee3e08516f1fad0d3f045fcbf31081720b86f70a8dd9fa0ece), approve the registrar [`0xb008b134…e1a7f3b`](https://sepolia.etherscan.io/tx/0xb008b13422c98736115c4eb16485763f4cfc3a2998a2562241a8c00d3e1a7f3b), commit `scamsniffer.eth` [`0xf905f313…ba0d49a`](https://sepolia.etherscan.io/tx/0xf905f3138169c0fe3369e7d0e41aee7547ab45a6fbcadbbe6f06a9a82ba0d49a), deploy its resolver [`0xee56328e…6bb79cd`](https://sepolia.etherscan.io/tx/0xee56328e0b634d795819ae304f88a695a52698cbf07903f0465fe7d6d6bb79cd), set the addr of `scamsniffer.tocsin.eth` [`0xd3735418…c154834e5`](https://sepolia.etherscan.io/tx/0xd3735418eace3c3deb84c369871c445b8aca9ab757bbd2562c484b8c154834e5), and `tocsin.list` version 3 on `core.tocsin.eth` [`0xe88b75c1…f9178047d`](https://sepolia.etherscan.io/tx/0xe88b75c113bf91ba813f9f11607e3c00fc87782031717976581d543f9178047d). They are demo claims by keys we control, named after the organisations as placeholders. The real ones belong to whoever owns `blockaid.eth` and `scamsniffer.eth` on mainnet when the hub goes there. `etherscan.eth` is on the Sepolia registrar's reserved list, so that role is now `scamsniffer`. To claim your own: `docs/claim-a-name.md`.
 
-Published lists. core and detector are signed by the maintainer key `0x8E2C…3e31`, each claimant's by its own key. The demo wallet follows core, blockaid and scamsniffer:
+Published lists. core and detector are signed by the maintainer key `0x8E2Cc65A08154a357136C8060DE5232FDdEe3e31`, each claimant's by its own key. The demo wallet follows core, blockaid and scamsniffer:
 
 | Name | Record | Writers |
 | --- | --- | --- |
-| `core.tocsin.eth` | `tocsin.list` version 5, root `0x756fe5e6…`, tx `0xd0680d38…10d99b99` | core writer `0x36a2…387E` at weight 255 (92 seed leaves plus 26 Sepolia demo leaves), detector writer `0xe3a9…A999` at weight 1, warn (25 leaves) |
-| `detector.tocsin.eth` | `tocsin.list` version 2, root `0x30cf0073…`, tx `0xe2b7a7d9…a995887c` | detector writer `0xe3a9…A999` at weight 255 (25 leaves) |
-| `blockaid.tocsin.eth` | `tocsin.list` version 1, tx `0xaf1148cf…ae68bc1` | blockaid's key `0x6f15…904F` at weight 255 (7 demo leaves) |
-| `scamsniffer.tocsin.eth` | `tocsin.list` version 1, tx `0x5f2aeacf…6b3f696` | scamsniffer's key `0x3a05…0Ba0` at weight 1, warn (7 demo leaves) |
+| `core.tocsin.eth` | `tocsin.list` version 5, root `0x756fe5e665e312bdbd11a1314f3b456275b596969aee00bbe69abd727a2f5780`, tx [`0xd0680d38…10d99b99`](https://sepolia.etherscan.io/tx/0xd0680d3803104513d4c3e1b785df70a0dea1e53afece0e5277808ab310d99b99) | core writer `0x36a279136adDde960599fcA356369C04A96D387E` at weight 255 (92 seed leaves plus 26 Sepolia demo leaves), detector writer `0xe3a9678eD0992416C5230f52E3B1fF9775CCA999` at weight 1, warn (25 leaves) |
+| `detector.tocsin.eth` | `tocsin.list` version 2, root `0x30cf00739b0f74133880122278938135ec323e8fb8bcff51bbcc74cbdbe683ae`, tx [`0xe2b7a7d9…a995887c`](https://sepolia.etherscan.io/tx/0xe2b7a7d9fe3002d097b83c8e01fbb8a92536d30a0f31f87591db1a6ef995887c) | detector writer `0xe3a9678eD0992416C5230f52E3B1fF9775CCA999` at weight 255 (25 leaves) |
+| `blockaid.tocsin.eth` | `tocsin.list` version 1, root `0x0e9837b8d0af8e4547fd0af17356e0f4802df507bf6d9a328c1cac2a3a9ea16d`, tx [`0xaf1148cf…6ae68bc1`](https://sepolia.etherscan.io/tx/0xaf1148cf161e3e498b20d641e47ea2d345244c3ea1245a27bb13c0e76ae68bc1) | blockaid's key `0x6f1524F5A1152d6b08ef8833E42E4311151e904F` at weight 255 (7 demo leaves) |
+| `scamsniffer.tocsin.eth` | `tocsin.list` version 1, root `0xbd30e071bccb05a9e4cc134a2782b953db0a82b3dd068bbdc40c543839385913`, tx [`0x5f2aeacf…42b3f696`](https://sepolia.etherscan.io/tx/0x5f2aeacf2952c83dd8d353d248bc4ef6b0cae7e8dcb325335e44114742b3f696) | scamsniffer's key `0x3a05D06949b9890aEAD4700AA5ECEbf4D1BA0Ba0` at weight 1, warn (7 demo leaves) |
 
-The documents the records point at are `docs/plan/demo/seed/<label>.list.json`. The demo's flags per subject, with the tx that wrote each, are in `docs/plan/demo/seed/demo-flags.sepolia.json`.
+The list documents are `scripts/seed/data/<label>.list.json`. The records published so far point at copies under `docs/plan/demo/seed/`, which stay until each record is republished with the new path. The demo's flags per subject, with the tx that wrote each, are in `scripts/seed/data/demo-flags.sepolia.json`.
 
 Hub setup on 6 November 2026: MirrorRegistrar deployed in [`0x62b66b34…7cc49bd4`](https://sepolia.etherscan.io/tx/0x62b66b348559d534049b11da1f74ea86fd1126f4d913c7809de4ca7b4cc49bd4) (around block 12077305), granted registrar and renew in [`0xf93fd6a1…6378c265`](https://sepolia.etherscan.io/tx/0xf93fd6a1b35aa0bac08f2c89709fa39c8067b3f3a99a0ec7b0fcde6f6378c265) (block 12077307), subregistry emancipated in [`0x50be9f1f…f9a36c1`](https://sepolia.etherscan.io/tx/0x50be9f1fdeba9c0007203af4b147c51a2c1761ae0187d4902cf12f064f9a36c1) (block 12077441). Checked afterwards: `isEmancipated()` is true, `hasAssignees(ROOT, dangerousRoles)` is false, every name resolves through the Universal Resolver proxy. Current state: `scripts/ens/state.sepolia.json` and `scripts/ens/claims.sepolia.json`.
 
@@ -478,7 +476,38 @@ With ETH at $2,200:
 
 The base fee moves fifty-fold within a day, so the sentence for a pitch is "about half a cent a flag." Calldata repricing proposed for Glamsterdam would raise the current encoding by about 40 percent; the spec notes it and a packed encoding would absorb it.
 
-A reader downloads only the writers it pins. Fifty thousand flags a year is about 5 MB packed. A fresh install syncs from a recent anchor and never replays from the beginning.
+#### What a read costs
+
+Reading costs no gas. A reader pays in requests and bytes, and both scale with the writers it pins, not with the size of the log.
+
+What it downloads:
+
+- Only the pinned writers. A writer no list names is never fetched, so spam in other namespaces costs a reader nothing.
+- Only leaves after its last finalized checkpoint. A fresh install starts from a recent anchor and never replays a writer from its first leaf.
+- At 50,000 flags a year, the packed 102-byte leaf from the spec's Rationale gives 50,000 × 102 bytes = 5.1 MB a year. That is the floor. Over `eth_getLogs`, which is what the hosts use today, one leaf measured 1,274 bytes of JSON on Sepolia (352 bytes of event data plus topics, hashes and hex encoding), so the same year is 50,000 × 1,274 bytes ≈ 64 MB before compression. A snapshot file at `snapshotURI` sits in between.
+
+The proof, once per sync: one `eth_getProof` for two slots per pinned writer. For the core and detector writers it measured 6,679 bytes of trie nodes (3,687 for the account proof, about 750 per storage slot), or 14.3 kB as the JSON hex the RPC returns. Each extra writer adds two slots, about 1.5 kB. The account proof is paid once however many writers are pinned.
+
+Requests per sync, over a plain RPC (`rpcProofSource` and `rpcLeafSource` in `dapp/packages/reader/src/rpc.ts`, which the Snap and Kohaku use):
+
+- 3 for the proof: `eth_getBlockByNumber` for `latest` and for `finalized`, then one `eth_getProof` covering every pinned writer.
+- Per writer, first sync: one `eth_getLogs` per 10,000 blocks from the log's deployment block to the proven block.
+- Per writer, from a checkpoint: one `eth_blockNumber`, `eth_getLogs` calls in 10,000-block steps to find the block of the anchor leaf, then the same steps from that block to the proven block. The anchor lookup is not cached yet, so it rescans from the deployment block every sync; the code marks this as a shortcut.
+
+On Sepolia today the log is about 6,200 blocks old, so every scan is one call. The demo wallet pins 4 writers: 3 + 4 = 7 requests on first sync, 3 + 4 × 3 = 15 after. A year of history is about 2.6 million blocks, or 263 `eth_getLogs` steps per writer per scan, which is when the anchor cache stops being optional.
+
+#### Bloom filters
+
+A Bloom filter answers "is this address in the set?" with either "no" or "probably". It is a bit array of m bits and k hash functions. Adding an address sets the k bits its hashes point at. Checking an address reads the same k bits: if any is 0, the address was never added.
+
+- No false negatives. An added address always has all its bits set, so a flagged address is never missed.
+- False positives at a rate you choose. Other addresses can set the same bits by chance, so "probably" can be wrong. More bits per entry make that rarer.
+- Size for n entries at false-positive rate p: m = −n ln p / (ln 2)². For p = 1%, −ln 0.01 = 4.605 and (ln 2)² = 0.4805, so m/n = 9.585 bits per entry. For 50,000 entries, 50,000 × 9.585 = 479,250 bits ≈ 59,900 bytes, about 60 kB. The best k is (m/n) ln 2 = 6.6, so 7 hashes.
+- You cannot remove an entry or list what is inside. It only answers membership.
+
+How a wallet could use one: check the filter first, and do the exact lookup only on "probably". Or ship 60 kB to a light device, such as a hardware wallet screen, instead of 5 MB of leaves, and fetch the matching leaf on a hit. A hit then reveals one address, and only when it is almost certainly flagged. The spec's Future work describes a writer committing such a filter's hash in a leaf.
+
+The reader does not use one today. It keeps every verified leaf in memory, indexed by subject in a `Map` (`evaluate.ts`), so a lookup is already exact and instant. A filter pays off only once a writer has more leaves than a device wants to hold.
 
 ## What's next
 
