@@ -11,7 +11,7 @@
 //
 // Run: node --env-file=scripts/.env scripts/agent/detector.mjs [--source sample|live] [--blocks 60] [--min-recipients 25] [--limit 5] [--dry]
 // Keys: DETECTOR_PRIVATE_KEY (load it from your secret store, such as 1Claw, into that variable before running).
-// Output: docs/plan/demo/seed/detector.json (what it flagged, with evidence), appended on-chain when LOG_ADDRESS is set.
+// Output: scripts/seed/data/detector.json (what it flagged, with evidence), appended on-chain when LOG_ADDRESS is set.
 import { createPublicClient, createWalletClient, http, parseAbi, parseAbiItem } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 import { sepolia } from 'viem/chains';
@@ -22,7 +22,7 @@ const env = (n, d) => { const v = process.env[n]; return v && v !== '0x' ? v : d
 const dry = process.argv.includes('--dry');
 const SOURCE = arg('--source', 'sample');
 const LIMIT = Number(arg('--limit', '0')); // 0 = append every new candidate
-const dir = new URL('../../docs/plan/demo/seed/', import.meta.url);
+const dir = new URL('../seed/data/', import.meta.url);
 const out = new URL('detector.json', dir);
 const CATEGORY = { POISONING_OPERATOR: 1, POISONING_FUNDER: 2, DRAINER_RECEIVER: 3, MALICIOUS_DELEGATE: 4, MALICIOUS_TOKEN: 5, PAID_LOOKALIKE: 6, DRAINER_SPENDER: 7, THEFT_PROCEEDS: 8 };
 
@@ -90,5 +90,5 @@ console.log(`ok (block ${r.blockNumber}, gas ${r.gasUsed})`);
 writeFileSync(out, JSON.stringify([...prev, ...fresh.map((c) => ({ ...c, tx: hash, block: Number(r.blockNumber) }))], null, 1) + '\n');
 const seq = await pub.readContract({ address: LOG, abi: logAbi, functionName: 'writerSeq', args: [account.address] });
 const headHash = await pub.readContract({ address: LOG, abi: logAbi, functionName: 'writerHead', args: [account.address] });
-console.log(`writerSeq ${seq}, writerHead ${headHash}; recorded in docs/plan/demo/seed/detector.json`);
+console.log(`writerSeq ${seq}, writerHead ${headHash}; recorded in scripts/seed/data/detector.json`);
 console.log(`next: node --env-file=scripts/.env scripts/ens/setup-all.mjs --skip-claims   # republishes the lists if they changed`);

@@ -1,6 +1,6 @@
 // Appends the core seed list to the ThreatFlagLog on Sepolia as FLAG leaves under the writer key's namespace.
 // Run: node --env-file=scripts/.env scripts/seed/seed-core.mjs [--dry]
-// Reads docs/plan/demo/seed/core.json, resolves each evidence tx's block number on its own chain (cached in core.seed.json),
+// Reads scripts/seed/data/core.json, resolves each evidence tx's block number on its own chain (cached in core.seed.json),
 // then calls append(Leaf[]) in batches of 100. Receipts go to core.receipts.json. Re-runs skip entries already recorded there.
 import { createPublicClient, createWalletClient, http, parseAbi, keccak256, toHex } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
@@ -8,7 +8,7 @@ import { sepolia } from 'viem/chains';
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 
 const dry = process.argv.includes('--dry');
-const dir = new URL('../../docs/plan/demo/seed/', import.meta.url);
+const dir = new URL('./data/', import.meta.url);
 const read = (f) => JSON.parse(readFileSync(new URL(f, dir), 'utf8'));
 const write = (f, v) => writeFileSync(new URL(f, dir), JSON.stringify(v, null, 1) + '\n');
 

@@ -5,7 +5,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
 
-const seed = new URL("../../../../../docs/plan/demo/seed/", import.meta.url);
+const seed = new URL("../../../../../scripts/seed/data/", import.meta.url);
 
 test("explain() reaches every scenario's expected verdict under the default policy", () => {
   for (const s of SCENARIOS) assert.equal(explain(s).verdict, s.expected, s.id);

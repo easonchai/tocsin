@@ -17,20 +17,20 @@ What it does, in order, skipping anything already in place:
 5. Registers `core.tocsin.eth` to the maintainer, expiry mirrored from `tocsin.eth`, and sets addr records.
 6. For each of the `BLOCKAID` and `SCAMSNIFFER` keys present: registers `<label>.eth` if needed, takes that key's resolver from `claims.sepolia.json` if it has code there (the factory reverts on a reused salt, so a second deploy would fail), else deploys one, claims `<label>.tocsin.eth` through the MirrorRegistrar, sets its addr.
 7. Reads `detector.tocsin.eth`, which the maintainer registered for the detector agent before this script existed. Whatever address it resolves to is the detector's writer. The script does not run the detector and does not claim that name.
-8. Publishes, from the maintainer key, `detector.tocsin.eth`'s list naming the detector writer and `core.tocsin.eth`'s list naming the core writer at weight 255 and the detector writer at weight 1 (warn), under the text key `tocsin.list`, skipping any record whose content is already live. Then each claimant publishes, from its own key, `<label>.tocsin.eth`'s list naming that key: blockaid at weight 255, scamsniffer at weight 1 (warn), operator `<label>.eth`. Each record's list URI is that list's `docs/plan/demo/seed/<label>.list.json` on GitHub `main`, so a list loads from ENS only once its file is on `main`. `demo.sh` follows core, blockaid and scamsniffer.
+8. Publishes, from the maintainer key, `detector.tocsin.eth`'s list naming the detector writer and `core.tocsin.eth`'s list naming the core writer at weight 255 and the detector writer at weight 1 (warn), under the text key `tocsin.list`, skipping any record whose content is already live. Then each claimant publishes, from its own key, `<label>.tocsin.eth`'s list naming that key: blockaid at weight 255, scamsniffer at weight 1 (warn), operator `<label>.eth`. Each record's list URI is that list's `scripts/seed/data/<label>.list.json` on GitHub `main`, so a list loads from ENS only once its file is on `main`. `demo.sh` follows core, blockaid and scamsniffer.
 9. Emancipates the subregistry: revokes every root role from the maintainer, then records `isEmancipated()` and `hasAssignees(ROOT, dangerousRoles)`.
 10. Resolves every name through the Universal Resolver proxy and prints what any app would see.
 
 Flags: `--keep-roles` skips emancipation (irreversible once run), `--skip-claims`, `--skip-lists`.
 
-Outputs to commit: `scripts/ens/state.sepolia.json`, `scripts/ens/claims.sepolia.json`, `docs/plan/demo/seed/<label>.list.json` for core, detector, blockaid and scamsniffer, and the demo copies above. The demo flags behind those lists come from `dapp/packages/infra/src/seed-names.ts` (`docs/plan/demo/runbook.md`, step 2c).
+Outputs to commit: `scripts/ens/state.sepolia.json`, `scripts/ens/claims.sepolia.json`, `scripts/seed/data/<label>.list.json` for core, detector, blockaid and scamsniffer, and the demo copies above. The demo flags behind those lists come from `dapp/packages/infra/src/seed-names.ts`.
 
 A claimant label must be free on the registrar. `registerEth` stops with "not available (status N: reserved or in grace)" when `isAvailable(label)` is false. `etherscan` is on the Sepolia registrar's reserved list (status 1), which is why the second claimant is `scamsniffer`. Check a label first with `cast call 0xf633e7FC17e2bbE0D0965D18ec1821dcB754a3d3 'isAvailable(string)(bool)' <label> --rpc-url $SEPOLIA_RPC`.
 
 Other scripts:
 
 - `scripts/seed/seed-core.mjs [--dry]`: appends the 92 seed leaves under `CORE_WRITER_PRIVATE_KEY`. Already run; re-runs skip what `core.receipts.json` records.
-- `scripts/agent/detector.mjs`: the agent-writer template. `--source sample` by default, `--source live` for the mainnet heuristic. Needs `DETECTOR_PRIVATE_KEY`, whose address is what `detector.tocsin.eth` resolves to (`0xe3a9…A999`, 25 leaves so far). Writes `docs/plan/demo/seed/detector.json`. Re-run `setup-all.mjs --skip-claims` afterwards if the lists need a new version.
+- `scripts/agent/detector.mjs`: the agent-writer template. `--source sample` by default, `--source live` for the mainnet heuristic. Needs `DETECTOR_PRIVATE_KEY`, whose address is what `detector.tocsin.eth` resolves to (`0xe3a9…A999`, 25 leaves so far). Writes `scripts/seed/data/detector.json`. Re-run `setup-all.mjs --skip-claims` afterwards if the lists need a new version.
 - `scripts/ens/common.mjs`: addresses, ABIs, and helpers the above share. The addresses and every selector were checked against the deployed bytecode on 6 Nov 2026.
 
 ## The contracts, and the trap

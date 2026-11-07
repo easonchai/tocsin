@@ -1,5 +1,5 @@
 // The demo page's scenario table: the three lists, their writers, and who flagged each subject.
-// Labels, lists, categories and verdicts follow docs/plan/demo/test-addresses.tsv and the seed list
+// Labels, lists, categories and verdicts follow scripts/seed/data/test-addresses.tsv and the seed list
 // documents; scenarios.test.ts and explain.test.ts fail when they drift apart.
 // Imports stay relative and type-only (besides viem) so `node --test` can load this file directly.
 import { type Address, type Hex, encodeFunctionData, parseAbi, parseEther } from "viem";
@@ -45,7 +45,7 @@ export type List = { name: ListName; short: string; role: string; writers: Write
 
 const CORE_OPERATOR: Hex = "0x50d9caca575dee80d39cc3050164ec8e74728ee8b47ab646b3e4914a12dd8c37";
 
-// Pinned to docs/plan/demo/seed/*.list.json by explain.test.ts. Every list is followed as blocking.
+// Pinned to scripts/seed/data/*.list.json by explain.test.ts. Every list is followed as blocking.
 export const LISTS: List[] = [
   {
     name: "core.tocsin.eth",

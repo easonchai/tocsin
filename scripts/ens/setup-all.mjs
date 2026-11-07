@@ -10,7 +10,7 @@
 //
 // Run: node --env-file=scripts/.env scripts/ens/setup-all.mjs [--keep-roles] [--skip-claims] [--skip-lists]
 // Every step checks chain state first, so re-running is safe. State lands in scripts/ens/state.sepolia.json and
-// scripts/ens/claims.sepolia.json; list documents in docs/plan/demo/seed/<name>.list.json.
+// scripts/ens/claims.sepolia.json; list documents in scripts/seed/data/<name>.list.json.
 import { ENSV2, REG, abi, env, clientsFor, send, deployProxy, registerEth, ensureResolver, labelhash, namehash, dns, encodeFunctionData, decodeEventLog, readUntil, urText, urAddress, ZERO, ZERO32, USER_REGISTRY_ROOT_ROLES, SUBNAME_OWNER_ROLES, DANGEROUS_ROOT_ROLES } from './common.mjs';
 import { encodeAbiParameters, decodeAbiParameters, keccak256 } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
@@ -19,7 +19,7 @@ import { fileURLToPath } from 'node:url';
 
 const flag = (f) => process.argv.includes(f);
 const here = (f) => fileURLToPath(new URL(f, import.meta.url));
-const seedDir = new URL('../../docs/plan/demo/seed/', import.meta.url);
+const seedDir = new URL('../seed/data/', import.meta.url);
 const stateFile = here('./state.sepolia.json'), claimsFile = here('./claims.sepolia.json');
 const state = existsSync(stateFile) ? JSON.parse(readFileSync(stateFile, 'utf8')) : {};
 const claims = existsSync(claimsFile) ? JSON.parse(readFileSync(claimsFile, 'utf8')) : {};
@@ -137,12 +137,12 @@ async function publishList({ name, maintainer, resolverAddress, writers, warn = 
   const prev = existsSync(file) ? JSON.parse(readFileSync(file, 'utf8')) : null;
   const highest = [decoded ? decoded[1] : 0n, BigInt(Number(prev?.trustList?.version ?? 0))].reduce((a, b) => (a > b ? a : b));
   const build = (version) => ({ log: LOG, chainId: 11155111n, maintainer: maintainer.account.address, version, entries: writers.map((w) => ({ writer: w, weight: warn.some((x) => same(x, w)) ? 1 : 255, operator: namehash(operator), upstream: ZERO32, fromBlock: 0n, toBlock: 0n, headPin: ZERO32, categories, snapshotURI: '' })) });
-  // same content as the live record: nothing to do
-  if (decoded && prev && prev.trustList && keccak256(encodeAbiParameters([listType], [build(decoded[1])])) === decoded[0]) { console.log(`${name}: list record already current (version ${decoded[1]})`); return; }
+  const listURI = `https://raw.githubusercontent.com/easonchai/tocsin/main/scripts/seed/data/${name.split('.')[0]}.list.json`;
+  // same content and same URI as the live record: nothing to do
+  if (decoded && prev && prev.trustList && decoded[3] === listURI && keccak256(encodeAbiParameters([listType], [build(decoded[1])])) === decoded[0]) { console.log(`${name}: list record already current (version ${decoded[1]})`); return; }
   const version = highest + 1n, trustList = build(version);
   const root = keccak256(encodeAbiParameters([listType], [trustList]));
   const signature = await maintainer.wallet.signTypedData({ domain: { name: 'ThreatFlagLog', version: '1', chainId: 11155111, verifyingContract: LOG }, types: { ListRoot: [{ name: 'root', type: 'bytes32' }, { name: 'version', type: 'uint64' }] }, primaryType: 'ListRoot', message: { root, version } });
-  const listURI = `https://raw.githubusercontent.com/easonchai/tocsin/main/docs/plan/demo/seed/${name.split('.')[0]}.list.json`;
   const record = encodeAbiParameters(recordType, [root, version, signature, listURI]);
   const json = (v) => JSON.parse(JSON.stringify(v, (_, x) => (typeof x === 'bigint' ? x.toString() : x)));
   writeFileSync(file, JSON.stringify({ name, trustList: json(trustList), labels: { [namehash(operator)]: operator }, root, version: version.toString(), signature, listURI, record, publishedAt: new Date().toISOString() }, null, 2) + '\n');
@@ -175,4 +175,4 @@ for (const name of [`${PARENT}.eth`, `core.${PARENT}.eth`, detectorName, ...clai
   console.log(`  ${name.padEnd(24)} addr ${a || 'none'}   ${KEY} ${t ? 'set (' + t.length + ' hex chars)' : 'none'}`);
 }
 console.log(`  subregistry ${hub} emancipated: ${state.emancipated}   dangerous root role held: ${state.dangerousRootRoleHeld}`);
-console.log('state written to scripts/ens/state.sepolia.json and claims.sepolia.json; commit them with docs/plan/demo/seed');
+console.log('state written to scripts/ens/state.sepolia.json and claims.sepolia.json; commit them with scripts/seed/data');

@@ -11,7 +11,7 @@ Loading Kohaku or the Snap in Chrome is the human's step on both paths. Hand it 
 
 Every check here runs on a fresh clone with public values and no keys. Run `yarn install` in `dapp/` once.
 
-- **The three beats, no browser.** From `dapp/`, export `RPC_URL=https://0xrpc.io/sep CHAIN_ID=11155111 LOG_ADDRESS=0xB639d15A0E7aE24E4C32E851Fbe0E57585565b14 LOG_FROM_BLOCK=12074077 LIST_DOCUMENT=$PWD/../docs/plan/demo/seed/core.list.json` and `LIST_RECORD` set to that document's `record` field. Then `yarn workspace @tocsin/infra eval 0x79fDaE13B1A677E5b8Ac9f5411F6664788A17537 --source rpc` prints `verdict block`. Start `yarn workspace @tocsin/infra lying-proxy` with the same env, and `eval 0xe25d04e7a7B357179eBf53b16f4C5304c6818fb9 --source proxy` prints `verdict unavailable, chain mismatch at sequence 93`.
+- **The three beats, no browser.** From `dapp/`, export `RPC_URL=https://0xrpc.io/sep CHAIN_ID=11155111 LOG_ADDRESS=0xB639d15A0E7aE24E4C32E851Fbe0E57585565b14 LOG_FROM_BLOCK=12074077 LIST_DOCUMENT=$PWD/../scripts/seed/data/core.list.json` and `LIST_RECORD` set to that document's `record` field. Then `yarn workspace @tocsin/infra eval 0x79fDaE13B1A677E5b8Ac9f5411F6664788A17537 --source rpc` prints `verdict block`. Start `yarn workspace @tocsin/infra lying-proxy` with the same env, and `eval 0xe25d04e7a7B357179eBf53b16f4C5304c6818fb9 --source proxy` prints `verdict unavailable, chain mismatch at sequence 93`.
 - **The deployed log is the committed source.** `cast code 0xB639d15A0E7aE24E4C32E851Fbe0E57585565b14 --rpc-url https://0xrpc.io/sep | cast keccak` prints the runtime code hash in the spec's Deployment section.
 - **Tests.** `forge test` in `dapp/packages/foundry`. `yarn workspace <name> test` for `@tocsin/reader`, `@tocsin/infra`, `@tocsin/extension` and the Snap (its name is in `dapp/packages/snap/package.json`).
 - **Judge checks.** The table at the end of `docs/operator.md` maps each prize check to the file, test or command that shows it.
@@ -58,7 +58,7 @@ The settled decisions below take precedence over ethskill advice. If they confli
 - No Chainlink CRE. The automated writer is a plain detector script with its own key, listed at warn weight.
 - Deploy with CREATE2 through `0x4e59b44847b379578588920cA78FbF26c0B4956C`, salt zero, so the address matches on every chain.
 - Upstream Kohaku does not route reads through Anon-RPC, so our patch adds it for Tocsin's reads only. Kohaku's own balance, gas and simulation reads still go direct.
-- `docs/plan/demo/seed/*.list.json` stays at that path: the live `tocsin.list` ENS records point at their raw GitHub URLs. Moving them means republishing the records with the maintainer key.
+- List documents live in `scripts/seed/data/<label>.list.json`. The `tocsin.list` records published before the move still point at the raw GitHub URLs under `docs/plan/demo/seed/`, so copies stay there until `node scripts/ens/setup-all.mjs` republishes each record with the new URL from its maintainer key. Delete `docs/plan/demo/` after that run.
 
 ## Vocabulary
 

@@ -5,7 +5,7 @@
 // leaf carries this chain's id, as in seed.ts, so it counts on a Sepolia send. Each writer signs, the relayer pays.
 // Needs CORE_WRITER_, BLOCKAID_ and SCAMSNIFFER_PRIVATE_KEY (scripts/.env) and RELAYER_PRIVATE_KEY (this package's .env).
 // Writes names-manifest.<chainId>.json after every tx, so a rerun skips what landed, and
-// docs/plan/demo/seed/demo-flags.sepolia.json: per list and subject label, the writer and the tx that flagged it.
+// scripts/seed/data/demo-flags.sepolia.json: per list and subject label, the writer and the tx that flagged it.
 import { readFile, writeFile } from "node:fs/promises";
 import { stdin, stdout } from "node:process";
 import { createInterface } from "node:readline/promises";
@@ -115,7 +115,7 @@ async function send(t: Target, relayer: Sender, account: Account, batch: string,
 
 /** tsv address -> label, the label cut at " (" as the demo page's test keys it. */
 async function tsvLabels(): Promise<Map<Address, string>> {
-  const tsv = await readFile(here("../../../../docs/plan/demo/test-addresses.tsv"), "utf8");
+  const tsv = await readFile(here("../../../../scripts/seed/data/test-addresses.tsv"), "utf8");
   return new Map(tsv.trim().split("\n").slice(1).map((line) => {
     const [address, , , label] = line.split("\t");
     return [getAddress(address!), label!.split(" (")[0]!];
@@ -216,7 +216,7 @@ async function main() {
     const label = labels.get(getAddress(l.args.leaf.subject));
     if (label) put(CORE, label, { writer: getAddress(seed.writers.detector), tx: detectorTx });
   }
-  const flagsPath = here(`../../../../docs/plan/demo/seed/demo-flags.${target.chainId === 11155111 ? "sepolia" : target.chainId}.json`);
+  const flagsPath = here(`../../../../scripts/seed/data/demo-flags.${target.chainId === 11155111 ? "sepolia" : target.chainId}.json`);
   await writeJson(flagsPath, out);
   console.log(`manifests written to ${path} and ${flagsPath}`);
 }

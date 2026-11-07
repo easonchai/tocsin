@@ -4,11 +4,11 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
 
-const docs = new URL("../../../../../docs/plan/demo/", import.meta.url);
+const seed = new URL("../../../../../scripts/seed/data/", import.meta.url);
 
 // Label column, cut at " (" so "fakeUSDC (symbol USDC, ...)" keys as "fakeUSDC".
 const table = new Map(
-  readFileSync(new URL("test-addresses.tsv", docs), "utf8")
+  readFileSync(new URL("test-addresses.tsv", seed), "utf8")
     .trim()
     .split("\n")
     .slice(1)
@@ -45,7 +45,7 @@ test("off-table subjects are unflagged and the fixed addresses match their sourc
   }
   assert.equal(REAL_USDC, table.get("realUSDC")?.address);
   assert.equal(FAKE_USDC, table.get("fakeUSDC")?.address);
-  const runbook = readFileSync(new URL("../../operator.md", docs), "utf8");
+  const runbook = readFileSync(new URL("../../../../../docs/operator.md", import.meta.url), "utf8");
   assert.match(runbook, new RegExp(`\\| Demo account \\| \`${DEMO_ACCOUNT}\``));
   assert.equal(SCENARIOS.find(s => s.id === "send-clean")?.subject, DEMO_ACCOUNT);
 });
