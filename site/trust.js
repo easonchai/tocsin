@@ -32,7 +32,8 @@
     var horizontal = matchMedia("(max-width: 900px)");
 
     function setBeat() {
-      var time = motion.matches ? duration : elapsed;
+      // The drawing runs 4x faster than the dwell, so it completes about 1.65 s into each step.
+      var time = (motion.matches ? duration : elapsed) * 4;
       var panel = panels[active];
       function clamp(value) {
         return Math.max(0, Math.min(1, value));
