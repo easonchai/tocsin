@@ -1023,7 +1023,7 @@ index 000000000..7a78fdc21
 +/** The Snap's cron interval (`*\/5 * * * *`). */
 +export const TOCSIN_SYNC_INTERVAL_MS = 5 * 60 * 1000
 +/** While a sign screen is open, so a flag added mid-confirmation shows (the Snap's panel watch). */
-+export const TOCSIN_SIGNING_SYNC_INTERVAL_MS = 10 * 1000
++export const TOCSIN_SIGNING_SYNC_INTERVAL_MS = 60 * 1000
 +
 +/** Assessments kept in memory for the synchronous getter. Never persisted. */
 +const MAX_CACHED_ASSESSMENTS = 100
