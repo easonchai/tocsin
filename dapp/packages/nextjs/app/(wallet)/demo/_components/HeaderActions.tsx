@@ -65,7 +65,7 @@ const InstallSnap = ({ onMessage }: { onMessage: (m?: Message) => void }) => {
         errorCode(e) === -32601
           ? "This wallet does not run Snaps. Connect MetaMask Flask."
           : errorCode(e) === 4001
-            ? "You rejected the install in the wallet."
+            ? "The wallet reported the install as rejected. If Flask showed a terms-of-use screen, open Flask from the toolbar, accept it there, then click Install Snap again."
             : SNAP_IS_LOCAL
               ? `${getParsedError(e)} Is the Snap server running at ${SNAP_ID.slice("local:".length)}?`
               : getParsedError(e),
