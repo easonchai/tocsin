@@ -48,7 +48,7 @@ bash dapp/packages/foundry/scripts-sh/deploy-sepolia.sh
 
 It prints the predicted address `0xB639d15A0E7aE24E4C32E851Fbe0E57585565b14` and waits for you to type `DEPLOY`. Put that address in `LOG_ADDRESS`. The deploy block is the `blockNumber` of the receipt in `dapp/packages/foundry/broadcast/Deploy.s.sol/11155111/run-latest.json`. It goes in `LOG_FROM_BLOCK`, and later in `TOCSIN_LOG_FROM_BLOCK` for both hosts.
 
-Done on 2026-11-06: the log is at the predicted address, deployed in block 12074077, verified on Sourcify and Etherscan, smoke-tested. Hashes are in log-contract ticket 06. On the public RPC, the script's Etherscan and smoke steps failed because the node lagged behind the deploy. If that happens, don't rerun the script. Wait a block and run the retry commands it prints from `dapp/packages/foundry`.
+Done on 2026-11-06: the log is at the predicted address, deployed in block 12074077, verified on Sourcify and Etherscan, smoke-tested. Deploy tx `0x10e8e5dab0c7571012fbdabddd9200bcedfb8fb68426452f1c5a55709e1061b8` (6,226,284 gas), smoke tx `0xeeced1917c1148e884ab95c8c6e41380c6e915df9ba125b1c77e95c2f28a8f2b` in block 12074089. On the public RPC, the script's Etherscan and smoke steps failed because the node lagged behind the deploy. If that happens, don't rerun the script. Wait a block and run the retry commands it prints from `dapp/packages/foundry`.
 
 ## 2. Seed
 
@@ -112,16 +112,16 @@ The detector appends on its own schedule, and each new leaf makes the detector's
 
 ## 4. ENS name and list record
 
-Two ENS paths exist, and both are current. `tocsin.eth` and its hub (the subregistry, the MirrorRegistrar, `core`, `detector` and the claimant subnames, the `tocsin.list` records, emancipation) live in `scripts/ens/setup-all.mjs`, run from the repo root with `scripts/.env`; `scripts/README.md` is its runbook. The `@tocsin/infra` commands below are what set up the two curator names, `harborwatch.eth` and `lanterndao.eth`, once per name with `ENS_NAME`, `ENS_WRITERS=feed=<address>` and that curator's maintainer in the env. Hashes for all three are in ticket 08's Comments. An earlier run of these commands for `tocsin.eth` landed on the June 2026 contract set, which the Universal Resolver does not read, and is superseded.
+Two ENS paths exist, and both are current. `tocsin.eth` and its hub (the subregistry, the MirrorRegistrar, `core`, `detector` and the claimant subnames, the `tocsin.list` records, emancipation) live in `scripts/ens/setup-all.mjs`, run from the repo root with `scripts/.env`; `scripts/README.md` is its runbook. The `@tocsin/infra` commands below are what set up the two curator names, `harborwatch.eth` and `lanterndao.eth`, once per name with `ENS_NAME`, `ENS_WRITERS=feed=<address>` and that curator's maintainer in the env. An earlier run of these commands for `tocsin.eth` landed on the June 2026 contract set, which the Universal Resolver does not read, and is superseded.
 
-The owner registers the team's name at sepolia.app.ens.domains first. If the app will not take payment, ticket 08's Comments give the `cast` path through `MockUSDC` and the ETHRegistrar. Then set `ENS_NAME`, `ENS_OWNER_PRIVATE_KEY`, `ENS_WRITERS=manual=<address>,detector=<address>`, `ENS_MAINTAINER`, and `MAINTAINER_PRIVATE_KEY` in `packages/infra/.env`.
+The owner registers the team's name at sepolia.app.ens.domains first. If the app will not take payment, use `cast` against `MockUSDC` and the ETHRegistrar (addresses in the README): `MockUSDC.mint(owner, 100e6)` (the mint is open), `approve(ETHRegistrar, 100e6)`, `makeCommitment(label, owner, secret, 0x0, 0x0, 31536000, 0x0)`, `commit`, wait 60 seconds, then `register(label, owner, secret, 0x0, 0x0, 31536000, MockUSDC, 0x0)`. A year cost 8 MockUSDC. Then set `ENS_NAME`, `ENS_OWNER_PRIVATE_KEY`, `ENS_WRITERS=manual=<address>,detector=<address>`, `ENS_MAINTAINER`, and `MAINTAINER_PRIVATE_KEY` in `packages/infra/.env`.
 
 ```sh
 yarn workspace @tocsin/infra ens-setup
 yarn workspace @tocsin/infra ens-publish list - < list-record.hex
 ```
 
-`ens-setup` deploys the permissioned resolver and the user registry, mounts the subregistry, registers `manual` and `detector` as subnames with their addresses, grants the maintainer `setText` on the two list keys, and sets the manual writer's reverse name. A second run reuses what exists. `ens-publish` sends from the maintainer key. Paste every printed hash into ticket 08's Comments.
+`ens-setup` deploys the permissioned resolver and the user registry, mounts the subregistry, registers `manual` and `detector` as subnames with their addresses, grants the maintainer `setText` on the two list keys, and sets the manual writer's reverse name. A second run reuses what exists. `ens-publish` sends from the maintainer key.
 
 ## 5. Relayer and detector
 
@@ -139,7 +139,18 @@ The detector, in its own terminal:
 yarn workspace @tocsin/infra detect
 ```
 
-It needs `DETECTOR_PRIVATE_KEY` and `RELAYER_PRIVATE_KEY`. For the demo set `DETECTOR_PREFIX_HEX=3` and `DETECTOR_SUFFIX_HEX=3`, because a 4 and 4 lookalike takes about 2^32 tries to grind. Ticket 09's Comments list the `cast` steps that plant a lookalike dust transfer for it to catch. Send them from keystore accounts with `--account`, not `--private-key`.
+It needs `DETECTOR_PRIVATE_KEY` and `RELAYER_PRIVATE_KEY`. For the demo set `DETECTOR_PREFIX_HEX=3` and `DETECTOR_SUFFIX_HEX=3`, because a 4 and 4 lookalike takes about 2^32 tries to grind.
+
+To plant a lookalike dust transfer for it to catch, pick a victim `V` (the demo account) and a counterparty `C` you control, such as the manual writer. Send from keystore accounts with `--account`:
+
+```sh
+cast send --account <V> <C> --value 0.001ether --rpc-url $RPC_URL
+cast wallet vanity --starts-with <hex chars 1-3 of C, no 0x> --ends-with <last 3 hex chars of C>
+cast send --account <manual writer> <L from vanity> --value 0.001ether --rpc-url $RPC_URL
+cast send --private-key <L key from vanity> <V> --value 1000wei --rpc-url $RPC_URL
+```
+
+Pass the hex in lowercase, since the detector compares in lowercase. L is a throwaway whose key exists only in that shell, so keep it out of the repo. Within 5 minutes the detector prints `queued <L> (tx) dust <hash>`, then `relayed 1 leaves in <tx>`. That tx's event log on Sepolia Etherscan shows one `Appended` event with the detector as writer, subject L, category 1, and the dust hash as evidence.
 
 ## 6. The three beats at the command line
 
@@ -172,7 +183,9 @@ TOCSIN_LIST_NAME=<team name> TOCSIN_LOG_FROM_BLOCK=<deploy block> yarn workspace
 yarn workspace @tocsin/extension test
 ```
 
-`TOCSIN_TRANSPORT` is `tor` by default. Set it to `nym`, or to `direct` if the venue network blocks both. `direct` is not anonymised and the overlay says so. `TOCSIN_LIST_RECORD` works as in the Snap. The RPC and consensus endpoints come from `packages/nextjs/.env.local`. The Sepolia execution RPC depends on the transport, as in step 9. Rebuild after changing it, because the build bakes it in. Tor needs the local gateway running (`./demo.sh` starts it, or run `tor-js-gateway` yourself) and `NEXT_PUBLIC_HARNESS_TOR_GATEWAYS=127.0.0.1:12298:<the certhash it prints>` in `packages/nextjs/.env.local`. Load `packages/extension/dist` unpacked at `chrome://extensions`. Ticket 13's Comments give the acceptance steps.
+`TOCSIN_TRANSPORT` is `tor` by default. Set it to `nym`, or to `direct` if the venue network blocks both. `direct` is not anonymised and the overlay says so. `TOCSIN_LIST_RECORD` works as in the Snap. The RPC and consensus endpoints come from `packages/nextjs/.env.local`. The Sepolia execution RPC depends on the transport, as in step 9. Rebuild after changing it, because the build bakes it in. Tor needs the local gateway running (`./demo.sh` starts it, or run `tor-js-gateway` yourself) and `NEXT_PUBLIC_HARNESS_TOR_GATEWAYS=127.0.0.1:12298:<the certhash it prints>` in `packages/nextjs/.env.local`. Load `packages/extension/dist` unpacked at `chrome://extensions`.
+
+To check it: under Inspect views on the Tocsin card, open `offscreen.html`. Its Network tab should never show a direct request to the Sepolia execution host with `tor` or `nym`. Then, from the DevTools console of any https page, send to the drainer receiver: `const [from] = await ethereum.request({ method: "eth_requestAccounts" })`, then `await ethereum.request({ method: "eth_sendTransaction", params: [{ from, to: "0x79fDaE13B1A677E5b8Ac9f5411F6664788A17537", value: "0x0" }] })`. The block overlay shows writer, category and evidence, and MetaMask stays closed. Stop returns error 4001. The override unlocks after a 5-second countdown and then opens MetaMask.
 
 ## 9. The harness page
 
@@ -195,28 +208,27 @@ Set the Sepolia execution RPC by transport (`NEXT_PUBLIC_HARNESS_SEPOLIA_EXECUTI
 Run after steps 1 to 4 and 7. The offline version is the `walkaway` test in `packages/snap/test/bundle.test.ts`.
 
 1. On the Snap's home page, press Sync now, and check that the drainer receiver is blocked.
-2. Take the team away. Clear the `erc-threat-flag-log.list` text record on the team's name at sepolia.app.ens.domains, and take `site/` offline.
+2. Take the team away. Clear the `tocsin.list` text record on the team's name at sepolia.app.ens.domains, and take `site/` offline.
 3. Press Sync now. Check that the list card reads "Last check: stale", the maintainer is unchanged, and no writer row is in warning.
 4. Send to `0x79fDaE13B1A677E5b8Ac9f5411F6664788A17537` and check for "Blocked" with the writer shown as a short address.
-5. Repeat with the extension: reload it, wait for sync, and send from a page console as in ticket 13, step 6.
+5. Repeat with the extension: reload it, wait for sync, and send from a page console as in step 8.
 6. Restore with `yarn workspace @tocsin/infra ens-publish list - < list-record.hex` and redeploy `site/`.
 
 ## Judge checks
 
-From the spec's "Judge checks, by prize". Written when Kohaku was still a diagram; Kohaku now carries the Anon-RPC and ENS checks too (`dapp/packages/kohaku/README.md`).
+Each check from the spec's "Judge checks, by prize", and where to see it. Kohaku carries the Anon-RPC and ENS checks too: `dapp/packages/kohaku/README.md`.
 
-| Check | Where it is shown | State |
-| --- | --- | --- |
-| Anon-RPC: worker bootstrapped through Helios, hash checked by the light client | `bootstrapAnonRpc` in `packages/nextjs/utils/harness/anonHelios.ts`. The `/harness` page log prints the matched hash. The extension's `src/offscreen.ts` calls the same function | Ran on the harness page over Tor and Nym. Not yet run in the extension |
-| Anon-RPC: transport in use is visible | The `/harness` page names the transport that served each read. The extension overlay prints "RPC traffic through the tor Anon-RPC worker" and names the reads it fetches directly, or the `direct` warning. There is no settings page | Harness verified. Extension not run |
-| Anon-RPC: passthrough specifier absent | `SPECIFIERS` in `anonHelios.ts` holds `tor` and `nym` only. `rg -i passthrough dapp/packages/nextjs/utils/harness dapp/packages/extension/src` finds one comment and no address | Verified in source |
-| Anon-RPC: the proof covers only the pinned writers | `sync` in `packages/reader/src/sync.ts` proves the union of list writers. Test "is one request covering only the pinned writers" in `packages/reader/test/sync.test.ts` | Tested |
-| Anon-RPC: the Snap makes no claim | Panel footer in `packages/snap/src/ui.tsx`. The beat 1 test in `packages/snap/test/bundle.test.ts` asserts "unverified" and "the RPC is not anonymised" | Tested on the built bundle |
-| CROPS: README matches the code | README, "CROPS" | This ticket |
-| CROPS: no team-run backend in any host | No host has a server of ours. The only team-run service is the static `site/` host, and the reader verifies what it serves | Verified in source |
-| CROPS: override is local | Extension: `src/report.ts` and `src/overlay.ts`, override after 5 s, covered by `test/report.test.ts`. Snap: MetaMask's own confirm button. Demo: ticket 13 step 6 | Tested. Browser run pending |
-| CROPS: lists pinned by maintainer signature | `acceptList` in `packages/reader/src/lists/index.ts` with `test/lists.test.ts`. The maintainer-change dialog tests in `packages/snap/test/bundle.test.ts`. Demo: ticket 12 step 7 | Tested. Browser run pending |
-| CROPS: walkaway test | The `walkaway` test in `packages/snap/test/bundle.test.ts`. Live: step 10 above | Offline test passes. Live run pending |
-| ENS: name is a subregistry, writers are subnames, record in a permissioned resolver, EAC grants the publish role | `packages/infra/src/ens-setup.ts`, step 4 above. Rehearsed on an anvil fork of Sepolia in ticket 08, where the manual writer's key was refused with `EACUnauthorizedAccountRoles` | Fork rehearsal only. Live transaction hashes pending |
-| ENS: record read through Helios `eth_call` with CCIP-read off | `resolveListRecord` in `packages/reader/src/ens.ts` calls `resolveWithGateways` with no gateways. The extension sends that call through Helios. The Snap sends it to its RPC, and its tests assert the gateway list is empty | Tested. Kohaku is a diagram, so the extension carries this check |
-| ENS: did the plain text record fallback trigger | No. That is the spec's step-4 fallback, which ticket 14 calls step 8. ENSv2, the permissioned resolver, and Enhanced Access Control are live on Sepolia, with addresses in ticket 08's Comments. The prize stays claimable once step 4 runs live | Settled |
+| Check | Where it is shown |
+| --- | --- |
+| Anon-RPC: worker bootstrapped through Helios, hash checked by the light client | `bootstrapAnonRpc` in `packages/nextjs/utils/harness/anonHelios.ts`. The `/harness` page log prints the matched hash. The extension's `src/offscreen.ts` and Kohaku's offscreen page call the same function |
+| Anon-RPC: transport in use is visible | The `/harness` page names the transport that served each read. The extension overlay prints "RPC traffic through the tor Anon-RPC worker" and names the reads it fetches directly, or the `direct` warning |
+| Anon-RPC: passthrough specifier absent | `SPECIFIERS` in `anonHelios.ts` holds `tor` and `nym` only. `rg -i passthrough dapp/packages/nextjs/utils/harness dapp/packages/extension/src` finds one comment and no address |
+| Anon-RPC: the proof covers only the pinned writers | `sync` in `packages/reader/src/sync.ts` proves the union of list writers. Test "is one request covering only the pinned writers" in `packages/reader/test/sync.test.ts` |
+| Anon-RPC: the Snap makes no claim | Panel footer in `packages/snap/src/ui.tsx`. The beat 1 test in `packages/snap/test/bundle.test.ts` asserts "unverified" and "the RPC is not anonymised" |
+| CROPS: no team-run backend in any host | No host has a server of ours. The only team-run service is the static `site/` host, and the reader verifies what it serves |
+| CROPS: override is local | Extension: `src/report.ts` and `src/overlay.ts`, override after 5 s, covered by `test/report.test.ts`. Snap: MetaMask's own confirm button. Demo: the console send in step 8 |
+| CROPS: lists pinned by maintainer signature | `acceptList` in `packages/reader/src/lists/index.ts` with `test/lists.test.ts`. The maintainer-change dialog tests in `packages/snap/test/bundle.test.ts`. Demo: sign a higher version with a second maintainer key and sync. The list card shows "Maintainer changed" with a Review button, and its flags stay excluded until the user accepts |
+| CROPS: walkaway test | The `walkaway` test in `packages/snap/test/bundle.test.ts`. Live: step 10 above |
+| ENS: name is a subregistry, writers are subnames, record in a permissioned resolver, EAC grants the publish role | `scripts/ens/setup-all.mjs` for the `tocsin.eth` hub, `packages/infra/src/ens-setup.ts` for single names (step 4). On an anvil fork of Sepolia, `ens-setup` refused the manual writer's key with `EACUnauthorizedAccountRoles` |
+| ENS: record read through `eth_call` with CCIP-read off | `resolveListRecord` in `packages/reader/src/ens.ts` calls `resolveWithGateways` with no gateways. The extension sends that call through Helios. The Snap sends it to its RPC, and its tests assert the gateway list is empty |
+| ENS: no plain text record fallback | ENSv2, the permissioned resolver and Enhanced Access Control are live on Sepolia, with addresses in the README's "Addresses" |

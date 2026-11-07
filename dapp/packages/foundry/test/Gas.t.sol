@@ -5,10 +5,10 @@ import { console } from "forge-std/Test.sol";
 import { LogBase } from "./utils/LogBase.sol";
 import { IThreatFlagLog } from "../contracts/IThreatFlagLog.sol";
 
-/// @notice Ticket 04: gas snapshots in snapshots/ThreatFlagLog.json, the source of the README's per-flag figure.
+/// @notice Gas snapshots in snapshots/ThreatFlagLog.json, the source of the README's per-flag figure.
 /// Each test runs on a fresh log with a fresh writer, so every storage write is zero to non-zero (worst case).
 /// The snapshot value already includes the 21000 base and calldata: it equals the receipt gasUsed of the same
-/// transaction sent to anvil (checked 2026-11-06, see ticket 04 Comments). The logs split it into parts.
+/// transaction sent to anvil (checked 2026-11-06). The logs split it into parts.
 contract GasTest is LogBase {
     string internal constant GROUP = "ThreatFlagLog";
 

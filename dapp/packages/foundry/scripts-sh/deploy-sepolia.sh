@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Ticket 06, one command for Sepolia: go/no-go gate, CREATE2 deploy with Etherscan verification,
+# One command for Sepolia: go/no-go gate, CREATE2 deploy with Etherscan verification,
 # Sourcify verification, smoke append, then reads of the result from the chain.
 #
 # Reads from packages/foundry/.env or the shell:
@@ -39,7 +39,7 @@ node --input-type=module -e "await import('prettier')" 2>/dev/null \
 chain_id=$(cast chain-id)
 [ "$chain_id" = "$SEPOLIA_CHAIN_ID" ] || fail "SEPOLIA_RPC_URL answers chain id $chain_id, not $SEPOLIA_CHAIN_ID"
 
-echo "-- Tests from tickets 01 and 02"
+echo "-- Normative and boundary tests"
 test_out=$(forge test --match-contract 'NormativeCasesTest|Boundaries' 2>&1) || { echo "$test_out"; fail "tests failed"; }
 for suite in test/NormativeCases.t.sol:NormativeCasesTest test/Boundaries.t.sol:Boundaries; do
   grep -qF "tests for $suite" <<<"$test_out" || { echo "$test_out"; fail "suite $suite did not run; is it missing?"; }

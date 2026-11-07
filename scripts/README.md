@@ -39,7 +39,7 @@ Other scripts:
 
 ## The MirrorRegistrar
 
-`scripts/ens/contracts/MirrorRegistrar.sol`. `claim(label, resolver)` succeeds only when `ETHRegistry.findOwner(label)` is the caller; the subname's expiry copies the `.eth` name's, and anyone can `sync(label)` after a renewal. Spec: `docs/plan/demo/issues/15-mirror-registrar.md`. Tests, against a fork of the live contracts:
+`scripts/ens/contracts/MirrorRegistrar.sol`. `claim(label, resolver)` succeeds only when `ETHRegistry.findOwner(label)` is the caller; the subname's expiry copies the `.eth` name's, and anyone can `sync(label)` after a renewal. Tests, against a fork of the live contracts:
 
 ```
 forge test --root scripts/ens --fork-url $SEPOLIA_RPC --fork-block-number <recent>

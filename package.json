@@ -6,22 +6,16 @@
     "site": "python3 -m http.server 8731 --directory site"
   },
   "version": "1.0.0",
-  "description": "Herd immunity for Ethereum. An append-only log of scam infrastructure that lives in Ethereum state, that anyone can write to under their own name, and that a wallet can check through a light client without trusting an RPC, an explorer, or a security vendor.",
-  "main": "index.js",
-  "directories": {
-    "doc": "docs"
-  },
+  "description": "An append-only log of scam infrastructure on Ethereum that any light-client wallet verifies without trusting an RPC, an explorer, or a security vendor.",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/easonchai/antibody.git"
+    "url": "git+https://github.com/easonchai/tocsin.git"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
-    "url": "https://github.com/easonchai/antibody/issues"
+    "url": "https://github.com/easonchai/tocsin/issues"
   },
-  "homepage": "https://github.com/easonchai/antibody#readme",
+  "homepage": "https://tocsin-eth.vercel.app",
   "dependencies": {
     "viem": "^2.57.16"
   }

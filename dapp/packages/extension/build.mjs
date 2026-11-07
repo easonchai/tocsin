@@ -1,6 +1,6 @@
 // Bundles the extension into dist/ with the esbuild already installed under the Next.js package,
 // so it needs no new dependency and no workspace link. Helios, the Anon-RPC harness and viem
-// resolve from the Next.js package's node_modules, where ticket 01's harness gets them too.
+// resolve from the Next.js package's node_modules, where the /harness page gets them too.
 //
 // Settings are read at build time from the shell, then from packages/nextjs/.env.local (the
 // harness page's file, so the same RPCs serve both). An RPC URL with an API key ends up in

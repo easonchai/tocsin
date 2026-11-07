@@ -5,7 +5,7 @@ import { LogBase } from "./utils/LogBase.sol";
 import { OwnerWallet, FixedWallet, RevertingWallet, PlainDelegate } from "./utils/Mocks.sol";
 import { IThreatFlagLog } from "../contracts/IThreatFlagLog.sol";
 
-/// @notice Ticket 02: one test per accept/reject rule at the log's boundaries. Each accepted batch is checked
+/// @notice One test per accept/reject rule at the log's boundaries. Each accepted batch is checked
 /// against a test-side leaf hash and head; each rejected one asserts the exact revert reason.
 contract BoundariesTest is LogBase {
     uint256 internal constant SECP256K1_N = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141;

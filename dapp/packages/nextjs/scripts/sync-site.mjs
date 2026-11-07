@@ -57,6 +57,7 @@ for (const [from, to] of [
   ["design/screens/cover-1280x720.png", "og.png"],
   ["design/screens/logo-512.png", "icon-512.png"],
   ["design/kit/favicon.svg", "favicon.svg"],
+  ["site/llms.txt", "llms.txt"],
 ])
   await copy(from, `public/${to}`);
 console.log("Synced canonical site content, styles, scripts and assets.");

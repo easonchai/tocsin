@@ -14,7 +14,7 @@ interface IPermissionedRegistry {
 /// @notice Issues `<label>.tocsin.eth` to whoever owns `<label>.eth`, with the same expiry. Anyone can re-sync an
 ///         expiry after the `.eth` name is renewed. No owner, no allowlist, no fee, nothing to upgrade.
 /// @dev Needs ROLE_REGISTRAR and ROLE_RENEW on the hub registry's ROOT_RESOURCE. Everything else about the hub should
-///      be emancipated: see docs/plan/demo/issues/15-mirror-registrar.md.
+///      be emancipated: see "How the hub is wired on ENSv2" in the README.
 contract MirrorRegistrar {
     IPermissionedRegistry public immutable ETH_REGISTRY; // the ENSv2 .eth registry
     IPermissionedRegistry public immutable HUB;          // tocsin.eth's own subregistry
