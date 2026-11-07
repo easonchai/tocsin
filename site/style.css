@@ -277,10 +277,10 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--signal); outlin
 .kohaku-block { margin-top: 48px; }
 .kohaku-title { font-size: 28px; margin-bottom: 24px; text-align: center; }
 .kohaku-previews { display: grid; grid-template-columns: repeat(2,minmax(0,440px)); justify-content: center; gap: 24px; }
-.kohaku-previews figure { margin: 0; min-width: 0; }
-.kohaku-crop { display: block; overflow: hidden; border: var(--hair-strong); border-radius: 12px; background: var(--ink-900); aspect-ratio: 1095 / 1010; } /* top of the window through the verdict panel; the theft crop matches */
+.kohaku-previews figure { margin: 0; min-width: 0; align-self: start; }
+.kohaku-crop { display: block; overflow: hidden; border: var(--hair-strong); border-radius: 12px; background: var(--ink-900); aspect-ratio: 1095 / 1340; } /* the whole Kohaku window, down to Reject and Sign */
 .kohaku-crop img { display: block; max-width: none; width: 233.789954%; height: auto; margin-left: -133.789954%; }
-.kohaku-crop.theft { aspect-ratio: 1075 / 925; }
+.kohaku-crop.theft { aspect-ratio: 1075 / 1460; }
 .kohaku-crop.theft img { width: 238.139535%; margin-left: -138.139535%; }
 .kohaku-previews figcaption, .capture-note { font-size: 12px; line-height: 1.6; color: var(--ink-400); margin: 16px 0 0; }
 .kohaku-previews figcaption strong { color: var(--paper-200); font-weight: 500; }
