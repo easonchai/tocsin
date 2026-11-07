@@ -25,6 +25,7 @@
       <a href="#how">How it works</a>
       <a href="#lists">Trust lists</a>
       <a href="#stack">Integrations</a>
+      <a href="https://github.com/easonchai/tocsin/blob/main/docs/spec/threat-flag-log.md">Spec ↗</a>
       <a href="https://github.com/easonchai/tocsin">GitHub ↗</a>
     </div>
     <a class="btn signal" href="https://tocsin-eth.vercel.app/demo">Try the demo <span class="arrow" aria-hidden="true">↗</span></a>
@@ -35,7 +36,7 @@
 <header class="hero" id="top">
   <div class="left">
     <h1>Scam warnings, verified on chain.</h1>
-    <p class="tag">Flagged on an open log. Verified by your wallet. Checked on your device before you sign.</p>
+    <p class="tag">Flagged on an open append-only log. Verifiable by your wallet. Checked on your device before you sign.</p>
     <div class="ctas">
       <a class="btn signal" href="https://tocsin-eth.vercel.app/demo">Try the Sepolia demo <span class="arrow" aria-hidden="true">↗</span></a>
       <a class="btn" href="#how">How it works</a>
@@ -45,7 +46,7 @@
   <div class="right">
     <div class="term" id="term">
       <div class="term-bar"><span class="dot live" aria-hidden="true"></span><span>when a data provider hides a flag</span><button class="replay" id="replay" type="button">Replay</button></div>
-      <div class="term-context">Protocol illustration · independently verified Ethereum header</div>
+      <div class="term-context">Simulation</div>
       <div class="term-body" id="term-body"></div>
       <div class="term-foot" id="term-foot"></div>
     </div>
@@ -55,7 +56,7 @@
 <section id="problem" class="sec problem" aria-labelledby="problem-title">
   <div class="sec-head">
     <div><div class="label">01 · The problem</div><h2 id="problem-title">One wrong address.<br>Very real money.</h2></div>
-    <p class="lede">A lookalike in your transaction history. A malicious approval on a familiar site. The warning needs to reach you before the signature does.</p>
+    <p class="lede">Scammers plant lookalike addresses in your history and get you to approve contracts that drain you. A wallet has one chance to warn you: before you sign.</p>
   </div>
   <div class="incidents">
     <article class="incident">
@@ -75,13 +76,13 @@
   </div>
   <div class="dependency">
     <div>
-      <div class="label">The dependency behind the warning</div>
+      <div class="label">The weakest link</div>
       <h3>What if the service you ask is the part that gets compromised?</h3>
     </div>
     <div>
-      <p>A sophisticated attacker doesn't have to break Ethereum. Control a security API or RPC response, and they can omit a known flag or show one target a different answer. A label alone gives the wallet no proof that the record is complete.</p>
+      <p>A sophisticated attacker doesn't have to break Ethereum. All they need is to control a security API or RPC response, and they can omit a known malicious address or show one target a different answer. But a label alone gives the wallet no proof that the record is complete.</p>
       <p>The supply-chain risk is real: malicious Ledger Connect Kit releases reached dapps through a compromised publishing account in December 2023. <a class="source inline" href="https://www.ledger.com/blog/security-incident-report">Read Ledger's incident report ↗</a></p>
-      <p class="dependency-answer">Tocsin addresses the data side: verify the published record against Ethereum, then decide locally.</p>
+      <p class="dependency-answer">Tocsin addresses the data side: verify the published record against Ethereum, and decide locally.</p>
     </div>
   </div>
 </section>
@@ -256,7 +257,7 @@
   <div class="sec-head"><div class="label">06 · Questions</div><h2 id="faq-title">Know what you're trusting.</h2></div>
   <div class="rows">
     <div class="r"><h3 class="q">Is this trustless?</h3><p>The full light-client path removes the data provider's authority over the answer. It still relies on Ethereum consensus, the light client's checkpoint, your wallet software and the writers and maintainers you choose. Proof of publication is not proof that a report is correct.</p></div>
-    <div class="r"><h3 class="q">What about a brand-new scam address?</h3><p>No flag doesn't mean safe. Tocsin distributes published reports about known infrastructure, including poisoning operators and drainer receivers. Fresh lookalikes still need local checks and new threats still need detection.</p></div>
+    <div class="r"><h3 class="q">What about a brand-new scam address?</h3><p>No flag doesn't mean safe. Tocsin distributes published reports about known infrastructure, including poisoning operators and drainer receivers. Fresh lookalikes still need local checks and new threats still need detection. That is why the list has to be decentralised: anyone who runs their own list can run agents that watch for new scams, including a personal agent that watches for you.</p></div>
     <div class="r"><h3 class="q">Can someone remove a flag or correct a mistake?</h3><p>History cannot be deleted. A writer can append a correction that withdraws its flag, and your wallet updates the verdict while retaining the record. You can stop following a writer or override a block locally.</p></div>
     <div class="r"><h3 class="q">Is this an Ethereum standard?</h3><p>Tocsin has an open, CC0 specification and a reference contract. It is a draft project specification, not an accepted Ethereum standard. Anyone can build a compatible reader or publish their own trust list.</p></div>
   </div>
@@ -268,7 +269,7 @@
 </main>
 
 <footer>
-  <div class="foot-row"><a class="wordmark" href="#top"><span class="mark" role="img" aria-label="bell">🔔</span>tocsin</a><div class="foot-links"><a href="https://github.com/easonchai/tocsin">GitHub</a><a href="https://t.me/tocsin_eth">Telegram</a><a href="https://x.com/tocsin_eth">X</a><a href="claim.html">Claim a name</a><a href="#top">Back to top ↑</a></div></div>
+  <div class="foot-row"><a class="wordmark" href="#top"><span class="mark" role="img" aria-label="bell">🔔</span>tocsin</a><div class="foot-links"><a href="https://github.com/easonchai/tocsin/blob/main/docs/spec/threat-flag-log.md">Spec</a><a href="https://github.com/easonchai/tocsin">GitHub</a><a href="https://t.me/easonchaiii">Telegram</a><a href="https://x.com/easonchaiii">X</a><a href="claim.html">Claim a name</a><a href="#top">Back to top ↑</a></div></div>
   <p class="note">Built at Devcon 8 and ETHGlobal Mumbai, November 2026. Open source. Sepolia deployment. CC0 specification.</p>
 </footer>
 

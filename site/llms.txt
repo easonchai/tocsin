@@ -14,7 +14,7 @@ Everything is on Sepolia. Nothing is on mainnet yet.
 - [Spec](https://github.com/easonchai/tocsin/blob/main/docs/spec/threat-flag-log.md): contract interface, leaf and trust-list encoding, light-client read procedure, reader policy
 - [AGENTS.md](https://github.com/easonchai/tocsin/blob/main/AGENTS.md): setup, how to verify each claim, settled decisions
 - [Runbook](https://github.com/easonchai/tocsin/blob/main/RUNBOOK.md): the three demo beats in Kohaku and the Snap
-- [Wallet integrations](https://github.com/easonchai/tocsin/blob/main/docs/wallet-integrations.md): what each host proves
+- [Spec](https://github.com/easonchai/tocsin/blob/main/docs/spec/threat-flag-log.md): the log, the reader and trust lists
 
 ## Optional
 

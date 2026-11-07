@@ -10,32 +10,14 @@
     var replay = document.getElementById("replay");
     var reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
     var lines = [
-      ["01", "choose", "Load the writers from your signed trust list."],
-      [
-        "02",
-        "prove",
-        "Check their record fingerprints against a light-client-verified block.",
-      ],
-      [
-        "03",
-        "replay",
-        "The provider left out a flag. The fingerprints do not match.",
-      ],
-      [
-        "04",
-        "stop",
-        '<span class="trace-alert">Unverifiable.</span> No all-clear from incomplete data.',
-      ],
-      [
-        "05",
-        "retry",
-        "Fetch from another source. Replay matches the proven record.",
-      ],
-      [
-        "06",
-        "check",
-        "A writer you allow to block has flagged this recipient.",
-      ],
+      ["00.00", "wallet", "send 1 ETH to <span class=\"k\">0x79fD…7537</span>"],
+      ["00.01", "lists", "core.tocsin.eth · blockaid.tocsin.eth · scamsniffer.tocsin.eth"],
+      ["00.02", "helios", "finalized header · slot 11,482,207 · sync committee 512/512"],
+      ["00.03", "proof", "eth_getProof(log, writer heads) · 6.9 kB · matches stateRoot"],
+      ["00.04", "rpc", "getLogs core → 92 flags · <span class=\"trace-bad\">sequence 93 missing</span>", "bad"],
+      ["00.05", "replay", "head 0x4d01… ≠ proven 0x9c4e… · <span class=\"trace-alert\">core unverifiable</span>"],
+      ["00.06", "retry", "same flags from a mirror → 93 flags · head 0x9c4e… ✓"],
+      ["00.07", "check", "<span class=\"k\">0x79fD…7537</span> → DRAINER_RECEIVER · flagged by 3/3 · evidence 0x3799…"],
     ];
     var lineTimer, idleTimer;
     function run() {
@@ -53,10 +35,10 @@
           var verdict = document.createElement("div");
           verdict.className = "verdict";
           verdict.innerHTML =
-            "<b>Blocked.</b> The warning survives a dishonest provider.";
+            "<b>Blocked.</b> Drainer receiver, flagged by core, Blockaid and Scam Sniffer.";
           body.appendChild(verdict);
           foot.textContent =
-            "Verify the record. Apply your policy. Keep the check local.";
+            "The RPC hid a flag. The wallet caught it, and never said clean.";
           replay.disabled = false;
           dot.className = "dot blocked";
           rf.setState("blocked");
@@ -73,14 +55,14 @@
         row.innerHTML =
           '<span class="t">' +
           line[0] +
-          '</span><span class="src">' +
+          '</span><span class="src' + (line[3] ? " rpc" : "") + '">' +
           line[1] +
           '</span><span class="msg">' +
           line[2] +
           "</span>";
         body.appendChild(row);
         if (reduced) next();
-        else lineTimer = setTimeout(next, 550);
+        else lineTimer = setTimeout(next, i === 5 ? 900 : 480);
       }
       next();
     }

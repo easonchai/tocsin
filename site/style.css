@@ -165,6 +165,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--signal); outlin
 .term-body .verdict { margin-top: 20px; }
 .term-bar .replay:disabled { color: var(--ink-400); cursor: default; }
 .trace-alert, .how strong { color: var(--signal); font-weight: 500; }
+.trace-bad { color: var(--alert); }
 .text-link { font-size: 14px; font-weight: 500; text-underline-offset: 5px; }
 .text-link:hover, .source:hover, .section-note a:hover { text-decoration: underline; }
 .section-note { color: var(--ink-400); font-size: 12px; line-height: 1.7; margin: 24px 0 0; max-width: 94ch; }
@@ -348,3 +349,5 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--signal); outlin
   .term-body .ln, .term-body .verdict { animation: none; opacity: 1; transform: none; }
   .tv-reveal { transition: none; }
 }
+.term-body .ln { grid-template-columns: 44px 52px minmax(0, 1fr); }
+@media (max-width: 480px) { .term-body .ln { grid-template-columns: 50px minmax(0, 1fr); } .term-body .ln .t { display: none; } }
